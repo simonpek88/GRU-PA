@@ -17,12 +17,22 @@
 					"line": 345,
 					"column": 17,
 					"label": "task_input"
+				},
+				{
+					"line": 386,
+					"column": 18,
+					"label": "output_word"
 				}
 			]
 		},
 		{
 			"path": "etest.py",
 			"bookmarks": [
+				{
+					"line": 615,
+					"column": 17,
+					"label": "questoWord"
+				},
 				{
 					"line": 3667,
 					"column": 30,

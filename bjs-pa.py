@@ -1,5 +1,6 @@
 # coding utf-8
 import datetime
+import os
 import re
 import time
 
@@ -349,15 +350,15 @@ def task_input():
     st.markdown(f"#### 用户: {st.session_state.userCName}")
     task_date = st.date_input('工作时间', value=datetime.date.today())
     confirm_btn_input = st.button("确认录入")
-    tasks, ttl_score = '', 0
+    ttl_score = 0
     sql = f"SELECT clerk_work, task_score, task_group from clerk_work where clerk_id = {st.session_state.userID} and task_date = '{task_date}'"
     result = execute_sql(cur, sql)
     if result:
+        st.markdown("##### 已输入工作量:\n\n")
         for row in result:
-            tasks = tasks + '工作类型:' + row[2] + ' 内容:' + row[0] + ' 分值:' + str(row[1]) + '\n\n'
+            st.markdown(f'###### :violet[工作类型:] {row[2]} :orange[内容:] {row[0]} :green[分值:] {row[1]}')
             ttl_score += row[1]
-        st.write(f"已输入工作量:\n\n{tasks}\n\n总分:{ttl_score}")
-        #st.text_area("已输入工作量:", tasks, height=100)
+        st.markdown(f'##### :red[总分:] {ttl_score}')
     sql = "SELECT DISTINCT(task_group) from bjs_pa"
     rows = execute_sql(cur, sql)
     for row in rows:
@@ -374,13 +375,91 @@ def task_input():
                 sql = f"SELECT pa_content, pa_score, task_group from bjs_pa where ID = {task_id}"
                 task_result = execute_sql(cur, sql)
                 task_content, task_score, task_group = task_result[0]
-                sql = f"SELECT ID from clerk_work where task_date = '{task_date}' and clerk_id = {st.session_state.userID} and clerk_work = '{task_content}' and task_group = {task_group}'"
+                sql = f"SELECT ID from clerk_work where task_date = '{task_date}' and clerk_id = {st.session_state.userID} and clerk_work = '{task_content}' and task_group = '{task_group}'"
                 if not execute_sql(cur, sql):
                     sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group) VALUES ('{task_date}', {st.session_state.userID}, '{st.session_state.userCName}', '{task_content}', {task_score}, '{task_group}')"
                     execute_sql_and_commit(conn, cur, sql)
                     st.toast(f"工作量: [{task_content}] 添加成功！")
                 else:
                     st.warning(f"工作量: [{task_content}] 已存在！")
+
+
+def output_word():
+    st.markdown("### <font face='微软雅黑' color=red><center>工作量查询</center></font>", unsafe_allow_html=True)
+    st.markdown(f"#### 用户: {st.session_state.userCName}")
+    col1, col2 = st.columns(2)
+    query_date_start = col1.date_input('查询开始时间', value=datetime.date.today())
+    query_date_end = col2.date_input('查询结束时间', value=datetime.date.today())
+    buttonSubmit = st.button("导出为Word文件")
+    if buttonSubmit:
+        headerFS = 16
+        contentFS = 12
+        quesDOC = Document()
+        quesDOC.styles["Normal"].font.name = "Microsoft YaHei"
+        quesDOC.styles["Normal"]._element.rPr.rFonts.set(qn("w:eastAsia"), "Microsoft YaHei")
+        pHeader = quesDOC.add_paragraph()
+        pHeader.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        textHeader = pHeader.add_run(f"{st.session_state.userCName} {query_date_start} 至 {query_date_end} 工作量记录", 0)
+        textHeader.font.size = Pt(headerFS)
+        textHeader.font.bold = True
+        sql = f"SELECT clerk_work, task_score, task_group from clerk_work where task_date >= '{query_date_start}' and task_date <= '{query_date_end}' and clerk_id = {st.session_state.userID} order by task_group, ID, clerk_work"
+        rows = execute_sql(cur, sql)
+        if rows:
+            i, ttl_score = 1, 0
+            for row in rows:
+                pContent = quesDOC.add_paragraph()
+                textContent = pContent.add_run(f"第{i}项 - 工作类型: {row[2]} 内容: {row[0]} 分值: {row[1]}")
+                textContent.font.size = Pt(contentFS)
+                textContent.font.bold = False
+                ttl_score += row[1]
+                i += 1
+            pContent = quesDOC.add_paragraph()
+            textContent = pContent.add_run(f"共计完成{i - 1}项工作 总分: {ttl_score}")
+            textContent.font.size = Pt(contentFS + 2)
+            textContent.font.bold = True
+            textContent.font.color.rgb = RGBColor(155, 17, 30)
+            add_page_number(quesDOC.sections[0].footer.paragraphs[0].add_run())
+            quesDOC.sections[0].footer.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+            outputFile = f"./user_pa/{st.session_state.userCName}-{query_date_start}-{query_date_end}_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.docx"
+            if os.path.exists(outputFile):
+                os.remove(outputFile)
+            quesDOC.save(outputFile)
+            if os.path.exists(outputFile):
+                if os.path.exists(outputFile):
+                    with open(outputFile, "rb") as file:
+                        content = file.read()
+                    file.close()
+                    buttonDL = st.download_button("点击下载", content, file_name=outputFile[outputFile.rfind("/") + 1:], icon=":material/download:", type="secondary")
+                    st.success(f":green[成功导出至程序目录user_pa下] {outputFile[outputFile.rfind("/") + 1:]}")
+                    if buttonDL:
+                        st.toast("文件已下载至你的默认目录")
+            else:
+                st.error(f":red[文件导出失败]")
+        else:
+            st.error(f":red[没有查询到符合条件的记录]")
+
+def create_element(name):
+    return OxmlElement(name)
+
+
+def create_attribute(element, name, value):
+    element.set(qn(name), value)
+
+
+def add_page_number(run):
+    fldChar1 = create_element('w:fldChar')
+    create_attribute(fldChar1, 'w:fldCharType', 'begin')
+
+    instrText = create_element('w:instrText')
+    create_attribute(instrText, 'xml:space', 'preserve')
+    instrText.text = "PAGE"
+
+    fldChar2 = create_element('w:fldChar')
+    create_attribute(fldChar2, 'w:fldCharType', 'end')
+
+    run._r.append(fldChar1)
+    run._r.append(instrText)
+    run._r.append(fldChar2)
 
 
 global APPNAME
@@ -410,7 +489,7 @@ if st.session_state.logged_in:
                 sac.MenuItem('主页', icon='house'),
                 sac.MenuItem('功能', icon='grid-3x3-gap', children=[
                     sac.MenuItem('日常工作录入', icon='list-task'),
-                    sac.MenuItem('开始考试', icon='pencil-square'),
+                    sac.MenuItem('工作量查询', icon='graph-up'),
                 ]),
                 sac.MenuItem('账户', icon='person-gear', children=[
                     sac.MenuItem('密码修改', icon='key'),
@@ -444,6 +523,8 @@ if st.session_state.logged_in:
         displayVisitCounter()
     elif selected == "日常工作录入":
         task_input()
+    elif selected == "工作量查询":
+        output_word()
     elif selected == "密码修改":
         changePassword()
     elif selected == "密码重置":
