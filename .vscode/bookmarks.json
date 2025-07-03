@@ -12,6 +12,11 @@
 					"line": 21,
 					"column": 12,
 					"label": "login"
+				},
+				{
+					"line": 345,
+					"column": 17,
+					"label": "task_input"
 				}
 			]
 		},

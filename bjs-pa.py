@@ -33,7 +33,7 @@ def login():
     login = st.empty()
     with login.container(border=True):
         # 用户编码输入框
-        userName = st.text_input("请输入用户编码", placeholder="请输入纯数字用户编码", max_chars=8)
+        userID = st.text_input("请输入用户编码", placeholder="请输入纯数字用户编码", max_chars=8)
         # 初始化用户姓名
         st.session_state.userCName = ""
 
@@ -46,19 +46,19 @@ def login():
     # 如果点击了登录按钮
     if buttonLogin:
         # 如果用户编码和密码不为空
-        if userName != "" and userPassword != "":
+        if userID != "" and userPassword != "":
             # 验证用户密码
-            verifyUPW = verifyUserPW(userName, userPassword)
+            verifyUPW = verifyUserPW(userID, userPassword)
             # 如果密码验证成功
             if verifyUPW[0]:
                 userPassword = verifyUPW[1]
-            sql = f"SELECT userName, userCName, userType, StationCN from users where userName = {userName} and userPassword = '{userPassword}'"
+            sql = f"SELECT userID, userCName, userType, StationCN from users where userID = {userID} and userPassword = '{userPassword}'"
             result = execute_sql(cur, sql)
             if result:
                 st.toast(f"用户: {result[0][0]} 姓名: {result[0][1]} 登录成功, 欢迎回来")
                 login.empty()
                 st.session_state.logged_in = True
-                st.session_state.userName = result[0][0]
+                st.session_state.userID = result[0][0]
                 st.session_state.userCName = result[0][1]
                 st.session_state.userType = result[0][2]
                 st.session_state.StationCN = result[0][3]
@@ -92,7 +92,7 @@ def logout():
 def verifyUserPW(vUserName, vUserPW):
     st.session_state.userPwRecheck = False
     vUserEncPW = ""
-    sql = f"SELECT userPassword from users where userName = {vUserName}"
+    sql = f"SELECT userPassword from users where userID = {vUserName}"
     pwTable = execute_sql(cur, sql)
     if pwTable:
         vUserEncPW = pwTable[0][0]
@@ -155,11 +155,11 @@ def changePassword():
     # 检查原密码是否为空
     if oldPassword:
         # 验证用户原密码
-        verifyUPW = verifyUserPW(st.session_state.userName, oldPassword)
+        verifyUPW = verifyUserPW(st.session_state.userID, oldPassword)
         if verifyUPW[0]:
             oldPassword = verifyUPW[1]
         # 构造SQL查询语句，验证用户名和密码是否匹配
-        sql = f"SELECT ID from users where userName = {st.session_state.userName} and userPassword = '{oldPassword}'"
+        sql = f"SELECT ID from users where userID = {st.session_state.userID} and userPassword = '{oldPassword}'"
         if execute_sql(cur, sql):
             # 检查新密码和确认密码是否填写且一致
             if newPassword and confirmPassword and newPassword != "":
@@ -169,7 +169,7 @@ def changePassword():
                         # 加密新密码
                         newPassword = getUserEDKeys(newPassword, "enc")
                         # 构造SQL更新语句，更新用户密码
-                        sql = f"UPDATE users set userPassword = '{newPassword}' where userName = {st.session_state.userName}"
+                        sql = f"UPDATE users set userPassword = '{newPassword}' where userID = {st.session_state.userID}"
                         # 执行SQL语句并提交
                         execute_sql_and_commit(conn, cur, sql)
                         # 显示密码修改成功提示，并要求重新登录
@@ -202,12 +202,12 @@ def resetPassword():
         rCol1, rCol2, rCol3 = st.columns(3)
 
         # 获取用户编码
-        rUserName = rCol1.number_input("用户编码", value=0)
+        rUserID = rCol1.number_input("用户编码", value=0)
 
         # 检查用户编码是否不为0
-        if rUserName != 0:
+        if rUserID != 0:
             # 执行SQL查询用户信息
-            sql = f"SELECT userCName, userType from users where userName = {rUserName}"
+            sql = f"SELECT userCName, userType from users where userID = {rUserID}"
             rows = execute_sql(cur, sql)
 
             # 检查是否查询到用户信息
@@ -237,7 +237,7 @@ def resetPassword():
 
                 # 检查是否点击了重置按钮并选择了重置类型
                 if btnResetUserPW and (rOption1 or rOption2):
-                    st.button("确认", type="secondary", on_click=actionResetUserPW, args=(rUserName, rOption1, rOption2, rUserType,))
+                    st.button("确认", type="secondary", on_click=actionResetUserPW, args=(rUserID, rOption1, rOption2, rUserType,))
                     st.session_state.userPwRecheck = False
                 # 如果未选择任何重置类型，显示警告
                 elif not rOption1 and not rOption2:
@@ -252,7 +252,7 @@ def resetPassword():
         # 检查是否输入了密码
         if vUserPW:
             # 验证密码
-            if verifyUserPW(st.session_state.userName, vUserPW)[0]:
+            if verifyUserPW(st.session_state.userID, vUserPW)[0]:
                 st.rerun()
             # 如果密码错误，显示错误提示
             else:
@@ -309,7 +309,7 @@ def display_pypi():
         badge(type="pypi", name="plotly")
 
 
-def actionResetUserPW(rUserName, rOption1, rOption2, rUserType):
+def actionResetUserPW(rUserID, rOption1, rOption2, rUserType):
     rInfo = ""
 
     # 如果 rOption1 为真
@@ -317,7 +317,7 @@ def actionResetUserPW(rUserName, rOption1, rOption2, rUserType):
         # 获取用户加密密钥
         resetPW = getUserEDKeys("1234", "enc")
         # 构建 SQL 更新语句
-        sql = f"UPDATE users SET userPassword = '{resetPW}' where userName = {rUserName}"
+        sql = f"UPDATE users SET userPassword = '{resetPW}' where userID = {rUserID}"
         # 执行 SQL 并提交
         execute_sql_and_commit(conn, cur, sql)
         # 更新信息，表示密码已重置
@@ -328,12 +328,12 @@ def actionResetUserPW(rUserName, rOption1, rOption2, rUserType):
         # 如果 rUserType 有值
         if rUserType:
             # 构建 SQL 更新语句，将用户类型更改为管理员
-            sql = f"UPDATE users SET userType = 'admin' where userName = {rUserName}"
+            sql = f"UPDATE users SET userType = 'admin' where userID = {rUserID}"
             # 更新信息，表示账户类型已更改为管理员
             rInfo += "账户类型已更改为: 管理员 / "
         else:
             # 构建 SQL 更新语句，将用户类型更改为普通用户
-            sql = f"UPDATE users SET userType = 'user' where userName = {rUserName}"
+            sql = f"UPDATE users SET userType = 'user' where userID = {rUserID}"
             # 更新信息，表示账户类型已更改为用户
             rInfo += "账户类型已更改为: 用户 / "
         # 执行 SQL 并提交
@@ -343,15 +343,63 @@ def actionResetUserPW(rUserName, rOption1, rOption2, rUserType):
     st.success(f"**{rInfo[:-3]}**")
 
 
+@st.fragment
+def task_input():
+    st.markdown("### <font face='微软雅黑' color=red><center>工作量录入</center></font>", unsafe_allow_html=True)
+    st.markdown(f"#### 用户: {st.session_state.userCName}")
+    task_date = st.date_input('工作时间', value=datetime.date.today())
+    confirm_btn_input = st.button("确认录入")
+    tasks, ttl_score = '', 0
+    sql = f"SELECT clerk_work, task_score, task_group from clerk_work where clerk_id = {st.session_state.userID} and task_date = '{task_date}'"
+    result = execute_sql(cur, sql)
+    if result:
+        for row in result:
+            tasks = tasks + '工作类型:' + row[2] + ' 内容:' + row[0] + ' 分值:' + str(row[1]) + '\n\n'
+            ttl_score += row[1]
+        st.write(f"已输入工作量:\n\n{tasks}\n\n总分:{ttl_score}")
+        #st.text_area("已输入工作量:", tasks, height=100)
+    sql = "SELECT DISTINCT(task_group) from bjs_pa"
+    rows = execute_sql(cur, sql)
+    for row in rows:
+        with st.expander(f"# :green[{row[0]}]", expanded=False):
+            sql = f"SELECT ID, pa_content, pa_score, pa_group from bjs_pa where task_group = '{row[0]}' order by pa_num"
+            rows2 = execute_sql(cur, sql)
+            for row2 in rows2:
+                st.checkbox(f"{row2[1]} 分值:{row2[2]}", value=False, key=f"task_{row2[0]}")
+    if confirm_btn_input:
+        for key in st.session_state.keys():
+            if key.startswith("task_") and st.session_state[key]:
+                #st.write(key, st.session_state[key])
+                task_id = key.split("_")[1]
+                sql = f"SELECT pa_content, pa_score, task_group from bjs_pa where ID = {task_id}"
+                task_result = execute_sql(cur, sql)
+                task_content, task_score, task_group = task_result[0]
+                sql = f"SELECT ID from clerk_work where task_date = '{task_date}' and clerk_id = {st.session_state.userID} and clerk_work = '{task_content}' and task_group = {task_group}'"
+                if not execute_sql(cur, sql):
+                    sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group) VALUES ('{task_date}', {st.session_state.userID}, '{st.session_state.userCName}', '{task_content}', {task_score}, '{task_group}')"
+                    execute_sql_and_commit(conn, cur, sql)
+                    st.toast(f"工作量: [{task_content}] 添加成功！")
+                else:
+                    st.warning(f"工作量: [{task_content}] 已存在！")
+
+
 global APPNAME
 APPNAME = "北京站绩效考核系统"
 conn = get_connection()
 cur = conn.cursor()
-selected = None
+#selected = None
+
 if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
+    #st.session_state.logged_in = False
+    st.session_state.logged_in = True
+    st.session_state.userID = 1
+    st.session_state.userCName = '刘斌'
+    st.session_state.userType = 'admin'
+    st.session_state.StationCN = '北京站'
+    sql = "UPDATE verinfo set pyLM = pyLM + 1 where pyFile = 'visitcounter'"
+    execute_sql_and_commit(conn, cur, sql)
     updatePyFileinfo()
-    login()
+    #login()
 
 if st.session_state.logged_in:
     with st.sidebar:
@@ -394,21 +442,8 @@ if st.session_state.logged_in:
         displayBigTimeCircle()
         displayAppInfo()
         displayVisitCounter()
-    elif selected == "生成题库" or selected == "选择考试":
-        if st.session_state.examType == "training":
-            #st.write("### :red[生成练习题库]")
-            #st.markdown("<font face='微软雅黑' color=blue size=20><center>**生成练习题库**</center></font>", unsafe_allow_html=True)
-            st.markdown("### <font face='微软雅黑' color=teal><center>生成练习题库</center></font>", unsafe_allow_html=True)
-        elif st.session_state.examType == "exam":
-            #st.markdown("<font face='微软雅黑' color=red size=20><center>**选择考试**</center></font>", unsafe_allow_html=True)
-            st.markdown("### <font face='微软雅黑' color=red><center>选择考试</center></font>", unsafe_allow_html=True)
-        if not st.session_state.examChosen or not st.session_state.calcScore:
-            sql = "UPDATE verinfo set pyLM = 0 where pyFile = 'chapterChosenType'"
-            execute_sql_and_commit(conn, cur, sql)
-        else:
-            st.error("你不能重复选择考试场次")
-    elif selected == "题库练习" or selected == "开始考试":
-        pass
+    elif selected == "日常工作录入":
+        task_input()
     elif selected == "密码修改":
         changePassword()
     elif selected == "密码重置":
