@@ -1,0 +1,29 @@
+{
+	"files": [
+		{
+			"path": "bjs-pa.py",
+			"bookmarks": [
+				{
+					"line": 5,
+					"column": 19,
+					"label": "header"
+				},
+				{
+					"line": 21,
+					"column": 12,
+					"label": "login"
+				}
+			]
+		},
+		{
+			"path": "etest.py",
+			"bookmarks": [
+				{
+					"line": 3667,
+					"column": 30,
+					"label": "main"
+				}
+			]
+		}
+	]
+}
