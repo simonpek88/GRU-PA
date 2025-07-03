@@ -56,7 +56,9 @@ CREATE TABLE `bjs_pa` (
   `task_group` tinytext COLLATE utf8mb4_unicode_ci,
   `min_days` int DEFAULT '0',
   PRIMARY KEY (`ID`),
-  KEY `nci_username` (`pa_num`)
+  KEY `nci_pa_num` (`pa_num`),
+  KEY `nci_pa_score` (`pa_score`),
+  KEY `nci_min_days` (`min_days`)
 ) ENGINE=InnoDB AUTO_INCREMENT=266 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -71,6 +73,38 @@ INSERT INTO `bjs_pa` VALUES (1,1,'值班（无输油作业，包括设备巡检�
 UNLOCK TABLES;
 
 --
+-- Table structure for table `clerk_work`
+--
+
+DROP TABLE IF EXISTS `clerk_work`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `clerk_work` (
+  `ID` int NOT NULL AUTO_INCREMENT,
+  `task_date` date NOT NULL,
+  `clerk_id` int NOT NULL,
+  `clerk_cname` tinytext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `clerk_work` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `task_score` int NOT NULL,
+  `task_group` tinytext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `nci_task_date` (`task_date`),
+  KEY `nci_clerk_id` (`clerk_id`),
+  KEY `nci_task_score` (`task_score`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `clerk_work`
+--
+
+LOCK TABLES `clerk_work` WRITE;
+/*!40000 ALTER TABLE `clerk_work` DISABLE KEYS */;
+INSERT INTO `clerk_work` VALUES (1,'2025-07-03',1,'刘斌','值班（无输油作业，包括设备巡检、安防巡检、记录、卫生）',100,'值班'),(2,'2025-07-03',1,'刘斌','启输',15,'输油作业'),(3,'2025-07-03',1,'刘斌','test',105,'值班'),(4,'2025-07-03',1,'刘斌','test',10,'test');
+/*!40000 ALTER TABLE `clerk_work` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `users`
 --
 
@@ -79,13 +113,13 @@ DROP TABLE IF EXISTS `users`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `users` (
   `ID` int NOT NULL AUTO_INCREMENT,
-  `userName` int NOT NULL,
+  `userID` int NOT NULL,
   `userCName` tinytext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `userType` tinytext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `StationCN` tinytext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `userPassword` tinytext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`ID`),
-  KEY `nci_username` (`userName`)
+  KEY `nci_useid` (`userID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=89 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -112,7 +146,7 @@ CREATE TABLE `verinfo` (
   `pyLM` int NOT NULL,
   `pyMC` int NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=5251 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5252 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -121,7 +155,7 @@ CREATE TABLE `verinfo` (
 
 LOCK TABLES `verinfo` WRITE;
 /*!40000 ALTER TABLE `verinfo` DISABLE KEYS */;
-INSERT INTO `verinfo` VALUES (1,'commFunc',1751522620,1),(2,'visitcounter',5,0),(3,'commFunc',1751522620,1),(4,'mysql_pool',1751522949,1),(5,'bjs-pa',1751525224,7),(6,'commModules',1751525213,4),(5250,'etest',1751508657,2);
+INSERT INTO `verinfo` VALUES (1,'commFunc',1751550917,2),(2,'visitcounter',92,0),(3,'commFunc',1751550917,2),(4,'mysql_pool',1751522949,1),(5,'bjs-pa',1751551772,14),(6,'commModules',1751525213,4),(5250,'etest',1751508657,2),(5251,'tcli',1751534421,2);
 /*!40000 ALTER TABLE `verinfo` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -134,4 +168,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-07-03 17:26:01
+-- Dump completed on 2025-07-04  0:42:34
