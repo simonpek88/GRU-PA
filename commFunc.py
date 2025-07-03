@@ -199,6 +199,51 @@ def updatePyFileinfo():
                         execute_sql_and_commit(conn2, cur2, sql)
 
 
+def getVerInfo():
+    try:
+        # 查询pyMC字段总和
+        sql = "SELECT SUM(pyMC) FROM verinfo"
+        result = execute_sql(cur2, sql)
+        verinfo = result[0][0] if result else 0
+
+        # 查询pyLM字段最大值
+        sql = "SELECT MAX(pyLM) FROM verinfo"
+        result = execute_sql(cur2, sql)
+        verLM = result[0][0] if result else 0
+
+        # 查询特定文件记录的pyLM * pyMC总和以及pyMC总和
+        sql = "SELECT SUM(pyLM * pyMC), SUM(pyMC) FROM verinfo WHERE pyFile = %s"
+        tmpTable = execute_sql(cur2, sql, ('thumbs-up-stars',))
+
+        return verinfo, verLM
+    except Exception as e:
+        print(f"Database error: {str(e)}")
+
+        return 0, 0
+
+
+def get_update_content(file_path):
+    update_type, update_content = '', ''
+    with open(file_path, 'r', encoding='utf-8') as file:
+        lines = file.readlines()
+    file.close()
+    flag_proc = False
+    # 读取文件前30行，查找版本更新信息
+    for line in lines[:30]:
+        if line.startswith("### 版本"):
+            flag_proc = True
+        if flag_proc:
+            # 提取更新类型
+            if line.startswith("- "):
+                update_type = line[2:-1]
+            # 提取具体更新内容
+            elif line.startswith("  - "):
+                update_content = line[4:]
+                break
+
+    return update_type, update_content
+
+
 conn2 = get_connection()
 cur2 = conn2.cursor()
 logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')

@@ -19,9 +19,19 @@
 					"label": "task_input"
 				},
 				{
-					"line": 386,
-					"column": 18,
-					"label": "output_word"
+					"line": 390,
+					"column": 17,
+					"label": "query_task"
+				},
+				{
+					"line": 466,
+					"column": 19,
+					"label": "manual_input"
+				},
+				{
+					"line": 550,
+					"column": 14,
+					"label": "main"
 				}
 			]
 		},
