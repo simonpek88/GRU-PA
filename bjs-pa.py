@@ -277,7 +277,7 @@ def aboutInfo():
         st.image("./Images/logos/streamlit.png")
     with logo3:
         st.caption("MySQL")
-        st.image("./Images/logos/sqlite.png")
+        st.image("./Images/logos/mysql.png")
     with logo4:
         st.caption("Ant Comp")
         st.image("./Images/logos/antd.png")
@@ -286,7 +286,7 @@ def aboutInfo():
         st.image("./Images/logos/pandas.png")
     with logo6:
         st.caption("Plotly")
-        st.image("./Images/logos/antd.png")
+        st.image("./Images/logos/plotly.png")
     display_pypi()
     st.write("###### :violet[为了获得更好的使用体验, 请使用浅色主题]")
     verinfo, verLM = getVerInfo()
@@ -295,7 +295,7 @@ def aboutInfo():
 
 
 def display_pypi():
-    pypi1, pypi2, pypi3, pypi4, pypi5 = st.columns(5)
+    pypi1, pypi2, pypi3, pypi4, pypi5, pypi6 = st.columns(6)
     with pypi1:
         badge(type="pypi", name="streamlit")
     with pypi2:
@@ -352,32 +352,37 @@ def task_input():
     if result:
         st.markdown("##### 已输入工作量:\n\n")
         for row in result:
-            st.markdown(f'###### :violet[工作类型:] {row[2]} :orange[内容:] {row[0]} :green[分值:] {row[1]}')
+            st.write(f':violet[工作类型:] {row[2]} :orange[内容:] {row[0]} :green[分值:] {row[1]}')
             ttl_score += row[1]
-        st.markdown(f'##### :red[总分:] {ttl_score}')
+        st.markdown(f':red[总分:] {ttl_score}')
     else:
         st.markdown(f'###### :red[无任何记录]')
     sql = "SELECT DISTINCT(task_group) from bjs_pa"
     rows = execute_sql(cur, sql)
     for row in rows:
         with st.expander(f"# :green[{row[0]}]", expanded=False):
-            sql = f"SELECT ID, pa_content, pa_score, pa_group from bjs_pa where task_group = '{row[0]}' order by pa_num"
+            sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score from bjs_pa where task_group = '{row[0]}' order by pa_num"
             rows2 = execute_sql(cur, sql)
             for row2 in rows2:
-                st.checkbox(f"{row2[1]} 分值:{row2[2]}", value=False, key=f"task_{row2[0]}")
+                st.checkbox(f"{row2[1]} 分值:{row2[2]}", value=False, key=f"task_work_{row2[0]}")
+                if row2[4] == 1:
+                    st.slider(f"倍数", min_value=1, max_value=10, value=1, step=1, key=f"task_multi_{row2[0]}")
     if confirm_btn_input:
         for key in st.session_state.keys():
-            if key.startswith("task_") and st.session_state[key]:
+            if key.startswith("task_work_") and st.session_state[key]:
                 #st.write(key, st.session_state[key])
-                task_id = key.split("_")[1]
+                task_id = key[key.rfind("_") + 1:]
                 sql = f"SELECT pa_content, pa_score, task_group from bjs_pa where ID = {task_id}"
                 task_result = execute_sql(cur, sql)
                 task_content, task_score, task_group = task_result[0]
+                if f'task_multi_{task_id}' in st.session_state.keys():
+                    task_score *= st.session_state[f'task_multi_{task_id}']
+                    #st.write(f"倍数: {st.session_state[f'task_multi_{task_id}']}")
                 sql = f"SELECT ID from clerk_work where task_date = '{task_date}' and clerk_id = {st.session_state.userID} and clerk_work = '{task_content}' and task_group = '{task_group}'"
                 if not execute_sql(cur, sql):
                     sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group) VALUES ('{task_date}', {st.session_state.userID}, '{st.session_state.userCName}', '{task_content}', {task_score}, '{task_group}')"
                     execute_sql_and_commit(conn, cur, sql)
-                    st.toast(f"工作量: [{task_content}] 添加成功！")
+                    st.toast(f"工作量: [{task_content}] 分值: [{task_score}] 添加成功！")
                 else:
                     st.warning(f"工作量: [{task_content}] 已存在！")
 
@@ -402,7 +407,7 @@ def query_task():
     query_date_end = col2.date_input('查询结束时间', value=datetime.date.today())
     confirm_btn_query = col1.button("查询记录")
     confirm_btn_output = col2.button("导出为Word文件")
-    sql_task = f"SELECT clerk_work, task_score, task_group from clerk_work where task_date >= '{query_date_start}' and task_date <= '{query_date_end}' and clerk_id = {query_userID} order by task_group, ID, clerk_work"
+    sql_task = f"SELECT clerk_work, task_score, task_group from clerk_work where task_date >= '{query_date_start}' and task_date <= '{query_date_end}' and clerk_id = {query_userID} order by task_date, task_group, ID, clerk_work"
     if confirm_btn_query:
         rows = execute_sql(cur, sql_task)
         if rows:
@@ -453,7 +458,7 @@ def query_task():
                         content = file.read()
                     file.close()
                     buttonDL = st.download_button("点击下载", content, file_name=outputFile[outputFile.rfind("/") + 1:], icon=":material/download:", type="secondary")
-                    st.success(f":green[成功导出至程序目录user_pa下] {outputFile[outputFile.rfind("/") + 1:]}")
+                    st.success(f":green[成功导出至程序目录user_pa下 {outputFile[outputFile.rfind('/') + 1:]}]")
                     if buttonDL:
                         st.toast("文件已下载至你的默认目录")
             else:
@@ -516,16 +521,49 @@ def manual_input():
 def resetTableID():
     confirm_btn_reset = st.button("确认重置")
     if confirm_btn_reset:
-        i, j = 1, 1
-        sql = "SELECT ID from bjs_pa order by task_group, pa_num"
-        rows = execute_sql(cur, sql)
-        for row in rows:
-            sql = f"UPDATE bjs_pa SET ID = {j}, pa_num = {i} where ID = {row[0]}"
-            execute_sql_and_commit(conn, cur, sql)
-            i += 2
-            j += 1
+        try:
+            # 先清理可能存在的临时列
+            cur.execute("""
+                SELECT COUNT(*)
+                FROM information_schema.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE()
+                  AND TABLE_NAME = 'bjs_pa'
+                  AND COLUMN_NAME = 'new_id'
+            """)
+            if cur.fetchone()[0] > 0:
+                cur.execute("ALTER TABLE bjs_pa DROP COLUMN new_id")
 
-        st.success("数据库ID重置成功")
+            # 添加临时列用于存储新ID
+            cur.execute("ALTER TABLE bjs_pa ADD COLUMN new_id INT")
+
+            # 获取所有记录并按顺序生成新ID
+            sql_select = "SELECT ID FROM bjs_pa ORDER BY task_group, pa_num"
+            rows = execute_sql(cur, sql_select)
+
+            updates = []
+            j = 1
+            for row in rows:
+                updates.append((j, row[0]))
+                j += 1
+
+            # 更新临时列
+            sql_update = "UPDATE bjs_pa SET new_id = %s WHERE ID = %s"
+            cur.executemany(sql_update, updates)
+
+            # 重命名原ID列，并启用临时列为新主键
+            cur.execute("SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE=''")
+            cur.execute("ALTER TABLE bjs_pa CHANGE ID ID_old INT")
+            cur.execute("ALTER TABLE bjs_pa CHANGE new_id ID INT")
+            cur.execute("ALTER TABLE bjs_pa DROP PRIMARY KEY, DROP COLUMN ID_old")
+            cur.execute("ALTER TABLE bjs_pa ADD PRIMARY KEY (ID)")
+            cur.execute("SET SQL_MODE=@OLD_SQL_MODE")
+
+            conn.commit()
+            st.success("数据库ID重置成功")
+
+        except Exception as e:
+            conn.rollback()
+            st.error(f"数据库ID重置失败: {str(e)}")
 
 
 global APPNAME
