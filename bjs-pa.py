@@ -64,7 +64,6 @@ def login():
                 sql = "UPDATE verinfo set pyLM = pyLM + 1 where pyFile = 'visitcounter'"
                 execute_sql_and_commit(conn, cur, sql)
                 updatePyFileinfo()
-                displayVisitCounter()
                 st.rerun()
             elif not verifyUPW[0]:
                 st.error("登录失败, 请检查用户名和密码, 若忘记密码请联系管理员重置")
@@ -343,7 +342,7 @@ def actionResetUserPW(rUserID, rOption1, rOption2, rUserType):
 @st.fragment
 def task_input():
     st.markdown("### <font face='微软雅黑' color=red><center>工作量录入</center></font>", unsafe_allow_html=True)
-    st.markdown(f"#### 用户: {st.session_state.userCName}")
+    st.markdown(f"#### 当前用户: {st.session_state.userCName}")
     task_date = st.date_input('工作时间', value=datetime.date.today())
     confirm_btn_input = st.button("确认添加")
     ttl_score = 0
@@ -388,7 +387,8 @@ def task_input():
 
 
 def query_task():
-    st.markdown("### <font face='微软雅黑' color=red><center>工作量查询</center></font>", unsafe_allow_html=True)
+    st.markdown("### <font face='微软雅黑' color=red><center>工作量查询及核定</center></font>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns(3)
     if st.session_state.userType == 'admin':
         userID, userCName = [], []
         sql = "SELECT userID, userCName from users order by ID"
@@ -396,26 +396,29 @@ def query_task():
         for row in rows:
             userID.append(row[0])
             userCName.append(row[1])
-        query_userCName = st.selectbox("请选择查询用户", userCName)
+        query_userCName = col1.selectbox("请选择查询用户", userCName)
         query_userID = userID[userCName.index(query_userCName)]
     elif st.session_state.userType == 'user':
-        st.markdown(f"#### 用户: {st.session_state.userCName}")
+        col1.markdown(f"#### 当前用户: {st.session_state.userCName}")
         query_userCName = st.session_state.userCName
         query_userID = st.session_state.userID
-    col1, col2 = st.columns(2)
-    query_date_start = col1.date_input('查询开始时间', value=datetime.date.today())
-    query_date_end = col2.date_input('查询结束时间', value=datetime.date.today())
-    confirm_btn_query = col1.button("查询记录")
-    confirm_btn_output = col2.button("导出为Word文件")
+    query_date_start = col2.date_input('查询开始时间', value=datetime.date.today())
+    query_date_end = col3.date_input('查询结束时间', value=datetime.date.today())
+    confirm_btn_output = col1.button("导出为Word文件")
+    if st.session_state.userType == 'admin':
+        confirm_btn_approv = col2.button("核定")
     sql_task = f"SELECT clerk_work, task_score, task_group from clerk_work where task_date >= '{query_date_start}' and task_date <= '{query_date_end}' and clerk_id = {query_userID} order by task_date, task_group, ID, clerk_work"
-    if confirm_btn_query:
-        rows = execute_sql(cur, sql_task)
-        if rows:
-            df = pd.DataFrame(rows)
-            df.columns = ["工作", "分值", "工作组别"]
-            st.dataframe(df)
-        else:
-            st.error(f":red[没有查询到符合条件的记录]")
+    rows = execute_sql(cur, sql_task)
+    if rows:
+        df = pd.DataFrame(rows)
+        df.columns = ["工作", "分值", "工作组别"]
+        st.dataframe(df)
+    else:
+        st.error(f":red[没有查询到符合条件的记录]")
+    if confirm_btn_approv:
+        sql = f"UPDATE clerk_work SET task_approved = 1 where task_date >= '{query_date_start}' and task_date <= '{query_date_end}' and clerk_id = {query_userID}"
+        execute_sql_and_commit(conn, cur, sql)
+        st.success(f"**用户:{query_userCName} {query_date_start} 至 {query_date_end} 之间的工作量已核定**")
     elif confirm_btn_output:
         headerFS = 16
         contentFS = 12
@@ -493,7 +496,7 @@ def add_page_number(run):
 def manual_input():
     items = []
     st.markdown("### <font face='微软雅黑' color=red><center>工作量手工录入</center></font>", unsafe_allow_html=True)
-    st.markdown(f"#### 用户: {st.session_state.userCName}")
+    st.markdown(f"#### 当前用户: {st.session_state.userCName}")
     sql = "SELECT DISTINCT(task_group) from bjs_pa"
     rows = execute_sql(cur, sql)
     for row in rows:
@@ -502,6 +505,14 @@ def manual_input():
     task_date = col1.date_input('工作时间', value=datetime.date.today())
     task_group = col2.selectbox('工作组别', items, index=None, accept_new_options=True)
     task_score = col3.slider("单项分值", min_value=5, max_value=300, value=10, step=5)
+    opt1, opt2, opt3 = st.columns(3)
+    if st.session_state.userType == 'admin':
+        with opt1:
+            flag_add_pa = sac.switch("加入固定列表", value=False, align="start",)
+        with opt2:
+            flag_multi_score = sac.switch("多倍计算", value=False, align="start",)
+    else:
+        flag_add_pa, flag_multi_score = False, False
     task_content = st.text_area("工作内容", height=100)
     confirm_btn_manual = st.button("确认添加")
     if task_group and task_content and confirm_btn_manual:
@@ -512,77 +523,81 @@ def manual_input():
             st.toast(f"工作量: [{task_content}] 添加成功！")
         else:
             st.warning(f"工作量: [{task_content}] 已存在！")
+        if flag_add_pa:
+            sql = f"SELECT ID from bjs_pa where pa_content = '{task_content}' and task_group = '{task_group}' and pa_score = {task_score}"
+            if not execute_sql(cur, sql):
+                sql = f"INSERT INTO bjs_pa (pa_content, pa_score, pa_group, task_group, multi_score) VALUES ('{task_content}', {task_score}, '全员', '{task_group}', {int(flag_multi_score)})"
+                execute_sql_and_commit(conn, cur, sql)
+                reset_bjspa_num(True)
+                st.toast(f"工作量: [{task_content}] 添加至列表成功！")
+            else:
+                st.warning(f"工作量: [{task_content}] 在列表中已存在！")
     elif not task_group:
         st.warning(f"请选择工作组！")
     elif not task_content:
         st.warning(f"请输入工作内容！")
 
-
-def resetTableID():
-    confirm_btn_reset = st.button("确认重置")
+def reset_bjspa_num(flag_force=False):
+    if not flag_force:
+        confirm_btn_reset = st.button("确认重置")
+    else:
+        confirm_btn_reset = True
     if confirm_btn_reset:
-        try:
-            # 先清理可能存在的临时列
-            cur.execute("""
-                SELECT COUNT(*)
-                FROM information_schema.COLUMNS
-                WHERE TABLE_SCHEMA = DATABASE()
-                  AND TABLE_NAME = 'bjs_pa'
-                  AND COLUMN_NAME = 'new_id'
-            """)
-            if cur.fetchone()[0] > 0:
-                cur.execute("ALTER TABLE bjs_pa DROP COLUMN new_id")
-
-            # 添加临时列用于存储新ID
-            cur.execute("ALTER TABLE bjs_pa ADD COLUMN new_id INT")
-
-            # 获取所有记录并按顺序生成新ID
-            sql_select = "SELECT ID FROM bjs_pa ORDER BY task_group, pa_num"
-            rows = execute_sql(cur, sql_select)
-
-            updates = []
-            j = 1
-            for row in rows:
-                updates.append((j, row[0]))
-                j += 1
-
-            # 更新临时列
-            sql_update = "UPDATE bjs_pa SET new_id = %s WHERE ID = %s"
-            cur.executemany(sql_update, updates)
-
-            # 重命名原ID列，并启用临时列为新主键
-            cur.execute("SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE=''")
-            cur.execute("ALTER TABLE bjs_pa CHANGE ID ID_old INT")
-            cur.execute("ALTER TABLE bjs_pa CHANGE new_id ID INT")
-            cur.execute("ALTER TABLE bjs_pa DROP PRIMARY KEY, DROP COLUMN ID_old")
-            cur.execute("ALTER TABLE bjs_pa ADD PRIMARY KEY (ID)")
-            cur.execute("SET SQL_MODE=@OLD_SQL_MODE")
-
-            conn.commit()
+        i = 1
+        sql = "SELECT ID from bjs_pa order by task_group, pa_num"
+        rows = execute_sql(cur, sql)
+        for row in rows:
+            sql = f"UPDATE bjs_pa SET pa_num = {i} where ID = {row[0]}"
+            execute_sql_and_commit(conn, cur, sql)
+            i += 2
+        if not flag_force:
             st.success("数据库ID重置成功")
 
-        except Exception as e:
-            conn.rollback()
-            st.error(f"数据库ID重置失败: {str(e)}")
+
+@st.fragment
+def task_modify():
+    st.markdown("### <font face='微软雅黑' color=red><center>工作量删除</center></font>", unsafe_allow_html=True)
+    st.markdown(f"#### 当前用户: {st.session_state.userCName}")
+    user_taskid_pack = []
+    task_date = st.date_input('工作时间', value=datetime.date.today())
+    task_del_id = st.text_input('请输入要删除的ID')
+    col1, col2, col3, col4, col5, col6 = st.columns(6)
+    confirm_btn_delete = col1.button("删除", type="primary")
+    sql = f"SELECT clerk_work, task_score, task_group, ID from clerk_work where clerk_id = {st.session_state.userID} and task_date = '{task_date}'"
+    result = execute_sql(cur, sql)
+    if result:
+        ttl_score = 0
+        st.markdown("##### 已输入工作量:\n\n")
+        for row in result:
+            st.write(f'ID:{row[3]} :violet[工作类型:] {row[2]} :orange[内容:] {row[0]} :green[分值:] {row[1]}')
+            user_taskid_pack.append(str(row[3]))
+            ttl_score += row[1]
+        st.markdown(f':red[总分:] {ttl_score}')
+    else:
+        st.markdown(f'###### :red[无任何记录]')
+    if confirm_btn_delete and task_del_id:
+        if task_del_id in user_taskid_pack:
+            col2.button("确认删除", type="secondary", on_click=delete_task, args=(task_del_id,))
+        else:
+            st.warning(f"ID:{task_del_id} 不属于当前用户!")
+
+
+def delete_task(task_del_id):
+    sql = f"DELETE FROM clerk_work where ID = {task_del_id}"
+    execute_sql_and_commit(conn, cur, sql)
+    st.toast(f"ID:{task_del_id} 删除成功！")
 
 
 global APPNAME
 APPNAME = "北京站绩效考核系统"
 conn = get_connection()
 cur = conn.cursor()
-#selected = None
+selected = None
 
 if "logged_in" not in st.session_state:
-    #st.session_state.logged_in = False
-    st.session_state.logged_in = True
-    st.session_state.userID = 1
-    st.session_state.userCName = '刘斌'
-    st.session_state.userType = 'admin'
-    st.session_state.StationCN = '北京站'
-    sql = "UPDATE verinfo set pyLM = pyLM + 1 where pyFile = 'visitcounter'"
-    execute_sql_and_commit(conn, cur, sql)
-    updatePyFileinfo()
-    #login()
+    st.set_page_config(layout='wide')
+    st.session_state.logged_in = False
+    login()
 
 if st.session_state.logged_in:
     with st.sidebar:
@@ -594,7 +609,8 @@ if st.session_state.logged_in:
                 sac.MenuItem('功能', icon='grid-3x3-gap', children=[
                     sac.MenuItem('工作量录入', icon='list-task'),
                     sac.MenuItem('工作量手工录入', icon='pencil-square'),
-                    sac.MenuItem('工作量查询', icon='graph-up'),
+                    sac.MenuItem('工作量记录修改', icon='journal-x'),
+                    sac.MenuItem('工作量查询及核定', icon='graph-up'),
                     sac.MenuItem("重置数据库ID", icon="bootstrap-reboot"),
                 ]),
                 sac.MenuItem('账户', icon='person-gear', children=[
@@ -613,7 +629,8 @@ if st.session_state.logged_in:
                 sac.MenuItem('功能', icon='grid-3x3-gap', children=[
                     sac.MenuItem('工作量录入', icon='list-task'),
                     sac.MenuItem('工作量手工录入', icon='pencil-square'),
-                    sac.MenuItem('工作量查询', icon='graph-up'),
+                    sac.MenuItem('工作量记录修改', icon='journal-x'),
+                    sac.MenuItem('工作量查询及核定', icon='graph-up'),
                 ]),
                 sac.MenuItem('账户', icon='person-gear', children=[
                     sac.MenuItem('密码修改', icon='key'),
@@ -628,14 +645,17 @@ if st.session_state.logged_in:
     if selected == "主页":
         displayBigTimeCircle()
         displayAppInfo()
+        displayVisitCounter()
     elif selected == "工作量录入":
         task_input()
     elif selected == "工作量手工录入":
         manual_input()
-    elif selected == "工作量查询":
+    elif selected == "工作量记录修改":
+        task_modify()
+    elif selected == "工作量查询及核定":
         query_task()
     elif selected == "重置数据库ID":
-        resetTableID()
+        reset_bjspa_num()
     elif selected == "密码修改":
         changePassword()
     elif selected == "密码重置":
