@@ -514,46 +514,18 @@ def manual_input():
 
 
 def resetTableID():
-    tables = ["verinfo", "clerk_work", "bjs_pa"]
+    confirm_btn_reset = st.button("确认重置")
+    if confirm_btn_reset:
+        i, j = 1, 1
+        sql = "SELECT ID from bjs_pa order by task_group, pa_num"
+        rows = execute_sql(cur, sql)
+        for row in rows:
+            sql = f"UPDATE bjs_pa SET ID = {j}, pa_num = {i} where ID = {row[0]}"
+            execute_sql_and_commit(conn, cur, sql)
+            i += 2
+            j += 1
 
-    for tablename in tables:
-        try:
-            # 获取当前表的所有ID并按顺序排序
-            sql = f"SELECT ID FROM {tablename} ORDER BY ID"
-            rows = execute_sql(cur, sql)
-
-            if not rows:
-                st.info(f"{tablename} 表为空, 跳过ID重置")
-                continue
-
-            # 判断是否需要更新（ID 是否连续）
-            expected_ids = list(range(1, len(rows) + 1))
-            actual_ids = [row['ID'] for row in rows]
-
-            if expected_ids == actual_ids:
-                st.info(f"{tablename} 表ID已连续, 无需重置")
-                continue
-
-            # 批量更新ID（更高效）
-            update_sql = f"""
-                UPDATE {tablename}
-                SET ID = CASE ID
-                    {' '.join(f'WHEN ID = {old_id} THEN {new_id}' for new_id, old_id in enumerate(actual_ids, start=1))}
-                END
-            """
-            execute_sql_and_commit(conn, cur, update_sql)
-
-            # 更新自增序列（MySQL 使用 AUTO_INCREMENT）
-            last_id = len(rows)
-            alter_sql = f"ALTER TABLE {tablename} AUTO_INCREMENT = {last_id + 1}"
-            execute_sql_and_commit(conn, cur, alter_sql)
-
-        except Exception as e:
-            conn.rollback()
-            st.error(f"重置 {tablename} 表ID失败: {e}")
-            continue
-
-    st.success("数据库ID重置成功")
+        st.success("数据库ID重置成功")
 
 
 global APPNAME
