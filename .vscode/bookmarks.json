@@ -34,14 +34,19 @@
 					"label": "task_modify"
 				},
 				{
-					"line": 605,
-					"column": 48,
-					"label": "main"
-				},
-				{
 					"line": 615,
 					"column": 17,
 					"label": "check_data"
+				},
+				{
+					"line": 691,
+					"column": 26,
+					"label": "main"
+				},
+				{
+					"line": 721,
+					"column": 61,
+					"label": "menu"
 				}
 			]
 		},
@@ -52,6 +57,21 @@
 					"line": 2133,
 					"column": 17,
 					"label": "quesModify"
+				},
+				{
+					"line": 3772,
+					"column": 65,
+					"label": "menu"
+				}
+			]
+		},
+		{
+			"path": "CHANGELOG.md",
+			"bookmarks": [
+				{
+					"line": 4,
+					"column": 6,
+					"label": "update info"
 				}
 			]
 		}

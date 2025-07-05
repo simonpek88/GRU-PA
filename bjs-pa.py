@@ -61,6 +61,7 @@ def login():
                 st.session_state.userCName = result[0][1]
                 st.session_state.userType = result[0][2]
                 st.session_state.StationCN = result[0][3]
+                st.session_state.userPwRechecked = False
                 sql = "UPDATE verinfo set pyLM = pyLM + 1 where pyFile = 'visitcounter'"
                 execute_sql_and_commit(conn, cur, sql)
                 updatePyFileinfo()
@@ -86,7 +87,7 @@ def logout():
 
 
 def verifyUserPW(vUserName, vUserPW):
-    st.session_state.userPwRecheck = False
+    st.session_state.userPwRechecked = False
     vUserEncPW = ""
     sql = f"SELECT userPassword from users where userID = {vUserName}"
     pwTable = execute_sql(cur, sql)
@@ -94,9 +95,9 @@ def verifyUserPW(vUserName, vUserPW):
         vUserEncPW = pwTable[0][0]
         vUserDecPW = getUserEDKeys(vUserEncPW, "dec")
         if vUserPW == vUserDecPW:
-            st.session_state.userPwRecheck = True
+            st.session_state.userPwRechecked = True
 
-    return st.session_state.userPwRecheck, vUserEncPW
+    return st.session_state.userPwRechecked, vUserEncPW
 
 @st.fragment
 def displayBigTimeCircle():
@@ -190,7 +191,7 @@ def resetPassword():
     st.subheader(":orange[密码重置及更改账户类型]", divider="red")
 
     # 检查是否需要重置用户信息
-    if st.session_state.userPwRecheck:
+    if st.session_state.userPwRechecked:
         # 显示重置用户信息提示
         st.write(":red[**重置用户信息**]")
 
@@ -234,7 +235,7 @@ def resetPassword():
                 # 检查是否点击了重置按钮并选择了重置类型
                 if btnResetUserPW and (rOption1 or rOption2):
                     st.button("确认", type="secondary", on_click=actionResetUserPW, args=(rUserID, rOption1, rOption2, rUserType,))
-                    st.session_state.userPwRecheck = False
+                    st.session_state.userPwRechecked = False
                 # 如果未选择任何重置类型，显示警告
                 elif not rOption1 and not rOption2:
                     st.warning("请选择重置类型")
@@ -343,7 +344,7 @@ def actionResetUserPW(rUserID, rOption1, rOption2, rUserType):
 def task_input():
     st.markdown("### <font face='微软雅黑' color=red><center>工作量录入</center></font>", unsafe_allow_html=True)
     st.markdown(f"#### 当前用户: {st.session_state.userCName}")
-    task_date = st.date_input('工作时间', value=datetime.date.today())
+    task_date = st.date_input('工作时间', value=datetime.date.today(), max_value="today")
     confirm_btn_input = st.button("确认添加")
     ttl_score = 0
     sql = f"SELECT clerk_work, task_score, task_group from clerk_work where clerk_id = {st.session_state.userID} and task_date = '{task_date}'"
@@ -527,7 +528,7 @@ def manual_input():
     for row in rows:
         items.append(row[0])
     col1, col2, col3 = st.columns(3)
-    task_date = col1.date_input('工作时间', value=datetime.date.today())
+    task_date = col1.date_input('工作时间', value=datetime.date.today(), max_value="today")
     task_group = col2.selectbox('工作组别', items, index=None, accept_new_options=True)
     task_score = col3.slider("单项分值", min_value=5, max_value=300, value=10, step=5)
     opt1, opt2, opt3 = st.columns(3)
@@ -579,10 +580,10 @@ def reset_bjspa_num(flag_force=False):
             st.success("数据库ID重置成功")
 
 
-@st.fragment
+#@st.fragment
 def task_modify():
-    st.markdown("### <font face='微软雅黑' color=red><center>工作量修改</center></font>", unsafe_allow_html=True)
-    col1, col2, col3 = st.columns(3)
+    st.markdown("### <font face='微软雅黑' color=red><center>记录修改</center></font>", unsafe_allow_html=True)
+    col1, col2, col3, col4 = st.columns(4)
     if st.session_state.userType == 'admin':
         userID, userCName = [], []
         sql = "SELECT userID, userCName from users where clerk_pa = 1 order by ID"
@@ -595,38 +596,34 @@ def task_modify():
     else:
         col1.markdown(f"#### 当前用户: {st.session_state.userCName}")
         query_userID = st.session_state.userID
-    task_date = col2.date_input('工作时间', value=datetime.date.today())
+        query_userCName = st.session_state.userCName
+    query_date_start = col2.date_input('查询开始时间', value=datetime.date.today())
+    query_date_end = col3.date_input('查询结束时间', value=datetime.date.today())
     user_task_id_pack = []
-    sql = f"SELECT clerk_work, task_score, task_group, ID from clerk_work where clerk_id = {query_userID} and task_date = '{task_date}'"
+    sql = f"SELECT clerk_work, task_score, task_group, ID from clerk_work where clerk_id = {query_userID} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}'"
     result = execute_sql(cur, sql)
     for row in result:
         user_task_id_pack.append(row[3])
-    task_modify_id = col3.selectbox("请选择任务ID", user_task_id_pack, index=None)
+    task_modify_id = col4.selectbox("请选择任务ID", user_task_id_pack, index=None)
     form = st.columns(3)
     confirm_btn_delete = form[0].button("删除", type="primary")
-    confirm_btn_modify = form[1].button("修改", type="primary")
-    if result:
-        ttl_score = 0
-        st.markdown("##### 已输入工作量:\n\n")
-        for row in result:
-            st.write(f'ID:{row[3]} :violet[工作类型:] {row[2]} :orange[内容:] {row[0]} :green[分值:] {row[1]}')
-            ttl_score += row[1]
-        st.markdown(f':red[总分:] {ttl_score}')
-    else:
-        st.markdown(f'###### :red[无任何记录]')
+    display_are = st.empty()
+    with display_are.container(border=True):
+        if result:
+            ttl_score = 0
+            st.markdown("##### 已输入工作量:\n\n")
+            for row in result:
+                st.write(f'ID:{row[3]} :violet[工作类型:] {row[2]} :orange[内容:] {row[0]} :green[分值:] {row[1]}')
+                ttl_score += row[1]
+            st.markdown(f':red[总分:] {ttl_score}')
+        else:
+            st.markdown(f'###### :red[无任何记录]')
     if task_modify_id:
-        sql = f"SELECT clerk_work, task_score, task_group from clerk_work where ID = {task_modify_id} and clerk_id = {query_userID}"
-        modify_pack = execute_sql(cur, sql)[0]
         if confirm_btn_delete:
-            form[5].button("确认删除", type="secondary", on_click=delete_task, args=(task_modify_id, query_userID,))
-        elif confirm_btn_modify:
-            modify_content = form[0].text_area("请输入修改后的内容", value=modify_pack[0], height=100)
-            modify_score = form[1].number_input("请输入修改后的分数", min_value=1, max_value=800, value=modify_pack[1], step=1)
-            reconfirm_btn_modify = form[2].button("确认修改")
-            if reconfirm_btn_modify:
-                st.write(modify_content, modify_score)
-                modify_task(task_modify_id, modify_content, modify_score, query_userID)
-            #form[2].button("确认修改", type="secondary", on_click=modify_task, args=(task_modify_id, modify_content, modify_score, query_userID,))
+            form[1].button("确认删除", type="secondary", on_click=delete_task, args=(task_modify_id, query_userID,))
+        if st.session_state.userType == 'admin':
+            display_are.empty()
+            modify_task(task_modify_id, query_userID)
     else:
         st.info('请选择要处理的记录ID')
 
@@ -640,10 +637,15 @@ def delete_task(task_modify_id, query_userID):
     else:
         st.toast(f"ID:{task_modify_id} 删除失败！")
 
-def modify_task(task_modify_id, modify_content, modify_score, query_userID):
+def modify_task(task_modify_id, query_userID):
+    sql = f"SELECT clerk_work, task_score, task_group from clerk_work where ID = {task_modify_id} and clerk_id = {query_userID}"
+    modify_pack = execute_sql(cur, sql)[0]
+    form = st.columns(3)
+    modify_content = form[0].text_area("请输入修改后的内容", value=modify_pack[0], height=100)
+    modify_score = form[1].number_input("请输入修改后的分数", min_value=1, max_value=1000, value=modify_pack[1], step=1, placeholder="最大1000")
     sql = f"UPDATE clerk_work SET clerk_work = '{modify_content}', task_score = {modify_score} where ID = {task_modify_id} and clerk_id = {query_userID}"
     execute_sql_and_commit(conn, cur, sql)
-    sql = f"SELECT ID from clerk_work where clerk_work = '{modify_content}' and task_score = {modify_score} and ID = {query_userID} and clerk_id = {query_userID}"
+    sql = f"SELECT ID from clerk_work where clerk_work = '{modify_content}' and task_score = {modify_score} and ID = {task_modify_id} and clerk_id = {query_userID}"
     if execute_sql(cur, sql):
         st.toast(f"ID:{task_modify_id} 修改成功！")
     else:
@@ -672,12 +674,73 @@ def check_data():
             if task_count > 1 and task_count > dur_time.days / row[1]:
                 st.warning(f"用户: {userCName[index]} 工作: [{row[0]}] 应该 1次/{row[1]}天, 实际: {task_count}次 已超量, 请检查记录！")
 
+def resetPassword():
+    # 显示副标题和分隔线
+    st.subheader(":orange[密码重置]", divider="red")
+
+    # 检查是否需要重置用户信息
+    if st.session_state.userPwRechecked:
+        # 显示重置用户信息提示
+        st.write(":red[**重置用户信息**]")
+
+        # 创建三列布局
+        rCol1, rCol2 = st.columns(2)
+
+        # 获取用户编码
+        rUserName = rCol1.number_input("用户编码", min_value=1, max_value=20, value=1)
+
+        # 执行SQL查询用户信息
+        sql = f"SELECT userCName, userType from users where userID = {rUserName}"
+        rows = execute_sql(cur, sql)
+
+        # 检查是否查询到用户信息
+        if rows:
+            # 显示用户姓名
+            rCol2.write(f"用户姓名: **{rows[0][0]}**")
+
+            # 创建重置按钮
+            btnResetUserPW = st.button("重置", type="primary")
+
+            if btnResetUserPW:
+                st.button("确认", type="secondary", on_click=actionResetUserPW, args=(rUserName,))
+                st.session_state.userPwRechecked = False
+        # 如果未查询到用户信息，显示错误
+        else:
+            st.error("用户不存在")
+    else:
+        vUserPW = st.text_input("请输入密码", max_chars=8, placeholder="请输入管理员密码, 以验证身份", type="password", autocomplete="off")
+
+        # 检查是否输入了密码
+        if vUserPW:
+            # 验证密码
+            if verifyUserPW(st.session_state.userID, vUserPW)[0]:
+                st.session_state.userPwRechecked = True
+                st.rerun()
+            # 如果密码错误，显示错误提示
+            else:
+                st.session_state.userPwRechecked = False
+                st.error("密码错误, 请重新输入")
+
+def actionResetUserPW(rUserName):
+    rInfo = ""
+
+    # 获取用户加密密钥
+    resetPW = getUserEDKeys("1234", "enc")
+    # 构建 SQL 更新语句
+    sql = f"UPDATE users SET userPassword = '{resetPW}' where userID = {rUserName}"
+    # 执行 SQL 并提交
+    execute_sql_and_commit(conn, cur, sql)
+    # 更新信息，表示密码已重置
+    rInfo += "密码已重置为: 1234"
+
+    st.success(f"**{rInfo}**")
+
 
 global APPNAME
 APPNAME = "北京站绩效考核系统KPI-PA"
 conn = get_connection()
 cur = conn.cursor()
-st.logo("./Images/logos/bjs-pa-logo.png", icon_image="./Images/logos/bjs-pa-logo.png", size="large")
+st.logo("./Images/logos/bjs-pa-logo2.png", icon_image="./Images/logos/bjs-pa-logo.png", size="large")
 
 selected = None
 
@@ -688,21 +751,22 @@ if "logged_in" not in st.session_state:
 
 if st.session_state.logged_in:
     with st.sidebar:
-        displaySmallTime()
-        #displaySmallClock()
+        #displaySmallTime()
+        displaySmallClock()
         if st.session_state.userType == "admin":
             selected = sac.menu([
                 sac.MenuItem('主页', icon='house'),
                 sac.MenuItem('功能', icon='grid-3x3-gap', children=[
                     sac.MenuItem('工作量录入', icon='list-task'),
                     sac.MenuItem('工作量手工录入', icon='pencil-square'),
-                    sac.MenuItem('工作量记录修改', icon='journal-x'),
+                    sac.MenuItem('记录修改', icon='journal-x'),
                     sac.MenuItem('统计查询及核定', icon='graph-up'),
                     sac.MenuItem('数据检查', icon='check2-all'),
                     sac.MenuItem("重置数据库ID", icon="bootstrap-reboot"),
                 ]),
                 sac.MenuItem('账户', icon='person-gear', children=[
                     sac.MenuItem('密码修改', icon='key'),
+                    sac.MenuItem('密码重置', icon='person-gear'),
                     sac.MenuItem('登出', icon='box-arrow-right'),
                 ]),
                 sac.MenuItem('关于', icon='layout-wtf', children=[
@@ -710,14 +774,14 @@ if st.session_state.logged_in:
                     sac.MenuItem('Readme', icon='github'),
                     sac.MenuItem('关于...', icon='link-45deg'),
                 ]),
-            ], open_all=True)
+            ], open_index=[1])
         elif st.session_state.userType == "user":
             selected = sac.menu([
                 sac.MenuItem('主页', icon='house'),
                 sac.MenuItem('功能', icon='grid-3x3-gap', children=[
                     sac.MenuItem('工作量录入', icon='list-task'),
                     sac.MenuItem('工作量手工录入', icon='pencil-square'),
-                    sac.MenuItem('工作量记录修改', icon='journal-x'),
+                    sac.MenuItem('记录修改', icon='journal-x'),
                     sac.MenuItem('统计查询及核定', icon='graph-up'),
                 ]),
                 sac.MenuItem('账户', icon='person-gear', children=[
@@ -729,7 +793,9 @@ if st.session_state.logged_in:
                     sac.MenuItem('Readme', icon='github'),
                     sac.MenuItem('关于...', icon='link-45deg'),
                 ]),
-            ], open_all=True)
+            ], open_index=[1])
+        st.divider()
+        st.markdown(f'### :green[当前用户:] :orange[{st.session_state.userCName}]')
     if selected == "主页":
         displayBigTimeCircle()
         displayAppInfo()
@@ -738,7 +804,7 @@ if st.session_state.logged_in:
         task_input()
     elif selected == "工作量手工录入":
         manual_input()
-    elif selected == "工作量记录修改":
+    elif selected == "记录修改":
         task_modify()
     elif selected == "统计查询及核定":
         query_task()
