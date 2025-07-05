@@ -57,6 +57,11 @@
 					"line": 855,
 					"column": 16,
 					"label": "gen_chart"
+				},
+				{
+					"line": 932,
+					"column": 23,
+					"label": "main"
 				}
 			]
 		},
