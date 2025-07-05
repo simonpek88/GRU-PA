@@ -51,7 +51,7 @@ def login():
             # 如果密码验证成功
             if verifyUPW[0]:
                 userPassword = verifyUPW[1]
-            sql = f"SELECT userID, userCName, userType, StationCN from users where userID = {userID} and userPassword = '{userPassword}'"
+            sql = f"SELECT userID, userCName, userType, StationCN, clerk_type from users where userID = {userID} and userPassword = '{userPassword}'"
             result = execute_sql(cur, sql)
             if result:
                 st.toast(f"用户: {result[0][0]} 姓名: {result[0][1]} 登录成功, 欢迎回来")
@@ -61,6 +61,7 @@ def login():
                 st.session_state.userCName = result[0][1]
                 st.session_state.userType = result[0][2]
                 st.session_state.StationCN = result[0][3]
+                st.session_state.clerkType = result[0][4]
                 st.session_state.userPwRechecked = False
                 sql = "UPDATE verinfo set pyLM = pyLM + 1 where pyFile = 'visitcounter'"
                 execute_sql_and_commit(conn, cur, sql)
@@ -343,8 +344,12 @@ def actionResetUserPW(rUserID, rOption1, rOption2, rUserType):
 @st.fragment
 def task_input():
     st.markdown("### <font face='微软雅黑' color=red><center>工作量录入</center></font>", unsafe_allow_html=True)
-    st.markdown(f"#### 当前用户: {st.session_state.userCName}")
-    task_date = st.date_input('工作时间', value=datetime.date.today(), max_value="today")
+    col1, col2 = st.columns(2)
+    expanded_group = ['值班', '清理保洁', '行政管理']
+    col1.markdown(f"#### 当前用户: {st.session_state.userCName}")
+    with col1:
+        flag_auto_task = sac.switch("自动带入默认工作", value=True, align="start")
+    task_date = col2.date_input('工作时间', value=datetime.date.today(), max_value="today")
     confirm_btn_input = st.button("确认添加")
     ttl_score = 0
     sql = f"SELECT clerk_work, task_score, task_group from clerk_work where clerk_id = {st.session_state.userID} and task_date = '{task_date}'"
@@ -360,14 +365,22 @@ def task_input():
     sql = "SELECT DISTINCT(task_group) from bjs_pa"
     rows = execute_sql(cur, sql)
     for row in rows:
-        with st.expander(f"# :green[{row[0]}]", expanded=False):
-            sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days from bjs_pa where task_group = '{row[0]}' order by pa_num"
+        if row[0] in expanded_group and flag_auto_task:
+            flag_expanded = True
+        else:
+            flag_expanded = False
+        with st.expander(f"# :green[{row[0]}]", expanded=flag_expanded):
+            sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task from bjs_pa where task_group = '{row[0]}' order by pa_num"
             rows2 = execute_sql(cur, sql)
             for row2 in rows2:
-                if row2[5] > 0:
-                    st.checkbox(f":red[{row2[1]} 分值:{row2[2]}]", value=False, key=f"task_work_{row2[0]}")
+                if row2[6] == st.session_state.clerkType and flag_auto_task:
+                    auto_task = True
                 else:
-                    st.checkbox(f"{row2[1]} 分值:{row2[2]}", value=False, key=f"task_work_{row2[0]}")
+                    auto_task = False
+                if row2[5] > 0:
+                    st.checkbox(f":red[{row2[1]} 分值:{row2[2]}]", value=auto_task, key=f"task_work_{row2[0]}")
+                else:
+                    st.checkbox(f"{row2[1]} 分值:{row2[2]}", value=auto_task, key=f"task_work_{row2[0]}")
                 if row2[4] == 1:
                     st.slider(f"倍数", min_value=1, max_value=10, value=1, step=1, key=f"task_multi_{row2[0]}")
     if confirm_btn_input:
@@ -413,12 +426,10 @@ def query_task():
         flag_combine = sac.switch("是否合并统计", value=False)
     if flag_combine:
         sql_task = f"SELECT clerk_work, AVG(task_score) AS avg_task_score, task_group, count(clerk_work) FROM clerk_work WHERE task_date >= '{query_date_start}' AND task_date <= '{query_date_end}' AND clerk_id = {query_userID} GROUP BY clerk_work, task_group ORDER BY task_group"
-        affix_info = "(合并统计)"
-        color_field = "单项分值"
+        affix_info, color_field, score_num = "(合并统计)", "单项分值", 1
     else:
-        sql_task = f"SELECT clerk_work, task_score, task_group, task_approved from clerk_work where task_date >= '{query_date_start}' and task_date <= '{query_date_end}' and clerk_id = {query_userID} order by task_date, task_group, ID, clerk_work"
-        affix_info = ""
-        color_field = "分值"
+        sql_task = f"SELECT task_date, clerk_work, task_score, task_group, task_approved from clerk_work where task_date >= '{query_date_start}' and task_date <= '{query_date_end}' and clerk_id = {query_userID} order by task_date, task_group, ID, clerk_work"
+        affix_info, color_field, score_num = "", "分值", 2
     rows = execute_sql(cur, sql_task)
     if rows:
         ttl_score = 0
@@ -426,7 +437,7 @@ def query_task():
             if flag_combine:
                 ttl_score = ttl_score + row[1] * row[3]
             else:
-                ttl_score += row[1]
+                ttl_score += row[2]
         ttl_score = int(ttl_score)
         df = pd.DataFrame(rows, dtype=str)
         if flag_combine:
@@ -434,8 +445,9 @@ def query_task():
             for index, value in enumerate(rows):
                 df.loc[index, "单项分值"] = int(float(df["单项分值"][index]))
         else:
-            df.columns = ["工作", "分值", "工作组别", "核定状态"]
+            df.columns = ["日期", "工作", "分值", "工作组别", "核定状态"]
             for index, value in enumerate(rows):
+                df.loc[index, "分值"] = int(df["分值"][index])
                 df.loc[index, "核定状态"] = "已核定" if int(df["核定状态"][index]) == 1 else "未核定"
         st.dataframe(df.style.apply(highlight_max, subset=[color_field]))
         #st.dataframe(df)
@@ -461,14 +473,14 @@ def query_task():
                 if flag_combine:
                     textContent = pContent.add_run(f"第{i}项 - 工作类型: {row[2]} 内容: {row[0]} 单项分值: {int(row[1])} 项数: {row[3]}次")
                 else:
-                    if row[3] == 1:
+                    if row[4] == 1:
                         approved_text = "已核定"
                     else:
                         approved_text = "未核定"
-                    textContent = pContent.add_run(f"第{i}项 - 工作类型: {row[2]} 内容: {row[0]} 分值: {row[1]} 状态: {approved_text}")
+                    textContent = pContent.add_run(f"第{i}项 - 日期: {row[0]} 工作类型: {row[3]} 内容: {row[1]} 分值: {row[2]} 状态: {approved_text}")
                 textContent.font.size = Pt(contentFS)
                 textContent.font.bold = False
-                if row[1] < 0:
+                if row[score_num] < 0:
                     textContent.font.color.rgb = RGBColor(139, 0, 0)
                 else:
                     textContent.font.color.rgb = RGBColor(0, 0, 0)
