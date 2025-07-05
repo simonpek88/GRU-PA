@@ -34,14 +34,9 @@
 					"label": "task_modify"
 				},
 				{
-					"line": 615,
+					"line": 689,
 					"column": 17,
 					"label": "check_data"
-				},
-				{
-					"line": 691,
-					"column": 26,
-					"label": "main"
 				},
 				{
 					"line": 721,
@@ -52,6 +47,11 @@
 					"line": 743,
 					"column": 22,
 					"label": "deduction_input"
+				},
+				{
+					"line": 818,
+					"column": 61,
+					"label": "highlight"
 				}
 			]
 		},

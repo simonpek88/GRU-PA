@@ -391,7 +391,7 @@ def task_input():
 
 
 def query_task():
-    st.markdown("### <font face='微软雅黑' color=red><center>工作量查询及核定</center></font>", unsafe_allow_html=True)
+    st.markdown("### <font face='微软雅黑' color=red><center>工作量查询及导出</center></font>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
     if st.session_state.userType == 'admin':
         userID, userCName = [], []
@@ -409,18 +409,16 @@ def query_task():
     query_date_start = col2.date_input('查询开始时间', value=datetime.date.today())
     query_date_end = col3.date_input('查询结束时间', value=datetime.date.today())
     confirm_btn_output = col1.button("导出为Word文件")
-    if st.session_state.userType == 'admin':
-        confirm_btn_approv = col2.button("核定")
-    else:
-        confirm_btn_approv = False
     with col3:
         flag_combine = sac.switch("是否合并统计", value=False)
     if flag_combine:
         sql_task = f"SELECT clerk_work, AVG(task_score) AS avg_task_score, task_group, count(clerk_work) FROM clerk_work WHERE task_date >= '{query_date_start}' AND task_date <= '{query_date_end}' AND clerk_id = {query_userID} GROUP BY clerk_work, task_group ORDER BY task_group"
         affix_info = "(合并统计)"
+        color_field = "单项分值"
     else:
-        sql_task = f"SELECT clerk_work, task_score, task_group from clerk_work where task_date >= '{query_date_start}' and task_date <= '{query_date_end}' and clerk_id = {query_userID} order by task_date, task_group, ID, clerk_work"
+        sql_task = f"SELECT clerk_work, task_score, task_group, task_approved from clerk_work where task_date >= '{query_date_start}' and task_date <= '{query_date_end}' and clerk_id = {query_userID} order by task_date, task_group, ID, clerk_work"
         affix_info = ""
+        color_field = "分值"
     rows = execute_sql(cur, sql_task)
     if rows:
         ttl_score = 0
@@ -430,20 +428,21 @@ def query_task():
             else:
                 ttl_score += row[1]
         ttl_score = int(ttl_score)
-        df = pd.DataFrame(rows)
+        df = pd.DataFrame(rows, dtype=str)
         if flag_combine:
             df.columns = ["工作", "单项分值", "工作组别", "工作项数"]
+            for index, value in enumerate(rows):
+                df.loc[index, "单项分值"] = int(float(df["单项分值"][index]))
         else:
-            df.columns = ["工作", "分值", "工作组别"]
-        st.dataframe(df)
+            df.columns = ["工作", "分值", "工作组别", "核定状态"]
+            for index, value in enumerate(rows):
+                df.loc[index, "核定状态"] = "已核定" if int(df["核定状态"][index]) == 1 else "未核定"
+        st.dataframe(df.style.apply(highlight_max, subset=[color_field]))
+        #st.dataframe(df)
         st.markdown(f':green[共计:] {len(rows)}项工作{affix_info} :red[总分:] {ttl_score}')
     else:
         st.error(f":red[没有查询到符合条件的记录]")
-    if confirm_btn_approv:
-        sql = f"UPDATE clerk_work SET task_approved = 1 where task_date >= '{query_date_start}' and task_date <= '{query_date_end}' and clerk_id = {query_userID}"
-        execute_sql_and_commit(conn, cur, sql)
-        st.success(f"**用户:{query_userCName} {query_date_start} 至 {query_date_end} 之间的工作量已核定**")
-    elif confirm_btn_output:
+    if confirm_btn_output:
         headerFS = 16
         contentFS = 12
         quesDOC = Document()
@@ -462,7 +461,11 @@ def query_task():
                 if flag_combine:
                     textContent = pContent.add_run(f"第{i}项 - 工作类型: {row[2]} 内容: {row[0]} 单项分值: {int(row[1])} 项数: {row[3]}次")
                 else:
-                    textContent = pContent.add_run(f"第{i}项 - 工作类型: {row[2]} 内容: {row[0]} 分值: {row[1]}")
+                    if row[3] == 1:
+                        approved_text = "已核定"
+                    else:
+                        approved_text = "未核定"
+                    textContent = pContent.add_run(f"第{i}项 - 工作类型: {row[2]} 内容: {row[0]} 分值: {row[1]} 状态: {approved_text}")
                 textContent.font.size = Pt(contentFS)
                 textContent.font.bold = False
                 if row[1] < 0:
@@ -496,7 +499,7 @@ def query_task():
             for j in range(1):
                 pContent = quesDOC.add_paragraph()
             pContent = quesDOC.add_paragraph()
-            textContent = pContent.add_run("核定签字:")
+            textContent = pContent.add_run("核定签字: ________")
             add_page_number(quesDOC.sections[0].footer.paragraphs[0].add_run())
             quesDOC.sections[0].footer.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
             outputFile = f"./user_pa/{st.session_state.userCName}-{query_date_start}-{query_date_end}_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.docx"
@@ -624,8 +627,8 @@ def task_modify():
         col1.markdown(f"#### 当前用户: {st.session_state.userCName}")
         query_userID = st.session_state.userID
         query_userCName = st.session_state.userCName
-    query_date_start = col2.date_input('查询开始时间', value=datetime.date.today())
-    query_date_end = col3.date_input('查询结束时间', value=datetime.date.today())
+    query_date_start = col2.date_input('查询开始时间', value=datetime.date.today(), max_value="today")
+    query_date_end = col3.date_input('查询结束时间', value=datetime.date.today(), max_value="today")
     user_task_id_pack = []
     sql = f"SELECT clerk_work, task_score, task_group, ID from clerk_work where clerk_id = {query_userID} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}'"
     result = execute_sql(cur, sql)
@@ -663,9 +666,9 @@ def delete_task(task_modify_id, query_userID):
     execute_sql_and_commit(conn, cur, sql)
     sql = f"SELECT ID FROM clerk_work where ID = {task_modify_id} and clerk_id = {query_userID}"
     if not execute_sql(cur, sql):
-        st.toast(f"ID:{task_modify_id} 删除成功！")
+        st.toast(f"ID:{task_modify_id} 删除成功!")
     else:
-        st.toast(f"ID:{task_modify_id} 删除失败！该记录已经被核定！")
+        st.toast(f"ID:{task_modify_id} 删除失败! 被核定的记录无法删除, 请联系管理员!")
 
 
 def modify_task(task_modify_id, query_userID):
@@ -679,14 +682,14 @@ def modify_task(task_modify_id, query_userID):
     sql = f"SELECT ID from clerk_work where clerk_work = '{modify_content}' and task_score = {modify_score} and ID = {task_modify_id} and clerk_id = {query_userID}"
     if execute_sql(cur, sql):
         pass
-        #st.toast(f"ID:{task_modify_id} 修改成功！")
+        #st.toast(f"ID:{task_modify_id} 修改成功!")
     else:
-        st.toast(f"ID:{task_modify_id} 修改失败！该记录已经被核定！")
+        st.toast(f"ID:{task_modify_id} 修改失败! 被核定的记录无法修改, 请联系管理员!")
 
-
+@st.fragment
 def check_data():
-    st.markdown("### <font face='微软雅黑' color=red><center>数据检查</center></font>", unsafe_allow_html=True)
-    col1, col2, col3 = st.columns(3)
+    st.markdown("### <font face='微软雅黑' color=red><center>数据检查与核定</center></font>", unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
     userID, userCName = [], []
     sql = "SELECT userID, userCName from users where clerk_pa = 1 order by ID"
     rows = execute_sql(cur, sql)
@@ -697,14 +700,33 @@ def check_data():
     query_date_end = col2.date_input('查询结束时间', value=datetime.date.today())
     dur_time = query_date_end - query_date_start
     st.markdown(f'##### 统计周期: {dur_time.days}天')
-    for index, value in enumerate(userID):
-        sql = "SELECT pa_content, min_days from bjs_pa where min_days > 0 order by min_days DESC"
-        rows = execute_sql(cur, sql)
-        for row in rows:
-            sql = f"SELECT count(ID) from clerk_work where clerk_work = '{row[0]}' and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}'"
-            task_count = execute_sql(cur, sql)[0][0]
-            if task_count > 1 and task_count > dur_time.days / row[1]:
-                st.warning(f"用户: {userCName[index]} 工作: [{row[0]}] 应该 1次/{row[1]}天, 实际: {task_count}次 已超量, 请检查记录！")
+    confirm_btn_check = col1.button("检查")
+    confirm_btn_approv = col2.button("核定")
+    if confirm_btn_check:
+        for index, value in enumerate(userID):
+            sql = "SELECT pa_content, min_days from bjs_pa where min_days > 0 order by min_days DESC"
+            rows = execute_sql(cur, sql)
+            for row in rows:
+                sql = f"SELECT count(ID) from clerk_work where clerk_work = '{row[0]}' and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}'"
+                task_count = execute_sql(cur, sql)[0][0]
+                if task_count > 1 and task_count > dur_time.days / row[1]:
+                    st.warning(f"用户: {userCName[index]} 工作: [{row[0]}] 应该 1次/{row[1]}天, 实际: {task_count}次 已超量, 请检查记录！")
+    else:
+        task_pack = []
+        sql = f"SELECT ID, clerk_cname, task_date, clerk_work, task_score, task_group from clerk_work where task_approved = 0 and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' order by task_date, task_group, clerk_work, clerk_cname, task_score"
+        result = execute_sql(cur, sql)
+        if result:
+            for row in result:
+                task_pack.append(f'日期:{row[2]} 用户:{row[1]} 工作类型:{row[5]} 内容:{row[3]} 分值:{row[4]} ID:{row[0]}')
+            approve_pack = sac.transfer(items=task_pack, label='工作量核定', titles=['项目'], reload=True, align='center', search=True, pagination=True, use_container_width=True)
+            if confirm_btn_approv and approve_pack:
+                for each in approve_pack:
+                    approve_id = each[each.find('ID:') + 3:].strip()
+                    sql = f"UPDATE clerk_work SET task_approved = 1 where ID = {approve_id}"
+                    execute_sql_and_commit(conn, cur, sql)
+                    st.success(f"**{each} 工作量已核定**")
+        else:
+            st.markdown(f'###### :red[无任何记录]')
 
 def resetPassword():
     # 显示副标题和分隔线
@@ -813,6 +835,12 @@ def deduction_input():
             st.error("请输入扣分项内容")
 
 
+def highlight_max(x, forecolor='black', backcolor="#D61919"):
+    is_max = x == x.max()
+
+    return [f'color: {forecolor}; background-color: {backcolor}' if v else '' for v in is_max]
+
+
 global APPNAME, MAXDEDUCTSCORE
 APPNAME = "北京站绩效考核系统KPI-PA"
 MAXDEDUCTSCORE = -20
@@ -837,10 +865,10 @@ if st.session_state.logged_in:
                 sac.MenuItem('功能', icon='grid-3x3-gap', children=[
                     sac.MenuItem('工作量录入', icon='list-task'),
                     sac.MenuItem('工作量手工录入', icon='journal-plus'),
-                    sac.MenuItem('记录修改', icon='journal-medical'),
                     sac.MenuItem('工作减分项录入', icon='journal-minus'),
-                    sac.MenuItem('统计查询及核定', icon='graph-up'),
-                    sac.MenuItem('数据检查', icon='check2-all'),
+                    sac.MenuItem('记录修改', icon='journal-medical'),
+                    sac.MenuItem('统计查询及导出', icon='graph-up'),
+                    sac.MenuItem('数据检查与核定', icon='check2-all'),
                     sac.MenuItem("重置数据库ID", icon="bootstrap-reboot"),
                 ]),
                 sac.MenuItem('账户', icon='person-gear', children=[
@@ -861,7 +889,7 @@ if st.session_state.logged_in:
                     sac.MenuItem('工作量录入', icon='list-task'),
                     sac.MenuItem('工作量手工录入', icon='journal-plus'),
                     sac.MenuItem('记录修改', icon='journal-medical'),
-                    sac.MenuItem('统计查询及核定', icon='graph-up'),
+                    sac.MenuItem('统计查询及导出', icon='graph-up'),
                 ]),
                 sac.MenuItem('账户', icon='person-gear', children=[
                     sac.MenuItem('密码修改', icon='key'),
@@ -883,13 +911,13 @@ if st.session_state.logged_in:
         task_input()
     elif selected == "工作量手工录入":
         manual_input()
-    elif selected == "记录修改":
-        task_modify()
-    elif selected == "统计查询及核定":
-        query_task()
     elif selected == "工作减分项录入":
         deduction_input()
-    elif selected == "数据检查":
+    elif selected == "记录修改":
+        task_modify()
+    elif selected == "统计查询及导出":
+        query_task()
+    elif selected == "数据检查与核定":
         check_data()
     elif selected == "重置数据库ID":
         reset_table_num()
