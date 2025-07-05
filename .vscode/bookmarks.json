@@ -19,8 +19,8 @@
 					"label": "task_input"
 				},
 				{
-					"line": 390,
-					"column": 17,
+					"line": 423,
+					"column": 49,
 					"label": "query_task"
 				},
 				{
@@ -52,6 +52,11 @@
 					"line": 818,
 					"column": 61,
 					"label": "highlight"
+				},
+				{
+					"line": 855,
+					"column": 16,
+					"label": "gen_chart"
 				}
 			]
 		},

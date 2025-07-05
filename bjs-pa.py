@@ -4,6 +4,7 @@ import os
 import time
 
 import pandas as pd
+import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 import streamlit.components.v1 as components
@@ -853,6 +854,79 @@ def highlight_max(x, forecolor='black', backcolor="#D61919"):
     return [f'color: {forecolor}; background-color: {backcolor}' if v else '' for v in is_max]
 
 
+def gen_chart():
+    st.markdown("### <font face='微软雅黑' color=red><center>趋势图</center></font>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns(3)
+    if st.session_state.userType == 'admin':
+        userID, userCName = [], []
+        sql = "SELECT userID, userCName from users where clerk_pa = 1 order by ID"
+        rows = execute_sql(cur, sql)
+        for row in rows:
+            userID.append(row[0])
+            userCName.append(row[1])
+        query_userCName = col1.selectbox("请选择查询用户", userCName)
+        query_userID = userID[userCName.index(query_userCName)]
+    elif st.session_state.userType == 'user':
+        col1.markdown(f"#### 当前用户: {st.session_state.userCName}")
+        query_userCName = st.session_state.userCName
+        query_userID = st.session_state.userID
+    query_date_start = col2.date_input('查询开始时间', value=datetime.date.today())
+    query_date_end = col3.date_input('查询结束时间', value=datetime.date.today())
+    if st.session_state.userType == 'admin':
+        flag_all_user = sac.switch("查询所有用户", value=False, align="start")
+    else:
+        flag_all_user = False
+    if not flag_all_user:
+        userID = [query_userID]
+        userCName = [query_userCName]
+    # 双Y轴
+    min_value, max_value = 1000, 0
+    charArea = st.empty()
+    with charArea.container(border=True):
+        fig = go.Figure()
+        for index, value in enumerate(userID):
+            hot_value, hot_date, temp_value_pack = [], [], []
+            sql = f"SELECT task_date, sum(task_score) from clerk_work where clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_date order by task_date"
+            result = execute_sql(cur, sql)
+            for each in result:
+                hot_date.append(each[0])
+                hot_value.append(int(each[1]))
+            temp_value_pack = hot_value
+            if temp_value_pack:
+                temp_value_pack.sort()
+                if temp_value_pack[0] < min_value:
+                    min_value = temp_value_pack[0]
+                if temp_value_pack[-1] > max_value:
+                    max_value = temp_value_pack[-1]
+                #st.write(min_value, max_value, hot_value)
+                if temp_value_pack[-1] < max_value / 2:
+                    yax = 'y2'
+                else:
+                    yax = 'y'
+                fig.add_trace(
+                    go.Scatter(name=f"{userCName[index]}",
+                                x=hot_date,
+                                y=hot_value,
+                                mode="markers+lines+text",
+                                text=[
+                                    format(round(x, 2), ",")
+                                    for x in hot_value
+                                ],
+                                yaxis=yax,
+                                textposition="top center"))
+        fig.update_layout(
+            title="工作量",
+            xaxis=dict(title="日期"),
+            yaxis=dict(title="主轴",
+                        rangemode="normal"),
+            template="simple_white",
+            yaxis2=dict(
+                title="",
+                overlaying='y',
+                side='right'))
+        st.plotly_chart(fig)
+
+
 global APPNAME, MAXDEDUCTSCORE
 APPNAME = "北京站绩效考核系统KPI-PA"
 MAXDEDUCTSCORE = -20
@@ -880,6 +954,7 @@ if st.session_state.logged_in:
                     sac.MenuItem('工作减分项录入', icon='journal-minus'),
                     sac.MenuItem('记录修改', icon='journal-medical'),
                     sac.MenuItem('统计查询及导出', icon='graph-up'),
+                    sac.MenuItem('趋势图', icon='bar-chart-line'),
                     sac.MenuItem('数据检查与核定', icon='check2-all'),
                     sac.MenuItem("重置数据库ID", icon="bootstrap-reboot"),
                 ]),
@@ -902,6 +977,7 @@ if st.session_state.logged_in:
                     sac.MenuItem('工作量手工录入', icon='journal-plus'),
                     sac.MenuItem('记录修改', icon='journal-medical'),
                     sac.MenuItem('统计查询及导出', icon='graph-up'),
+                    sac.MenuItem('趋势图', icon='bar-chart-line'),
                 ]),
                 sac.MenuItem('账户', icon='person-gear', children=[
                     sac.MenuItem('密码修改', icon='key'),
@@ -929,6 +1005,8 @@ if st.session_state.logged_in:
         task_modify()
     elif selected == "统计查询及导出":
         query_task()
+    elif selected == "趋势图":
+        gen_chart()
     elif selected == "数据检查与核定":
         check_data()
     elif selected == "重置数据库ID":

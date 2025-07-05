@@ -9,6 +9,7 @@ __pycache__/
 docs/
 user_pa/
 etest.py
+LLMonitor.py
 # Distribution / packaging
 .Python
 build/
