@@ -394,7 +394,7 @@ def query_task():
     col1, col2, col3 = st.columns(3)
     if st.session_state.userType == 'admin':
         userID, userCName = [], []
-        sql = "SELECT userID, userCName from users order by ID"
+        sql = "SELECT userID, userCName from users where clerk_pa = 1 order by ID"
         rows = execute_sql(cur, sql)
         for row in rows:
             userID.append(row[0])
@@ -581,43 +581,80 @@ def reset_bjspa_num(flag_force=False):
 
 @st.fragment
 def task_modify():
-    st.markdown("### <font face='微软雅黑' color=red><center>工作量删除</center></font>", unsafe_allow_html=True)
-    st.markdown(f"#### 当前用户: {st.session_state.userCName}")
-    user_taskid_pack = []
-    task_date = st.date_input('工作时间', value=datetime.date.today())
-    task_del_id = st.text_input('请输入要删除的ID')
-    col1, col2, col3, col4, col5, col6 = st.columns(6)
-    confirm_btn_delete = col1.button("删除", type="primary")
-    sql = f"SELECT clerk_work, task_score, task_group, ID from clerk_work where clerk_id = {st.session_state.userID} and task_date = '{task_date}'"
+    st.markdown("### <font face='微软雅黑' color=red><center>工作量修改</center></font>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns(3)
+    if st.session_state.userType == 'admin':
+        userID, userCName = [], []
+        sql = "SELECT userID, userCName from users where clerk_pa = 1 order by ID"
+        rows = execute_sql(cur, sql)
+        for row in rows:
+            userID.append(row[0])
+            userCName.append(row[1])
+        query_userCName = col1.selectbox("请选择查询用户", userCName)
+        query_userID = userID[userCName.index(query_userCName)]
+    else:
+        col1.markdown(f"#### 当前用户: {st.session_state.userCName}")
+        query_userID = st.session_state.userID
+    task_date = col2.date_input('工作时间', value=datetime.date.today())
+    user_task_id_pack = []
+    sql = f"SELECT clerk_work, task_score, task_group, ID from clerk_work where clerk_id = {query_userID} and task_date = '{task_date}'"
     result = execute_sql(cur, sql)
+    for row in result:
+        user_task_id_pack.append(row[3])
+    task_modify_id = col3.selectbox("请选择任务ID", user_task_id_pack, index=None)
+    form = st.columns(3)
+    confirm_btn_delete = form[0].button("删除", type="primary")
+    confirm_btn_modify = form[1].button("修改", type="primary")
     if result:
         ttl_score = 0
         st.markdown("##### 已输入工作量:\n\n")
         for row in result:
             st.write(f'ID:{row[3]} :violet[工作类型:] {row[2]} :orange[内容:] {row[0]} :green[分值:] {row[1]}')
-            user_taskid_pack.append(str(row[3]))
             ttl_score += row[1]
         st.markdown(f':red[总分:] {ttl_score}')
     else:
         st.markdown(f'###### :red[无任何记录]')
-    if confirm_btn_delete and task_del_id:
-        if task_del_id in user_taskid_pack:
-            col2.button("确认删除", type="secondary", on_click=delete_task, args=(task_del_id,))
-        else:
-            st.warning(f"ID:{task_del_id} 不属于当前用户!")
+    if task_modify_id:
+        sql = f"SELECT clerk_work, task_score, task_group from clerk_work where ID = {task_modify_id} and clerk_id = {query_userID}"
+        modify_pack = execute_sql(cur, sql)[0]
+        if confirm_btn_delete:
+            form[5].button("确认删除", type="secondary", on_click=delete_task, args=(task_modify_id, query_userID,))
+        elif confirm_btn_modify:
+            modify_content = form[0].text_area("请输入修改后的内容", value=modify_pack[0], height=100)
+            modify_score = form[1].number_input("请输入修改后的分数", min_value=1, max_value=800, value=modify_pack[1], step=1)
+            reconfirm_btn_modify = form[2].button("确认修改")
+            if reconfirm_btn_modify:
+                st.write(modify_content, modify_score)
+                modify_task(task_modify_id, modify_content, modify_score, query_userID)
+            #form[2].button("确认修改", type="secondary", on_click=modify_task, args=(task_modify_id, modify_content, modify_score, query_userID,))
+    else:
+        st.info('请选择要处理的记录ID')
 
 
-def delete_task(task_del_id):
-    sql = f"DELETE FROM clerk_work where ID = {task_del_id}"
+def delete_task(task_modify_id, query_userID):
+    sql = f"DELETE FROM clerk_work where ID = {task_modify_id} and clerk_id = {query_userID}"
     execute_sql_and_commit(conn, cur, sql)
-    st.toast(f"ID:{task_del_id} 删除成功！")
+    sql = f"SELECT ID FROM clerk_work where ID = {task_modify_id} and clerk_id = {query_userID}"
+    if not execute_sql(cur, sql):
+        st.toast(f"ID:{task_modify_id} 删除成功！")
+    else:
+        st.toast(f"ID:{task_modify_id} 删除失败！")
+
+def modify_task(task_modify_id, modify_content, modify_score, query_userID):
+    sql = f"UPDATE clerk_work SET clerk_work = '{modify_content}', task_score = {modify_score} where ID = {task_modify_id} and clerk_id = {query_userID}"
+    execute_sql_and_commit(conn, cur, sql)
+    sql = f"SELECT ID from clerk_work where clerk_work = '{modify_content}' and task_score = {modify_score} and ID = {query_userID} and clerk_id = {query_userID}"
+    if execute_sql(cur, sql):
+        st.toast(f"ID:{task_modify_id} 修改成功！")
+    else:
+        st.toast(f"ID:{task_modify_id} 修改失败！")
 
 
 def check_data():
     st.markdown("### <font face='微软雅黑' color=red><center>数据检查</center></font>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
     userID, userCName = [], []
-    sql = "SELECT userID, userCName from users order by ID"
+    sql = "SELECT userID, userCName from users where clerk_pa = 1 order by ID"
     rows = execute_sql(cur, sql)
     for row in rows:
         userID.append(row[0])
@@ -637,10 +674,10 @@ def check_data():
 
 
 global APPNAME
-APPNAME = "北京站绩效考核系统"
+APPNAME = "北京站绩效考核系统KPI-PA"
 conn = get_connection()
 cur = conn.cursor()
-st.logo("./Images/logos/bjs-pa-logo2.png", icon_image="./Images/logos/bjs-pa-logo.png", size="large")
+st.logo("./Images/logos/bjs-pa-logo.png", icon_image="./Images/logos/bjs-pa-logo.png", size="large")
 
 selected = None
 

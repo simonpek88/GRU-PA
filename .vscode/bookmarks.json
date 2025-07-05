@@ -29,7 +29,7 @@
 					"label": "manual_input"
 				},
 				{
-					"line": 553,
+					"line": 582,
 					"column": 18,
 					"label": "task_modify"
 				},
@@ -37,6 +37,11 @@
 					"line": 605,
 					"column": 48,
 					"label": "main"
+				},
+				{
+					"line": 615,
+					"column": 17,
+					"label": "check_data"
 				}
 			]
 		},
@@ -44,14 +49,9 @@
 			"path": "etest.py",
 			"bookmarks": [
 				{
-					"line": 615,
+					"line": 2133,
 					"column": 17,
-					"label": "questoWord"
-				},
-				{
-					"line": 3667,
-					"column": 30,
-					"label": "main"
+					"label": "quesModify"
 				}
 			]
 		}
