@@ -24,12 +24,12 @@
 					"label": "query_task"
 				},
 				{
-					"line": 492,
+					"line": 521,
 					"column": 19,
 					"label": "manual_input"
 				},
 				{
-					"line": 582,
+					"line": 610,
 					"column": 18,
 					"label": "task_modify"
 				},
@@ -47,6 +47,11 @@
 					"line": 721,
 					"column": 61,
 					"label": "menu"
+				},
+				{
+					"line": 743,
+					"column": 22,
+					"label": "deduction_input"
 				}
 			]
 		},

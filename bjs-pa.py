@@ -465,7 +465,29 @@ def query_task():
                     textContent = pContent.add_run(f"第{i}项 - 工作类型: {row[2]} 内容: {row[0]} 分值: {row[1]}")
                 textContent.font.size = Pt(contentFS)
                 textContent.font.bold = False
+                if row[1] < 0:
+                    textContent.font.color.rgb = RGBColor(139, 0, 0)
+                else:
+                    textContent.font.color.rgb = RGBColor(0, 0, 0)
                 i += 1
+            sql = f"SELECT clerk_work, task_score, task_group from clerk_work where task_date >= '{query_date_start}' and task_date <= '{query_date_end}' and clerk_id = {query_userID} and task_score < 0 order by task_date, task_group, ID, clerk_work"
+            deduct_result = execute_sql(cur, sql)
+            if deduct_result:
+                pContent = quesDOC.add_paragraph()
+                textContent = pContent.add_run(f"其中共{len(deduct_result)}个减分项(未合并)")
+                textContent.font.size = Pt(contentFS + 2)
+                textContent.font.bold = True
+                textContent.font.color.rgb = RGBColor(139, 0, 0)
+                j = 1
+                for deduct_row in deduct_result:
+                    pContent = quesDOC.add_paragraph()
+                    textContent = pContent.add_run(f"第{j}项 - 工作类型: {deduct_row[2]} 内容: {deduct_row[0]} 分值: {deduct_row[1]}")
+                    textContent.font.size = Pt(contentFS)
+                    textContent.font.bold = True
+                    textContent.font.color.rgb = RGBColor(0, 0, 0)
+                    j += 1
+            for j in range(1):
+                pContent = quesDOC.add_paragraph()
             pContent = quesDOC.add_paragraph()
             textContent = pContent.add_run(f"共计完成{i - 1}项工作{affix_info} 总分: {ttl_score}")
             textContent.font.size = Pt(contentFS + 2)
@@ -554,7 +576,7 @@ def manual_input():
             if not execute_sql(cur, sql):
                 sql = f"INSERT INTO bjs_pa (pa_content, pa_score, pa_group, task_group, multi_score) VALUES ('{task_content}', {task_score}, '全员', '{task_group}', {int(flag_multi_score)})"
                 execute_sql_and_commit(conn, cur, sql)
-                reset_bjspa_num(True)
+                reset_table_num(True)
                 st.toast(f"工作量: [{task_content}] 添加至列表成功！")
             else:
                 st.warning(f"工作量: [{task_content}] 在列表中已存在！")
@@ -563,21 +585,26 @@ def manual_input():
     elif not task_content:
         st.warning(f"请输入工作内容！")
 
-def reset_bjspa_num(flag_force=False):
+def reset_table_num(flag_force=False):
     if not flag_force:
         confirm_btn_reset = st.button("确认重置")
     else:
         confirm_btn_reset = True
     if confirm_btn_reset:
-        i = 1
-        sql = "SELECT ID from bjs_pa order by task_group, pa_num"
-        rows = execute_sql(cur, sql)
-        for row in rows:
-            sql = f"UPDATE bjs_pa SET pa_num = {i} where ID = {row[0]}"
-            execute_sql_and_commit(conn, cur, sql)
-            i += 2
+        for modify_table in ['bjs_pa', 'bjs_pa_deduct']:
+            i, sql = 1, ''
+            if modify_table == 'bjs_pa':
+                sql = f"SELECT ID from {modify_table} order by task_group, ID, pa_num"
+            elif modify_table == 'bjs_pa_deduct':
+                sql = f"SELECT ID from {modify_table} order by ID"
+            if sql:
+                rows = execute_sql(cur, sql)
+                for row in rows:
+                    sql = f"UPDATE {modify_table} SET pa_num = {i} where ID = {row[0]}"
+                    execute_sql_and_commit(conn, cur, sql)
+                    i += 2
         if not flag_force:
-            st.success("数据库ID重置成功")
+            st.success(f"{modify_table} ID重置成功")
 
 
 #@st.fragment
@@ -629,27 +656,32 @@ def task_modify():
 
 
 def delete_task(task_modify_id, query_userID):
-    sql = f"DELETE FROM clerk_work where ID = {task_modify_id} and clerk_id = {query_userID}"
+    if st.session_state.userType == 'admin':
+        sql = f"DELETE FROM clerk_work where ID = {task_modify_id} and clerk_id = {query_userID}"
+    else:
+        sql = f"DELETE FROM clerk_work where ID = {task_modify_id} and clerk_id = {query_userID} and task_approved = 0"
     execute_sql_and_commit(conn, cur, sql)
     sql = f"SELECT ID FROM clerk_work where ID = {task_modify_id} and clerk_id = {query_userID}"
     if not execute_sql(cur, sql):
         st.toast(f"ID:{task_modify_id} 删除成功！")
     else:
-        st.toast(f"ID:{task_modify_id} 删除失败！")
+        st.toast(f"ID:{task_modify_id} 删除失败！该记录已经被核定！")
+
 
 def modify_task(task_modify_id, query_userID):
     sql = f"SELECT clerk_work, task_score, task_group from clerk_work where ID = {task_modify_id} and clerk_id = {query_userID}"
     modify_pack = execute_sql(cur, sql)[0]
     form = st.columns(3)
     modify_content = form[0].text_area("请输入修改后的内容", value=modify_pack[0], height=100)
-    modify_score = form[1].number_input("请输入修改后的分数", min_value=1, max_value=1000, value=modify_pack[1], step=1, placeholder="最大1000")
+    modify_score = form[1].number_input("请输入修改后的分数", min_value=MAXDEDUCTSCORE, max_value=1000, value=modify_pack[1], step=1, placeholder="最大1000")
     sql = f"UPDATE clerk_work SET clerk_work = '{modify_content}', task_score = {modify_score} where ID = {task_modify_id} and clerk_id = {query_userID}"
     execute_sql_and_commit(conn, cur, sql)
     sql = f"SELECT ID from clerk_work where clerk_work = '{modify_content}' and task_score = {modify_score} and ID = {task_modify_id} and clerk_id = {query_userID}"
     if execute_sql(cur, sql):
-        st.toast(f"ID:{task_modify_id} 修改成功！")
+        pass
+        #st.toast(f"ID:{task_modify_id} 修改成功！")
     else:
-        st.toast(f"ID:{task_modify_id} 修改失败！")
+        st.toast(f"ID:{task_modify_id} 修改失败！该记录已经被核定！")
 
 
 def check_data():
@@ -736,8 +768,54 @@ def actionResetUserPW(rUserName):
     st.success(f"**{rInfo}**")
 
 
-global APPNAME
+def deduction_input():
+    st.markdown("### <font face='微软雅黑' color=red><center>减分项录入</center></font>", unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    userID, userCName, pa_deduct, pa_deduct_score = [], [], [], []
+    sql = "SELECT userID, userCName from users where clerk_pa = 1 order by ID"
+    rows = execute_sql(cur, sql)
+    for row in rows:
+        userID.append(row[0])
+        userCName.append(row[1])
+    deduct_userCName = col1.selectbox("请选择用户", userCName)
+    deduct_userID = userID[userCName.index(deduct_userCName)]
+    deduct_date = col2.date_input("请选择日期", datetime.date.today(), max_value="today")
+    sql = "SELECT pa_content, pa_score from bjs_pa_deduct order by ID"
+    rows = execute_sql(cur, sql)
+    for row in rows:
+        pa_deduct.append(row[0])
+        pa_deduct_score.append(row[1])
+    task_deduct = col1.selectbox("扣分项", pa_deduct, index=None)
+    if task_deduct:
+        task_score = pa_deduct_score[pa_deduct.index(task_deduct)]
+    else:
+        task_score = -1
+    deduct_score = col2.number_input("扣分", min_value=MAXDEDUCTSCORE, max_value=-1, value=task_score, step=1, placeholder=f"最小值{MAXDEDUCTSCORE}, 最大值-1")
+    deduct_content = col1.text_area("自定义扣分项内容", value=task_deduct, placeholder="可选择固定扣分项后修改", height=100)
+    confirm_btn_add = st.button("确认添加")
+    if confirm_btn_add:
+        #st.write(deduct_content, deduct_score, deduct_userID, deduct_userCName, deduct_date)
+        if deduct_content:
+            sql = f"SELECT ID from clerk_work where task_date = '{deduct_date}' and clerk_work = '{deduct_content}' and clerk_id = {deduct_userID}"
+            if not execute_sql(cur, sql):
+                sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group, task_approved) VALUES ('{deduct_date}', {deduct_userID}, '{deduct_userCName}', '{deduct_content}', {deduct_score}, '扣分', 1)"
+                execute_sql_and_commit(conn, cur, sql)
+                st.success(f"{deduct_userCName} 扣分项添加成功")
+            else:
+                st.error(f"{deduct_userCName} {deduct_date} {deduct_content} 扣分项已存在")
+            sql = f"SELECT ID from bjs_pa_deduct where pa_content = '{deduct_content}' and pa_score = {deduct_score}"
+            if not execute_sql(cur, sql):
+                sql = f"INSERT INTO bjs_pa_deduct(pa_content, pa_score) VALUES ('{deduct_content}', {deduct_score})"
+                execute_sql_and_commit(conn, cur, sql)
+                st.success(f"{deduct_content} 扣分项已添加至固定列表")
+                reset_table_num(True)
+        else:
+            st.error("请输入扣分项内容")
+
+
+global APPNAME, MAXDEDUCTSCORE
 APPNAME = "北京站绩效考核系统KPI-PA"
+MAXDEDUCTSCORE = -20
 conn = get_connection()
 cur = conn.cursor()
 st.logo("./Images/logos/bjs-pa-logo2.png", icon_image="./Images/logos/bjs-pa-logo.png", size="large")
@@ -758,8 +836,9 @@ if st.session_state.logged_in:
                 sac.MenuItem('主页', icon='house'),
                 sac.MenuItem('功能', icon='grid-3x3-gap', children=[
                     sac.MenuItem('工作量录入', icon='list-task'),
-                    sac.MenuItem('工作量手工录入', icon='pencil-square'),
-                    sac.MenuItem('记录修改', icon='journal-x'),
+                    sac.MenuItem('工作量手工录入', icon='journal-plus'),
+                    sac.MenuItem('记录修改', icon='journal-medical'),
+                    sac.MenuItem('工作减分项录入', icon='journal-minus'),
                     sac.MenuItem('统计查询及核定', icon='graph-up'),
                     sac.MenuItem('数据检查', icon='check2-all'),
                     sac.MenuItem("重置数据库ID", icon="bootstrap-reboot"),
@@ -780,8 +859,8 @@ if st.session_state.logged_in:
                 sac.MenuItem('主页', icon='house'),
                 sac.MenuItem('功能', icon='grid-3x3-gap', children=[
                     sac.MenuItem('工作量录入', icon='list-task'),
-                    sac.MenuItem('工作量手工录入', icon='pencil-square'),
-                    sac.MenuItem('记录修改', icon='journal-x'),
+                    sac.MenuItem('工作量手工录入', icon='journal-plus'),
+                    sac.MenuItem('记录修改', icon='journal-medical'),
                     sac.MenuItem('统计查询及核定', icon='graph-up'),
                 ]),
                 sac.MenuItem('账户', icon='person-gear', children=[
@@ -808,10 +887,12 @@ if st.session_state.logged_in:
         task_modify()
     elif selected == "统计查询及核定":
         query_task()
+    elif selected == "工作减分项录入":
+        deduction_input()
     elif selected == "数据检查":
         check_data()
     elif selected == "重置数据库ID":
-        reset_bjspa_num()
+        reset_table_num()
     elif selected == "密码修改":
         changePassword()
     elif selected == "密码重置":
