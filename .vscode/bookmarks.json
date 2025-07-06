@@ -19,18 +19,48 @@
 					"label": "task_input"
 				},
 				{
-					"line": 390,
-					"column": 17,
+					"line": 423,
+					"column": 49,
 					"label": "query_task"
 				},
 				{
-					"line": 466,
+					"line": 521,
 					"column": 19,
 					"label": "manual_input"
 				},
 				{
-					"line": 550,
-					"column": 14,
+					"line": 610,
+					"column": 18,
+					"label": "task_modify"
+				},
+				{
+					"line": 689,
+					"column": 17,
+					"label": "check_data"
+				},
+				{
+					"line": 721,
+					"column": 61,
+					"label": "menu"
+				},
+				{
+					"line": 743,
+					"column": 22,
+					"label": "deduction_input"
+				},
+				{
+					"line": 818,
+					"column": 61,
+					"label": "highlight"
+				},
+				{
+					"line": 855,
+					"column": 16,
+					"label": "gen_chart"
+				},
+				{
+					"line": 932,
+					"column": 23,
 					"label": "main"
 				}
 			]
@@ -39,14 +69,24 @@
 			"path": "etest.py",
 			"bookmarks": [
 				{
-					"line": 615,
+					"line": 2133,
 					"column": 17,
-					"label": "questoWord"
+					"label": "quesModify"
 				},
 				{
-					"line": 3667,
-					"column": 30,
-					"label": "main"
+					"line": 3772,
+					"column": 65,
+					"label": "menu"
+				}
+			]
+		},
+		{
+			"path": "CHANGELOG.md",
+			"bookmarks": [
+				{
+					"line": 4,
+					"column": 6,
+					"label": "update info"
 				}
 			]
 		}
