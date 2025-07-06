@@ -59,6 +59,11 @@
 					"label": "highlight"
 				},
 				{
+					"line": 820,
+					"column": 33,
+					"label": "chart_type"
+				},
+				{
 					"line": 866,
 					"column": 13,
 					"label": "hot_chart"
