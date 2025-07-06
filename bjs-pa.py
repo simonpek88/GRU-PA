@@ -14,7 +14,11 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Pt, RGBColor
+from openpyxl.cell import MergedCell
+from openpyxl.styles import Alignment, Border, Font, Side
+from openpyxl.worksheet.header_footer import HeaderFooter
 from streamlit_extras.badges import badge
+from wcwidth import wcswidth
 
 from commFunc import (execute_sql, execute_sql_and_commit, get_update_content,
                       getUserEDKeys, getVerInfo, updatePyFileinfo)
@@ -489,7 +493,73 @@ def query_task():
         outputFile = f"./user_pa/工作量统计_{query_date_start}至{query_date_end}_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.xlsx"
         if os.path.exists(outputFile):
             os.remove(outputFile)
-        df_with_subtotals.to_excel(outputFile, index=False, engine='openpyxl')
+        with pd.ExcelWriter(outputFile, engine='openpyxl') as writer:
+            df_with_subtotals.to_excel(writer, sheet_name='统计表', index=False, startrow=1)
+            # 插入统计时间行
+            report_date_range = f"工作量统计 时间：{query_date_start} 至 {query_date_end}"
+            # 对excel文件进行格式化
+            ws = writer.sheets['统计表']
+            # 设置页面为横向
+            ws.page_setup.orientation = 'landscape'
+            # 添加页眉/页脚（页脚居中显示页码）
+            ws.oddFooter.center.text = "&P / &N"
+            # 冻结前两行为标题行
+            ws.print_title_rows = '1:2'
+            # 合并 A1:F1，并设置样式
+            ws.merge_cells("A1:F1")
+            cell = ws["A1"]
+            cell.value = report_date_range
+            cell.font = Font(name="微软雅黑", size=14, bold=True)
+            # 创建一个通用的对齐设置
+            alignment = Alignment(horizontal='center', vertical='center')
+            # 设置标题行样式
+            for cell in ws[1]:
+                cell.font = Font(name="微软雅黑", size=12, bold=True)
+            # 将“小计”行设为粗体，并设置字体大小
+            for row in ws.iter_rows(min_row=2):  # 跳过标题行
+                if isinstance(row[0].value, str) and row[0].value.startswith('小计'):
+                    for cell in row:
+                        cell.font = Font(name="微软雅黑", size=12, bold=True)
+            # 设置正文其他行字体
+            for row in ws.iter_rows(min_row=2):
+                if not (isinstance(row[0].value, str) and row[0].value.startswith('小计')):
+                    for cell in row:
+                        cell.font = Font(name="微软雅黑", size=12)
+            # 定义边框样式
+            thin_border = Border(
+                left=Side(style='thin'),
+                right=Side(style='thin'),
+                top=Side(style='thin'),
+                bottom=Side(style='thin')
+            )
+            special_columns = {
+                "A": 15
+            }
+            for col in ws.columns:
+                max_width = 0
+                column = None
+                for cell in col:
+                    if isinstance(cell, MergedCell):
+                        continue
+                    column = cell.column_letter
+                    value = str(cell.value) if cell.value else ""
+                    # 使用 wcswidth 精确计算显示宽度
+                    width = wcswidth(value)
+                    if width > max_width:
+                        max_width = width
+                if column:
+                    if column in special_columns:
+                        ws.column_dimensions[column].width = special_columns[column]
+                    else:
+                        ws.column_dimensions[column].width = max_width + 2
+            # 添加边框到所有单元格
+            for row in ws.iter_rows():
+                for cell in row:
+                    cell.border = thin_border
+                    if row[0].row == 1:
+                        cell.alignment = alignment
+                    else:
+                        cell.alignment = Alignment(horizontal='left', vertical='center')
         if os.path.exists(outputFile):
             with open(outputFile, "rb") as file:
                 content = file.read()
@@ -511,7 +581,7 @@ def add_subtotals(df, group_column, sum_columns):
         subtotal = group[sum_columns].sum()
         # 创建小计行
         subtotal_row = {col: "" for col in df.columns}
-        subtotal_row[group_column] = f"小计 ({name})"
+        subtotal_row[group_column] = f"小计: {name}"
         for col in sum_columns:
             subtotal_row[col] = subtotal[col]
         # 将小计行添加到列表中
