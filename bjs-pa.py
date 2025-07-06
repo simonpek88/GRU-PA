@@ -11,12 +11,11 @@ import streamlit.components.v1 as components
 import streamlit_antd_components as sac
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.oxml import OxmlElement
+from docx.oxml import OxmlElement, ns
 from docx.oxml.ns import qn
 from docx.shared import Pt, RGBColor
 from openpyxl.cell import MergedCell
 from openpyxl.styles import Alignment, Border, Font, Side
-from openpyxl.worksheet.header_footer import HeaderFooter
 from streamlit_extras.badges import badge
 from wcwidth import wcswidth
 
@@ -398,15 +397,19 @@ def query_task():
             st.markdown(f':green[共计:] {len(rows)}项工作{affix_info} :red[总分:] {ttl_score}')
     else:
         st.info(f":red[没有查询到符合条件的记录]")
+    if flag_approved:
+        approved_info = "全部已审核"
+    else:
+        approved_info = "包含未审核"
     if confirm_btn_output:
-        headerFS = 16
+        headerFS = 14
         contentFS = 12
         quesDOC = Document()
         quesDOC.styles["Normal"].font.name = "Microsoft YaHei"
         quesDOC.styles["Normal"]._element.rPr.rFonts.set(qn("w:eastAsia"), "Microsoft YaHei")
         pHeader = quesDOC.add_paragraph()
         pHeader.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        textHeader = pHeader.add_run(f"{st.session_state.userCName} {query_date_start} 至 {query_date_end} 工作量{affix_info}记录", 0)
+        textHeader = pHeader.add_run(f"{st.session_state.userCName} {query_date_start} 至 {query_date_end} 工作量{affix_info}记录 {approved_info}", 0)
         textHeader.font.size = Pt(headerFS)
         textHeader.font.bold = True
         rows = execute_sql(cur, sql_task)
@@ -452,12 +455,15 @@ def query_task():
             textContent.font.size = Pt(contentFS + 2)
             textContent.font.bold = True
             textContent.font.color.rgb = RGBColor(155, 17, 30)
-            for j in range(1):
+            if not flag_approved:
+                for j in range(1):
+                    pContent = quesDOC.add_paragraph()
                 pContent = quesDOC.add_paragraph()
-            pContent = quesDOC.add_paragraph()
-            textContent = pContent.add_run("核定签字: ________")
-            add_page_number(quesDOC.sections[0].footer.paragraphs[0].add_run())
-            quesDOC.sections[0].footer.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+                textContent = pContent.add_run("核定签字:  ________")
+            # 加入页码
+            footer = quesDOC.sections[0].footer
+            paragraph = footer.paragraphs[0] if footer.paragraphs else footer.add_paragraph()
+            add_page_number(paragraph)
             outputFile = f"./user_pa/{st.session_state.userCName}-{query_date_start}-{query_date_end}_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.docx"
             if os.path.exists(outputFile):
                 os.remove(outputFile)
@@ -496,7 +502,7 @@ def query_task():
         with pd.ExcelWriter(outputFile, engine='openpyxl') as writer:
             df_with_subtotals.to_excel(writer, sheet_name='统计表', index=False, startrow=1)
             # 插入统计时间行
-            report_date_range = f"工作量统计 时间：{query_date_start} 至 {query_date_end}"
+            report_date_range = f"工作量统计 时间：{query_date_start} 至 {query_date_end} {approved_info}"
             # 对excel文件进行格式化
             ws = writer.sheets['统计表']
             # 设置页面为横向
@@ -593,29 +599,33 @@ def add_subtotals(df, group_column, sum_columns):
 
     return result_df
 
+def add_page_number(paragraph):
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-def create_element(name):
-    return OxmlElement(name)
+    run = paragraph.add_run()
+
+    # 插入 "第 "
+    run.add_text("第 ")
+    # 插入 PAGE 字段
+    _new_page_field(run, "PAGE")
+    run.add_text(" 页 / 共 ")
+    # 插入 NUMPAGES 字段
+    _new_page_field(run, "NUMPAGES")
+    run.add_text(" 页")
 
 
-def create_attribute(element, name, value):
-    element.set(qn(name), value)
-
-
-def add_page_number(run):
-    fldChar1 = create_element('w:fldChar')
-    create_attribute(fldChar1, 'w:fldCharType', 'begin')
-
-    instrText = create_element('w:instrText')
-    create_attribute(instrText, 'xml:space', 'preserve')
-    instrText.text = "PAGE"
-
-    fldChar2 = create_element('w:fldChar')
-    create_attribute(fldChar2, 'w:fldCharType', 'end')
-
-    run._r.append(fldChar1)
-    run._r.append(instrText)
-    run._r.append(fldChar2)
+def _new_page_field(run, field_code):
+    """
+    插入 PAGE 或 NUMPAGES 字段到指定 run 中
+    :param run: 要插入的 run 对象
+    :param field_code: 'PAGE' 或 'NUMPAGES'
+    """
+    # 创建 fldSimple 元素
+    fld_elm = OxmlElement('w:fldSimple')
+    # 设置属性
+    fld_elm.set(qn('w:instr'), f'{field_code} \\* MERGEFORMAT')
+    # 添加到 run
+    run._r.append(fld_elm)
 
 
 def manual_input():

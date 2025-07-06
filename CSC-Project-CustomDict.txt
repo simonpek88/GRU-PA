@@ -35,6 +35,7 @@ dcol
 deepseek
 delUserFiles_
 dmysql
+docxtopdf
 dyna
 emsp
 etest
@@ -80,6 +81,7 @@ pickable
 pycryptodome
 pydeck
 pylint
+pythoncom
 qcol
 qianfan
 QIANFAN
