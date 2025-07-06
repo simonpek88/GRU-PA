@@ -353,16 +353,21 @@ def query_task():
         query_userID = st.session_state.userID
     query_date_start = col2.date_input('查询开始时间', value=datetime.date.today())
     query_date_end = col3.date_input('查询结束时间', value=datetime.date.today())
-    confirm_btn_output = col1.button("导出为Word文件")
-    with col2:
+    col4, col5, col6, col7 = st.columns(4)
+    confirm_btn_output = col4.button("导出为Word文件")
+    if st.session_state.userType == 'admin':
+        confirm_btn_output_excel = col5.button("导出统计报表")
+    else:
+        confirm_btn_output_excel = False
+    with col6:
         flag_approved = sac.switch("仅限已核定工作", value=False, on_label="On")
-    with col3:
+    with col7:
         flag_combine = sac.switch("合并统计", value=False, on_label="On")
     if flag_combine:
-        sql_task = f"SELECT clerk_work, AVG(task_score) AS avg_task_score, task_group, count(clerk_work) FROM clerk_work WHERE task_approved >= {flag_approved} and task_date >= '{query_date_start}' AND task_date <= '{query_date_end}' AND clerk_id = {query_userID} GROUP BY clerk_work, task_group ORDER BY task_group"
+        sql_task = f"SELECT clerk_work, AVG(task_score) AS avg_task_score, task_group, count(clerk_work) FROM clerk_work WHERE task_approved >= {int(flag_approved)} and task_date >= '{query_date_start}' AND task_date <= '{query_date_end}' AND clerk_id = {query_userID} GROUP BY clerk_work, task_group ORDER BY task_group"
         affix_info, color_field, score_num = "(合并统计)", "单项分值", 1
     else:
-        sql_task = f"SELECT task_date, clerk_work, task_score, task_group, task_approved from clerk_work where task_approved >= {flag_approved} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' and clerk_id = {query_userID} order by task_date, task_group, ID, clerk_work"
+        sql_task = f"SELECT task_date, clerk_work, task_score, task_group, task_approved from clerk_work where task_approved >= {int(flag_approved)} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' and clerk_id = {query_userID} order by task_date, task_group, ID, clerk_work"
         affix_info, color_field, score_num = "", "分值", 2
     rows = execute_sql(cur, sql_task)
     if rows:
@@ -465,6 +470,45 @@ def query_task():
                 st.error(f":red[文件导出失败]")
         else:
             st.info(f":red[没有查询到符合条件的记录]")
+    elif confirm_btn_output_excel:
+        sql = f"SELECT clerk_cname as 姓名, clerk_work as 工作项, SUM(task_score) as 得分, task_group as 工作组 FROM clerk_work WHERE task_approved >= {int(flag_approved)} AND task_date >= '{query_date_start}' AND task_date <= '{query_date_end}' GROUP BY clerk_cname, clerk_work, task_group ORDER BY clerk_cname"
+        result = execute_sql(cur, sql)
+        # 获取列名（与 SQL 中的别名一致）
+        columns = [desc[0] for desc in cur.description]
+        # 转换为 DataFrame
+        df = pd.DataFrame(result, columns=columns)
+        # 按姓名分组并计算每个用户的总得分
+        grouped = df.groupby('姓名').agg(
+            姓名=('姓名', 'first'),
+            工作项=('得分', 'count'),
+            得分=('得分', 'sum'),
+            工作组=('工作组', 'first')
+        ).reset_index(drop=True)
+
+        grouped['工作项'] = '**小计**'  # 添加小计标识
+        grouped['工作组'] = ''  # 清空工作组列
+
+        # 定义一个函数：将原组数据与小计行合并
+        def add_subtotal(group):
+            subtotal_row = grouped[grouped['姓名'] == group.name]
+            return pd.concat([group, subtotal_row], ignore_index=True)
+
+        # 对每个姓名组应用函数，并重置索引
+        df_with_subtotal = df.groupby('姓名').apply(add_subtotal).reset_index(drop=True)        # 显示在 Streamlit 页面上
+        st.write("查询结果预览：")
+        st.dataframe(df_with_subtotal)
+        # 将 DataFrame 导出为 Excel 文件
+        excel_file_path = "./exported_data.xlsx"
+        df_with_subtotal.to_excel(excel_file_path, index=False)
+        # 提供下载链接（Streamlit 界面中）
+        with open(excel_file_path, "rb") as file:
+            btn = st.download_button(
+                label="📥 下载 Excel 文件",
+                data=file,
+                file_name="工作量统计结果.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+
 
 def create_element(name):
     return OxmlElement(name)
@@ -570,7 +614,7 @@ def task_modify():
         query_userCName = col1.selectbox("请选择查询用户", userCName)
         query_userID = userID[userCName.index(query_userCName)]
     else:
-        col1.markdown(f"#### 当前用户: {st.session_state.userCName}")
+        col1.markdown(f"##### 当前用户: {st.session_state.userCName}")
         query_userID = st.session_state.userID
         query_userCName = st.session_state.userCName
     query_date_start = col2.date_input('查询开始时间', value=datetime.date.today(), max_value="today")
@@ -832,7 +876,7 @@ def gen_chart():
                 fig = go.Figure()
                 for index, value in enumerate(userID):
                     hot_value, hot_date, temp_value_pack = [], [], []
-                    sql = f"SELECT task_date, sum(task_score) from clerk_work where task_approved >= {flag_approved} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_date order by task_date"
+                    sql = f"SELECT task_date, sum(task_score) from clerk_work where task_approved >= {int(flag_approved)} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_date order by task_date"
                     result = execute_sql(cur, sql)
                     for each in result:
                         hot_date.append(each[0])
@@ -886,7 +930,7 @@ def gen_chart():
         with tab1:
             with charArea.container(border=True):
                 for index, value in enumerate(userID):
-                    sql = f"SELECT task_date, task_group, sum(task_score) from clerk_work where task_approved >= {flag_approved} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_date, task_group order by task_date"
+                    sql = f"SELECT task_date, task_group, sum(task_score) from clerk_work where task_approved >= {int(flag_approved)} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_date, task_group order by task_date"
                     result = execute_sql(cur, sql)
                     for each in result:
                         raws_data.append([userCName[index], each[0], each[1], int(each[2])])
@@ -916,7 +960,7 @@ def gen_chart():
         with tab1:
             with charArea.container(border=True):
                 for index, value in enumerate(userID):
-                    sql = f"SELECT task_date, task_group, sum(task_score) from clerk_work where task_approved >= {flag_approved} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_date, task_group order by task_date"
+                    sql = f"SELECT task_date, task_group, sum(task_score) from clerk_work where task_approved >= {int(flag_approved)} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_date, task_group order by task_date"
                     result = execute_sql(cur, sql)
                     for each in result:
                         raws_data.append([userCName[index], each[0], each[1], int(each[2])])
@@ -939,7 +983,7 @@ def gen_chart():
         with tab1:
             with charArea.container(border=True):
                 for index, value in enumerate(userID):
-                    sql = f"SELECT task_date, task_group, sum(task_score) from clerk_work where task_approved >= {flag_approved} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_date, task_group order by sum(task_score) DESC"
+                    sql = f"SELECT task_date, task_group, sum(task_score) from clerk_work where task_approved >= {int(flag_approved)} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_date, task_group order by sum(task_score) DESC"
                     result = execute_sql(cur, sql)
                     for each in result:
                         raws_data.append([userCName[index], each[0], each[1], int(each[2])])
@@ -964,7 +1008,7 @@ def gen_chart():
         with tab1:
             with charArea.container(border=True):
                 for index, value in enumerate(userID):
-                    sql = f"SELECT task_group, sum(task_score) from clerk_work where task_approved >= {flag_approved} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_group order by sum(task_score) DESC"
+                    sql = f"SELECT task_group, sum(task_score) from clerk_work where task_approved >= {int(flag_approved)} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_group order by sum(task_score) DESC"
                     result = execute_sql(cur, sql)
                     for each in result:
                         raws_data.append([userCName[index], each[0], int(each[1])])
@@ -1000,7 +1044,7 @@ def gen_chart():
             with charArea.container(border=True):
                 for index, value in enumerate(userID):
                     # 查询每个用户的任务分值按工作组别汇总
-                    sql = f"SELECT task_group, sum(task_score) from clerk_work where task_approved >= {flag_approved} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_group order by sum(task_score) DESC"
+                    sql = f"SELECT task_group, sum(task_score) from clerk_work where task_approved >= {int(flag_approved)} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_group order by sum(task_score) DESC"
                     result = execute_sql(cur, sql)
                     for each in result:
                         raws_data.append([userCName[index], each[0], int(each[1])])
@@ -1030,7 +1074,7 @@ def gen_chart():
             with charArea.container(border=True):
                 for index, value in enumerate(userID):
                     # 查询每个用户的任务分值按工作组别汇总
-                    sql = f"SELECT task_group, sum(task_score) from clerk_work where task_approved >= {flag_approved} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_group order by sum(task_score) DESC"
+                    sql = f"SELECT task_group, sum(task_score) from clerk_work where task_approved >= {int(flag_approved)} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_group order by sum(task_score) DESC"
                     result = execute_sql(cur, sql)
                     for each in result:
                         raws_data.append([userCName[index], each[0], int(each[1])])

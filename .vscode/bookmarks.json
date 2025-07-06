@@ -14,14 +14,19 @@
 					"label": "login"
 				},
 				{
+					"line": 337,
+					"column": 17,
+					"label": "query_task"
+				},
+				{
 					"line": 345,
 					"column": 17,
 					"label": "task_input"
 				},
 				{
-					"line": 423,
-					"column": 49,
-					"label": "query_task"
+					"line": 472,
+					"column": 34,
+					"label": "统计报表"
 				},
 				{
 					"line": 521,
@@ -29,7 +34,7 @@
 					"label": "manual_input"
 				},
 				{
-					"line": 610,
+					"line": 559,
 					"column": 18,
 					"label": "task_modify"
 				},
