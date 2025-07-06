@@ -1058,6 +1058,43 @@ def gen_chart():
     else:
         tab2.info("没有查询到符合条件的记录")
 
+
+def input_public_notice():
+    st.markdown("### <font face='微软雅黑' color=green><center>公告发布</center></font>", unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    query_date_start = col1.date_input('公告开始时间', value=datetime.date.today(), min_value="today", max_value=datetime.date.today() + datetime.timedelta(days=180))
+    query_date_end = col2.date_input('公告结束时间', value=datetime.date.today(), min_value="today", max_value=datetime.date.today() + datetime.timedelta(days=180))
+    confirm_btn_public = st.button('发布')
+    display_area = st.empty()
+    with display_area.container():
+        public_text = st.text_area('请输入公告内容')
+    if confirm_btn_public:
+        now = datetime.datetime.now()
+        pub_time = now.strftime("%Y-%m-%d %H:%M:%S")
+        if public_text:
+            sql = f"SELECT ID from notices where notice = '{public_text}' and start_time <= '{query_date_start}' and end_time >= '{query_date_end}'"
+            if not execute_sql(cur, sql):
+                sql = f"INSERT INTO notices (notice, start_time, end_time, publisher, pub_time) VALUES ('{public_text}', '{query_date_start}', '{query_date_end}', '{st.session_state.userCName}', '{pub_time}')"
+                execute_sql_and_commit(conn, cur, sql)
+                display_area.empty()
+                st.success('公告添加成功')
+        else:
+            st.warning('请输入公告内容')
+
+
+def public_notice():
+    st.markdown("### <font face='微软雅黑' color=red><center>站内公告</center></font>", unsafe_allow_html=True)
+    now = datetime.datetime.now()
+    valid_time = now.strftime("%Y-%m-%d")
+    sql = f"SELECT notice from notices where start_time >= '{valid_time}' and '{valid_time}' <= end_time"
+    result = execute_sql(cur, sql)
+    if result:
+        for row in result:
+            st.markdown(f'##### {row[0]}')
+    else:
+        st.info("暂无公告")
+
+
 @st.fragment
 def displayBigTime():
     components.html(open("./MyComponentsScript/Clock-Big.txt", "r", encoding="utf-8").read(), height=140)
@@ -1083,6 +1120,7 @@ if st.session_state.logged_in:
         #displaySmallClock()
         if st.session_state.userType == "admin":
             selected = sac.menu([
+                sac.MenuItem('公告', icon='megaphone'),
                 sac.MenuItem('主页', icon='house'),
                 sac.MenuItem('功能', icon='grid-3x3-gap', children=[
                     sac.MenuItem('工作量录入', icon='list-task'),
@@ -1092,6 +1130,7 @@ if st.session_state.logged_in:
                     sac.MenuItem('统计查询及导出', icon='clipboard-data'),
                     sac.MenuItem('趋势图', icon='bar-chart-line'),
                     sac.MenuItem('数据检查与核定', icon='check2-all'),
+                    sac.MenuItem('公告发布', icon='journal-arrow-up'),
                     sac.MenuItem("重置数据库ID", icon="bootstrap-reboot"),
                 ]),
                 sac.MenuItem('账户', icon='person-gear', children=[
@@ -1104,9 +1143,10 @@ if st.session_state.logged_in:
                     sac.MenuItem('Readme', icon='github'),
                     sac.MenuItem('关于...', icon='link-45deg'),
                 ]),
-            ], open_index=[1])
+            ], open_index=[1, 2])
         elif st.session_state.userType == "user":
             selected = sac.menu([
+                sac.MenuItem('公告', icon='megaphone'),
                 sac.MenuItem('主页', icon='house'),
                 sac.MenuItem('功能', icon='grid-3x3-gap', children=[
                     sac.MenuItem('工作量录入', icon='list-task'),
@@ -1124,10 +1164,12 @@ if st.session_state.logged_in:
                     sac.MenuItem('Readme', icon='github'),
                     sac.MenuItem('关于...', icon='link-45deg'),
                 ]),
-            ], open_index=[1])
+            ], open_index=[1, 2])
         st.divider()
         st.markdown(f'### :green[当前用户:] :orange[{st.session_state.userCName}]')
-    if selected == "主页":
+    if selected == "公告":
+        public_notice()
+    elif selected == "主页":
         #displayBigTimeCircle()
         displayBigTime()
         displayAppInfo()
@@ -1146,6 +1188,8 @@ if st.session_state.logged_in:
         gen_chart()
     elif selected == "数据检查与核定":
         check_data()
+    elif selected == "公告发布":
+        input_public_notice()
     elif selected == "重置数据库ID":
         reset_table_num()
     elif selected == "密码修改":
