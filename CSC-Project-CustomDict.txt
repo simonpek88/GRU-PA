@@ -50,6 +50,7 @@ forecolor
 gener
 glowintext
 hhiiss
+imshow
 indiv
 indivquescount
 JAVDB

@@ -817,12 +817,14 @@ def gen_chart():
         userID = [query_userID]
         userCName = [query_userCName]
     with col3:
-        #chart_type = sac.switch("图表类型", value=True, align="start", on_label="折线图", off_label="热图", on_color="red", off_color="blue")
+        dur_time = query_date_end - query_date_start
         chart_type_pack = ['折线图']
         if len(userID) == 1:
-            chart_type_pack.append('热图')
-            chart_type_pack.append('柱状图')
-        chart_type = st.selectbox("图表类型", chart_type_pack, index=2)
+            chart_type_pack.append('热度图')
+            chart_type_pack.append('柱状图(分组)')
+            chart_type_pack.append('柱状图(堆叠)')
+            chart_type_pack.append('漏斗图')
+        chart_type = st.selectbox("图表类型", chart_type_pack, index=0, placeholder="多人查询只有折线图")
     min_value, max_value = 1000, 0
     raws_data = []
     charArea = st.empty()
@@ -876,17 +878,19 @@ def gen_chart():
                 df = pd.DataFrame(raws_data, columns=["姓名", "日期", "合计分值"])
         with tab2:
             st.write(df)
-    elif chart_type == "柱状图":
+    elif chart_type.startswith("柱状图"):
+        if "分组" in chart_type:
+            bar_type = "group"
+        elif "堆叠" in chart_type:
+            bar_type = "stack"
+        else:
+            bar_type = "relative"
         with tab1:
             with charArea.container(border=True):
                 for index, value in enumerate(userID):
-                    hot_value, hot_date, hot_group = [], [], []
                     sql = f"SELECT task_date, task_group, sum(task_score) from clerk_work where task_approved >= {flag_approved} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_date, task_group order by task_date"
                     result = execute_sql(cur, sql)
                     for each in result:
-                        hot_date.append(each[0])
-                        hot_group.append(each[1])
-                        hot_value.append(int(each[2]))
                         raws_data.append([userCName[index], each[0], each[1], int(each[2])])
                 df = pd.DataFrame(raws_data, columns=["姓名", "日期", "工作组别", "合计分值"])
                 # 使用 Plotly Express 生成分组柱状图
@@ -896,9 +900,9 @@ def gen_chart():
                     y="合计分值",
                     color="工作组别",
                     text="合计分值",
-                    title="按日期和工作组别统计的工作量",
+                    title="按日期和工作组别统计",
                     labels={"合计分值": "总分", "日期": "工作日期", "工作组别": "任务组"},
-                    barmode="group"  # 可选："group" 分组柱状图 / "stack" 堆叠柱状图
+                    barmode=bar_type
                 )
 
                 # 调整样式
@@ -911,7 +915,52 @@ def gen_chart():
                 st.plotly_chart(fig)
         with tab2:
             st.write(df)
-
+    elif chart_type == "热度图":
+        with tab1:
+            with charArea.container(border=True):
+                for index, value in enumerate(userID):
+                    sql = f"SELECT task_date, task_group, sum(task_score) from clerk_work where task_approved >= {flag_approved} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_date, task_group order by task_date"
+                    result = execute_sql(cur, sql)
+                    for each in result:
+                        raws_data.append([userCName[index], each[0], each[1], int(each[2])])
+                df = pd.DataFrame(raws_data, columns=["姓名", "日期", "工作组别", "合计分值"])
+                # 构建透视表
+                heatmap_data = df.pivot_table(index="工作组别", columns="日期", values="合计分值", aggfunc="sum")
+                # 生成热图
+                fig = px.imshow(
+                    heatmap_data,
+                    text_auto=True,
+                    color_continuous_scale='Viridis',
+                    title="工作量",
+                    labels={"x": "日期", "y": "工作组别", "color": "总分"}
+                )
+                st.plotly_chart(fig)
+        with tab2:
+            st.write(df)
+    elif chart_type == "漏斗图":
+        with tab1:
+            with charArea.container(border=True):
+                for index, value in enumerate(userID):
+                    sql = f"SELECT task_date, task_group, sum(task_score) from clerk_work where task_approved >= {flag_approved} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_date, task_group order by sum(task_score) DESC"
+                    result = execute_sql(cur, sql)
+                    for each in result:
+                        raws_data.append([userCName[index], each[0], each[1], int(each[2])])
+                df = pd.DataFrame(raws_data, columns=["姓名", "日期", "工作组别", "合计分值"])
+                # 按工作组别统计总分并按降序排序
+                funnel_data = df.groupby("工作组别")["合计分值"].sum().reset_index()
+                funnel_data = funnel_data.sort_values(by="合计分值", ascending=False)
+                # 生成漏斗图
+                fig = px.funnel(
+                    funnel_data,
+                    x="合计分值",
+                    y="工作组别",
+                    title="工作量(日期合并)",
+                    labels={"合计分值": "总分", "工作组别": "任务组别"},
+                    color_discrete_sequence=px.colors.qualitative.Prism
+                )
+                st.plotly_chart(fig)
+        with tab2:
+            st.write(df)
 
 @st.fragment
 def displayBigTime():
