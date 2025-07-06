@@ -369,6 +369,7 @@ def query_task():
     else:
         sql_task = f"SELECT task_date, clerk_work, task_score, task_group, task_approved from clerk_work where task_approved >= {int(flag_approved)} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' and clerk_id = {query_userID} order by task_date, task_group, ID, clerk_work"
         affix_info, color_field, score_num = "", "分值", 2
+    display_area = st.empty()
     rows = execute_sql(cur, sql_task)
     if rows:
         ttl_score = 0
@@ -388,9 +389,9 @@ def query_task():
             for index, value in enumerate(rows):
                 df.loc[index, "分值"] = int(df["分值"][index])
                 df.loc[index, "核定状态"] = "已核定" if int(df["核定状态"][index]) == 1 else "未核定"
-        st.dataframe(df.style.apply(highlight_max, subset=[color_field]))
-        #st.dataframe(df)
-        st.markdown(f':green[共计:] {len(rows)}项工作{affix_info} :red[总分:] {ttl_score}')
+        with display_area.container():
+            st.dataframe(df.style.apply(highlight_max, subset=[color_field]))
+            st.markdown(f':green[共计:] {len(rows)}项工作{affix_info} :red[总分:] {ttl_score}')
     else:
         st.info(f":red[没有查询到符合条件的记录]")
     if confirm_btn_output:
@@ -471,43 +472,56 @@ def query_task():
         else:
             st.info(f":red[没有查询到符合条件的记录]")
     elif confirm_btn_output_excel:
-        sql = f"SELECT clerk_cname as 姓名, clerk_work as 工作项, SUM(task_score) as 得分, task_group as 工作组 FROM clerk_work WHERE task_approved >= {int(flag_approved)} AND task_date >= '{query_date_start}' AND task_date <= '{query_date_end}' GROUP BY clerk_cname, clerk_work, task_group ORDER BY clerk_cname"
+        display_area.empty()
+        sql = f"SELECT clerk_cname AS 姓名, clerk_work AS 工作项, AVG(task_score) AS 单项分值, COUNT(clerk_work) AS 项数, AVG(task_score) * COUNT(clerk_work) AS 单项合计, task_group AS 工作组 FROM clerk_work WHERE task_approved >= {int(flag_approved)} AND task_date >= '{query_date_start}' AND task_date <= '{query_date_end}' GROUP BY clerk_cname, clerk_work, task_group ORDER BY clerk_cname"
         result = execute_sql(cur, sql)
-        # 获取列名（与 SQL 中的别名一致）
-        columns = [desc[0] for desc in cur.description]
-        # 转换为 DataFrame
-        df = pd.DataFrame(result, columns=columns)
-        # 按姓名分组并计算每个用户的总得分
-        grouped = df.groupby('姓名').agg(
-            姓名=('姓名', 'first'),
-            工作项=('得分', 'count'),
-            得分=('得分', 'sum'),
-            工作组=('工作组', 'first')
-        ).reset_index(drop=True)
+        df = pd.DataFrame(result)
+        df.columns = ["姓名", "工作项", "单项分值", "项数", "单项合计", "工作组"]
+        df["单项分值"] = df["单项分值"].round(0).astype(int)
+        df["单项合计"] = df["单项合计"].round(0).astype(int)
+        # 指定需要计算小计的列
+        sum_columns = ["项数", "单项合计"]
+        # 调用函数添加小计行
+        df_with_subtotals = add_subtotals(df, "姓名", sum_columns)
+        # 显示带有小计行的 DataFrame
+        st.dataframe(df_with_subtotals)
+        # 导出为 Excel
+        outputFile = f"./user_pa/工作量统计_{query_date_start}至{query_date_end}_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.xlsx"
+        if os.path.exists(outputFile):
+            os.remove(outputFile)
+        df_with_subtotals.to_excel(outputFile, index=False, engine='openpyxl')
+        if os.path.exists(outputFile):
+            with open(outputFile, "rb") as file:
+                content = file.read()
+            file.close()
+            buttonDL = st.download_button("点击下载", content, file_name=outputFile[outputFile.rfind("/") + 1:], icon=":material/download:", type="secondary")
+            st.success(f":green[成功导出至程序目录user_pa下 {outputFile[outputFile.rfind('/') + 1:]}]")
+            if buttonDL:
+                st.toast("文件已下载至你的默认目录")
+        else:
+            st.error(f":red[文件导出失败]")
 
-        grouped['工作项'] = '**小计**'  # 添加小计标识
-        grouped['工作组'] = ''  # 清空工作组列
 
-        # 定义一个函数：将原组数据与小计行合并
-        def add_subtotal(group):
-            subtotal_row = grouped[grouped['姓名'] == group.name]
-            return pd.concat([group, subtotal_row], ignore_index=True)
+def add_subtotals(df, group_column, sum_columns):
+    # 创建一个空列表用于存储新的行数据
+    new_rows = []
+    # 遍历每个分组
+    for name, group in df.groupby(group_column):
+        # 计算当前分组的小计
+        subtotal = group[sum_columns].sum()
+        # 创建小计行
+        subtotal_row = {col: "" for col in df.columns}
+        subtotal_row[group_column] = f"小计 ({name})"
+        for col in sum_columns:
+            subtotal_row[col] = subtotal[col]
+        # 将小计行添加到列表中
+        new_rows.append(subtotal_row)
+    # 将小计行转换为 DataFrame
+    subtotal_df = pd.DataFrame(new_rows)
+    # 将原始 DataFrame 和 小计 DataFrame 合并
+    result_df = pd.concat([df, subtotal_df], ignore_index=True)
 
-        # 对每个姓名组应用函数，并重置索引
-        df_with_subtotal = df.groupby('姓名').apply(add_subtotal).reset_index(drop=True)        # 显示在 Streamlit 页面上
-        st.write("查询结果预览：")
-        st.dataframe(df_with_subtotal)
-        # 将 DataFrame 导出为 Excel 文件
-        excel_file_path = "./exported_data.xlsx"
-        df_with_subtotal.to_excel(excel_file_path, index=False)
-        # 提供下载链接（Streamlit 界面中）
-        with open(excel_file_path, "rb") as file:
-            btn = st.download_button(
-                label="📥 下载 Excel 文件",
-                data=file,
-                file_name="工作量统计结果.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
+    return result_df
 
 
 def create_element(name):
