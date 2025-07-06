@@ -49,14 +49,19 @@
 					"label": "deduction_input"
 				},
 				{
+					"line": 789,
+					"column": 16,
+					"label": "gen_chart"
+				},
+				{
 					"line": 818,
 					"column": 61,
 					"label": "highlight"
 				},
 				{
-					"line": 855,
-					"column": 16,
-					"label": "gen_chart"
+					"line": 866,
+					"column": 13,
+					"label": "hot_chart"
 				},
 				{
 					"line": 932,

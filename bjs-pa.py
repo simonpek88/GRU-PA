@@ -188,75 +188,6 @@ def changePassword():
         st.warning("原密码不能为空")
 
 
-def resetPassword():
-    # 显示副标题和分隔线
-    st.subheader(":orange[密码重置及更改账户类型]", divider="red")
-
-    # 检查是否需要重置用户信息
-    if st.session_state.userPwRechecked:
-        # 显示重置用户信息提示
-        st.write(":red[**重置用户信息**]")
-
-        # 创建三列布局
-        rCol1, rCol2, rCol3 = st.columns(3)
-
-        # 获取用户编码
-        rUserID = rCol1.number_input("用户编码", value=0)
-
-        # 检查用户编码是否不为0
-        if rUserID != 0:
-            # 执行SQL查询用户信息
-            sql = f"SELECT userCName, userType from users where userID = {rUserID}"
-            rows = execute_sql(cur, sql)
-
-            # 检查是否查询到用户信息
-            if rows:
-                # 显示用户姓名
-                rCol2.write(f"用户姓名: **{rows[0][0]}**")
-
-                # 在第三列创建布局
-                with rCol3:
-                    rUserType = False
-
-                    # 根据用户类型设置开关
-                    if rows[0][1] == "admin" or rows[0][1] == "supervisor":
-                        rUserType = sac.switch(label="管理员", value=True, on_label="On", align='start', size='md')
-                    elif rows[0][1] == "user":
-                        rUserType = sac.switch(label="管理员", value=False, on_label="On", align='start', size='md')
-
-                # 显示重置类型提示
-                st.write("重置类型")
-
-                # 创建重置类型的复选框
-                rOption1 = st.checkbox("密码", value=False)
-                rOption2 = st.checkbox("账户类型", value=False)
-
-                # 创建重置按钮
-                btnResetUserPW = st.button("重置", type="primary")
-
-                # 检查是否点击了重置按钮并选择了重置类型
-                if btnResetUserPW and (rOption1 or rOption2):
-                    st.button("确认", type="secondary", on_click=actionResetUserPW, args=(rUserID, rOption1, rOption2, rUserType,))
-                    st.session_state.userPwRechecked = False
-                # 如果未选择任何重置类型，显示警告
-                elif not rOption1 and not rOption2:
-                    st.warning("请选择重置类型")
-            # 如果未查询到用户信息，显示错误
-            else:
-                st.error("用户不存在")
-    # 如果不需要重置用户信息，显示密码输入框
-    else:
-        vUserPW = st.text_input("请输入密码", max_chars=8, placeholder="请输入管理员密码, 以验证身份", type="password", autocomplete="off")
-
-        # 检查是否输入了密码
-        if vUserPW:
-            # 验证密码
-            if verifyUserPW(st.session_state.userID, vUserPW)[0]:
-                st.rerun()
-            # 如果密码错误，显示错误提示
-            else:
-                st.error("密码错误, 请重新输入")
-
 @st.fragment
 def changelog():
     changelogInfo = open("./CHANGELOG.md", "r", encoding="utf-8").read()
@@ -771,7 +702,7 @@ def resetPassword():
             btnResetUserPW = st.button("重置", type="primary")
 
             if btnResetUserPW:
-                st.button("确认", type="secondary", on_click=actionResetUserPW, args=(rUserName,))
+                st.button("确认重置", type="secondary", on_click=actionResetUserPW, args=(rUserName,))
                 st.session_state.userPwRechecked = False
         # 如果未查询到用户信息，显示错误
         else:
@@ -859,6 +790,7 @@ def highlight_max(x, forecolor='black', backcolor="#D61919"):
 def gen_chart():
     st.markdown("### <font face='微软雅黑' color=red><center>趋势图</center></font>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
+    tab1, tab2 = st.tabs(["📈 图表", "🗃 数据"])
     if st.session_state.userType == 'admin':
         userID, userCName = [], []
         sql = "SELECT userID, userCName from users where clerk_pa = 1 order by ID"
@@ -881,57 +813,105 @@ def gen_chart():
         flag_all_user = False
     with col2:
         flag_approved = sac.switch("仅限已核定工作", value=False, on_label="On")
-    with col3:
-        chart_type = sac.switch("图表类型", value=True, align="start", on_label="折线图", off_label="热图", on_color="red", off_color="blue")
     if not flag_all_user:
         userID = [query_userID]
         userCName = [query_userCName]
-    # 双Y轴折线图
+    with col3:
+        #chart_type = sac.switch("图表类型", value=True, align="start", on_label="折线图", off_label="热图", on_color="red", off_color="blue")
+        chart_type_pack = ['折线图']
+        if len(userID) == 1:
+            chart_type_pack.append('热图')
+            chart_type_pack.append('柱状图')
+        chart_type = st.selectbox("图表类型", chart_type_pack, index=2)
     min_value, max_value = 1000, 0
+    raws_data = []
     charArea = st.empty()
-    with charArea.container(border=True):
-        fig = go.Figure()
-        for index, value in enumerate(userID):
-            hot_value, hot_date, temp_value_pack = [], [], []
-            sql = f"SELECT task_date, sum(task_score) from clerk_work where task_approved >= {flag_approved} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_date order by task_date"
-            result = execute_sql(cur, sql)
-            for each in result:
-                hot_date.append(each[0])
-                hot_value.append(int(each[1]))
-            temp_value_pack = hot_value
-            if temp_value_pack:
-                temp_value_pack.sort()
-                if temp_value_pack[0] < min_value:
-                    min_value = temp_value_pack[0]
-                if temp_value_pack[-1] > max_value:
-                    max_value = temp_value_pack[-1]
-                #st.write(min_value, max_value, hot_value)
-                if temp_value_pack[-1] < max_value / 2:
-                    yax = 'y2'
-                else:
-                    yax = 'y'
-                fig.add_trace(
-                    go.Scatter(name=f"{userCName[index]}",
-                                x=hot_date,
-                                y=hot_value,
-                                mode="markers+lines+text",
-                                text=[
-                                    format(round(x, 2), ",")
-                                    for x in hot_value
-                                ],
-                                yaxis=yax,
-                                textposition="top center"))
-        fig.update_layout(
-            title="工作量",
-            xaxis=dict(title="日期"),
-            yaxis=dict(title="主轴",
-                        rangemode="normal"),
-            template="simple_white",
-            yaxis2=dict(
-                title="",
-                overlaying='y',
-                side='right'))
-        st.plotly_chart(fig)
+    if chart_type == '折线图':
+        with tab1:
+            # 双Y轴折线图
+            with charArea.container(border=True):
+                fig = go.Figure()
+                for index, value in enumerate(userID):
+                    hot_value, hot_date, temp_value_pack = [], [], []
+                    sql = f"SELECT task_date, sum(task_score) from clerk_work where task_approved >= {flag_approved} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_date order by task_date"
+                    result = execute_sql(cur, sql)
+                    for each in result:
+                        hot_date.append(each[0])
+                        hot_value.append(int(each[1]))
+                        raws_data.append([userCName[index], each[0], int(each[1])])
+                    temp_value_pack = hot_value
+                    if temp_value_pack:
+                        temp_value_pack.sort()
+                        if temp_value_pack[0] < min_value:
+                            min_value = temp_value_pack[0]
+                        if temp_value_pack[-1] > max_value:
+                            max_value = temp_value_pack[-1]
+                        #st.write(min_value, max_value, hot_value)
+                        if temp_value_pack[-1] < max_value / 2:
+                            yax = 'y2'
+                        else:
+                            yax = 'y'
+                        fig.add_trace(
+                            go.Scatter(name=f"{userCName[index]}",
+                                        x=hot_date,
+                                        y=hot_value,
+                                        mode="markers+lines+text",
+                                        text=[
+                                            format(round(x, 2), ",")
+                                            for x in hot_value
+                                        ],
+                                        yaxis=yax,
+                                        textposition="top center"))
+                fig.update_layout(
+                    title="工作量",
+                    xaxis=dict(title="日期"),
+                    yaxis=dict(title="主轴",
+                                rangemode="normal"),
+                    template="simple_white",
+                    yaxis2=dict(
+                        title="",
+                        overlaying='y',
+                        side='right'))
+                st.plotly_chart(fig)
+                df = pd.DataFrame(raws_data, columns=["姓名", "日期", "合计分值"])
+        with tab2:
+            st.write(df)
+    elif chart_type == "柱状图":
+        with tab1:
+            with charArea.container(border=True):
+                for index, value in enumerate(userID):
+                    hot_value, hot_date, hot_group = [], [], []
+                    sql = f"SELECT task_date, task_group, sum(task_score) from clerk_work where task_approved >= {flag_approved} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_date, task_group order by task_date"
+                    result = execute_sql(cur, sql)
+                    for each in result:
+                        hot_date.append(each[0])
+                        hot_group.append(each[1])
+                        hot_value.append(int(each[2]))
+                        raws_data.append([userCName[index], each[0], each[1], int(each[2])])
+                df = pd.DataFrame(raws_data, columns=["姓名", "日期", "工作组别", "合计分值"])
+                # 使用 Plotly Express 生成分组柱状图
+                fig = px.bar(
+                    df,
+                    x="日期",
+                    y="合计分值",
+                    color="工作组别",
+                    text="合计分值",
+                    title="按日期和工作组别统计的工作量",
+                    labels={"合计分值": "总分", "日期": "工作日期", "工作组别": "任务组"},
+                    barmode="group"  # 可选："group" 分组柱状图 / "stack" 堆叠柱状图
+                )
+
+                # 调整样式
+                fig.update_traces(textposition='outside')
+                fig.update_layout(
+                    xaxis_tickangle=-45,
+                    template="simple_white"
+                )
+
+                st.plotly_chart(fig)
+        with tab2:
+            st.write(df)
+
 
 @st.fragment
 def displayBigTime():

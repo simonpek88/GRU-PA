@@ -11,6 +11,7 @@ apsw
 backcolor
 backface
 backpng
+barmode
 breakline
 clearex
 clocktype

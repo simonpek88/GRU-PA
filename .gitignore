@@ -10,6 +10,7 @@ docs/
 user_pa/
 etest.py
 LLMonitor.py
+hot-cap.py
 # Distribution / packaging
 .Python
 build/
