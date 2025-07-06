@@ -349,7 +349,7 @@ def task_input():
     expanded_group = ['值班', '清理保洁', '行政管理']
     col1.markdown(f"#### 当前用户: {st.session_state.userCName}")
     with col1:
-        flag_auto_task = sac.switch("自动带入默认工作", value=True, align="start")
+        flag_auto_task = sac.switch("自动带入默认工作", value=True, align="start", on_label="On")
     task_date = col2.date_input('工作时间', value=datetime.date.today(), max_value="today")
     confirm_btn_input = st.button("确认添加")
     ttl_score = 0
@@ -423,13 +423,15 @@ def query_task():
     query_date_start = col2.date_input('查询开始时间', value=datetime.date.today())
     query_date_end = col3.date_input('查询结束时间', value=datetime.date.today())
     confirm_btn_output = col1.button("导出为Word文件")
+    with col2:
+        flag_approved = sac.switch("仅限已核定工作", value=False, on_label="On")
     with col3:
-        flag_combine = sac.switch("是否合并统计", value=False)
+        flag_combine = sac.switch("合并统计", value=False, on_label="On")
     if flag_combine:
-        sql_task = f"SELECT clerk_work, AVG(task_score) AS avg_task_score, task_group, count(clerk_work) FROM clerk_work WHERE task_date >= '{query_date_start}' AND task_date <= '{query_date_end}' AND clerk_id = {query_userID} GROUP BY clerk_work, task_group ORDER BY task_group"
+        sql_task = f"SELECT clerk_work, AVG(task_score) AS avg_task_score, task_group, count(clerk_work) FROM clerk_work WHERE task_approved >= {flag_approved} and task_date >= '{query_date_start}' AND task_date <= '{query_date_end}' AND clerk_id = {query_userID} GROUP BY clerk_work, task_group ORDER BY task_group"
         affix_info, color_field, score_num = "(合并统计)", "单项分值", 1
     else:
-        sql_task = f"SELECT task_date, clerk_work, task_score, task_group, task_approved from clerk_work where task_date >= '{query_date_start}' and task_date <= '{query_date_end}' and clerk_id = {query_userID} order by task_date, task_group, ID, clerk_work"
+        sql_task = f"SELECT task_date, clerk_work, task_score, task_group, task_approved from clerk_work where task_approved >= {flag_approved} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' and clerk_id = {query_userID} order by task_date, task_group, ID, clerk_work"
         affix_info, color_field, score_num = "", "分值", 2
     rows = execute_sql(cur, sql_task)
     if rows:
@@ -572,9 +574,9 @@ def manual_input():
     opt1, opt2, opt3 = st.columns(3)
     if st.session_state.userType == 'admin':
         with opt1:
-            flag_add_pa = sac.switch("加入固定列表", value=False, align="start",)
+            flag_add_pa = sac.switch("加入固定列表", value=False, align="start", on_label="On")
         with opt2:
-            flag_multi_score = sac.switch("多倍计算", value=False, align="start",)
+            flag_multi_score = sac.switch("多倍计算", value=False, align="start", on_label="On")
     else:
         flag_add_pa, flag_multi_score = False, False
     task_content = st.text_area("工作内容", height=100)
@@ -873,20 +875,25 @@ def gen_chart():
     query_date_start = col2.date_input('查询开始时间', value=datetime.date.today())
     query_date_end = col3.date_input('查询结束时间', value=datetime.date.today())
     if st.session_state.userType == 'admin':
-        flag_all_user = sac.switch("查询所有用户", value=False, align="start")
+        with col1:
+            flag_all_user = sac.switch("查询所有用户", value=False, align="start", on_label="On")
     else:
         flag_all_user = False
+    with col2:
+        flag_approved = sac.switch("仅限已核定工作", value=False, on_label="On")
+    with col3:
+        chart_type = sac.switch("图表类型", value=True, align="start", on_label="折线图", off_label="热图", on_color="red", off_color="blue")
     if not flag_all_user:
         userID = [query_userID]
         userCName = [query_userCName]
-    # 双Y轴
+    # 双Y轴折线图
     min_value, max_value = 1000, 0
     charArea = st.empty()
     with charArea.container(border=True):
         fig = go.Figure()
         for index, value in enumerate(userID):
             hot_value, hot_date, temp_value_pack = [], [], []
-            sql = f"SELECT task_date, sum(task_score) from clerk_work where clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_date order by task_date"
+            sql = f"SELECT task_date, sum(task_score) from clerk_work where task_approved >= {flag_approved} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_date order by task_date"
             result = execute_sql(cur, sql)
             for each in result:
                 hot_date.append(each[0])
@@ -926,9 +933,13 @@ def gen_chart():
                 side='right'))
         st.plotly_chart(fig)
 
+@st.fragment
+def displayBigTime():
+    components.html(open("./MyComponentsScript/Clock-Big.txt", "r", encoding="utf-8").read(), height=140)
+
 
 global APPNAME, MAXDEDUCTSCORE
-APPNAME = "北京站绩效考核系统PA"
+APPNAME = "北京站绩效考核系统KPI-PA"
 MAXDEDUCTSCORE = -20
 conn = get_connection()
 cur = conn.cursor()
@@ -944,7 +955,7 @@ if "logged_in" not in st.session_state:
 if st.session_state.logged_in:
     with st.sidebar:
         #displaySmallTime()
-        displaySmallClock()
+        #displaySmallClock()
         if st.session_state.userType == "admin":
             selected = sac.menu([
                 sac.MenuItem('主页', icon='house'),
@@ -953,7 +964,7 @@ if st.session_state.logged_in:
                     sac.MenuItem('工作量手工录入', icon='journal-plus'),
                     sac.MenuItem('工作减分项录入', icon='journal-minus'),
                     sac.MenuItem('记录修改', icon='journal-medical'),
-                    sac.MenuItem('统计查询及导出', icon='graph-up'),
+                    sac.MenuItem('统计查询及导出', icon='clipboard-data'),
                     sac.MenuItem('趋势图', icon='bar-chart-line'),
                     sac.MenuItem('数据检查与核定', icon='check2-all'),
                     sac.MenuItem("重置数据库ID", icon="bootstrap-reboot"),
@@ -976,7 +987,7 @@ if st.session_state.logged_in:
                     sac.MenuItem('工作量录入', icon='list-task'),
                     sac.MenuItem('工作量手工录入', icon='journal-plus'),
                     sac.MenuItem('记录修改', icon='journal-medical'),
-                    sac.MenuItem('统计查询及导出', icon='graph-up'),
+                    sac.MenuItem('统计查询及导出', icon='clipboard-data'),
                     sac.MenuItem('趋势图', icon='bar-chart-line'),
                 ]),
                 sac.MenuItem('账户', icon='person-gear', children=[
@@ -992,7 +1003,8 @@ if st.session_state.logged_in:
         st.divider()
         st.markdown(f'### :green[当前用户:] :orange[{st.session_state.userCName}]')
     if selected == "主页":
-        displayBigTimeCircle()
+        #displayBigTimeCircle()
+        displayBigTime()
         displayAppInfo()
         displayVisitCounter()
     elif selected == "工作量录入":
