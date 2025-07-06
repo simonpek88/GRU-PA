@@ -818,13 +818,13 @@ def gen_chart():
         userCName = [query_userCName]
     with col3:
         dur_time = query_date_end - query_date_start
-        chart_type_pack = ['折线图', '饼图']
+        chart_type_pack = ['折线图', '饼图', '旭日图']
         if len(userID) == 1:
             chart_type_pack.append('热度图')
             chart_type_pack.append('柱状图(分组)')
             chart_type_pack.append('柱状图(堆叠)')
             chart_type_pack.append('漏斗图')
-        chart_type = st.selectbox("图表类型", chart_type_pack, index=1, placeholder="多人查询只有折线图和饼图")
+        chart_type = st.selectbox("图表类型", chart_type_pack, index=2, placeholder="多人查询只有折线图和饼图和旭日图")
     min_value, max_value = 1000, 0
     raws_data = []
     charArea = st.empty()
@@ -995,7 +995,40 @@ def gen_chart():
                 st.plotly_chart(fig, use_container_width=True)
         with tab2:
             st.write(df)
+    elif chart_type == "旭日图":
+        with tab1:
+            with charArea.container(border=True):
+                for index, value in enumerate(userID):
+                    # 查询每个用户的任务分值按工作组别汇总
+                    sql = f"SELECT task_group, sum(task_score) from clerk_work where task_approved >= {flag_approved} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_group order by sum(task_score) DESC"
+                    result = execute_sql(cur, sql)
+                    for each in result:
+                        raws_data.append([userCName[index], each[0], int(each[1])])
 
+                # 构造 DataFrame
+                df = pd.DataFrame(raws_data, columns=["姓名", "工作组别", "合计分值"])
+
+                if len(userID) > 1:
+                    sunburst_data = df.groupby(["工作组别", "姓名"], as_index=False)["合计分值"].sum()
+                else:
+                    sunburst_data = df.copy()
+
+                # 绘制旭日图
+                fig = px.sunburst(
+                    sunburst_data,
+                    path=['工作组别', '姓名'],
+                    values='合计分值',
+                    color='合计分值',
+                    hover_data=['合计分值'],
+                    color_continuous_scale='Viridis',
+                    title="工作量（工作组别 → 用户）",
+                )
+
+                fig.update_layout(margin=dict(t=50, l=0, r=0, b=0))
+                st.plotly_chart(fig, use_container_width=True)
+
+        with tab2:
+            st.write(df)
 
 @st.fragment
 def displayBigTime():
