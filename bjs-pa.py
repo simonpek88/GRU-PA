@@ -1089,8 +1089,8 @@ def public_notice():
     sql = f"SELECT notice from notices where start_time >= '{valid_time}' and '{valid_time}' <= end_time"
     result = execute_sql(cur, sql)
     if result:
-        for row in result:
-            st.markdown(f'##### {row[0]}')
+        for index, row in enumerate(result, start=1):
+            st.markdown(f'##### 第{index}条. {row[0]}')
     else:
         st.info("暂无公告")
 
