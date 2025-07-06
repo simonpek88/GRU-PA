@@ -387,7 +387,7 @@ def query_task():
         #st.dataframe(df)
         st.markdown(f':green[共计:] {len(rows)}项工作{affix_info} :red[总分:] {ttl_score}')
     else:
-        st.error(f":red[没有查询到符合条件的记录]")
+        st.info(f":red[没有查询到符合条件的记录]")
     if confirm_btn_output:
         headerFS = 16
         contentFS = 12
@@ -464,7 +464,7 @@ def query_task():
             else:
                 st.error(f":red[文件导出失败]")
         else:
-            st.error(f":red[没有查询到符合条件的记录]")
+            st.info(f":red[没有查询到符合条件的记录]")
 
 def create_element(name):
     return OxmlElement(name)
@@ -817,17 +817,14 @@ def gen_chart():
         userID = [query_userID]
         userCName = [query_userCName]
     with col3:
-        dur_time = query_date_end - query_date_start
-        chart_type_pack = ['折线图', '饼图', '旭日图']
+        #dur_time = query_date_end - query_date_start
+        chart_type_pack = ['折线图', '旭日图', '矩阵树图', '饼图']
         if len(userID) == 1:
-            chart_type_pack.append('热度图')
-            chart_type_pack.append('柱状图(分组)')
-            chart_type_pack.append('柱状图(堆叠)')
-            chart_type_pack.append('漏斗图')
-        chart_type = st.selectbox("图表类型", chart_type_pack, index=2, placeholder="多人查询只有折线图和饼图和旭日图")
+            chart_type_pack = chart_type_pack + ['热度图', '柱状图(分组)', '柱状图(堆叠)', '漏斗图']
+        chart_type = st.selectbox("图表类型", chart_type_pack, index=0, placeholder="多人查询只有折线图、旭日图、矩阵树图和饼图")
     min_value, max_value = 1000, 0
-    raws_data = []
-    charArea = st.empty()
+    raws_data, df = [], []
+    charArea = tab1.empty()
     if chart_type == '折线图':
         with tab1:
             # 双Y轴折线图
@@ -864,20 +861,21 @@ def gen_chart():
                                         ],
                                         yaxis=yax,
                                         textposition="top center"))
-                fig.update_layout(
-                    title="工作量",
-                    xaxis=dict(title="日期"),
-                    yaxis=dict(title="主轴",
-                                rangemode="normal"),
-                    template="simple_white",
-                    yaxis2=dict(
-                        title="",
-                        overlaying='y',
-                        side='right'))
-                st.plotly_chart(fig)
-                df = pd.DataFrame(raws_data, columns=["姓名", "日期", "合计分值"])
-        with tab2:
-            st.write(df)
+                if raws_data:
+                    fig.update_layout(
+                        title="工作量",
+                        xaxis=dict(title="日期"),
+                        yaxis=dict(title="主轴",
+                                    rangemode="normal"),
+                        template="simple_white",
+                        yaxis2=dict(
+                            title="",
+                            overlaying='y',
+                            side='right'))
+                    st.plotly_chart(fig)
+                    df = pd.DataFrame(raws_data, columns=["姓名", "日期", "合计分值"])
+                else:
+                    st.info("没有查询到符合条件的记录")
     elif chart_type.startswith("柱状图"):
         if "分组" in chart_type:
             bar_type = "group"
@@ -892,29 +890,28 @@ def gen_chart():
                     result = execute_sql(cur, sql)
                     for each in result:
                         raws_data.append([userCName[index], each[0], each[1], int(each[2])])
-                df = pd.DataFrame(raws_data, columns=["姓名", "日期", "工作组别", "合计分值"])
-                # 使用 Plotly Express 生成分组柱状图
-                fig = px.bar(
-                    df,
-                    x="日期",
-                    y="合计分值",
-                    color="工作组别",
-                    text="合计分值",
-                    title="按日期和工作组别统计",
-                    labels={"合计分值": "总分", "日期": "工作日期", "工作组别": "任务组"},
-                    barmode=bar_type
-                )
-
-                # 调整样式
-                fig.update_traces(textposition='outside')
-                fig.update_layout(
-                    xaxis_tickangle=-45,
-                    template="simple_white"
-                )
-
-                st.plotly_chart(fig)
-        with tab2:
-            st.write(df)
+                if raws_data:
+                    df = pd.DataFrame(raws_data, columns=["姓名", "日期", "工作组别", "合计分值"])
+                    # 使用 Plotly Express 生成分组柱状图
+                    fig = px.bar(
+                        df,
+                        x="日期",
+                        y="合计分值",
+                        color="工作组别",
+                        text="合计分值",
+                        title="按日期和工作组别统计",
+                        labels={"合计分值": "总分", "日期": "工作日期", "工作组别": "任务组"},
+                        barmode=bar_type
+                    )
+                    # 调整样式
+                    fig.update_traces(textposition='outside')
+                    fig.update_layout(
+                        xaxis_tickangle=-45,
+                        template="simple_white"
+                    )
+                    st.plotly_chart(fig)
+                else:
+                    st.info("没有查询到符合条件的记录")
     elif chart_type == "热度图":
         with tab1:
             with charArea.container(border=True):
@@ -923,20 +920,21 @@ def gen_chart():
                     result = execute_sql(cur, sql)
                     for each in result:
                         raws_data.append([userCName[index], each[0], each[1], int(each[2])])
-                df = pd.DataFrame(raws_data, columns=["姓名", "日期", "工作组别", "合计分值"])
-                # 构建透视表
-                heatmap_data = df.pivot_table(index="工作组别", columns="日期", values="合计分值", aggfunc="sum")
-                # 生成热图
-                fig = px.imshow(
-                    heatmap_data,
-                    text_auto=True,
-                    color_continuous_scale='Viridis',
-                    title="工作量",
-                    labels={"x": "日期", "y": "工作组别", "color": "总分"}
-                )
-                st.plotly_chart(fig)
-        with tab2:
-            st.write(df)
+                if raws_data:
+                    df = pd.DataFrame(raws_data, columns=["姓名", "日期", "工作组别", "合计分值"])
+                    # 构建透视表
+                    heatmap_data = df.pivot_table(index="工作组别", columns="日期", values="合计分值", aggfunc="sum")
+                    # 生成热图
+                    fig = px.imshow(
+                        heatmap_data,
+                        text_auto=True,
+                        color_continuous_scale='Viridis',
+                        title="工作量",
+                        labels={"x": "日期", "y": "工作组别", "color": "总分"}
+                    )
+                    st.plotly_chart(fig)
+                else:
+                    st.info("没有查询到符合条件的记录")
     elif chart_type == "漏斗图":
         with tab1:
             with charArea.container(border=True):
@@ -945,22 +943,23 @@ def gen_chart():
                     result = execute_sql(cur, sql)
                     for each in result:
                         raws_data.append([userCName[index], each[0], each[1], int(each[2])])
-                df = pd.DataFrame(raws_data, columns=["姓名", "日期", "工作组别", "合计分值"])
-                # 按工作组别统计总分并按降序排序
-                funnel_data = df.groupby("工作组别")["合计分值"].sum().reset_index()
-                funnel_data = funnel_data.sort_values(by="合计分值", ascending=False)
-                # 生成漏斗图
-                fig = px.funnel(
-                    funnel_data,
-                    x="合计分值",
-                    y="工作组别",
-                    title="工作量(日期合并)",
-                    labels={"合计分值": "总分", "工作组别": "任务组别"},
-                    color_discrete_sequence=px.colors.qualitative.Prism
-                )
-                st.plotly_chart(fig)
-        with tab2:
-            st.write(df)
+                if raws_data:
+                    df = pd.DataFrame(raws_data, columns=["姓名", "日期", "工作组别", "合计分值"])
+                    # 按工作组别统计总分并按降序排序
+                    funnel_data = df.groupby("工作组别")["合计分值"].sum().reset_index()
+                    funnel_data = funnel_data.sort_values(by="合计分值", ascending=False)
+                    # 生成漏斗图
+                    fig = px.funnel(
+                        funnel_data,
+                        x="合计分值",
+                        y="工作组别",
+                        title="工作量(日期合并)",
+                        labels={"合计分值": "总分", "工作组别": "任务组别"},
+                        color_discrete_sequence=px.colors.qualitative.Prism
+                    )
+                    st.plotly_chart(fig)
+                else:
+                    st.info("没有查询到符合条件的记录")
     elif chart_type == "饼图":
         with tab1:
             with charArea.container(border=True):
@@ -969,32 +968,33 @@ def gen_chart():
                     result = execute_sql(cur, sql)
                     for each in result:
                         raws_data.append([userCName[index], each[0], int(each[1])])
-                df = pd.DataFrame(raws_data, columns=["姓名", "工作组别", "合计分值"])
-                if len(userID) > 1:
-                    pie_data = df.groupby("工作组别")["合计分值"].sum().reset_index()
+                if raws_data:
+                    df = pd.DataFrame(raws_data, columns=["姓名", "工作组别", "合计分值"])
+                    if len(userID) > 1:
+                        pie_data = df.groupby("工作组别")["合计分值"].sum().reset_index()
+                    else:
+                        pie_data = df.copy()
+                    # 计算总和
+                    total = pie_data['合计分值'].sum()
+                    # 添加百分比列
+                    pie_data['百分比'] = (pie_data['合计分值'] / total) * 100
+                    # 保留所有原始条目，不进行合并
+                    final_data = pie_data.copy()
+                    fig = px.pie(
+                        final_data,
+                        names="工作组别",
+                        values="合计分值",
+                        title="工作量(日期合并)",
+                        hole=0.2,
+                        hover_data=["合计分值"],
+                        labels={"合计分值": "总分", "工作组别": "任务组别"},
+                        color_discrete_sequence=px.colors.qualitative.Prism
+                    )
+                    fig.update_traces(textposition='outside', textinfo='percent+label')
+                    fig.update_layout(showlegend=False)
+                    st.plotly_chart(fig, use_container_width=True)
                 else:
-                    pie_data = df.copy()
-                # 计算总和
-                total = pie_data['合计分值'].sum()
-                # 添加百分比列
-                pie_data['百分比'] = (pie_data['合计分值'] / total) * 100
-                # 保留所有原始条目，不进行合并
-                final_data = pie_data.copy()
-                fig = px.pie(
-                    final_data,
-                    names="工作组别",
-                    values="合计分值",
-                    title="工作量(日期合并)",
-                    hole=0.2,
-                    hover_data=["合计分值"],
-                    labels={"合计分值": "总分", "工作组别": "任务组别"},
-                    color_discrete_sequence=px.colors.qualitative.Prism
-                )
-                fig.update_traces(textposition='outside', textinfo='percent+label')
-                fig.update_layout(showlegend=False)
-                st.plotly_chart(fig, use_container_width=True)
-        with tab2:
-            st.write(df)
+                    st.info("没有查询到符合条件的记录")
     elif chart_type == "旭日图":
         with tab1:
             with charArea.container(border=True):
@@ -1004,31 +1004,59 @@ def gen_chart():
                     result = execute_sql(cur, sql)
                     for each in result:
                         raws_data.append([userCName[index], each[0], int(each[1])])
-
-                # 构造 DataFrame
-                df = pd.DataFrame(raws_data, columns=["姓名", "工作组别", "合计分值"])
-
-                if len(userID) > 1:
-                    sunburst_data = df.groupby(["工作组别", "姓名"], as_index=False)["合计分值"].sum()
+                if raws_data:
+                    # 构造 DataFrame
+                    df = pd.DataFrame(raws_data, columns=["姓名", "工作组别", "合计分值"])
+                    if len(userID) > 1:
+                        sunburst_data = df.groupby(["工作组别", "姓名"], as_index=False)["合计分值"].sum()
+                    else:
+                        sunburst_data = df.copy()
+                    # 绘制旭日图
+                    fig = px.sunburst(
+                        sunburst_data,
+                        path=['工作组别', '姓名'],
+                        values='合计分值',
+                        color='合计分值',
+                        hover_data=['合计分值'],
+                        color_continuous_scale='Plasma',
+                        title="工作量（工作组别 → 用户）",
+                    )
+                    fig.update_layout(margin=dict(t=50, l=0, r=0, b=0))
+                    st.plotly_chart(fig, use_container_width=True)
                 else:
-                    sunburst_data = df.copy()
-
-                # 绘制旭日图
-                fig = px.sunburst(
-                    sunburst_data,
-                    path=['工作组别', '姓名'],
-                    values='合计分值',
-                    color='合计分值',
-                    hover_data=['合计分值'],
-                    color_continuous_scale='Viridis',
-                    title="工作量（工作组别 → 用户）",
-                )
-
-                fig.update_layout(margin=dict(t=50, l=0, r=0, b=0))
-                st.plotly_chart(fig, use_container_width=True)
-
-        with tab2:
-            st.write(df)
+                    st.info("没有查询到符合条件的记录")
+    elif chart_type == "矩阵树图":
+        with tab1:
+            with charArea.container(border=True):
+                for index, value in enumerate(userID):
+                    # 查询每个用户的任务分值按工作组别汇总
+                    sql = f"SELECT task_group, sum(task_score) from clerk_work where task_approved >= {flag_approved} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_group order by sum(task_score) DESC"
+                    result = execute_sql(cur, sql)
+                    for each in result:
+                        raws_data.append([userCName[index], each[0], int(each[1])])
+                if raws_data:
+                    df = pd.DataFrame(raws_data, columns=["姓名", "工作组别", "合计分值"])
+                    if len(userID) > 1:
+                        treemap_data = df.groupby(["工作组别", "姓名"], as_index=False)["合计分值"].sum()
+                    else:
+                        treemap_data = df.copy()
+                    fig = px.treemap(
+                        treemap_data,
+                        path=['工作组别', '姓名'],
+                        values='合计分值',
+                        color='合计分值',
+                        color_continuous_scale='Plasma',
+                        title="工作量（工作组别 → 用户）",
+                        hover_data={'合计分值': True}
+                    )
+                    fig.update_layout(margin=dict(t=50, l=0, r=0, b=0))
+                    st.plotly_chart(fig, use_container_width=True)
+                else:
+                    st.info("没有查询到符合条件的记录")
+    if raws_data:
+        tab2.write(df)
+    else:
+        tab2.info("没有查询到符合条件的记录")
 
 @st.fragment
 def displayBigTime():
