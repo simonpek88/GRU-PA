@@ -166,7 +166,7 @@ def changePassword():
         # 输入新密码
         newPassword = st.text_input("请输入新密码", max_chars=8, type="password", autocomplete="off")
         # 再次输入新密码以确认
-        confirmPassword = st.text_input("请再次输入新密码", max_chars=8, placeholder="请与上一步输入的密码一致", type="password", autocomplete="new-password")
+        confirmPassword = st.text_input("请再次输入新密码", max_chars=8, placeholder="请确保和上一步输入的密码一致", type="password", autocomplete="new-password")
         # 确认修改按钮
         buttonSubmit = st.button("确认修改")
 
@@ -846,39 +846,27 @@ def check_data():
 def resetPassword():
     # 显示副标题和分隔线
     st.subheader(":orange[密码重置]", divider="red")
-
-    # 检查是否需要重置用户信息
     if st.session_state.userPwRechecked:
         # 显示重置用户信息提示
         st.write(":red[**重置用户信息**]")
-
-        # 创建三列布局
-        rCol1, rCol2 = st.columns(2)
-
         # 获取用户编码
-        rUserName = rCol1.number_input("用户编码", min_value=1, max_value=20, value=1)
-
-        # 执行SQL查询用户信息
-        sql = f"SELECT userCName, userType from users where userID = {rUserName}"
+        userID, userCName = [], []
+        sql = "SELECT userID, userCName from users order by ID"
         rows = execute_sql(cur, sql)
-
-        # 检查是否查询到用户信息
-        if rows:
-            # 显示用户姓名
-            rCol2.write(f"用户姓名: **{rows[0][0]}**")
-
+        for row in rows:
+            userID.append(row[0])
+            userCName.append(row[1])
+        query_userCName = st.selectbox("请选择用户", userCName, index=None)
+        if query_userCName is not None:
+            rUserName = userID[userCName.index(query_userCName)]
+        if query_userCName is not None:
             # 创建重置按钮
             btnResetUserPW = st.button("重置", type="primary")
-
             if btnResetUserPW:
                 st.button("确认重置", type="secondary", on_click=actionResetUserPW, args=(rUserName,))
                 st.session_state.userPwRechecked = False
-        # 如果未查询到用户信息，显示错误
-        else:
-            st.error("用户不存在")
     else:
         vUserPW = st.text_input("请输入密码", max_chars=8, placeholder="请输入管理员密码, 以验证身份", type="password", autocomplete="off")
-
         # 检查是否输入了密码
         if vUserPW:
             # 验证密码
@@ -887,8 +875,9 @@ def resetPassword():
                 st.rerun()
             # 如果密码错误，显示错误提示
             else:
-                st.session_state.userPwRechecked = False
                 st.error("密码错误, 请重新输入")
+                st.session_state.userPwRechecked = False
+
 
 def actionResetUserPW(rUserName):
     rInfo = ""
