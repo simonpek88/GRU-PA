@@ -249,7 +249,8 @@ def aboutInfo():
     st.write("###### :violet[为了获得更好的使用体验, 请使用浅色主题]")
     verinfo, verLM = getVerInfo()
     st.caption(f"Version: {int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{int(verinfo / 10)} building {verinfo} Last Modified: {time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))}")
-    sac.divider(align="center", color="blue")
+    #sac.divider(align="center", color="blue")
+    st.image("./Images/logos/simon-logo.png", width=60)
 
 
 def display_pypi():
@@ -985,7 +986,7 @@ def gen_chart():
         chart_type_pack = ['折线图', '中位数图', '旭日图', '矩阵树图', '饼图', '日历热度图']
         if len(userID) == 1:
             chart_type_pack = chart_type_pack + ['柱状图(分组)', '柱状图(堆叠)', '漏斗图']
-        chart_type = st.selectbox("图表类型", chart_type_pack, index=5)
+        chart_type = st.selectbox("图表类型", chart_type_pack, index=1)
     min_value, max_value = 1000, 0
     raws_data, df = [], []
     charArea = tab1.empty()
