@@ -1,5 +1,4 @@
 # coding utf-8
-import calendar
 import datetime
 import os
 import time
@@ -1082,10 +1081,8 @@ def gen_chart():
     elif chart_type == "日历热度图":
         with tab1:
             with charArea.container(border=True):
-                now = datetime.datetime.now()
-                temp_date = get_month_first_last_days(now.year, now.month)
-                query_date_start = temp_date[0].strftime("%Y-%m-%d")
-                query_date_end = temp_date[1].strftime("%Y-%m-%d")
+                query_date_start = f'{datetime.datetime.now().year}-01-01'
+                query_date_end = f'{datetime.datetime.now().year}-12-31'
                 cal_data = []
                 sql = f"SELECT task_date, sum(task_score) from clerk_work where task_date >= '{query_date_start}' and task_date <= '{query_date_end}' group by task_date"
                 rows = execute_sql(cur, sql)
@@ -1325,16 +1322,6 @@ def displayBigTime():
 def aboutLicense():
     st.subheader("License", divider="green")
     st.markdown(open("./LICENSE", "r", encoding="utf-8").read())
-
-
-def get_month_first_last_days(year, month):
-    # 获得指定月份的第一天
-    first_day = datetime.date(year, month, 1)
-    # 获得指定月份的最后一天
-    _, last_day_of_month = calendar.monthrange(year, month)
-    last_day = datetime.date(year, month, last_day_of_month)
-
-    return first_day, last_day
 
 
 global APPNAME, MAXDEDUCTSCORE, CHARTFONTSIZE
