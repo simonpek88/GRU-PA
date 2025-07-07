@@ -14,29 +14,24 @@
 					"label": "login"
 				},
 				{
-					"line": 337,
-					"column": 17,
-					"label": "query_task"
-				},
-				{
 					"line": 345,
 					"column": 17,
 					"label": "task_input"
 				},
 				{
-					"line": 472,
-					"column": 34,
-					"label": "统计报表"
+					"line": 423,
+					"column": 49,
+					"label": "query_task"
 				},
 				{
-					"line": 521,
-					"column": 19,
-					"label": "manual_input"
-				},
-				{
-					"line": 559,
+					"line": 610,
 					"column": 18,
 					"label": "task_modify"
+				},
+				{
+					"line": 646,
+					"column": 19,
+					"label": "manual_input"
 				},
 				{
 					"line": 689,
@@ -54,44 +49,24 @@
 					"label": "deduction_input"
 				},
 				{
-					"line": 789,
+					"line": 932,
+					"column": 23,
+					"label": "main"
+				},
+				{
+					"line": 945,
 					"column": 16,
 					"label": "gen_chart"
 				},
 				{
-					"line": 818,
-					"column": 61,
-					"label": "highlight"
-				},
-				{
-					"line": 820,
-					"column": 33,
+					"line": 976,
+					"column": 54,
 					"label": "chart_type"
 				},
 				{
-					"line": 866,
-					"column": 13,
-					"label": "hot_chart"
-				},
-				{
-					"line": 1066,
-					"column": 27,
-					"label": "main"
-				}
-			]
-		},
-		{
-			"path": "etest.py",
-			"bookmarks": [
-				{
-					"line": 2133,
-					"column": 17,
-					"label": "quesModify"
-				},
-				{
-					"line": 3772,
-					"column": 65,
-					"label": "menu"
+					"line": 1211,
+					"column": 30,
+					"label": "中位数图"
 				}
 			]
 		},

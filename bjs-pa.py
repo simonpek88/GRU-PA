@@ -3,6 +3,7 @@ import datetime
 import os
 import time
 
+import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -29,16 +30,21 @@ from mysql_pool import get_connection
 
 @st.fragment
 def login():
+    st.set_page_config(layout="centered")
     # 显示应用名称
     st.markdown(f"<font face='微软雅黑' color=purple size=20><center>**{APPNAME}**</center></font>", unsafe_allow_html=True)
 
     # 登录表单容器
     login = st.empty()
     with login.container(border=True):
-        # 用户编码输入框
-        userID = st.text_input("请输入用户编码", placeholder="请输入纯数字用户编码", max_chars=8)
-        # 初始化用户姓名
-        st.session_state.userCName = ""
+        userID, userCName = [], []
+        sql = "SELECT userID, userCName from users order by ID"
+        rows = execute_sql(cur, sql)
+        for row in rows:
+            userID.append(row[0])
+            userCName.append(row[1])
+        query_userCName = st.selectbox("请选择用户", userCName)
+        userID = userID[userCName.index(query_userCName)]
 
         # 用户密码输入框
         userPassword = st.text_input("请输入密码", max_chars=8, placeholder="用户初始密码为1234", type="password", autocomplete="off")
@@ -70,6 +76,7 @@ def login():
                 sql = "UPDATE verinfo set pyLM = pyLM + 1 where pyFile = 'visitcounter'"
                 execute_sql_and_commit(conn, cur, sql)
                 updatePyFileinfo()
+                st.set_page_config(layout="wide")
                 st.rerun()
             elif not verifyUPW[0]:
                 st.error("登录失败, 请检查用户名和密码, 若忘记密码请联系管理员重置")
@@ -280,7 +287,6 @@ def actionResetUserPW(rUserID, rOption1, rOption2, rUserType):
 def task_input():
     st.markdown("### <font face='微软雅黑' color=red><center>工作量录入</center></font>", unsafe_allow_html=True)
     col1, col2 = st.columns(2)
-    expanded_group = ['值班', '清理保洁', '行政管理']
     col1.markdown(f"#### 当前用户: {st.session_state.userCName}")
     with col1:
         flag_auto_task = sac.switch("自动带入默认工作", value=True, align="start", on_label="On")
@@ -297,27 +303,38 @@ def task_input():
         st.markdown(f':red[总分:] {ttl_score}')
     else:
         st.markdown(f'###### :red[无任何记录]')
+    with st.expander(f"# :green[常用]", expanded=True):
+        sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task from bjs_pa where comm_task = 1 order by ID"
+        rows2 = execute_sql(cur, sql)
+        for row2 in rows2:
+            if row2[6] == st.session_state.clerkType and flag_auto_task:
+                auto_task = True
+            else:
+                auto_task = False
+            if row2[5] > 0:
+                st.checkbox(f":red[{row2[1]} 分值:{row2[2]}]", value=auto_task, key=f"task_work_{row2[0]}")
+            else:
+                st.checkbox(f"{row2[1]} 分值:{row2[2]}", value=auto_task, key=f"task_work_{row2[0]}")
+            if row2[4] == 1:
+                st.slider(f"倍数", min_value=1, max_value=10, value=1, step=1, key=f"task_multi_{row2[0]}")
     sql = "SELECT DISTINCT(task_group) from bjs_pa"
     rows = execute_sql(cur, sql)
     for row in rows:
-        if row[0] in expanded_group and flag_auto_task:
-            flag_expanded = True
-        else:
-            flag_expanded = False
-        with st.expander(f"# :green[{row[0]}]", expanded=flag_expanded):
-            sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task from bjs_pa where task_group = '{row[0]}' order by pa_num"
-            rows2 = execute_sql(cur, sql)
-            for row2 in rows2:
-                if row2[6] == st.session_state.clerkType and flag_auto_task:
-                    auto_task = True
-                else:
-                    auto_task = False
-                if row2[5] > 0:
-                    st.checkbox(f":red[{row2[1]} 分值:{row2[2]}]", value=auto_task, key=f"task_work_{row2[0]}")
-                else:
-                    st.checkbox(f"{row2[1]} 分值:{row2[2]}", value=auto_task, key=f"task_work_{row2[0]}")
-                if row2[4] == 1:
-                    st.slider(f"倍数", min_value=1, max_value=10, value=1, step=1, key=f"task_multi_{row2[0]}")
+        sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task from bjs_pa where task_group = '{row[0]}' and comm_task = 0 order by ID"
+        rows2 = execute_sql(cur, sql)
+        if rows2:
+            with st.expander(f"# :green[{row[0]}]", expanded=False):
+                for row2 in rows2:
+                    if row2[6] == st.session_state.clerkType and flag_auto_task:
+                        auto_task = True
+                    else:
+                        auto_task = False
+                    if row2[5] > 0:
+                        st.checkbox(f":red[{row2[1]} 分值:{row2[2]}]", value=auto_task, key=f"task_work_{row2[0]}")
+                    else:
+                        st.checkbox(f"{row2[1]} 分值:{row2[2]}", value=auto_task, key=f"task_work_{row2[0]}")
+                    if row2[4] == 1:
+                        st.slider(f"倍数", min_value=1, max_value=10, value=1, step=1, key=f"task_multi_{row2[0]}")
     if confirm_btn_input:
         for key in st.session_state.keys():
             if key.startswith("task_work_") and st.session_state[key]:
@@ -409,7 +426,7 @@ def query_task():
         quesDOC.styles["Normal"]._element.rPr.rFonts.set(qn("w:eastAsia"), "Microsoft YaHei")
         pHeader = quesDOC.add_paragraph()
         pHeader.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        textHeader = pHeader.add_run(f"{st.session_state.userCName} {query_date_start} 至 {query_date_end} 工作量{affix_info}记录 {approved_info}", 0)
+        textHeader = pHeader.add_run(f"{query_userCName} {query_date_start} 至 {query_date_end} 工作量{affix_info}记录 {approved_info}", 0)
         textHeader.font.size = Pt(headerFS)
         textHeader.font.bold = True
         rows = execute_sql(cur, sql_task)
@@ -464,7 +481,7 @@ def query_task():
             footer = quesDOC.sections[0].footer
             paragraph = footer.paragraphs[0] if footer.paragraphs else footer.add_paragraph()
             add_page_number(paragraph)
-            outputFile = f"./user_pa/{st.session_state.userCName}-{query_date_start}-{query_date_end}_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.docx"
+            outputFile = f"./user_pa/{query_userCName}-{query_date_start}-{query_date_end}_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.docx"
             if os.path.exists(outputFile):
                 os.remove(outputFile)
             quesDOC.save(outputFile)
@@ -487,8 +504,8 @@ def query_task():
         result = execute_sql(cur, sql)
         df = pd.DataFrame(result)
         df.columns = ["姓名", "工作项", "单项分值", "项数", "单项合计", "工作组"]
-        df["单项分值"] = df["单项分值"].round(0).astype(int)
-        df["单项合计"] = df["单项合计"].round(0).astype(int)
+        df["单项分值"] = pd.to_numeric(df["单项分值"], errors='coerce').round(0).astype('Int64')
+        df["单项合计"] = pd.to_numeric(df["单项合计"], errors='coerce').round(0).astype('Int64')
         # 指定需要计算小计的列
         sum_columns = ["项数", "单项合计"]
         # 调用函数添加小计行
@@ -496,7 +513,7 @@ def query_task():
         # 显示带有小计行的 DataFrame
         st.dataframe(df_with_subtotals)
         # 导出为 Excel
-        outputFile = f"./user_pa/工作量统计_{query_date_start}至{query_date_end}_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.xlsx"
+        outputFile = f"./user_pa/工作量统计表_{query_date_start}至{query_date_end}_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.xlsx"
         if os.path.exists(outputFile):
             os.remove(outputFile)
         with pd.ExcelWriter(outputFile, engine='openpyxl') as writer:
@@ -646,8 +663,10 @@ def manual_input():
             flag_add_pa = sac.switch("加入固定列表", value=False, align="start", on_label="On")
         with opt2:
             flag_multi_score = sac.switch("多倍计算", value=False, align="start", on_label="On")
+        with opt3:
+            flag_comm_task = sac.switch("设为常用", value=False, align="start", on_label="On")
     else:
-        flag_add_pa, flag_multi_score = False, False
+        flag_add_pa, flag_multi_score, flag_comm_task = False, False, False
     task_content = st.text_area("工作内容", height=100)
     confirm_btn_manual = st.button("确认添加")
     if task_group and task_content and confirm_btn_manual:
@@ -661,7 +680,7 @@ def manual_input():
         if flag_add_pa:
             sql = f"SELECT ID from bjs_pa where pa_content = '{task_content}' and task_group = '{task_group}' and pa_score = {task_score}"
             if not execute_sql(cur, sql):
-                sql = f"INSERT INTO bjs_pa (pa_content, pa_score, pa_group, task_group, multi_score) VALUES ('{task_content}', {task_score}, '全员', '{task_group}', {int(flag_multi_score)})"
+                sql = f"INSERT INTO bjs_pa (pa_content, pa_score, pa_group, task_group, multi_score, comm_task) VALUES ('{task_content}', {task_score}, '全员', '{task_group}', {int(flag_multi_score)}, {int(flag_comm_task)})"
                 execute_sql_and_commit(conn, cur, sql)
                 reset_table_num(True)
                 st.toast(f"工作量: [{task_content}] 添加至列表成功！")
@@ -956,10 +975,10 @@ def gen_chart():
         userCName = [query_userCName]
     with col3:
         #dur_time = query_date_end - query_date_start
-        chart_type_pack = ['折线图', '旭日图', '矩阵树图', '饼图']
+        chart_type_pack = ['折线图', '中位数图', '旭日图', '矩阵树图', '饼图']
         if len(userID) == 1:
             chart_type_pack = chart_type_pack + ['热度图', '柱状图(分组)', '柱状图(堆叠)', '漏斗图']
-        chart_type = st.selectbox("图表类型", chart_type_pack, index=0, placeholder="多人查询只有折线图、旭日图、矩阵树图和饼图")
+        chart_type = st.selectbox("图表类型", chart_type_pack, index=1, placeholder="多人查询只有折线图、旭日图、矩阵树图和饼图")
     min_value, max_value = 1000, 0
     raws_data, df = [], []
     charArea = tab1.empty()
@@ -1191,6 +1210,29 @@ def gen_chart():
                     st.plotly_chart(fig, use_container_width=True)
                 else:
                     st.info("没有查询到符合条件的记录")
+    elif chart_type == "中位数图":
+        with tab1:
+            with charArea.container(border=True):
+                sql = f"SELECT clerk_cname, sum(task_score) from clerk_work where task_approved >= {int(flag_approved)} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY clerk_cname order by clerk_cname"
+                result = execute_sql(cur, sql)
+                for each in result:
+                    raws_data.append([each[0], int(each[1])])
+                if raws_data:
+                    df = pd.DataFrame(raws_data, columns=["姓名", "合计分值"])
+                # 计算中位数
+                median_score = np.nanmedian(df["合计分值"])
+                # 生成柱状图
+                fig = px.bar(df, x="姓名", y="合计分值", text_auto=True,
+                            title="工作量分值", labels={"姓名": "员工姓名", "合计分值": "总分值"})
+                # 添加中位数水平线
+                fig.add_shape(type='line',
+                            x0=-0.5, x1=len(df) - 0.5,
+                            y0=median_score, y1=median_score,
+                            line=dict(color='red', dash='dash'))
+                # 标注中位数数值
+                fig.add_annotation(x=len(df) - 1, y=median_score + 5,
+                                text=f'中位数: {median_score:.0f}', showarrow=False, font=dict(color='red', size=16))
+                st.plotly_chart(fig, use_container_width=True)
     if raws_data:
         tab2.write(df)
     else:
@@ -1248,7 +1290,6 @@ st.logo("./Images/logos/bjs-pa-logo2.png", icon_image="./Images/logos/bjs-pa-log
 selected = None
 
 if "logged_in" not in st.session_state:
-    st.set_page_config(layout='wide')
     st.session_state.logged_in = False
     login()
 
