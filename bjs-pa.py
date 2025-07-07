@@ -1292,6 +1292,11 @@ def displayBigTime():
     components.html(open("./MyComponentsScript/Clock-Big.txt", "r", encoding="utf-8").read(), height=140)
 
 
+def aboutLicense():
+    st.subheader("License", divider="green")
+    st.markdown(open("./LICENSE", "r", encoding="utf-8").read())
+
+
 global APPNAME, MAXDEDUCTSCORE, CHARTFONTSIZE
 APPNAME = "北京站绩效考核系统KPI-PA"
 MAXDEDUCTSCORE = -20
@@ -1334,6 +1339,7 @@ if st.session_state.logged_in:
                     sac.MenuItem('Changelog', icon='view-list'),
                     sac.MenuItem('Readme', icon='github'),
                     sac.MenuItem('关于...', icon='link-45deg'),
+                    sac.MenuItem('LICENSE', icon='card-text'),
                 ]),
             ], open_index=[1, 2], index=st.session_state.menu_index)
         elif st.session_state.userType == "user":
@@ -1355,6 +1361,7 @@ if st.session_state.logged_in:
                     sac.MenuItem('Changelog', icon='view-list'),
                     sac.MenuItem('Readme', icon='github'),
                     sac.MenuItem('关于...', icon='link-45deg'),
+                    sac.MenuItem('LICENSE', icon='card-text'),
                 ]),
             ], open_index=[1, 2], index=st.session_state.menu_index)
         st.divider()
@@ -1397,3 +1404,5 @@ if st.session_state.logged_in:
         aboutReadme()
     elif selected == "关于...":
         aboutInfo()
+    elif selected == "LICENSE":
+        aboutLicense()
