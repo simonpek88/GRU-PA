@@ -38,7 +38,10 @@ def login():
     login = st.empty()
     with login.container(border=True):
         userID, userCName = [], []
-        sql = "SELECT userID, userCName from users order by ID"
+        sql = "SELECT DISTINCT(StationCN) from users order by StationCN"
+        rows = execute_sql(cur, sql)
+        station_type = st.selectbox(label="请选择站点", options=[row[0] for row in rows], index=0)
+        sql = f"SELECT userID, userCName, StationCN from users where StationCN = '{station_type}' order by StationCN, userCName"
         rows = execute_sql(cur, sql)
         for row in rows:
             userID.append(row[0])
@@ -46,6 +49,8 @@ def login():
         query_userCName = st.selectbox("请选择用户", userCName, index=None)
         if query_userCName is not None:
             userID = userID[userCName.index(query_userCName)]
+        else:
+            userID = None
 
         # 用户密码输入框
         userPassword = st.text_input("请输入密码", max_chars=8, placeholder="用户初始密码为1234", type="password", autocomplete="off")
@@ -56,7 +61,7 @@ def login():
     # 如果点击了登录按钮
     if buttonLogin:
         # 如果用户编码和密码不为空
-        if userID != "" and userPassword != "":
+        if userID and userPassword:
             # 验证用户密码
             verifyUPW = verifyUserPW(userID, userPassword)
             # 如果密码验证成功
@@ -1298,12 +1303,12 @@ def aboutLicense():
 
 
 global APPNAME, MAXDEDUCTSCORE, CHARTFONTSIZE
-APPNAME = "北京站绩效考核系统KPI-PA"
+APPNAME = "站室绩效考核系统KPI-PA"
 MAXDEDUCTSCORE = -20
 CHARTFONTSIZE = 14
 conn = get_connection()
 cur = conn.cursor()
-st.logo("./Images/logos/bjs-pa-logo2.png", icon_image="./Images/logos/bjs-pa-logo.png", size="large")
+st.logo(image="./Images/logos/bjs-pa-logo.png", icon_image="./Images/logos/bjs-pa-logo.png", size="large")
 
 selected = None
 
