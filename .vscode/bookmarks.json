@@ -59,6 +59,11 @@
 					"label": "chart_type"
 				},
 				{
+					"line": 1081,
+					"column": 31,
+					"label": "日历热度图"
+				},
+				{
 					"line": 1211,
 					"column": 30,
 					"label": "中位数图"
@@ -72,6 +77,11 @@
 					"line": 1292,
 					"column": 23,
 					"label": "main"
+				},
+				{
+					"line": 1316,
+					"column": 20,
+					"label": "gen_cal_chart"
 				}
 			]
 		},

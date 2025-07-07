@@ -1,8 +1,10 @@
 # coding utf-8
+import calendar
 import datetime
 import os
 import time
 
+import nivo_chart as nc
 import numpy as np
 import pandas as pd
 import plotly.express as px
@@ -981,10 +983,10 @@ def gen_chart():
         userCName = [query_userCName]
     with col3:
         #dur_time = query_date_end - query_date_start
-        chart_type_pack = ['折线图', '中位数图', '旭日图', '矩阵树图', '饼图']
+        chart_type_pack = ['折线图', '中位数图', '旭日图', '矩阵树图', '饼图', '日历热度图']
         if len(userID) == 1:
-            chart_type_pack = chart_type_pack + ['热度图', '柱状图(分组)', '柱状图(堆叠)', '漏斗图']
-        chart_type = st.selectbox("图表类型", chart_type_pack, index=1, placeholder="多人查询只有折线图、旭日图、矩阵树图和饼图")
+            chart_type_pack = chart_type_pack + ['柱状图(分组)', '柱状图(堆叠)', '漏斗图']
+        chart_type = st.selectbox("图表类型", chart_type_pack, index=5)
     min_value, max_value = 1000, 0
     raws_data, df = [], []
     charArea = tab1.empty()
@@ -1077,29 +1079,52 @@ def gen_chart():
                     st.plotly_chart(fig)
                 else:
                     st.info("没有查询到符合条件的记录")
-    elif chart_type == "热度图":
+    elif chart_type == "日历热度图":
         with tab1:
             with charArea.container(border=True):
-                for index, value in enumerate(userID):
-                    sql = f"SELECT task_date, task_group, sum(task_score) from clerk_work where task_approved >= {int(flag_approved)} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_date, task_group order by task_date"
-                    result = execute_sql(cur, sql)
-                    for each in result:
-                        raws_data.append([userCName[index], each[0], each[1], int(each[2])])
+                now = datetime.datetime.now()
+                temp_date = get_month_first_last_days(now.year, now.month)
+                query_date_start = temp_date[0].strftime("%Y-%m-%d")
+                query_date_end = temp_date[1].strftime("%Y-%m-%d")
+                cal_data = []
+                sql = f"SELECT task_date, sum(task_score) from clerk_work where task_date >= '{query_date_start}' and task_date <= '{query_date_end}' group by task_date"
+                rows = execute_sql(cur, sql)
+                for row in rows:
+                    raws_data.append([row[0], int(row[1])])
+                    temp = {'value': int(row[1]), 'day': row[0].strftime("%Y-%m-%d")}
+                    cal_data.append(temp)
                 if raws_data:
-                    df = pd.DataFrame(raws_data, columns=["姓名", "日期", "工作组别", "合计分值"])
-                    # 构建透视表
-                    heatmap_data = df.pivot_table(index="工作组别", columns="日期", values="合计分值", aggfunc="sum")
-                    # 生成热图
-                    fig = px.imshow(
-                        heatmap_data,
-                        text_auto=True,
-                        color_continuous_scale='Viridis',
-                        title="工作量",
-                        labels={"x": "日期", "y": "工作组别", "color": "总分"}
-                    )
-                    # 放大图表整体字体
-                    fig.update_layout(font=dict(size=CHARTFONTSIZE))
-                    st.plotly_chart(fig)
+                    df = pd.DataFrame(raws_data, columns=["日期", "合计分值"])
+                    calendar_chart = {
+                        "data": cal_data,
+                        "layout": {
+                            "title": "日历热度图",
+                            "type": "calendar",
+                            "height": 500,
+                            "from": query_date_start,
+                            "to": query_date_end,
+                            "emptyColor": "#eeeeee",
+                            "colors": ["#61cdbb", "#97e3d5", "#e8c1a0", "#f47560"],
+                            "margin": {"top": 40, "right": 40, "bottom": 40, "left": 40},
+                            "yearSpacing": 40,
+                            "monthBorderColor": "#ffffff",
+                            "dayBorderWidth": 2,
+                            "dayBorderColor": "#ffffff",
+                            "legends": [
+                                {
+                                    "anchor": "bottom-right",
+                                    "direction": "row",
+                                    "translateY": 36,
+                                    "itemCount": 4,
+                                    "itemWidth": 42,
+                                    "itemHeight": 36,
+                                    "itemsSpacing": 14,
+                                    "itemDirection": "right-to-left",
+                                }
+                            ],
+                        },
+                    }
+                    nc.nivo_chart(data=calendar_chart["data"], layout=calendar_chart["layout"])
                 else:
                     st.info("没有查询到符合条件的记录")
     elif chart_type == "漏斗图":
@@ -1300,6 +1325,16 @@ def displayBigTime():
 def aboutLicense():
     st.subheader("License", divider="green")
     st.markdown(open("./LICENSE", "r", encoding="utf-8").read())
+
+
+def get_month_first_last_days(year, month):
+    # 获得指定月份的第一天
+    first_day = datetime.date(year, month, 1)
+    # 获得指定月份的最后一天
+    _, last_day_of_month = calendar.monthrange(year, month)
+    last_day = datetime.date(year, month, last_day_of_month)
+
+    return first_day, last_day
 
 
 global APPNAME, MAXDEDUCTSCORE, CHARTFONTSIZE

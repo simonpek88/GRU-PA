@@ -73,7 +73,9 @@ Monokai
 moption
 morepractise
 mysqldump
+nbinsx
 Neue
+nivo
 Objs
 openpyxl
 oxml
