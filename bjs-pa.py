@@ -627,6 +627,7 @@ def add_subtotals(df, group_column, sum_columns):
 
     return result_df
 
+
 def add_page_number(paragraph):
     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
