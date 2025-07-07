@@ -43,8 +43,9 @@ def login():
         for row in rows:
             userID.append(row[0])
             userCName.append(row[1])
-        query_userCName = st.selectbox("请选择用户", userCName)
-        userID = userID[userCName.index(query_userCName)]
+        query_userCName = st.selectbox("请选择用户", userCName, index=None)
+        if query_userCName is not None:
+            userID = userID[userCName.index(query_userCName)]
 
         # 用户密码输入框
         userPassword = st.text_input("请输入密码", max_chars=8, placeholder="用户初始密码为1234", type="password", autocomplete="off")
@@ -76,6 +77,14 @@ def login():
                 sql = "UPDATE verinfo set pyLM = pyLM + 1 where pyFile = 'visitcounter'"
                 execute_sql_and_commit(conn, cur, sql)
                 updatePyFileinfo()
+                now = datetime.datetime.now()
+                valid_time = now.strftime("%Y-%m-%d")
+                sql = f"SELECT notice from notices where start_time >= '{valid_time}' and '{valid_time}' <= end_time"
+                result = execute_sql(cur, sql)
+                if result:
+                    st.session_state.menu_index = 0
+                else:
+                    st.session_state.menu_index = 1
                 st.set_page_config(layout="wide")
                 st.rerun()
             elif not verifyUPW[0]:
@@ -500,16 +509,18 @@ def query_task():
             st.info(f":red[没有查询到符合条件的记录]")
     elif confirm_btn_output_excel:
         display_area.empty()
-        sql = f"SELECT clerk_cname AS 姓名, clerk_work AS 工作项, AVG(task_score) AS 单项分值, COUNT(clerk_work) AS 项数, AVG(task_score) * COUNT(clerk_work) AS 单项合计, task_group AS 工作组 FROM clerk_work WHERE task_approved >= {int(flag_approved)} AND task_date >= '{query_date_start}' AND task_date <= '{query_date_end}' GROUP BY clerk_cname, clerk_work, task_group ORDER BY clerk_cname"
+        sql = f"SELECT clerk_cname, clerk_work, AVG(task_score), COUNT(clerk_work), AVG(task_score) * COUNT(clerk_work), task_group FROM clerk_work WHERE task_approved >= {int(flag_approved)} AND task_date >= '{query_date_start}' AND task_date <= '{query_date_end}' GROUP BY clerk_cname, clerk_work, task_group ORDER BY clerk_cname"
         result = execute_sql(cur, sql)
         df = pd.DataFrame(result)
         df.columns = ["姓名", "工作项", "单项分值", "项数", "单项合计", "工作组"]
-        df["单项分值"] = pd.to_numeric(df["单项分值"], errors='coerce').round(0).astype('Int64')
-        df["单项合计"] = pd.to_numeric(df["单项合计"], errors='coerce').round(0).astype('Int64')
+        for item in ['单项分值', '项数', '单项合计']:
+            df[item] = pd.to_numeric(df[item], errors='coerce').astype(int)
         # 指定需要计算小计的列
         sum_columns = ["项数", "单项合计"]
         # 调用函数添加小计行
         df_with_subtotals = add_subtotals(df, "姓名", sum_columns)
+        # 修正单项分值列
+        df_with_subtotals['单项分值'] = pd.to_numeric(df_with_subtotals['单项分值'], errors='coerce')
         # 显示带有小计行的 DataFrame
         st.dataframe(df_with_subtotals)
         # 导出为 Excel
@@ -820,7 +831,7 @@ def check_data():
         result = execute_sql(cur, sql)
         if result:
             for row in result:
-                task_pack.append(f'日期:{row[2]} 用户:{row[1]} 工作类型:{row[5]} 内容:{row[3]} 分值:{row[4]} ID:{row[0]}')
+                task_pack.append(f'{str(row[2])[5:]} {row[1]} {row[5]} 内容:{row[3]} 分值:{row[4]} ID:{row[0]}')
             approve_pack = sac.transfer(items=task_pack, label='工作量核定', titles=['项目'], reload=True, align='center', search=True, pagination=True, use_container_width=True)
             if confirm_btn_approv and approve_pack:
                 for each in approve_pack:
@@ -1025,6 +1036,7 @@ def gen_chart():
                         yaxis=dict(title="主轴",
                                     rangemode="normal"),
                         template="simple_white",
+                        font=dict(size=CHARTFONTSIZE),
                         yaxis2=dict(
                             title="",
                             overlaying='y',
@@ -1064,7 +1076,8 @@ def gen_chart():
                     fig.update_traces(textposition='outside')
                     fig.update_layout(
                         xaxis_tickangle=-45,
-                        template="simple_white"
+                        template="simple_white",
+                        font=dict(size=CHARTFONTSIZE)
                     )
                     st.plotly_chart(fig)
                 else:
@@ -1089,6 +1102,8 @@ def gen_chart():
                         title="工作量",
                         labels={"x": "日期", "y": "工作组别", "color": "总分"}
                     )
+                    # 放大图表整体字体
+                    fig.update_layout(font=dict(size=CHARTFONTSIZE))
                     st.plotly_chart(fig)
                 else:
                     st.info("没有查询到符合条件的记录")
@@ -1114,6 +1129,8 @@ def gen_chart():
                         labels={"合计分值": "总分", "工作组别": "任务组别"},
                         color_discrete_sequence=px.colors.qualitative.Prism
                     )
+                    # 放大图表整体字体
+                    fig.update_layout(font=dict(size=CHARTFONTSIZE))
                     st.plotly_chart(fig)
                 else:
                     st.info("没有查询到符合条件的记录")
@@ -1148,7 +1165,7 @@ def gen_chart():
                         color_discrete_sequence=px.colors.qualitative.Prism
                     )
                     fig.update_traces(textposition='outside', textinfo='percent+label')
-                    fig.update_layout(showlegend=False)
+                    fig.update_layout(showlegend=False, font=dict(size=12))
                     st.plotly_chart(fig, use_container_width=True)
                 else:
                     st.info("没有查询到符合条件的记录")
@@ -1178,7 +1195,7 @@ def gen_chart():
                         color_continuous_scale='Plasma',
                         title="工作量（工作组别 → 用户）",
                     )
-                    fig.update_layout(margin=dict(t=50, l=0, r=0, b=0))
+                    fig.update_layout(margin=dict(t=50, l=0, r=0, b=0), font=dict(size=CHARTFONTSIZE))
                     st.plotly_chart(fig, use_container_width=True)
                 else:
                     st.info("没有查询到符合条件的记录")
@@ -1206,7 +1223,7 @@ def gen_chart():
                         title="工作量（工作组别 → 用户）",
                         hover_data={'合计分值': True}
                     )
-                    fig.update_layout(margin=dict(t=50, l=0, r=0, b=0))
+                    fig.update_layout(margin=dict(t=50, l=0, r=0, b=0), font=dict(size=CHARTFONTSIZE))
                     st.plotly_chart(fig, use_container_width=True)
                 else:
                     st.info("没有查询到符合条件的记录")
@@ -1229,9 +1246,14 @@ def gen_chart():
                             x0=-0.5, x1=len(df) - 0.5,
                             y0=median_score, y1=median_score,
                             line=dict(color='red', dash='dash'))
-                # 标注中位数数值
-                fig.add_annotation(x=len(df) - 1, y=median_score + 5,
-                                text=f'中位数: {median_score:.0f}', showarrow=False, font=dict(color='red', size=16))
+                fig.update_layout(font=dict(size=CHARTFONTSIZE))
+                # 将中位数标注移到线上方，并调整字体大小
+                fig.add_annotation(x=len(df) - 1, y=median_score + 12,  # 向上偏移
+                                text=f'中位数: {median_score:.0f}',
+                                showarrow=False,
+                                font=dict(color='red', size=CHARTFONTSIZE + 2),
+                                xanchor='right',
+                                yanchor='bottom')
                 st.plotly_chart(fig, use_container_width=True)
     if raws_data:
         tab2.write(df)
@@ -1280,9 +1302,10 @@ def displayBigTime():
     components.html(open("./MyComponentsScript/Clock-Big.txt", "r", encoding="utf-8").read(), height=140)
 
 
-global APPNAME, MAXDEDUCTSCORE
+global APPNAME, MAXDEDUCTSCORE, CHARTFONTSIZE
 APPNAME = "北京站绩效考核系统KPI-PA"
 MAXDEDUCTSCORE = -20
+CHARTFONTSIZE = 14
 conn = get_connection()
 cur = conn.cursor()
 st.logo("./Images/logos/bjs-pa-logo2.png", icon_image="./Images/logos/bjs-pa-logo.png", size="large")
@@ -1322,7 +1345,7 @@ if st.session_state.logged_in:
                     sac.MenuItem('Readme', icon='github'),
                     sac.MenuItem('关于...', icon='link-45deg'),
                 ]),
-            ], open_index=[1, 2])
+            ], open_index=[1, 2], index=st.session_state.menu_index)
         elif st.session_state.userType == "user":
             selected = sac.menu([
                 sac.MenuItem('公告', icon='megaphone'),
@@ -1343,8 +1366,9 @@ if st.session_state.logged_in:
                     sac.MenuItem('Readme', icon='github'),
                     sac.MenuItem('关于...', icon='link-45deg'),
                 ]),
-            ], open_index=[1, 2])
+            ], open_index=[1, 2], index=st.session_state.menu_index)
         st.divider()
+        #st.markdown(f'### :green[当前用户:] :orange[{st.session_state.StationCN} - {st.session_state.userCName}]')
         st.markdown(f'### :green[当前用户:] :orange[{st.session_state.userCName}]')
     if selected == "公告":
         public_notice()

@@ -34,11 +34,6 @@
 					"label": "manual_input"
 				},
 				{
-					"line": 689,
-					"column": 17,
-					"label": "check_data"
-				},
-				{
 					"line": 721,
 					"column": 61,
 					"label": "menu"
@@ -49,9 +44,9 @@
 					"label": "deduction_input"
 				},
 				{
-					"line": 932,
-					"column": 23,
-					"label": "main"
+					"line": 801,
+					"column": 17,
+					"label": "check_data"
 				},
 				{
 					"line": 945,
@@ -67,6 +62,16 @@
 					"line": 1211,
 					"column": 30,
 					"label": "中位数图"
+				},
+				{
+					"line": 1276,
+					"column": 20,
+					"label": "public_notice"
+				},
+				{
+					"line": 1292,
+					"column": 23,
+					"label": "main"
 				}
 			]
 		},
