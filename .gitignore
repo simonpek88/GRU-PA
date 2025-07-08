@@ -8,6 +8,7 @@ __pycache__/
 
 docs/
 user_pa/
+Images/badges/Python-badge.svg
 etest.py
 LLMonitor.py
 hot-cap.py

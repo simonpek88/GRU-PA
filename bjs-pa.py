@@ -18,11 +18,11 @@ from docx.oxml.ns import qn
 from docx.shared import Pt, RGBColor
 from openpyxl.cell import MergedCell
 from openpyxl.styles import Alignment, Border, Font, Side
-from streamlit_extras.badges import badge
 from wcwidth import wcswidth
 
-from commFunc import (execute_sql, execute_sql_and_commit, get_update_content,
-                      getUserEDKeys, getVerInfo, updatePyFileinfo)
+from commFunc import (execute_sql, execute_sql_and_commit, gen_badge,
+                      get_update_content, getUserEDKeys, getVerInfo,
+                      updatePyFileinfo)
 from mysql_pool import get_connection
 
 # cSpell:ignoreRegExp /[^\s]{16,}/
@@ -254,15 +254,14 @@ def aboutInfo():
 
 
 def display_pypi():
-    pypi1, pypi2, pypi3, pypi4, pypi5, pypi6 = st.columns(6)
-    with pypi1:
-        badge(type="pypi", name="streamlit")
-    with pypi2:
-        badge(type="pypi", name="streamlit_antd_components")
-    with pypi3:
-        badge(type="pypi", name="pandas")
-    with pypi4:
-        badge(type="pypi", name="plotly")
+    badge_pack = ['streamlit', 'pandas', 'streamlit_antd_components', 'plotly', 'python-docx', 'openpyxl']
+    gen_badge(badge_pack)
+    pypi = st.columns(len(badge_pack) + 2)
+    pypi[0].image('./Images/badges/Python-badge.svg')
+    pypi[1].image('./Images/badges/MySQL-badge.svg')
+
+    for index, value in enumerate(badge_pack):
+        pypi[index + 2].image(f'./Images/badges/{value}-badge.svg')
 
 
 def actionResetUserPW(rUserID, rOption1, rOption2, rUserType):

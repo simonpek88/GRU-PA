@@ -80,6 +80,7 @@ Objs
 openpyxl
 oxml
 pickable
+pybadges
 pycryptodome
 pydeck
 pylint
