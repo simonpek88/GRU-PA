@@ -238,10 +238,7 @@ def aboutInfo():
     module_img = st.columns(cols_limit)
     for index, value in enumerate(module_pack):
         module_img[index % cols_limit].caption(value)
-        if value != 'Ant Comp':
-            module_img[index % cols_limit].image(f'./Images/logos/{value.lower()}.png')
-        else:
-            module_img[index % cols_limit].image('./Images/logos/antd.png')
+        module_img[index % cols_limit].image(f'./Images/logos/{value.replace(" ", "_").lower()}.png')
     display_pypi()
     st.write("###### :violet[为了获得更好的使用体验, 请使用浅色主题]")
     verinfo, verLM = getVerInfo()
@@ -252,7 +249,7 @@ def aboutInfo():
 
 def display_pypi():
     db_type = 'MySQL'
-    badge_pack = ['streamlit', 'streamlit_antd_components', 'pandas', 'plotly', 'python-docx', 'openpyxl']
+    badge_pack = ['streamlit', 'streamlit_antd_components', 'pandas', 'plotly', 'openpyxl', 'python-docx']
     verinfo, verLM = getVerInfo()
     app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{verinfo}'
     app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
