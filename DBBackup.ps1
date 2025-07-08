@@ -4,10 +4,10 @@ param(
 
 switch ($target.ToLower()) {
     "simon" {
-        $BACKUP_DIR = "D:\My Documents\OneDrive\私人文档\Python Project\BJS-PA\MySQL_Backup"
+        $BACKUP_DIR = "D:\My Documents\OneDrive\私人文档\Python Project\GRU-PA\MySQL_Backup"
     }
     "cnaf" {
-        $BACKUP_DIR = "D:\Simon\Codes\BJS-PA\MySQL_Backup"
+        $BACKUP_DIR = "D:\Simon\Codes\GRU-PA\MySQL_Backup"
     }
     default {
         Write-Host "无效参数. 请使用如下参数: simon, cnaf (必须小写)."
@@ -17,9 +17,9 @@ switch ($target.ToLower()) {
 
 if (Test-Path $BACKUP_DIR) {
     $TIMESTAMP = Get-Date -Format "yyyyMMddHHmmss"
-    $BACKUP_FILE = "$BACKUP_DIR\BJS-PA-MySQL_Backup_$TIMESTAMP.sql"
+    $BACKUP_FILE = "$BACKUP_DIR\GRU-PA-MySQL_Backup_$TIMESTAMP.sql"
 
-    cmd /c mysqldump --defaults-file=.mysql.cnf bjs-pa > "$BACKUP_FILE"
+    cmd /c mysqldump --defaults-file=.mysql.cnf gru-pa > "$BACKUP_FILE"
     if (Test-Path $BACKUP_FILE) {
         $file = Get-Item $BACKUP_FILE
         if ($file.Length -gt 0) {

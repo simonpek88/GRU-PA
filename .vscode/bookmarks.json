@@ -1,7 +1,7 @@
 {
 	"files": [
 		{
-			"path": "bjs-pa.py",
+			"path": "gru-pa.py",
 			"bookmarks": [
 				{
 					"line": 5,
@@ -9,8 +9,8 @@
 					"label": "header"
 				},
 				{
-					"line": 21,
-					"column": 12,
+					"line": 79,
+					"column": 57,
 					"label": "login"
 				},
 				{
@@ -24,13 +24,13 @@
 					"label": "display_pypi"
 				},
 				{
-					"line": 345,
+					"line": 279,
 					"column": 17,
 					"label": "task_input"
 				},
 				{
-					"line": 423,
-					"column": 49,
+					"line": 350,
+					"column": 17,
 					"label": "query_task"
 				},
 				{
@@ -59,7 +59,7 @@
 					"label": "check_data"
 				},
 				{
-					"line": 945,
+					"line": 931,
 					"column": 16,
 					"label": "gen_chart"
 				},
@@ -102,16 +102,6 @@
 					"line": 4,
 					"column": 6,
 					"label": "update info"
-				}
-			]
-		},
-		{
-			"path": "commFunc.py",
-			"bookmarks": [
-				{
-					"line": 249,
-					"column": 78,
-					"label": "gen_badge"
 				}
 			]
 		}

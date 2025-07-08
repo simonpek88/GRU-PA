@@ -86,12 +86,12 @@ def login():
                 updatePyFileinfo()
                 # 更新版本信息
                 verinfo, verLM = getVerInfo()
-                app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{int(verinfo / 10)}.{verinfo}'
+                app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{verinfo}'
                 app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
                 gen_badge(cur, [], 'MySQL', APPNAME_EN, app_version, app_lm)
                 now = datetime.datetime.now()
                 valid_time = now.strftime("%Y-%m-%d")
-                sql = f"SELECT notice from notices where start_time >= '{valid_time}' and '{valid_time}' <= end_time"
+                sql = f"SELECT notice from notices where StationCN = '{st.session_state.StationCN}' and start_time >= '{valid_time}' and '{valid_time}' <= end_time"
                 result = execute_sql(cur, sql)
                 if result:
                     st.session_state.menu_index = 0
@@ -230,6 +230,7 @@ def aboutReadme():
 
 
 def aboutInfo():
+    updatePyFileinfo()
     st.subheader("关于本软件", divider="rainbow")
     st.subheader(":blue[Powered by Python and Streamlit]")
     logo1, logo2, logo3, logo4, logo5, logo6 = st.columns(6)
@@ -263,7 +264,7 @@ def display_pypi():
     db_type = 'MySQL'
     badge_pack = ['streamlit', 'pandas', 'streamlit_antd_components', 'plotly', 'python-docx', 'openpyxl']
     verinfo, verLM = getVerInfo()
-    app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{int(verinfo / 10)}.{verinfo}'
+    app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{verinfo}'
     app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
     gen_badge(cur, badge_pack, db_type, APPNAME_EN, app_version, app_lm)
     pypi = st.columns(len(badge_pack) + 2)
@@ -274,40 +275,6 @@ def display_pypi():
         pypi[index + 2].image(f'./Images/badges/{value}-badge.svg')
     pypi[0].image(f'./Images/badges/{APPNAME_EN}-badge.svg')
     pypi[1].image(f'./Images/badges/{APPNAME_EN}-lm-badge.svg')
-
-
-def actionResetUserPW(rUserID, rOption1, rOption2, rUserType):
-    rInfo = ""
-
-    # 如果 rOption1 为真
-    if rOption1:
-        # 获取用户加密密钥
-        resetPW = getUserEDKeys("1234", "enc")
-        # 构建 SQL 更新语句
-        sql = f"UPDATE users SET userPassword = '{resetPW}' where userID = {rUserID}"
-        # 执行 SQL 并提交
-        execute_sql_and_commit(conn, cur, sql)
-        # 更新信息，表示密码已重置
-        rInfo += "密码已重置为: 1234 / "
-
-    # 如果 rOption2 为真
-    if rOption2:
-        # 如果 rUserType 有值
-        if rUserType:
-            # 构建 SQL 更新语句，将用户类型更改为管理员
-            sql = f"UPDATE users SET userType = 'admin' where userID = {rUserID}"
-            # 更新信息，表示账户类型已更改为管理员
-            rInfo += "账户类型已更改为: 管理员 / "
-        else:
-            # 构建 SQL 更新语句，将用户类型更改为普通用户
-            sql = f"UPDATE users SET userType = 'user' where userID = {rUserID}"
-            # 更新信息，表示账户类型已更改为用户
-            rInfo += "账户类型已更改为: 用户 / "
-        # 执行 SQL 并提交
-        execute_sql_and_commit(conn, cur, sql)
-
-    # 显示操作结果
-    st.success(f"**{rInfo[:-3]}**")
 
 
 @st.fragment
@@ -331,7 +298,7 @@ def task_input():
     else:
         st.markdown(f'###### :red[无任何记录]')
     with st.expander(f"# :green[常用]", expanded=True):
-        sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task from bjs_pa where comm_task = 1 order by ID"
+        sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task from gru_pa where StationCN = '{st.session_state.StationCN}' and comm_task = 1 order by ID"
         rows2 = execute_sql(cur, sql)
         for row2 in rows2:
             if row2[6] == st.session_state.clerkType and flag_auto_task:
@@ -344,10 +311,10 @@ def task_input():
                 st.checkbox(f"{row2[1]} 分值:{row2[2]}", value=auto_task, key=f"task_work_{row2[0]}")
             if row2[4] == 1:
                 st.slider(f"倍数", min_value=1, max_value=10, value=1, step=1, key=f"task_multi_{row2[0]}")
-    sql = "SELECT DISTINCT(task_group) from bjs_pa"
+    sql = f"SELECT DISTINCT(task_group) from gru_pa where StationCN = '{st.session_state.StationCN}'"
     rows = execute_sql(cur, sql)
     for row in rows:
-        sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task from bjs_pa where task_group = '{row[0]}' and comm_task = 0 order by ID"
+        sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task from gru_pa where StationCN = '{st.session_state.StationCN}' and task_group = '{row[0]}' and comm_task = 0 order by ID"
         rows2 = execute_sql(cur, sql)
         if rows2:
             with st.expander(f"# :green[{row[0]}]", expanded=False):
@@ -367,7 +334,7 @@ def task_input():
             if key.startswith("task_work_") and st.session_state[key]:
                 #st.write(key, st.session_state[key])
                 task_id = key[key.rfind("_") + 1:]
-                sql = f"SELECT pa_content, pa_score, task_group from bjs_pa where ID = {task_id}"
+                sql = f"SELECT pa_content, pa_score, task_group from gru_pa where ID = {task_id}"
                 task_result = execute_sql(cur, sql)
                 task_content, task_score, task_group = task_result[0]
                 if f'task_multi_{task_id}' in st.session_state.keys():
@@ -375,7 +342,7 @@ def task_input():
                     #st.write(f"倍数: {st.session_state[f'task_multi_{task_id}']}")
                 sql = f"SELECT ID from clerk_work where task_date = '{task_date}' and clerk_id = {st.session_state.userID} and clerk_work = '{task_content}' and task_group = '{task_group}'"
                 if not execute_sql(cur, sql):
-                    sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group) VALUES ('{task_date}', {st.session_state.userID}, '{st.session_state.userCName}', '{task_content}', {task_score}, '{task_group}')"
+                    sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group, StationCN) VALUES ('{task_date}', {st.session_state.userID}, '{st.session_state.userCName}', '{task_content}', {task_score}, '{task_group}', '{st.session_state.StationCN}')"
                     execute_sql_and_commit(conn, cur, sql)
                     st.toast(f"工作量: [{task_content}] 分值: [{task_score}] 添加成功！")
                 else:
@@ -387,7 +354,7 @@ def query_task():
     col1, col2, col3 = st.columns(3)
     if st.session_state.userType == 'admin':
         userID, userCName = [], []
-        sql = "SELECT userID, userCName from users where clerk_pa = 1 order by ID"
+        sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa = 1 order by ID"
         rows = execute_sql(cur, sql)
         for row in rows:
             userID.append(row[0])
@@ -508,7 +475,7 @@ def query_task():
             footer = quesDOC.sections[0].footer
             paragraph = footer.paragraphs[0] if footer.paragraphs else footer.add_paragraph()
             add_page_number(paragraph)
-            outputFile = f"./user_pa/{query_userCName}-{query_date_start}-{query_date_end}_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.docx"
+            outputFile = f"./user_pa/{query_userCName}_{query_date_start}至{query_date_end}_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.docx"
             if os.path.exists(outputFile):
                 os.remove(outputFile)
             quesDOC.save(outputFile)
@@ -527,7 +494,7 @@ def query_task():
             st.info(f":red[没有查询到符合条件的记录]")
     elif confirm_btn_output_excel:
         display_area.empty()
-        sql = f"SELECT clerk_cname, clerk_work, AVG(task_score), COUNT(clerk_work), AVG(task_score) * COUNT(clerk_work), task_group FROM clerk_work WHERE task_approved >= {int(flag_approved)} AND task_date >= '{query_date_start}' AND task_date <= '{query_date_end}' GROUP BY clerk_cname, clerk_work, task_group ORDER BY clerk_cname"
+        sql = f"SELECT clerk_cname, clerk_work, AVG(task_score), COUNT(clerk_work), AVG(task_score) * COUNT(clerk_work), task_group FROM clerk_work WHERE task_approved >= {int(flag_approved)} AND task_date >= '{query_date_start}' AND task_date <= '{query_date_end}' and StationCN = '{st.session_state.StationCN}' GROUP BY clerk_cname, clerk_work, task_group ORDER BY clerk_cname"
         result = execute_sql(cur, sql)
         df = pd.DataFrame(result)
         df.columns = ["姓名", "工作项", "单项分值", "项数", "单项合计", "工作组"]
@@ -679,7 +646,7 @@ def manual_input():
     items = []
     st.markdown("### <font face='微软雅黑' color=red><center>工作量手工录入</center></font>", unsafe_allow_html=True)
     st.markdown(f"#### 当前用户: {st.session_state.userCName}")
-    sql = "SELECT DISTINCT(task_group) from bjs_pa"
+    sql = f"SELECT DISTINCT(task_group) from gru_pa where StationCN = '{st.session_state.StationCN}'"
     rows = execute_sql(cur, sql)
     for row in rows:
         items.append(row[0])
@@ -702,15 +669,15 @@ def manual_input():
     if task_group and task_content and confirm_btn_manual:
         sql = f"SELECT ID from clerk_work where task_date = '{task_date}' and clerk_id = {st.session_state.userID} and clerk_work = '{task_content}' and task_group = '{task_group}'"
         if not execute_sql(cur, sql):
-            sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group) VALUES ('{task_date}', {st.session_state.userID}, '{st.session_state.userCName}', '{task_content}', {task_score}, '{task_group}')"
+            sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group, StationCN) VALUES ('{task_date}', {st.session_state.userID}, '{st.session_state.userCName}', '{task_content}', {task_score}, '{task_group}', '{st.session_state.StationCN}')"
             execute_sql_and_commit(conn, cur, sql)
             st.toast(f"工作量: [{task_content}] 添加成功！")
         else:
             st.warning(f"工作量: [{task_content}] 已存在！")
         if flag_add_pa:
-            sql = f"SELECT ID from bjs_pa where pa_content = '{task_content}' and task_group = '{task_group}' and pa_score = {task_score}"
+            sql = f"SELECT ID from gru_pa where StationCN = '{st.session_state.StationCN}' and pa_content = '{task_content}' and task_group = '{task_group}' and pa_score = {task_score}"
             if not execute_sql(cur, sql):
-                sql = f"INSERT INTO bjs_pa (pa_content, pa_score, pa_group, task_group, multi_score, comm_task) VALUES ('{task_content}', {task_score}, '全员', '{task_group}', {int(flag_multi_score)}, {int(flag_comm_task)})"
+                sql = f"INSERT INTO gru_pa (pa_content, pa_score, pa_group, task_group, multi_score, comm_task, StationCN) VALUES ('{task_content}', {task_score}, '全员', '{task_group}', {int(flag_multi_score)}, {int(flag_comm_task)}, '{st.session_state.StationCN}')"
                 execute_sql_and_commit(conn, cur, sql)
                 reset_table_num(True)
                 st.toast(f"工作量: [{task_content}] 添加至列表成功！")
@@ -727,11 +694,11 @@ def reset_table_num(flag_force=False):
     else:
         confirm_btn_reset = True
     if confirm_btn_reset:
-        for modify_table in ['bjs_pa', 'bjs_pa_deduct']:
+        for modify_table in ['gru_pa', 'gru_pa_deduct']:
             i, sql = 1, ''
-            if modify_table == 'bjs_pa':
+            if modify_table == 'gru_pa':
                 sql = f"SELECT ID from {modify_table} order by task_group, ID, pa_num"
-            elif modify_table == 'bjs_pa_deduct':
+            elif modify_table == 'gru_pa_deduct':
                 sql = f"SELECT ID from {modify_table} order by ID"
             if sql:
                 rows = execute_sql(cur, sql)
@@ -749,7 +716,7 @@ def task_modify():
     col1, col2, col3, col4 = st.columns(4)
     if st.session_state.userType == 'admin':
         userID, userCName = [], []
-        sql = "SELECT userID, userCName from users where clerk_pa = 1 order by ID"
+        sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa = 1 order by ID"
         rows = execute_sql(cur, sql)
         for row in rows:
             userID.append(row[0])
@@ -824,7 +791,7 @@ def check_data():
     st.markdown("### <font face='微软雅黑' color=red><center>数据检查与核定</center></font>", unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     userID, userCName = [], []
-    sql = "SELECT userID, userCName from users where clerk_pa = 1 order by ID"
+    sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa = 1 order by ID"
     rows = execute_sql(cur, sql)
     for row in rows:
         userID.append(row[0])
@@ -837,7 +804,7 @@ def check_data():
     confirm_btn_approv = col2.button("核定")
     if confirm_btn_check:
         for index, value in enumerate(userID):
-            sql = "SELECT pa_content, min_days from bjs_pa where min_days > 0 order by min_days DESC"
+            sql = f"SELECT pa_content, min_days from gru_pa where StationCN = '{st.session_state.StationCN}' and min_days > 0 order by min_days DESC"
             rows = execute_sql(cur, sql)
             for row in rows:
                 sql = f"SELECT count(ID) from clerk_work where clerk_work = '{row[0]}' and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}'"
@@ -846,7 +813,7 @@ def check_data():
                     st.warning(f"用户: {userCName[index]} 工作: [{row[0]}] 应该 1次/{row[1]}天, 实际: {task_count}次 已超量, 请检查记录！")
     else:
         task_pack = []
-        sql = f"SELECT ID, clerk_cname, task_date, clerk_work, task_score, task_group from clerk_work where task_approved = 0 and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' order by task_date, task_group, clerk_work, clerk_cname, task_score"
+        sql = f"SELECT ID, clerk_cname, task_date, clerk_work, task_score, task_group from clerk_work where StationCN = '{st.session_state.StationCN}' and task_approved = 0 and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' order by task_date, task_group, clerk_work, clerk_cname, task_score"
         result = execute_sql(cur, sql)
         if result:
             for row in result:
@@ -869,7 +836,7 @@ def resetPassword():
         st.write(":red[**重置用户信息**]")
         # 获取用户编码
         userID, userCName = [], []
-        sql = "SELECT userID, userCName from users order by ID"
+        sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' order by ID"
         rows = execute_sql(cur, sql)
         for row in rows:
             userID.append(row[0])
@@ -916,7 +883,7 @@ def deduction_input():
     st.markdown("### <font face='微软雅黑' color=red><center>减分项录入</center></font>", unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     userID, userCName, pa_deduct, pa_deduct_score = [], [], [], []
-    sql = "SELECT userID, userCName from users where clerk_pa = 1 order by ID"
+    sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa = 1 order by ID"
     rows = execute_sql(cur, sql)
     for row in rows:
         userID.append(row[0])
@@ -924,7 +891,7 @@ def deduction_input():
     deduct_userCName = col1.selectbox("请选择用户", userCName)
     deduct_userID = userID[userCName.index(deduct_userCName)]
     deduct_date = col2.date_input("请选择日期", datetime.date.today(), max_value="today")
-    sql = "SELECT pa_content, pa_score from bjs_pa_deduct order by ID"
+    sql = f"SELECT pa_content, pa_score from gru_pa_deduct where StationCN = '{st.session_state.StationCN}' order by ID"
     rows = execute_sql(cur, sql)
     for row in rows:
         pa_deduct.append(row[0])
@@ -942,14 +909,14 @@ def deduction_input():
         if deduct_content:
             sql = f"SELECT ID from clerk_work where task_date = '{deduct_date}' and clerk_work = '{deduct_content}' and clerk_id = {deduct_userID}"
             if not execute_sql(cur, sql):
-                sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group, task_approved) VALUES ('{deduct_date}', {deduct_userID}, '{deduct_userCName}', '{deduct_content}', {deduct_score}, '扣分', 1)"
+                sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group, task_approved, StationCN) VALUES ('{deduct_date}', {deduct_userID}, '{deduct_userCName}', '{deduct_content}', {deduct_score}, '扣分', 1, '{st.session_state.StationCN}')"
                 execute_sql_and_commit(conn, cur, sql)
                 st.success(f"{deduct_userCName} 扣分项添加成功")
             else:
                 st.error(f"{deduct_userCName} {deduct_date} {deduct_content} 扣分项已存在")
-            sql = f"SELECT ID from bjs_pa_deduct where pa_content = '{deduct_content}' and pa_score = {deduct_score}"
+            sql = f"SELECT ID from gru_pa_deduct where pa_content = '{deduct_content}' and pa_score = {deduct_score} and StationCN = '{st.session_state.StationCN}'"
             if not execute_sql(cur, sql):
-                sql = f"INSERT INTO bjs_pa_deduct(pa_content, pa_score) VALUES ('{deduct_content}', {deduct_score})"
+                sql = f"INSERT INTO gru_pa_deduct(pa_content, pa_score, StationCN) VALUES ('{deduct_content}', {deduct_score}, '{st.session_state.StationCN}')"
                 execute_sql_and_commit(conn, cur, sql)
                 st.success(f"{deduct_content} 扣分项已添加至固定列表")
                 reset_table_num(True)
@@ -969,7 +936,7 @@ def gen_chart():
     tab1, tab2 = st.tabs(["📈 图表", "🗃 数据"])
     if st.session_state.userType == 'admin':
         userID, userCName = [], []
-        sql = "SELECT userID, userCName from users where clerk_pa = 1 order by ID"
+        sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa = 1 order by ID"
         rows = execute_sql(cur, sql)
         for row in rows:
             userID.append(row[0])
@@ -1096,7 +1063,7 @@ def gen_chart():
                 query_date_start = f'{datetime.datetime.now().year}-01-01'
                 query_date_end = f'{datetime.datetime.now().year}-12-31'
                 cal_data = []
-                sql = f"SELECT task_date, sum(task_score) from clerk_work where task_date >= '{query_date_start}' and task_date <= '{query_date_end}' group by task_date"
+                sql = f"SELECT task_date, sum(task_score) from clerk_work where StationCN = '{st.session_state.StationCN}' and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' group by task_date"
                 rows = execute_sql(cur, sql)
                 for row in rows:
                     raws_data.append([row[0], int(row[1])])
@@ -1259,7 +1226,7 @@ def gen_chart():
     elif chart_type == "中位数图":
         with tab1:
             with charArea.container(border=True):
-                sql = f"SELECT clerk_cname, sum(task_score) from clerk_work where task_approved >= {int(flag_approved)} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY clerk_cname order by clerk_cname"
+                sql = f"SELECT clerk_cname, sum(task_score) from clerk_work where StationCN = '{st.session_state.StationCN}' and task_approved >= {int(flag_approved)} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY clerk_cname order by clerk_cname"
                 result = execute_sql(cur, sql)
                 for each in result:
                     raws_data.append([each[0], int(each[1])])
@@ -1303,9 +1270,9 @@ def input_public_notice():
         now = datetime.datetime.now()
         pub_time = now.strftime("%Y-%m-%d %H:%M:%S")
         if public_text:
-            sql = f"SELECT ID from notices where notice = '{public_text}' and start_time <= '{query_date_start}' and end_time >= '{query_date_end}'"
+            sql = f"SELECT ID from notices where StationCN = '{st.session_state.StationCN}' and notice = '{public_text}' and start_time <= '{query_date_start}' and end_time >= '{query_date_end}'"
             if not execute_sql(cur, sql):
-                sql = f"INSERT INTO notices (notice, start_time, end_time, publisher, pub_time) VALUES ('{public_text}', '{query_date_start}', '{query_date_end}', '{st.session_state.userCName}', '{pub_time}')"
+                sql = f"INSERT INTO notices (notice, start_time, end_time, publisher, pub_time, StationCN) VALUES ('{public_text}', '{query_date_start}', '{query_date_end}', '{st.session_state.userCName}', '{pub_time}', '{st.session_state.StationCN}')"
                 execute_sql_and_commit(conn, cur, sql)
                 display_area.empty()
                 st.success('公告添加成功')
@@ -1317,7 +1284,7 @@ def public_notice():
     st.markdown("### <font face='微软雅黑' color=red><center>站内公告</center></font>", unsafe_allow_html=True)
     now = datetime.datetime.now()
     valid_time = now.strftime("%Y-%m-%d")
-    sql = f"SELECT notice from notices where start_time >= '{valid_time}' and '{valid_time}' <= end_time"
+    sql = f"SELECT notice from notices where StationCN = '{st.session_state.StationCN}' and start_time >= '{valid_time}' and '{valid_time}' <= end_time"
     result = execute_sql(cur, sql)
     if result:
         for index, row in enumerate(result, start=1):
