@@ -8,6 +8,7 @@ ampm
 animationend
 antd
 APIKEY
+APPNAME
 apsw
 backcolor
 backface

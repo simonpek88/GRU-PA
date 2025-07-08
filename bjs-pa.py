@@ -20,9 +20,9 @@ from openpyxl.cell import MergedCell
 from openpyxl.styles import Alignment, Border, Font, Side
 from wcwidth import wcswidth
 
-from commFunc import (execute_sql, execute_sql_and_commit, gen_badge,
-                      get_update_content, getUserEDKeys, getVerInfo,
-                      updatePyFileinfo)
+from commFunc import (execute_sql, execute_sql_and_commit, get_update_content,
+                      getUserEDKeys, getVerInfo, updatePyFileinfo)
+from gen_badges import gen_badge
 from mysql_pool import get_connection
 
 # cSpell:ignoreRegExp /[^\s]{16,}/
@@ -33,7 +33,7 @@ from mysql_pool import get_connection
 def login():
     st.set_page_config(layout="centered")
     # 显示应用名称
-    st.markdown(f"<font face='微软雅黑' color=purple size=20><center>**{APPNAME}**</center></font>", unsafe_allow_html=True)
+    st.markdown(f"<font face='微软雅黑' color=purple size=20><center>**{APPNAME_CN}**</center></font>", unsafe_allow_html=True)
 
     # 登录表单容器
     login = st.empty()
@@ -80,9 +80,15 @@ def login():
                 st.session_state.StationCN = result[0][3]
                 st.session_state.clerkType = result[0][4]
                 st.session_state.userPwRechecked = False
+                # 更新访问次数
                 sql = "UPDATE verinfo set pyLM = pyLM + 1 where pyFile = 'visitcounter'"
                 execute_sql_and_commit(conn, cur, sql)
                 updatePyFileinfo()
+                # 更新版本信息
+                verinfo, verLM = getVerInfo()
+                app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{int(verinfo / 10)}.{verinfo}'
+                app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
+                gen_badge(cur, [], 'MySQL', APPNAME_EN, app_version, app_lm)
                 now = datetime.datetime.now()
                 valid_time = now.strftime("%Y-%m-%d")
                 sql = f"SELECT notice from notices where start_time >= '{valid_time}' and '{valid_time}' <= end_time"
@@ -152,7 +158,7 @@ def displaySmallClock():
 @st.fragment
 def displayAppInfo():
     infoStr = open("./MyComponentsScript/glowintext.txt", "r", encoding="utf-8").read()
-    infoStr = infoStr.replace("软件名称", APPNAME)
+    infoStr = infoStr.replace("软件名称", APPNAME_CN)
     verinfo, verLM = getVerInfo()
     infoStr = infoStr.replace("软件版本", f"软件版本: {int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{int(verinfo / 10)} building {verinfo}")
     infoStr = infoStr.replace("更新时间", f"更新时间: {time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))}")
@@ -250,19 +256,24 @@ def aboutInfo():
     verinfo, verLM = getVerInfo()
     st.caption(f"Version: {int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{int(verinfo / 10)} building {verinfo} Last Modified: {time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))}")
     #sac.divider(align="center", color="blue")
-    st.image("./Images/logos/simon-logo.png", width=60)
+    st.image("./Images/logos/simon-logo.png", width=50)
 
 
 def display_pypi():
     db_type = 'MySQL'
     badge_pack = ['streamlit', 'pandas', 'streamlit_antd_components', 'plotly', 'python-docx', 'openpyxl']
-    gen_badge(badge_pack, db_type)
+    verinfo, verLM = getVerInfo()
+    app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{int(verinfo / 10)}.{verinfo}'
+    app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
+    gen_badge(cur, badge_pack, db_type, APPNAME_EN, app_version, app_lm)
     pypi = st.columns(len(badge_pack) + 2)
     pypi[0].image('./Images/badges/Python-badge.svg')
     pypi[1].image(f'./Images/badges/{db_type}-badge.svg')
 
     for index, value in enumerate(badge_pack):
         pypi[index + 2].image(f'./Images/badges/{value}-badge.svg')
+    pypi[0].image(f'./Images/badges/{APPNAME_EN}-badge.svg')
+    pypi[1].image(f'./Images/badges/{APPNAME_EN}-lm-badge.svg')
 
 
 def actionResetUserPW(rUserID, rOption1, rOption2, rUserType):
@@ -1325,13 +1336,14 @@ def aboutLicense():
     st.markdown(open("./LICENSE", "r", encoding="utf-8").read())
 
 
-global APPNAME, MAXDEDUCTSCORE, CHARTFONTSIZE
-APPNAME = "站室绩效考核系统KPI-PA"
+global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE
+APPNAME_CN = "站室绩效考核系统KPI-PA"
+APPNAME_EN = "GRU-PA"
 MAXDEDUCTSCORE = -20
 CHARTFONTSIZE = 14
 conn = get_connection()
 cur = conn.cursor()
-st.logo(image="./Images/logos/bjs-pa-logo.png", icon_image="./Images/logos/bjs-pa-logo.png", size="large")
+st.logo(image="./Images/logos/GRU-PA-logo.png", icon_image="./Images/logos/GRU-PA-logo.png", size="large")
 
 selected = None
 
@@ -1341,6 +1353,8 @@ if "logged_in" not in st.session_state:
 
 if st.session_state.logged_in:
     with st.sidebar:
+        st.markdown(f"<font face='微软雅黑' color=green size=4><center>**当前用户:{st.session_state.userCName}**</center></font>", unsafe_allow_html=True)
+        #st.markdown(f'### :green[当前用户:] :orange[{st.session_state.userCName}]')
         #displaySmallTime()
         #displaySmallClock()
         if st.session_state.userType == "admin":
@@ -1393,8 +1407,9 @@ if st.session_state.logged_in:
                 ]),
             ], open_index=[1, 2], index=st.session_state.menu_index)
         st.divider()
-        #st.markdown(f'### :green[当前用户:] :orange[{st.session_state.StationCN} - {st.session_state.userCName}]')
-        st.markdown(f'### :green[当前用户:] :orange[{st.session_state.userCName}]')
+        st.image(f'./Images/badges/{APPNAME_EN}-badge.svg')
+        st.image(f'./Images/badges/{APPNAME_EN}-lm-badge.svg')
+        #st.markdown(f'### :green[当前用户:] :orange[{st.session_state.userCName}]')
     if selected == "公告":
         public_notice()
     elif selected == "主页":

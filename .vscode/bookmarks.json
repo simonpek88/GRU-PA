@@ -14,6 +14,16 @@
 					"label": "login"
 				},
 				{
+					"line": 152,
+					"column": 21,
+					"label": "displayAppInfo"
+				},
+				{
+					"line": 261,
+					"column": 19,
+					"label": "display_pypi"
+				},
+				{
 					"line": 345,
 					"column": 17,
 					"label": "task_input"
@@ -74,14 +84,14 @@
 					"label": "public_notice"
 				},
 				{
-					"line": 1292,
-					"column": 23,
-					"label": "main"
-				},
-				{
 					"line": 1316,
 					"column": 20,
 					"label": "gen_cal_chart"
+				},
+				{
+					"line": 1340,
+					"column": 23,
+					"label": "main"
 				}
 			]
 		},
@@ -92,6 +102,16 @@
 					"line": 4,
 					"column": 6,
 					"label": "update info"
+				}
+			]
+		},
+		{
+			"path": "commFunc.py",
+			"bookmarks": [
+				{
+					"line": 249,
+					"column": 78,
+					"label": "gen_badge"
 				}
 			]
 		}
