@@ -231,27 +231,17 @@ def aboutReadme():
 
 def aboutInfo():
     updatePyFileinfo()
+    cols_limit = 6
     st.subheader("关于本软件", divider="rainbow")
     st.subheader(":blue[Powered by Python and Streamlit]")
-    logo1, logo2, logo3, logo4, logo5, logo6 = st.columns(6)
-    with logo1:
-        st.caption("Python")
-        st.image("./Images/logos/python.png")
-    with logo2:
-        st.caption("Streamlit")
-        st.image("./Images/logos/streamlit.png")
-    with logo3:
-        st.caption("MySQL")
-        st.image("./Images/logos/mysql.png")
-    with logo4:
-        st.caption("Ant Comp")
-        st.image("./Images/logos/antd.png")
-    with logo5:
-        st.caption("Pandas")
-        st.image("./Images/logos/pandas.png")
-    with logo6:
-        st.caption("Plotly")
-        st.image("./Images/logos/plotly.png")
+    module_pack = ['Python', 'MySQL', 'Streamlit', 'Ant Comp', 'Pandas', 'Plotly', 'Openpyxl', 'Python-Docx']
+    module_img = st.columns(cols_limit)
+    for index, value in enumerate(module_pack):
+        module_img[index % cols_limit].caption(value)
+        if value != 'Ant Comp':
+            module_img[index % cols_limit].image(f'./Images/logos/{value.lower()}.png')
+        else:
+            module_img[index % cols_limit].image('./Images/logos/antd.png')
     display_pypi()
     st.write("###### :violet[为了获得更好的使用体验, 请使用浅色主题]")
     verinfo, verLM = getVerInfo()
@@ -262,7 +252,7 @@ def aboutInfo():
 
 def display_pypi():
     db_type = 'MySQL'
-    badge_pack = ['streamlit', 'pandas', 'streamlit_antd_components', 'plotly', 'python-docx', 'openpyxl']
+    badge_pack = ['streamlit', 'streamlit_antd_components', 'pandas', 'plotly', 'python-docx', 'openpyxl']
     verinfo, verLM = getVerInfo()
     app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{verinfo}'
     app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
@@ -1381,6 +1371,12 @@ if st.session_state.logged_in:
         public_notice()
     elif selected == "主页":
         #displayBigTimeCircle()
+        updatePyFileinfo()
+        # 更新版本信息
+        verinfo, verLM = getVerInfo()
+        app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{verinfo}'
+        app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
+        gen_badge(cur, [], 'MySQL', APPNAME_EN, app_version, app_lm)
         displayBigTime()
         displayAppInfo()
         displayVisitCounter()
