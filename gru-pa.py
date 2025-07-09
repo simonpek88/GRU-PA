@@ -226,7 +226,7 @@ def changelog():
 
 
 def aboutReadme():
-    st.markdown(open("./README.md", "r", encoding="utf-8").read())
+    st.markdown(open("./README.md", "r", encoding="utf-8").read(), unsafe_allow_html=True)
 
 
 def aboutInfo():
