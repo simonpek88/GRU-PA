@@ -299,7 +299,7 @@ def task_input():
             else:
                 st.checkbox(f"{row2[1]} 分值:{row2[2]}", value=auto_task, key=f"task_work_{row2[0]}")
             if row2[4] == 1:
-                st.slider(f"倍数", min_value=1, max_value=10, value=1, step=1, key=f"task_multi_{row2[0]}")
+                st.number_input(f"倍数", min_value=1, max_value=10, value=1, step=1, key=f"task_multi_{row2[0]}")
     sql = f"SELECT DISTINCT(task_group) from gru_pa where StationCN = '{st.session_state.StationCN}'"
     rows = execute_sql(cur, sql)
     for row in rows:
@@ -317,7 +317,7 @@ def task_input():
                     else:
                         st.checkbox(f"{row2[1]} 分值:{row2[2]}", value=auto_task, key=f"task_work_{row2[0]}")
                     if row2[4] == 1:
-                        st.slider(f"倍数", min_value=1, max_value=10, value=1, step=1, key=f"task_multi_{row2[0]}")
+                        st.number_input(f"倍数", min_value=1, max_value=10, value=1, step=1, key=f"task_multi_{row2[0]}")
     if confirm_btn_input:
         for key in st.session_state.keys():
             if key.startswith("task_work_") and st.session_state[key]:
@@ -642,7 +642,7 @@ def manual_input():
     col1, col2, col3 = st.columns(3)
     task_date = col1.date_input('工作时间', value=datetime.date.today(), max_value="today")
     task_group = col2.selectbox('工作组别', items, index=None, accept_new_options=True)
-    task_score = col3.slider("单项分值", min_value=5, max_value=300, value=10, step=5)
+    task_score = col3.number_input("单项分值", min_value=1, max_value=300, value=10, step=1)
     opt1, opt2, opt3 = st.columns(3)
     if st.session_state.userType == 'admin':
         with opt1:
