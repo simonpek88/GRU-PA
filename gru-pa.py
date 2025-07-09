@@ -88,7 +88,7 @@ def login():
                 verinfo, verLM = getVerInfo()
                 app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{verinfo}'
                 app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
-                gen_badge(cur, [], 'MySQL', APPNAME_EN, app_version, app_lm)
+                gen_badge(conn, cur, [], 'MySQL', APPNAME_EN, app_version, app_lm)
                 now = datetime.datetime.now()
                 valid_time = now.strftime("%Y-%m-%d")
                 sql = f"SELECT notice from notices where StationCN = '{st.session_state.StationCN}' and start_time >= '{valid_time}' and '{valid_time}' <= end_time"
@@ -231,10 +231,10 @@ def aboutReadme():
 
 def aboutInfo():
     updatePyFileinfo()
-    cols_limit = 6
+    cols_limit = 5
     st.subheader("关于本软件", divider="rainbow")
     st.subheader(":blue[Powered by Python and Streamlit]")
-    module_pack = ['Python', 'MySQL', 'Streamlit', 'Ant Comp', 'Pandas', 'Plotly', 'Openpyxl', 'Python-Docx']
+    module_pack = ['Python', 'MySQL', 'Streamlit', 'Pandas', 'Plotly', 'Openpyxl', 'Python-Docx']
     module_img = st.columns(cols_limit)
     for index, value in enumerate(module_pack):
         module_img[index % cols_limit].caption(value)
@@ -249,17 +249,19 @@ def aboutInfo():
 
 def display_pypi():
     db_type = 'MySQL'
-    badge_pack = ['streamlit', 'streamlit_antd_components', 'pandas', 'plotly', 'openpyxl', 'python-docx']
+    cols_limit = 5
+    badge_pack = ['openpyxl', 'python-docx', 'streamlit', 'pandas', 'plotly']
     verinfo, verLM = getVerInfo()
     app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{verinfo}'
     app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
-    gen_badge(cur, badge_pack, db_type, APPNAME_EN, app_version, app_lm)
-    pypi = st.columns(len(badge_pack) + 2)
+    gen_badge(conn, cur, badge_pack, db_type, APPNAME_EN, app_version, app_lm)
+    pypi = st.columns(cols_limit)
     pypi[0].image('./Images/badges/Python-badge.svg')
     pypi[1].image(f'./Images/badges/{db_type}-badge.svg')
 
     for index, value in enumerate(badge_pack):
-        pypi[index + 2].image(f'./Images/badges/{value}-badge.svg')
+        pypi[index % cols_limit].image(f'./Images/badges/{value}-badge.svg')
+
     pypi[0].image(f'./Images/badges/{APPNAME_EN}-badge.svg')
     pypi[1].image(f'./Images/badges/{APPNAME_EN}-lm-badge.svg')
 
@@ -1373,7 +1375,7 @@ if st.session_state.logged_in:
         verinfo, verLM = getVerInfo()
         app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{verinfo}'
         app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
-        gen_badge(cur, [], 'MySQL', APPNAME_EN, app_version, app_lm)
+        gen_badge(conn, cur, [], 'MySQL', APPNAME_EN, app_version, app_lm)
         displayBigTime()
         displayAppInfo()
         displayVisitCounter()
