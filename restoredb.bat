@@ -1,0 +1,1 @@
+@mysql --defaults-file=.mysql.cnf gru-pa < MySQL_Backup\GRU-PA-MySQL_Backup_%1.sql
