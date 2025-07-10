@@ -1,4 +1,5 @@
 # coding utf-8
+import calendar
 import datetime
 import os
 import time
@@ -160,7 +161,7 @@ def displayAppInfo():
     infoStr = open("./MyComponentsScript/glowintext.txt", "r", encoding="utf-8").read()
     infoStr = infoStr.replace("软件名称", APPNAME_CN)
     verinfo, verLM = getVerInfo()
-    infoStr = infoStr.replace("软件版本", f"软件版本: {int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{int(verinfo / 10)} building {verinfo}")
+    infoStr = infoStr.replace("软件版本", f"软件版本: {int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{verinfo} building {verinfo}")
     infoStr = infoStr.replace("更新时间", f"更新时间: {time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))}")
     update_type, update_content = get_update_content(f"./CHANGELOG.md")
     infoStr = infoStr.replace("更新内容", f"更新内容: {update_type} - {update_content}")
@@ -234,7 +235,7 @@ def aboutInfo():
     cols_limit = 5
     st.subheader("关于本软件", divider="rainbow")
     st.subheader(":blue[Powered by Python and Streamlit]")
-    module_pack = ['Python', 'MySQL', 'Streamlit', 'Pandas', 'Plotly', 'Openpyxl', 'Python-Docx']
+    module_pack = ['Python', 'MySQL', 'Streamlit', 'Pandas', 'NumPy', 'Plotly', 'Nivo', 'Openpyxl', 'Python-Docx']
     module_img = st.columns(cols_limit)
     for index, value in enumerate(module_pack):
         module_img[index % cols_limit].caption(value)
@@ -266,6 +267,21 @@ def display_pypi():
     pypi[1].image(f'./Images/badges/{APPNAME_EN}-lm-badge.svg')
 
 
+def get_md_task_status(task_date, userID, task_content):
+    # 获取月份的第一天
+    first_day_of_month = task_date.replace(day=1)
+    # 使用 calendar.monthrange() 获取该月总天数，即最后一天
+    _, last_day = calendar.monthrange(task_date.year, task_date.month)
+    last_day_of_month = task_date.replace(day=last_day)
+
+    sql = f"SELECT ID from clerk_work where clerk_work = '{task_content}' and task_date >= '{first_day_of_month}' and task_date <= '{last_day_of_month}' and clerk_id = {userID}"
+    if not execute_sql(cur, sql):
+
+        return True
+
+    return False
+
+
 @st.fragment
 def task_input():
     st.markdown("### <font face='微软雅黑' color=red><center>工作量录入</center></font>", unsafe_allow_html=True)
@@ -290,13 +306,17 @@ def task_input():
         sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task from gru_pa where StationCN = '{st.session_state.StationCN}' and comm_task = 1 order by ID"
         rows2 = execute_sql(cur, sql)
         for row2 in rows2:
+            if row2[5] == MDTASKDAYS:
+                display_md_task = get_md_task_status(task_date, st.session_state.userID, row2[1])
+            else:
+                display_md_task = True
             if row2[6] == st.session_state.clerkType and flag_auto_task:
                 auto_task = True
             else:
                 auto_task = False
-            if row2[5] > 0:
+            if row2[5] > 0 and display_md_task:
                 st.checkbox(f":red[{row2[1]} 分值:{row2[2]}]", value=auto_task, key=f"task_work_{row2[0]}")
-            else:
+            elif display_md_task:
                 st.checkbox(f"{row2[1]} 分值:{row2[2]}", value=auto_task, key=f"task_work_{row2[0]}")
             if row2[4] == 1:
                 st.number_input(f"倍数", min_value=1, max_value=10, value=1, step=1, key=f"task_multi_{row2[0]}")
@@ -308,13 +328,17 @@ def task_input():
         if rows2:
             with st.expander(f"# :green[{row[0]}]", expanded=False):
                 for row2 in rows2:
+                    if row2[5] == MDTASKDAYS:
+                        display_md_task = get_md_task_status(task_date, st.session_state.userID, row2[1])
+                    else:
+                        display_md_task = True
                     if row2[6] == st.session_state.clerkType and flag_auto_task:
                         auto_task = True
                     else:
                         auto_task = False
-                    if row2[5] > 0:
+                    if row2[5] > 0 and display_md_task:
                         st.checkbox(f":red[{row2[1]} 分值:{row2[2]}]", value=auto_task, key=f"task_work_{row2[0]}")
-                    else:
+                    elif display_md_task:
                         st.checkbox(f"{row2[1]} 分值:{row2[2]}", value=auto_task, key=f"task_work_{row2[0]}")
                     if row2[4] == 1:
                         st.number_input(f"倍数", min_value=1, max_value=10, value=1, step=1, key=f"task_multi_{row2[0]}")
@@ -1292,11 +1316,12 @@ def aboutLicense():
     st.markdown(open("./LICENSE", "r", encoding="utf-8").read())
 
 
-global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE
+global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS
 APPNAME_CN = "站室绩效考核系统KPI-PA"
 APPNAME_EN = "GRU-PA"
 MAXDEDUCTSCORE = -20
 CHARTFONTSIZE = 14
+MDTASKDAYS = 28
 conn = get_connection()
 cur = conn.cursor()
 st.logo(image="./Images/logos/GRU-PA-logo.png", icon_image="./Images/logos/GRU-PA-logo.png", size="large")

@@ -14,9 +14,14 @@
 					"label": "login"
 				},
 				{
-					"line": 152,
+					"line": 159,
 					"column": 21,
 					"label": "displayAppInfo"
+				},
+				{
+					"line": 232,
+					"column": 16,
+					"label": "aboutInfo"
 				},
 				{
 					"line": 261,
@@ -24,7 +29,12 @@
 					"label": "display_pypi"
 				},
 				{
-					"line": 279,
+					"line": 268,
+					"column": 43,
+					"label": "get_multi_days_task"
+				},
+				{
+					"line": 285,
 					"column": 17,
 					"label": "task_input"
 				},
