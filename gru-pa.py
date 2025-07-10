@@ -242,9 +242,8 @@ def aboutInfo():
         module_img[index % cols_limit].image(f'./Images/logos/{value.replace(" ", "_").lower()}.png')
     display_pypi()
     st.write("###### :violet[为了获得更好的使用体验, 请使用浅色主题]")
-    verinfo, verLM = getVerInfo()
-    st.caption(f"Version: {int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{int(verinfo / 10)} building {verinfo} Last Modified: {time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))}")
-    #sac.divider(align="center", color="blue")
+    sac.divider(align="center", color="gray")
+    st.caption(":violet[Copyright © 2025 Simon. All rights reserved.]")
     st.image("./Images/logos/simon-logo.png", width=50)
 
 
@@ -1245,25 +1244,27 @@ def gen_chart():
                     raws_data.append([each[0], int(each[1])])
                 if raws_data:
                     df = pd.DataFrame(raws_data, columns=["姓名", "合计分值"])
-                # 计算中位数
-                median_score = np.nanmedian(df["合计分值"])
-                # 生成柱状图
-                fig = px.bar(df, x="姓名", y="合计分值", text_auto=True,
-                            title="工作量分值", labels={"姓名": "员工姓名", "合计分值": "总分值"})
-                # 添加中位数水平线
-                fig.add_shape(type='line',
-                            x0=-0.5, x1=len(df) - 0.5,
-                            y0=median_score, y1=median_score,
-                            line=dict(color='red', dash='dash'))
-                fig.update_layout(font=dict(size=CHARTFONTSIZE))
-                # 将中位数标注移到线上方，并调整字体大小
-                fig.add_annotation(x=len(df) - 1, y=median_score + 12,  # 向上偏移
-                                text=f'中位数: {median_score:.0f}',
-                                showarrow=False,
-                                font=dict(color='red', size=CHARTFONTSIZE + 2),
-                                xanchor='right',
-                                yanchor='bottom')
-                st.plotly_chart(fig, use_container_width=True)
+                    # 计算中位数
+                    median_score = np.nanmedian(df["合计分值"])
+                    # 生成柱状图
+                    fig = px.bar(df, x="姓名", y="合计分值", text_auto=True,
+                                title="工作量分值", labels={"姓名": "员工姓名", "合计分值": "总分值"})
+                    # 添加中位数水平线
+                    fig.add_shape(type='line',
+                                x0=-0.5, x1=len(df) - 0.5,
+                                y0=median_score, y1=median_score,
+                                line=dict(color='red', dash='dash'))
+                    fig.update_layout(font=dict(size=CHARTFONTSIZE))
+                    # 将中位数标注移到线上方，并调整字体大小
+                    fig.add_annotation(x=len(df) - 1, y=median_score + 12,  # 向上偏移
+                                    text=f'中位数: {median_score:.0f}',
+                                    showarrow=False,
+                                    font=dict(color='red', size=CHARTFONTSIZE + 2),
+                                    xanchor='right',
+                                    yanchor='bottom')
+                    st.plotly_chart(fig, use_container_width=True)
+                else:
+                    st.info("没有查询到符合条件的记录")
     if raws_data:
         tab2.write(df)
     else:
