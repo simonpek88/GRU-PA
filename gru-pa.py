@@ -242,7 +242,8 @@ def aboutInfo():
         module_img[index % cols_limit].image(f'./Images/logos/{value.replace(" ", "_").lower()}.png')
     display_pypi()
     st.write("###### :violet[为了获得更好的使用体验, 请使用浅色主题]")
-    sac.divider(align="center", color="gray")
+    if st.context.theme.type == 'dark':
+        sac.divider(align="center", color="gray")
     st.caption(":violet[Copyright © 2025 Simon. All rights reserved.]")
     st.image("./Images/logos/simon-logo.png", width=50)
 
