@@ -99,6 +99,11 @@
 					"label": "gen_cal_chart"
 				},
 				{
+					"line": 1321,
+					"column": 46,
+					"label": "display_weather"
+				},
+				{
 					"line": 1340,
 					"column": 23,
 					"label": "main"
@@ -106,7 +111,7 @@
 				{
 					"line": 1419,
 					"column": 33,
-					"label": "display weather"
+					"label": "menu weather"
 				}
 			]
 		},
