@@ -1,4 +1,6 @@
 # coding utf-8
+import re
+
 import requests
 
 
@@ -47,6 +49,46 @@ def get_city_weather(city_code):
                 windpower = live_data["windpower"]  # 风力
                 humidity = live_data["humidity"]  # 湿度
 
+                # 使用正则表达式提取数字部分
+                wind_power_dig = re.search(r'\d+', windpower)
+                if wind_power_dig:
+                    wind_power_dig = int(wind_power_dig.group())
+                else:
+                    wind_power_dig = 0
+                # 根据风力强度选择图标
+                if wind_power_dig < 5:
+                    wind_icon = '🍃 微风'
+                elif 5 <= wind_power_dig < 10:
+                    wind_icon = '🌬️ 轻风'
+                elif 10 <= wind_power_dig < 20:
+                    wind_icon = '🌬️ 和风'
+                elif 20 <= wind_power_dig < 30:
+                    wind_icon = '💨 强风'
+                elif 30 <= wind_power_dig < 40:
+                    wind_icon = '🌪️ 大风'
+                else:
+                    wind_icon = '🌀 暴风'
+
+                temperature_dig = int(temperature)
+                # 根据温度选择体感图标
+                if temperature_dig < 10:
+                    temp_icon = '❄️ 寒冷'
+                elif 10 <= temperature_dig <= 25:
+                    temp_icon = '🌡️ 舒适'
+                elif 26 <= temperature_dig <= 35:
+                    temp_icon = '⚠️ 较热'
+                else:
+                    temp_icon = '🔥 高温'
+
+                humidity_dig = int(humidity)
+                # 根据湿度选择图标
+                if humidity_dig < 40:
+                    humidity_icon = '🌵 干燥'
+                elif 40 <= humidity_dig <= 70:
+                    humidity_icon = '💧 舒适'
+                else:
+                    humidity_icon = '💦 潮湿'
+
                 return {
                     'province': province,
                     'city': city,
@@ -56,7 +98,10 @@ def get_city_weather(city_code):
                     'temperature': temperature,
                     'winddirection': winddirection,
                     'windpower': windpower,
-                    'humidity': humidity
+                    'humidity': humidity,
+                    'wind_icon': wind_icon,
+                    'temp_icon': temp_icon,
+                    'humidity_icon': humidity_icon
                 }
 
     except Exception as e:

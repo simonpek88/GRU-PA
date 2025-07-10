@@ -1323,32 +1323,12 @@ def aboutLicense():
 def display_weather(city_code, display_align):
     weather_info = get_city_weather(city_code)
     if weather_info:
-        # 使用正则表达式提取数字部分
-        wind_power = re.search(r'\d+', weather_info['windpower'])
-        if wind_power:
-            wind_power = int(wind_power.group())
-        else:
-            wind_power = 0
-        # 根据风力强度选择图标
-        if wind_power < 5:
-            wind_icon = '🍃 微风'
-        elif 5 <= wind_power < 10:
-            wind_icon = '🌬️ 轻风'
-        elif 10 <= wind_power < 20:
-            wind_icon = '🌬️ 和风'
-        elif 20 <= wind_power < 30:
-            wind_icon = '💨 强风'
-        elif 30 <= wind_power < 40:
-            wind_icon = '🌪️ 大风'
-        else:
-            wind_icon = '🌀 暴风'
-
         if display_align == 'left':
-            st.markdown(f"地区: {weather_info['city']} 天气: {WEATHERICON[weather_info['weather']]} 温度: {weather_info['temperature']} ℃")
-            st.markdown(f"风向: {weather_info['winddirection']} 风力: {wind_icon} {weather_info['windpower']} 米/秒 湿度: {weather_info['humidity']} %rh")
+            st.markdown(f"地区: {weather_info['city']} 天气: {WEATHERICON[weather_info['weather']]} 温度: {weather_info['temperature']} ℃ {weather_info['temp_icon']}")
+            st.markdown(f"风向: {weather_info['winddirection']} 风力: {weather_info['wind_icon']} {weather_info['windpower']} 米/秒 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}")
         elif display_align == 'center':
-            st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {weather_info['city']} 天气: {WEATHERICON[weather_info['weather']]} 温度: {weather_info['temperature']} ℃</div>", unsafe_allow_html=True)
-            st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>风向: {weather_info['winddirection']} 风力: {wind_icon} {weather_info['windpower']} 米/秒 湿度: {weather_info['humidity']} %rh</div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {weather_info['city']} 天气: {WEATHERICON[weather_info['weather']]} 温度: {weather_info['temperature']} ℃ {weather_info['temp_icon']}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>风向: {weather_info['winddirection']} 风力: {weather_info['wind_icon']} {weather_info['windpower']} 米/秒 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}</div>", unsafe_allow_html=True)
 
 
 global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, CITYCODE
@@ -1442,8 +1422,9 @@ if st.session_state.logged_in:
         gen_badge(conn, cur, [], 'MySQL', APPNAME_EN, app_version, app_lm)
         displayBigTime()
         displayAppInfo(300)
-        #display_weather(CITYCODE[st.session_state.StationCN], 'center')
-        display_weather('130634', 'center')
+        display_weather(CITYCODE[st.session_state.StationCN], 'center')
+        # 手动测试
+        #display_weather('310115', 'center')
         st.divider()
         displayVisitCounter()
     elif selected == "工作量录入":
