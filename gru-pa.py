@@ -23,6 +23,7 @@ from wcwidth import wcswidth
 
 from commFunc import (execute_sql, execute_sql_and_commit, get_update_content,
                       getUserEDKeys, getVerInfo, updatePyFileinfo)
+from gd_weather import get_city_weather
 from gen_badges import gen_badge
 from mysql_pool import get_connection
 
@@ -157,7 +158,7 @@ def displaySmallClock():
 
 
 @st.fragment
-def displayAppInfo():
+def displayAppInfo(txt_height=300):
     infoStr = open("./MyComponentsScript/glowintext.txt", "r", encoding="utf-8").read()
     infoStr = infoStr.replace("软件名称", APPNAME_CN)
     verinfo, verLM = getVerInfo()
@@ -165,7 +166,7 @@ def displayAppInfo():
     infoStr = infoStr.replace("更新时间", f"更新时间: {time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))}")
     update_type, update_content = get_update_content(f"./CHANGELOG.md")
     infoStr = infoStr.replace("更新内容", f"更新内容: {update_type} - {update_content}")
-    components.html(infoStr, height=340)
+    components.html(infoStr, height=txt_height)
 
 
 def changePassword():
@@ -1318,6 +1319,17 @@ def aboutLicense():
     st.markdown(open("./LICENSE", "r", encoding="utf-8").read())
 
 
+def display_weather(city_code, display_align):
+    weather_info = get_city_weather(city_code)
+    if weather_info:
+        if display_align == 'left':
+            st.markdown(f"地区: {weather_info['city']} 天气: {weather_info['weather']} 温度: {weather_info['temperature']} ℃")
+            st.markdown(f"风向: {weather_info['winddirection']} 风力: {weather_info['windpower']} 米/秒 湿度: {weather_info['humidity']} %rh")
+        elif display_align == 'center':
+            st.markdown(f"<font face='微软雅黑' color=tear size=4><center>**地区: {weather_info['city']} 天气: {weather_info['weather']} 温度: {weather_info['temperature']} ℃**</center></font>", unsafe_allow_html=True)
+            st.markdown(f"<font face='微软雅黑' color=tear size=4><center>**风向: {weather_info['winddirection']} 风力: {weather_info['windpower']} 米/秒 湿度: {weather_info['humidity']} %rh**</center></font>", unsafe_allow_html=True)
+
+
 global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS
 APPNAME_CN = "站室绩效考核系统KPI-PA"
 APPNAME_EN = "GRU-PA"
@@ -1404,7 +1416,8 @@ if st.session_state.logged_in:
         app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
         gen_badge(conn, cur, [], 'MySQL', APPNAME_EN, app_version, app_lm)
         displayBigTime()
-        displayAppInfo()
+        displayAppInfo(300)
+        display_weather('110113', 'center')
         displayVisitCounter()
     elif selected == "工作量录入":
         task_input()
