@@ -1366,7 +1366,7 @@ def display_history_weather():
             st.markdown(f"##### 地区: {city_name} 温度: {weather_info['tempMin']} - {weather_info['tempMax']} ℃ {weather_info['temp_icon']}")
             st.markdown(f"##### 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']} 气压: {weather_info['pressure']} hPa")
             st.markdown(f"##### 日升: {weather_info['sunrise']} 日落: {weather_info['sunset']}")
-            st.markdown(f"##### 月升: {weather_info['moonrise']} 月落: {weather_info['moonset']} 月相: {weather_info['moon_icon']}")
+            st.markdown(f"##### 月升: {weather_info['moonrise']} 月落: {weather_info['moonset']} 月相: {weather_info['moonPhase']} {weather_info['moon_icon']}")
         else:
             st.info("没有查询历史天气记录")
 
