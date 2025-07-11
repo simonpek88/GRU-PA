@@ -75,7 +75,7 @@ def login():
             sql = f"SELECT userID, userCName, userType, StationCN, clerk_type from users where userID = {userID} and userPassword = '{userPassword}'"
             result = execute_sql(cur, sql)
             if result:
-                st.toast(f"用户: {result[0][0]} 姓名: {result[0][1]} 登录成功, 欢迎回来")
+                st.toast(f"用户: {result[0][1]} 登录成功, 欢迎回来")
                 login.empty()
                 st.session_state.logged_in = True
                 st.session_state.userID = result[0][0]
@@ -1337,15 +1337,38 @@ def display_history_weather():
     query_date = st.date_input('查询时间', value=datetime.date.today() - datetime.timedelta(days=1), min_value=datetime.date.today() - datetime.timedelta(days=10), max_value=datetime.date.today() - datetime.timedelta(days=1))
     query_date_convert = str(query_date).replace('-', '')
     city_code = HF_CITYCODE.get(st.session_state.StationCN)
-    weather_info = get_city_history_weather(city_code, query_date_convert)
     city_name = HF_CITYNAME.get(st.session_state.StationCN)
-    if weather_info:
-        st.markdown(f"##### 地区: {city_name} 温度: {weather_info['tempMin']} - {weather_info['tempMax']} ℃ {weather_info['temp_icon']}")
-        st.markdown(f"##### 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']} 气压: {weather_info['pressure']} hPa")
-        st.markdown(f"##### 日升: {weather_info['sunrise']} 日落: {weather_info['sunset']}")
-        st.markdown(f"##### 月升: {weather_info['moonrise']} 月落: {weather_info['moonset']} 月相: {weather_info['moon_icon']}")
+    display_area = st.empty()
+    sql = f"SELECT sunrise, sunset, moonrise, moonset, moonPhase, tempMax, tempMin, humidity, pressure, moon_icon, temp_icon, humidity_icon FROM weather_history WHERE city_code = '{city_code}' and weather_date = '{query_date}'"
+    cur.execute(sql)
+    result = cur.fetchone()
+    if result:
+        weather_info = {
+                'sunrise': result[0],
+                'sunset': result[1],
+                'moonrise': result[2],
+                'moonset': result[3],
+                'moonPhase': result[4],
+                'tempMax': result[5],
+                'tempMin': result[6],
+                'humidity': result[7],
+                'pressure': result[8],
+                'moon_icon': result[9],
+                'temp_icon': result[10],
+                'humidity_icon': result[11]
+            }
     else:
-        st.info("没有查询历史天气记录")
+        weather_info = get_city_history_weather(city_code, query_date_convert)
+        sql = f"INSERT INTO weather_history (weather_date, city_code, city_name, sunrise, sunset, moonrise, moonset, moonPhase, tempMax, tempMin, humidity, pressure, moon_icon, temp_icon, humidity_icon) VALUES ('{query_date}', '{city_code}', '{city_name}', '{weather_info['sunrise']}', '{weather_info['sunset']}', '{weather_info['moonrise']}', '{weather_info['sunset']}', '{weather_info['moonPhase']}', '{weather_info['tempMax']}', '{weather_info['tempMin']}', '{weather_info['humidity']}', '{weather_info['pressure']}', '{weather_info['moon_icon']}', '{weather_info['temp_icon']}', '{weather_info['humidity_icon']}')"
+        execute_sql_and_commit(conn, cur, sql)
+    with display_area.container(border=True):
+        if weather_info:
+            st.markdown(f"##### 地区: {city_name} 温度: {weather_info['tempMin']} - {weather_info['tempMax']} ℃ {weather_info['temp_icon']}")
+            st.markdown(f"##### 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']} 气压: {weather_info['pressure']} hPa")
+            st.markdown(f"##### 日升: {weather_info['sunrise']} 日落: {weather_info['sunset']}")
+            st.markdown(f"##### 月升: {weather_info['moonrise']} 月落: {weather_info['moonset']} 月相: {weather_info['moon_icon']}")
+        else:
+            st.info("没有查询历史天气记录")
 
 
 global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, GD_CITYCODE, HF_CITYCODE, HF_CITYNAME
