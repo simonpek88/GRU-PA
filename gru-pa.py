@@ -239,15 +239,15 @@ def aboutInfo():
     cols_limit = 5
     st.subheader("关于本软件", divider="rainbow")
     st.subheader(":blue[Powered by Python and Streamlit]")
-    module_pack = ['Python', 'MySQL', 'Streamlit', 'Pandas', 'NumPy', 'Plotly', 'Nivo', 'Openpyxl', 'Python-Docx']
+    module_pack = ['Python', 'MySQL', 'Streamlit', 'Pandas', 'NumPy', 'Plotly', 'Openpyxl', 'Python-Docx', 'PyJWT']
     module_img = st.columns(cols_limit)
     for index, value in enumerate(module_pack):
         module_img[index % cols_limit].caption(value)
         module_img[index % cols_limit].image(f'./Images/logos/{value.replace(" ", "_").lower()}.png')
     display_pypi()
-    st.write("###### :violet[为了获得更好的使用体验, 请使用浅色主题]")
     if st.context.theme.type == 'dark':
-        sac.divider(align="center", color="gray")
+        st.write("###### :violet[为了获得更好的使用体验, 请使用浅色主题]")
+    sac.divider(align="center", color="gray")
     st.caption(":violet[Copyright © 2025 Simon. All rights reserved.]")
     st.image("./Images/logos/simon-logo.png", width=50)
 
@@ -255,15 +255,13 @@ def aboutInfo():
 def display_pypi():
     db_type = 'MySQL'
     cols_limit = 5
-    badge_pack = ['openpyxl', 'python-docx', 'streamlit', 'pandas', 'plotly']
+    pypi = st.columns(cols_limit)
+    badge_pack = ['streamlit', 'pandas', 'NumPY', 'plotly', 'openpyxl', 'python-docx', 'PyJWT']
     verinfo, verLM = getVerInfo()
     app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{verinfo}'
     app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
     gen_badge(conn, cur, badge_pack, db_type, APPNAME_EN, app_version, app_lm)
-    pypi = st.columns(cols_limit)
-    pypi[0].image('./Images/badges/Python-badge.svg')
-    pypi[1].image(f'./Images/badges/{db_type}-badge.svg')
-
+    badge_pack = ['Python', db_type] + badge_pack
     for index, value in enumerate(badge_pack):
         pypi[index % cols_limit].image(f'./Images/badges/{value}-badge.svg')
 
