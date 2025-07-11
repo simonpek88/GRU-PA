@@ -83,6 +83,7 @@ openpyxl
 oxml
 pems
 pickable
+precip
 pybadges
 pycryptodome
 pydeck
@@ -119,6 +120,9 @@ visitcount
 visitcounter
 VTAB
 wcswidth
+windir
+windscale
+windspeed
 xdsoft
 xfxh
 xunfei

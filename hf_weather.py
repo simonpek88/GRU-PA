@@ -27,6 +27,8 @@ def get_city_history_weather(city_code, query_date=None):
         # 检查状态码
         if city_weather_info.get('code') == '200':
             history_data = city_weather_info['weatherDaily'] if city_weather_info.get('weatherDaily') else None
+            history_data_hourly = city_weather_info['weatherHourly'] if city_weather_info.get('weatherHourly') else None
+            print(history_data_hourly)
 
             if history_data:
                 # 提取数据
@@ -43,7 +45,6 @@ def get_city_history_weather(city_code, query_date=None):
                 WEATHERICON = {'多云': '☁️', '阴': '⛅', '小雨': '🌦️', '中雨': '🌧️', '大雨': '🌧️', '暴雨': '🌧️💧', '雷阵雨': '⛈️', '小雪': '🌨️',
                             '中雪': '❄️🌨', '大雪': '🌨❄️🌨', '暴雪': '❄️🌨❄️', '晴': '☀️', '雾': '🌫️', '霾': '🌫️', '风': '💨', '雪': '🌨️',
                             '冰雹': '🌨️', '冻雨': '❄️', '沙尘暴': '🌪️'}
-                #weather_icon = WEATHERICON[weather]
 
                 # 根据月相值插入对应的图标
                 if moonPhase == '新月':
@@ -85,6 +86,19 @@ def get_city_history_weather(city_code, query_date=None):
                 else:
                     humidity_icon = '💦 潮湿'
 
+                temp_pack, weather_pack, precip_pack, windir_pack, windscale_pack, windspeed, humidity_pack, pressure_pack, weather_icon_pack = [], [], [], [], [], [], [], [], []
+                if history_data_hourly:
+                    for each in history_data_hourly:
+                        temp_pack.append(each['temp'])
+                        weather_pack.append(each['text'])
+                        precip_pack.append(each['precip'])
+                        windir_pack.append(each['windDir'])
+                        windscale_pack.append(each['windScale'])
+                        windspeed.append(each['windSpeed'])
+                        humidity_pack.append(each['humidity'])
+                        pressure_pack.append(each['pressure'])
+                        weather_icon_pack.append(WEATHERICON[each['text']])
+
                 return {
                     'sunrise': sunrise,
                     'sunset': sunset,
@@ -97,7 +111,16 @@ def get_city_history_weather(city_code, query_date=None):
                     'pressure': pressure,
                     'moon_icon': moon_icon,
                     'temp_icon': temp_icon,
-                    'humidity_icon': humidity_icon
+                    'humidity_icon': humidity_icon,
+                    'temp_hourly': '/'.join(temp_pack),
+                    'weather_hourly': '/'.join(weather_pack),
+                    'precip_hourly': '/'.join(precip_pack),
+                    'windir_hourly': '/'.join(windir_pack),
+                    'windscale_hourly': '/'.join(windscale_pack),
+                    'windspeed_hourly': '/'.join(windspeed),
+                    'humidity_hourly': '/'.join(humidity_pack),
+                    'pressure_hourly': '/'.join(pressure_pack),
+                    'weather_icon_hourly': '/'.join(weather_icon_pack)
                 }
 
     except Exception as e:
