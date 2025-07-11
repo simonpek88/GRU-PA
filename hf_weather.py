@@ -20,7 +20,7 @@ def get_weather(city_code, query_type, query_date=None):
     return data
 
 
-def get_city_his_weather(city_code, query_date=None):
+def get_city_history_weather(city_code, query_date=None):
     try:
         city_weather_info = get_weather(city_code, 'historical', query_date)
 
@@ -105,9 +105,3 @@ def get_city_his_weather(city_code, query_date=None):
         print(f"Error fetching weather data: {e}")
 
     return None
-
-if __name__ == '__main__':
-    city_code = '101010400'
-    #weather_info = get_weather(city_code, 'lives')
-    weather_info = get_city_his_weather(city_code, '20250710')
-    print(weather_info)

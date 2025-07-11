@@ -15,6 +15,7 @@ backface
 backpng
 barmode
 breakline
+CITYNAME
 clearex
 clocktype
 Cmder

@@ -26,6 +26,7 @@ from commFunc import (execute_sql, execute_sql_and_commit, gen_jwt,
                       updatePyFileinfo)
 from gd_weather import get_city_weather
 from gen_badges import gen_badge
+from hf_weather import get_city_history_weather
 from mysql_pool import get_connection
 
 # cSpell:ignoreRegExp /[^\s]{16,}/
@@ -1332,13 +1333,30 @@ def display_weather(city_code, display_align):
             st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>风向: {weather_info['winddirection']} 风力: {weather_info['wind_icon']} {weather_info['windpower']} 米/秒 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}</div>", unsafe_allow_html=True)
 
 
-global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, CITYCODE
+def display_history_weather():
+    query_date = st.date_input('查询时间', value=datetime.date.today() - datetime.timedelta(days=1), min_value=datetime.date.today() - datetime.timedelta(days=10), max_value=datetime.date.today() - datetime.timedelta(days=1))
+    query_date_convert = str(query_date).replace('-', '')
+    city_code = HF_CITYCODE.get(st.session_state.StationCN)
+    weather_info = get_city_history_weather(city_code, query_date_convert)
+    city_name = HF_CITYNAME.get(st.session_state.StationCN)
+    if weather_info:
+        st.markdown(f"##### 地区: {city_name} 温度: {weather_info['tempMin']} - {weather_info['tempMax']} ℃ {weather_info['temp_icon']}")
+        st.markdown(f"##### 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']} 气压: {weather_info['pressure']} hPa")
+        st.markdown(f"##### 日升: {weather_info['sunrise']} 日落: {weather_info['sunset']}")
+        st.markdown(f"##### 月升: {weather_info['moonrise']} 月落: {weather_info['moonset']} 月相: {weather_info['moon_icon']}")
+    else:
+        st.info("没有查询历史天气记录")
+
+
+global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, GD_CITYCODE, HF_CITYCODE, HF_CITYNAME
 APPNAME_CN = "站室绩效考核系统KPI-PA"
 APPNAME_EN = "GRU-PA"
 MAXDEDUCTSCORE = -20
 CHARTFONTSIZE = 14
 MDTASKDAYS = 28
-CITYCODE = {'北京站': '110113', '天津站': '120116', '总控室': '120116', '调控中心': '120116', '武清站': '120114'}
+GD_CITYCODE = {'北京站': '110113', '天津站': '120116', '总控室': '120116', '调控中心': '120116', '武清站': '120114'}
+HF_CITYCODE = {'北京站': '101010400', '天津站': '101031100', '总控室': '101031100', '调控中心': '101031100', '武清站': '101030200'}
+HF_CITYNAME = {'北京站': '顺义区', '天津站': '滨海新区', '总控室': '滨海新区', '调控中心': '滨海新区', '武清站': '武清区'}
 conn = get_connection()
 cur = conn.cursor()
 st.logo(image="./Images/logos/GRU-PA-logo.png", icon_image="./Images/logos/GRU-PA-logo.png", size="large")
@@ -1367,6 +1385,7 @@ if st.session_state.logged_in:
                     sac.MenuItem('统计查询及导出', icon='clipboard-data'),
                     sac.MenuItem('趋势图', icon='bar-chart-line'),
                     sac.MenuItem('数据检查与核定', icon='check2-all'),
+                    sac.MenuItem('历史天气', icon='cloud-sun'),
                     sac.MenuItem('公告发布', icon='journal-arrow-up'),
                     sac.MenuItem("重置数据库ID", icon="bootstrap-reboot"),
                 ]),
@@ -1392,6 +1411,7 @@ if st.session_state.logged_in:
                     sac.MenuItem('记录修改', icon='journal-medical'),
                     sac.MenuItem('统计查询及导出', icon='clipboard-data'),
                     sac.MenuItem('趋势图', icon='bar-chart-line'),
+                    sac.MenuItem('历史天气', icon='cloud-sun'),
                 ]),
                 sac.MenuItem('账户', icon='person-gear', children=[
                     sac.MenuItem('密码修改', icon='key'),
@@ -1420,7 +1440,7 @@ if st.session_state.logged_in:
         gen_badge(conn, cur, [], 'MySQL', APPNAME_EN, app_version, app_lm)
         displayBigTime()
         displayAppInfo(300)
-        display_weather(CITYCODE[st.session_state.StationCN], 'center')
+        display_weather(GD_CITYCODE[st.session_state.StationCN], 'center')
         # 手动测试
         #display_weather('310115', 'center')
         st.divider()
@@ -1441,6 +1461,8 @@ if st.session_state.logged_in:
         check_data()
     elif selected == "公告发布":
         input_public_notice()
+    elif selected == "历史天气":
+        display_history_weather()
     elif selected == "重置数据库ID":
         reset_table_num()
     elif selected == "密码修改":

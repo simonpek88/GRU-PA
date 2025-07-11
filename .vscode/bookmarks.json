@@ -104,6 +104,11 @@
 					"label": "display_weather"
 				},
 				{
+					"line": 1335,
+					"column": 30,
+					"label": "display_history_weather"
+				},
+				{
 					"line": 1340,
 					"column": 23,
 					"label": "main"

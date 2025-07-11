@@ -5,6 +5,7 @@ argostranslate
 backcolor
 backpng
 celerybeat
+CITYCODE
 cmder
 cnaf
 Codegeex
