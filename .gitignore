@@ -8,6 +8,8 @@ __pycache__/
 
 docs/
 user_pa/
+.pems/
+*.pem
 Images/badges/Python-badge.svg
 etest.py
 LLMonitor.py

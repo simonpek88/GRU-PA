@@ -2,7 +2,6 @@
 import calendar
 import datetime
 import os
-import re
 import time
 
 import nivo_chart as nc
@@ -22,8 +21,9 @@ from openpyxl.cell import MergedCell
 from openpyxl.styles import Alignment, Border, Font, Side
 from wcwidth import wcswidth
 
-from commFunc import (execute_sql, execute_sql_and_commit, get_update_content,
-                      getUserEDKeys, getVerInfo, updatePyFileinfo)
+from commFunc import (execute_sql, execute_sql_and_commit, gen_jwt,
+                      get_update_content, getUserEDKeys, getVerInfo,
+                      updatePyFileinfo)
 from gd_weather import get_city_weather
 from gen_badges import gen_badge
 from mysql_pool import get_connection
@@ -230,6 +230,7 @@ def changelog():
 
 def aboutReadme():
     st.markdown(open("./README.md", "r", encoding="utf-8").read(), unsafe_allow_html=True)
+    gen_jwt()
 
 
 def aboutInfo():
@@ -1324,10 +1325,10 @@ def display_weather(city_code, display_align):
     weather_info = get_city_weather(city_code)
     if weather_info:
         if display_align == 'left':
-            st.markdown(f"地区: {weather_info['city']} 天气: {WEATHERICON[weather_info['weather']]} 温度: {weather_info['temperature']} ℃ {weather_info['temp_icon']}")
+            st.markdown(f"地区: {weather_info['city']} 天气: {weather_info['weather_icon']} 温度: {weather_info['temperature']} ℃ {weather_info['temp_icon']}")
             st.markdown(f"风向: {weather_info['winddirection']} 风力: {weather_info['wind_icon']} {weather_info['windpower']} 米/秒 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}")
         elif display_align == 'center':
-            st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {weather_info['city']} 天气: {WEATHERICON[weather_info['weather']]} 温度: {weather_info['temperature']} ℃ {weather_info['temp_icon']}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {weather_info['city']} 天气: {weather_info['weather_icon']} 温度: {weather_info['temperature']} ℃ {weather_info['temp_icon']}</div>", unsafe_allow_html=True)
             st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>风向: {weather_info['winddirection']} 风力: {weather_info['wind_icon']} {weather_info['windpower']} 米/秒 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}</div>", unsafe_allow_html=True)
 
 
@@ -1337,9 +1338,6 @@ APPNAME_EN = "GRU-PA"
 MAXDEDUCTSCORE = -20
 CHARTFONTSIZE = 14
 MDTASKDAYS = 28
-WEATHERICON = {'多云': '☁️', '阴': '⛅', '小雨': '🌦️', '中雨': '🌧️', '大雨': '🌧️', '暴雨': '🌧️💧', '雷阵雨': '⛈️', '小雪': '🌨️',
-               '中雪': '❄️🌨', '大雪': '🌨❄️🌨', '暴雪': '❄️🌨❄️', '晴': '☀️', '雾': '🌫️', '霾': '🌫️', '风': '💨', '雪': '🌨️',
-               '冰雹': '🌨️', '冻雨': '❄️', '沙尘暴': '🌪️'}
 CITYCODE = {'北京站': '110113', '天津站': '120116', '总控室': '120116', '调控中心': '120116', '武清站': '120114'}
 conn = get_connection()
 cur = conn.cursor()

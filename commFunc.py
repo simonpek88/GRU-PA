@@ -5,6 +5,7 @@ import os
 import time
 from hashlib import md5
 
+import jwt
 from Crypto import Random
 from Crypto.Cipher import AES
 
@@ -242,6 +243,28 @@ def get_update_content(file_path):
                 break
 
     return update_type, update_content
+
+
+def gen_jwt():
+    # Open PEM
+    private_key = getEncryptKeys('hf_jwt_key')
+    project_id_key = getEncryptKeys('hf_project_id')
+    jwt_id_key = getEncryptKeys('hf_jwt_id')
+
+    payload = {
+        'iat': int(time.time()) - 30,
+        'exp': int(time.time()) + 900,
+        'sub': project_id_key
+    }
+    headers = {
+        'kid': jwt_id_key
+    }
+
+    # Generate JWT
+    encoded_jwt = jwt.encode(payload, private_key, algorithm='EdDSA', headers = headers)
+    #print(f"JWT:  {encoded_jwt}")
+
+    return encoded_jwt
 
 
 conn2 = get_connection()

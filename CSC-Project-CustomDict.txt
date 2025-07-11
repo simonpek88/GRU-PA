@@ -80,6 +80,7 @@ nivo
 Objs
 openpyxl
 oxml
+pems
 pickable
 pybadges
 pycryptodome
