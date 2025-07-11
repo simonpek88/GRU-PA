@@ -117,6 +117,11 @@
 					"line": 1419,
 					"column": 33,
 					"label": "menu weather"
+				},
+				{
+					"line": 1440,
+					"column": 21,
+					"label": "gen_temp_gauge"
 				}
 			]
 		},

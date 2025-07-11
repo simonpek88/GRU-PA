@@ -22,9 +22,8 @@ from openpyxl.styles import Alignment, Border, Font, Side
 from plotly.subplots import make_subplots
 from wcwidth import wcswidth
 
-from commFunc import (execute_sql, execute_sql_and_commit, gen_jwt,
-                      get_update_content, getUserEDKeys, getVerInfo,
-                      updatePyFileinfo)
+from commFunc import (execute_sql, execute_sql_and_commit, get_update_content,
+                      getUserEDKeys, getVerInfo, updatePyFileinfo)
 from gd_weather import get_city_weather
 from gen_badges import gen_badge
 from hf_weather import get_city_history_weather
@@ -232,7 +231,6 @@ def changelog():
 
 def aboutReadme():
     st.markdown(open("./README.md", "r", encoding="utf-8").read(), unsafe_allow_html=True)
-    gen_jwt()
 
 
 def aboutInfo():

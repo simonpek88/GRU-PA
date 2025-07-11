@@ -87,6 +87,7 @@ precip
 pybadges
 pycryptodome
 pydeck
+pyecharts
 pylint
 pythoncom
 qcol
