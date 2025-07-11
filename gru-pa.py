@@ -19,6 +19,7 @@ from docx.oxml.ns import qn
 from docx.shared import Pt, RGBColor
 from openpyxl.cell import MergedCell
 from openpyxl.styles import Alignment, Border, Font, Side
+from plotly.subplots import make_subplots
 from wcwidth import wcswidth
 
 from commFunc import (execute_sql, execute_sql_and_commit, gen_jwt,
@@ -1337,7 +1338,7 @@ def display_history_weather():
     city_code = HF_CITYCODE.get(st.session_state.StationCN)
     city_name = HF_CITYNAME.get(st.session_state.StationCN)
     display_area = st.empty()
-    sql = f"SELECT sunrise, sunset, moonrise, moonset, moonPhase, tempMax, tempMin, humidity, pressure, moon_icon, temp_icon, humidity_icon, weather_icon_hourly FROM weather_history WHERE city_code = '{city_code}' and weather_date = '{query_date}'"
+    sql = f"SELECT sunrise, sunset, moonrise, moonset, moonPhase, tempMax, tempMin, humidity, pressure, moon_icon, temp_icon, humidity_icon, temp_hourly, windspeed_hourly, humidity_hourly, weather_icon_hourly FROM weather_history WHERE city_code = '{city_code}' and weather_date = '{query_date}'"
     cur.execute(sql)
     result = cur.fetchone()
     if result:
@@ -1354,14 +1355,17 @@ def display_history_weather():
                 'moon_icon': result[9],
                 'temp_icon': result[10],
                 'humidity_icon': result[11],
-                'weather_icon_hourly': result[12]
+                'temp_hourly': result[12],
+                'windspeed_hourly': result[13],
+                'humidity_hourly': result[14],
+                'weather_icon_hourly': result[15]
             }
     else:
         weather_info = get_city_history_weather(city_code, query_date_convert)
         sql = f"INSERT INTO weather_history (weather_date, city_code, city_name, sunrise, sunset, moonrise, moonset, moonPhase, tempMax, tempMin, humidity, pressure, moon_icon, temp_icon, humidity_icon, temp_hourly, weather_hourly, precip_hourly, windir_hourly, windscale_hourly, windspeed_hourly, humidity_hourly, pressure_hourly, weather_icon_hourly) VALUES ('{query_date}', '{city_code}', '{city_name}', '{weather_info['sunrise']}', '{weather_info['sunset']}', '{weather_info['moonrise']}', '{weather_info['sunset']}', '{weather_info['moonPhase']}', '{weather_info['tempMax']}', '{weather_info['tempMin']}', '{weather_info['humidity']}', '{weather_info['pressure']}', '{weather_info['moon_icon']}', '{weather_info['temp_icon']}', '{weather_info['humidity_icon']}', '{weather_info['temp_hourly']}', '{weather_info['weather_hourly']}', '{weather_info['precip_hourly']}', '{weather_info['windir_hourly']}', '{weather_info['windscale_hourly']}', '{weather_info['windspeed_hourly']}', '{weather_info['humidity_hourly']}', '{weather_info['pressure_hourly']}', '{weather_info['weather_icon_hourly']}')"
         execute_sql_and_commit(conn, cur, sql)
-    with display_area.container(border=True):
-        if weather_info:
+    if weather_info:
+        with display_area.container(border=True):
             weather_icon_pack, pre_weather_icon, weather_text = weather_info['weather_icon_hourly'].split('/'), '', ''
             for index, value in enumerate(weather_icon_pack):
                 if value != pre_weather_icon:
@@ -1372,8 +1376,65 @@ def display_history_weather():
             st.markdown(f"##### 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']} 气压: {weather_info['pressure']} hPa")
             st.markdown(f"##### 日升: {weather_info['sunrise']} 日落: {weather_info['sunset']}")
             st.markdown(f"##### 月升: {weather_info['moonrise']} 月落: {weather_info['moonset']} 月相: {weather_info['moonPhase']} {weather_info['moon_icon']}")
-        else:
-            st.info("没有查询历史天气记录")
+        chart_col = st.columns(2)
+        with chart_col[0]:
+            plot_wind_speed_curve(weather_info['temp_hourly'].split('/'), weather_info['windspeed_hourly'].split('/'))
+        with chart_col[1]:
+            plot_data_curve(weather_info['humidity_hourly'].split('/'))
+    else:
+        st.info("没有查询历史天气记录")
+
+def plot_wind_speed_curve(hourly_data1, hourly_data2):
+    df1 = pd.DataFrame({
+        '小时': range(len(hourly_data1)),
+        '温度': hourly_data1
+    })
+    df2 = pd.DataFrame({
+        '小时': range(len(hourly_data2)),
+        '风力': hourly_data2
+    })
+
+    # 使用Plotly Express创建双Y轴折线图
+    fig = make_subplots(specs=[[{'secondary_y': True}]])
+
+    # 添加第一个数据集到图表
+    fig.add_trace(
+        go.Scatter(x=df1['小时'], y=df1['温度'], name='温度', line=dict(color='red')),
+        secondary_y=False,
+    )
+
+    # 添加第二个数据集到图表
+    fig.add_trace(
+        go.Scatter(x=df2['小时'], y=df2['风力'], name='风力', line=dict(color='green', dash='solid')),
+        secondary_y=True,
+    )
+
+    # 设置图表标题和标签
+    fig.update_layout(title_text='温度/风力曲线')
+    fig.update_xaxes(title_text='小时')
+    fig.update_yaxes(title_text='温度 (℃)', secondary_y=False)
+    fig.update_yaxes(title_text='风力 (m/s)', secondary_y=True)
+
+    # 显示图表
+    chart = st.empty()
+    with chart.container(border=True):
+        st.plotly_chart(fig, use_container_width=True)
+
+
+def plot_data_curve(hourly_data):
+    # 创建一个包含小时和温度的数据框
+    df = pd.DataFrame({
+        '小时': range(len(hourly_data)),
+        '湿度': hourly_data
+    })
+
+    # 使用Plotly Express创建折线图
+    fig = px.line(df, x='小时', y='湿度', title='湿度曲线')
+    fig.update_yaxes(title_text='湿度 (%)')
+    # 显示图表
+    chart = st.empty()
+    with chart.container(border=True):
+        st.plotly_chart(fig, use_container_width=True)
 
 
 global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, GD_CITYCODE, HF_CITYCODE, HF_CITYNAME
