@@ -181,6 +181,20 @@ def get_city_now_weather(city_code):
                 }
                 winddir_icon = WINDDIRECTIONICON[winddir]
 
+                icon_size = 24
+                WINDDIRECTIONICON_HTML = {
+                    '北风': f'<img width="{icon_size}" height="{icon_size}" src="https://img.icons8.com/color/{icon_size}/north.png" alt="north"/>',
+                    '南风': f'<img width="{icon_size}" height="{icon_size}" src="https://img.icons8.com/color/{icon_size}/south.png" alt="south"/>',
+                    '东风': f'<img width="{icon_size}" height="{icon_size}" src="https://img.icons8.com/fluency/{icon_size}/east.png" alt="east"/>',
+                    '西风': f'<img width="{icon_size}" height="{icon_size}" src="https://img.icons8.com/color/{icon_size}/west.png" alt="west"/>',
+                    '东北风': f'<img width="{icon_size}" height="{icon_size}" src="https://img.icons8.com/color/{icon_size}/north-east.png" alt="north-east"/>',
+                    '东南风': f'<img width="{icon_size}" height="{icon_size}" src="https://img.icons8.com/color/{icon_size}/south-east.png" alt="south-east"/>',
+                    '西南风': f'<img width="{icon_size}" height="{icon_size}" src="https://img.icons8.com/color/{icon_size}/south-west.png" alt="south-west"/>',
+                    '西北风': f'<img width="{icon_size}" height="{icon_size}" src="https://img.icons8.com/color/{icon_size}/north-west.png" alt="north-west"/>',
+                    '静风': '🚩💤'
+                }
+                winddir_icon_html = WINDDIRECTIONICON_HTML[winddir]
+
                 wind_power_dig = int(windspeed)
                 # 根据风力强度选择图标
                 if wind_power_dig < 5:
@@ -246,6 +260,7 @@ def get_city_now_weather(city_code):
                     'feelslike_icon': feelslike_icon,
                     'wind_icon': wind_icon,
                     'winddir_icon': winddir_icon,
+                    'winddir_icon_html': winddir_icon_html,
                     'humidity_icon': humidity_icon
                 }
             else:
