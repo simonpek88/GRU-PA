@@ -1336,7 +1336,7 @@ def display_history_weather():
     city_code = HF_CITYCODE.get(st.session_state.StationCN)
     city_name = HF_CITYNAME.get(st.session_state.StationCN)
     display_area = st.empty()
-    sql = f"SELECT sunrise, sunset, moonrise, moonset, moonPhase, tempMax, tempMin, humidity, pressure, moon_icon, temp_icon, humidity_icon, temp_hourly, windspeed_hourly, humidity_hourly, weather_icon_hourly FROM weather_history WHERE city_code = '{city_code}' and weather_date = '{query_date}'"
+    sql = f"SELECT sunrise, sunset, moonrise, moonset, moonPhase, tempMax, tempMin, humidity, pressure, moon_icon, temp_icon, humidity_icon, temp_hourly, windspeed_hourly, humidity_hourly, weather_icon_hourly, precip_hourly, windscale_hourly FROM weather_history WHERE city_code = '{city_code}' and weather_date = '{query_date}'"
     cur.execute(sql)
     result = cur.fetchone()
     if result:
@@ -1356,7 +1356,9 @@ def display_history_weather():
                 'temp_hourly': result[12],
                 'windspeed_hourly': result[13],
                 'humidity_hourly': result[14],
-                'weather_icon_hourly': result[15]
+                'weather_icon_hourly': result[15],
+                'precip_hourly': result[16],
+                'windscale_hourly': result[17]
             }
     else:
         weather_info = get_city_history_weather(city_code, query_date_convert)
@@ -1365,13 +1367,25 @@ def display_history_weather():
     if weather_info:
         with display_area.container(border=True):
             weather_icon_pack, pre_weather_icon, weather_text = weather_info['weather_icon_hourly'].split('/'), '', ''
+            precip_pack = weather_info['precip_hourly'].split('/')
+            precip_pack = [float(value) for value in precip_pack]
+            windscale_pack = weather_info['windscale_hourly'].split('/')
+            windscale_pack = [int(value) for value in windscale_pack]
+            humidity_pack = weather_info['humidity_hourly'].split('/')
+            humidity_pack = [int(value) for value in humidity_pack]
+            windspeed_pack = weather_info['windspeed_hourly'].split('/')
+            windspeed_pack = [int(value) for value in windspeed_pack]
             for index, value in enumerate(weather_icon_pack):
                 if value != pre_weather_icon:
                     weather_text = weather_text + str(index) + '点 ' + value + ' '
                     pre_weather_icon = value
-            st.markdown(f"##### 地区: {city_name} 温度: {weather_info['tempMin']} - {weather_info['tempMax']} ℃ {weather_info['temp_icon']}")
+            windscale_pack.sort(reverse=True)
+            windspeed_pack.sort(reverse=True)
+            humidity_pack.sort(reverse=True)
+            st.markdown(f"##### 地区: {city_name} 温度: {weather_info['tempMax']} - {weather_info['tempMin']} ℃ {weather_info['temp_icon']}")
             st.markdown(f"##### 天气: {weather_text.strip()}")
-            st.markdown(f"##### 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']} 气压: {weather_info['pressure']} hPa")
+            st.markdown(f"##### 降水: {int(sum(precip_pack))} mm 最大风力: {windscale_pack[0]} 级/ {windspeed_pack[0]} 公里/小时")
+            st.markdown(f"##### 湿度: {humidity_pack[0]} - {humidity_pack[-1]}% {weather_info['humidity_icon']} 气压: {weather_info['pressure']} hPa")
             st.markdown(f"##### 日升: {weather_info['sunrise']} 日落: {weather_info['sunset']}")
             st.markdown(f"##### 月升: {weather_info['moonrise']} 月落: {weather_info['moonset']} 月相: {weather_info['moonPhase']} {weather_info['moon_icon']}")
         chart_col = st.columns(2)
