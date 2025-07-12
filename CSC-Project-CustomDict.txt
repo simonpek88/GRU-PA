@@ -10,6 +10,7 @@ antd
 APIKEY
 APPNAME
 apsw
+axisline
 axisopts
 backcolor
 backface
@@ -90,6 +91,7 @@ obstime
 openpyxl
 oxml
 pems
+phantomjs
 pickable
 precip
 pybadges
