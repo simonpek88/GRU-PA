@@ -1451,7 +1451,16 @@ def display_weather_hf(city_code):
             precip = '☔'
         else:
             precip = '🌂'
-        st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {city_name} 天气: {weather_info['weather_icon']} 温度: {weather_info['temp']} ℃ {weather_info['temp_icon']} / 体感温度: {weather_info['feelslike']} ℃ {weather_info['feelslike_icon']}</div>", unsafe_allow_html=True)
+        weather_icon_html = f"""
+            <html>
+            <head>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/qweather-icons@1.3.0/font/qweather-icons.css">
+            </head>
+                <i class="qi-{weather_info['weather_icon_id']}"></i>
+            </html>
+        """
+        #st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {city_name} 天气: {weather_info['weather_icon']} 温度: {weather_info['temp']} ℃ {weather_info['temp_icon']} / 体感温度: {weather_info['feelslike']} ℃ {weather_info['feelslike_icon']}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {city_name} 天气: {weather_icon_html} 温度: {weather_info['temp']} ℃ {weather_info['temp_icon']} / 体感温度: {weather_info['feelslike']} ℃ {weather_info['feelslike_icon']}</div>", unsafe_allow_html=True)
         st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>降水: {weather_info['precip']} mm {precip} 能见度: {weather_info['vis']} km 云量: {cloud}% 大气压强: {weather_info['pressure']} hPa</div>", unsafe_allow_html=True)
         st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>风向: {weather_info['winddir']} {weather_info['winddir_icon']} 风力: {weather_info['windscale']} 级 / {weather_info['windspeed']} km/h {weather_info['wind_icon']} 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}</div>", unsafe_allow_html=True)
 
@@ -1551,9 +1560,9 @@ if st.session_state.logged_in:
         if weather_provider == 'gd':
             display_weather_gd(GD_CITYCODE[st.session_state.StationCN])
         elif weather_provider == 'hf':
+            display_weather_hf(HF_CITYCODE[st.session_state.StationCN])
             # 手动测试
-            #display_weather_hf(HF_CITYCODE[st.session_state.StationCN])
-            display_weather_hf('101010900')
+            #display_weather_hf('101010900')
         st.divider()
         displayVisitCounter()
     elif selected == "工作量录入":
