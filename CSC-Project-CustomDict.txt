@@ -124,6 +124,7 @@ visitcounter
 VTAB
 wcswidth
 winddir
+WINDDIRECTIONICON
 windir
 windscale
 windspeed

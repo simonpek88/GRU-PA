@@ -1454,11 +1454,11 @@ def display_weather_hf(city_code, display_align):
         if display_align == 'left':
             st.markdown(f"地区: {city_name} 天气: {weather_info['weather_icon']} 温度: {weather_info['temp']} ℃ {weather_info['temp_icon']} / 体感温度: {weather_info['feelslike']} ℃ {weather_info['feelslike_icon']}")
             st.markdown(f"降水: {weather_info['precip']} mm 能见度: {weather_info['vis']} km 云量: {cloud}% 大气压强: {weather_info['pressure']} hPa")
-            st.markdown(f"风向: {weather_info['winddir']} 风力: {weather_info['windscale']} 级 / {weather_info['windspeed']} km/h {weather_info['wind_icon']} 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}")
+            st.markdown(f"风向: {weather_info['winddir']} {weather_info['winddir_icon']} 风力: {weather_info['windscale']} 级 / {weather_info['windspeed']} km/h {weather_info['wind_icon']} 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}")
         elif display_align == 'center':
             st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {city_name} 天气: {weather_info['weather_icon']} 温度: {weather_info['temp']} ℃ {weather_info['temp_icon']} / 体感温度: {weather_info['feelslike']} ℃ {weather_info['feelslike_icon']}</div>", unsafe_allow_html=True)
             st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>降水: {weather_info['precip']} mm 能见度: {weather_info['vis']} km 云量: {cloud}% 大气压强: {weather_info['pressure']} hPa</div>", unsafe_allow_html=True)
-            st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>风向: {weather_info['winddir']} 风力: {weather_info['windscale']} 级 / {weather_info['windspeed']} km/h {weather_info['wind_icon']} 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>风向: {weather_info['winddir']} {weather_info['winddir_icon']} 风力: {weather_info['windscale']} 级 / {weather_info['windspeed']} km/h {weather_info['wind_icon']} 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}</div>", unsafe_allow_html=True)
 
 
 global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, GD_CITYCODE, HF_CITYCODE, HF_CITYNAME

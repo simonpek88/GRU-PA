@@ -163,6 +163,19 @@ def get_city_now_weather(city_code):
                             '冰雹': '🌨️', '冻雨': '❄️', '沙尘暴': '🌪️'}
                 weather_icon = WEATHERICON[weather]
 
+                WINDDIRECTIONICON = {
+                    '北风': '⬆️',
+                    '南风': '⬇️',
+                    '东风': '➡️',
+                    '西风': '⬅️',
+                    '东北风': '↗️',
+                    '东南风': '↘️',
+                    '西南风': '↙️',
+                    '西北风': '↖️',
+                    '静风': '🚩💤'
+                }
+                winddir_icon = WINDDIRECTIONICON[winddir]
+
                 wind_power_dig = int(windspeed)
                 # 根据风力强度选择图标
                 if wind_power_dig < 5:
@@ -226,6 +239,7 @@ def get_city_now_weather(city_code):
                     'temp_icon': temp_icon,
                     'feelslike_icon': feelslike_icon,
                     'wind_icon': wind_icon,
+                    'winddir_icon': winddir_icon,
                     'humidity_icon': humidity_icon
                 }
 
@@ -234,3 +248,4 @@ def get_city_now_weather(city_code):
         print(f"Error fetching weather data: {e}")
 
     return None
+
