@@ -121,7 +121,10 @@ def get_city_history_weather(city_code, query_date=None):
                     'pressure_hourly': '/'.join(pressure_pack),
                     'weather_icon_hourly': '/'.join(weather_icon_pack)
                 }
-
+            else:
+                return None
+        else:
+            return None
     except Exception as e:
         # 异常处理
         print(f"Error fetching weather data: {e}")
@@ -142,11 +145,13 @@ def get_city_now_weather(city_code):
         if city_weather_info.get('code') == '200':
             # 直接获取天气信息，不需要使用.get()因为已经是字典了
             now = city_weather_info['now'] if city_weather_info.get('now') else None
+            #print(now)
 
             if now:
                 # 提取数据
                 obstime = now["obsTime"]  # 获取发布数据时间
                 weather = now["text"]  # 天气现象
+                weather_icon_id = now['icon'] # 和风天气图标ID
                 temp = now["temp"] # 温度
                 feelslike = now["feelsLike"] # 体感温度
                 winddir = now["windDir"]  # 风向
@@ -236,13 +241,17 @@ def get_city_now_weather(city_code):
                     'vis': vis,
                     'cloud': cloud,
                     'weather_icon': weather_icon,
+                    'weather_icon_id': weather_icon_id,
                     'temp_icon': temp_icon,
                     'feelslike_icon': feelslike_icon,
                     'wind_icon': wind_icon,
                     'winddir_icon': winddir_icon,
                     'humidity_icon': humidity_icon
                 }
-
+            else:
+                return None
+        else:
+            return None
     except Exception as e:
         # 异常处理
         print(f"Error fetching weather data: {e}")

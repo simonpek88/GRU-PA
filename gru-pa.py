@@ -1317,15 +1317,11 @@ def aboutLicense():
     st.markdown(open("./LICENSE", "r", encoding="utf-8").read())
 
 
-def display_weather_gd(city_code, display_align):
+def display_weather_gd(city_code):
     weather_info = get_city_weather(city_code)
     if weather_info:
-        if display_align == 'left':
-            st.markdown(f"地区: {weather_info['city']} 天气: {weather_info['weather_icon']} 温度: {weather_info['temperature']} ℃ {weather_info['temp_icon']}")
-            st.markdown(f"风向: {weather_info['winddirection']} 风力: {weather_info['wind_icon']} {weather_info['windpower']} 米/秒 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}")
-        elif display_align == 'center':
-            st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {weather_info['city']} 天气: {weather_info['weather_icon']} 温度: {weather_info['temperature']} ℃ {weather_info['temp_icon']}</div>", unsafe_allow_html=True)
-            st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>风向: {weather_info['winddirection']} 风力: {weather_info['windpower']} 米/秒 {weather_info['wind_icon']} 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {weather_info['city']} 天气: {weather_info['weather_icon']} 温度: {weather_info['temperature']} ℃ {weather_info['temp_icon']}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>风向: {weather_info['winddirection']} 风力: {weather_info['windpower']} 米/秒 {weather_info['wind_icon']} 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}</div>", unsafe_allow_html=True)
 
 
 def display_history_weather():
@@ -1443,7 +1439,7 @@ def plot_data_curve(hourly_data):
         st.plotly_chart(fig, use_container_width=True)
 
 
-def display_weather_hf(city_code, display_align):
+def display_weather_hf(city_code):
     weather_info = get_city_now_weather(city_code)
     city_name = HF_CITYNAME.get(st.session_state.StationCN)
     if weather_info:
@@ -1451,14 +1447,13 @@ def display_weather_hf(city_code, display_align):
             cloud = weather_info['cloud']
         else:
             cloud = 'N/A'
-        if display_align == 'left':
-            st.markdown(f"地区: {city_name} 天气: {weather_info['weather_icon']} 温度: {weather_info['temp']} ℃ {weather_info['temp_icon']} / 体感温度: {weather_info['feelslike']} ℃ {weather_info['feelslike_icon']}")
-            st.markdown(f"降水: {weather_info['precip']} mm 能见度: {weather_info['vis']} km 云量: {cloud}% 大气压强: {weather_info['pressure']} hPa")
-            st.markdown(f"风向: {weather_info['winddir']} {weather_info['winddir_icon']} 风力: {weather_info['windscale']} 级 / {weather_info['windspeed']} km/h {weather_info['wind_icon']} 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}")
-        elif display_align == 'center':
-            st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {city_name} 天气: {weather_info['weather_icon']} 温度: {weather_info['temp']} ℃ {weather_info['temp_icon']} / 体感温度: {weather_info['feelslike']} ℃ {weather_info['feelslike_icon']}</div>", unsafe_allow_html=True)
-            st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>降水: {weather_info['precip']} mm 能见度: {weather_info['vis']} km 云量: {cloud}% 大气压强: {weather_info['pressure']} hPa</div>", unsafe_allow_html=True)
-            st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>风向: {weather_info['winddir']} {weather_info['winddir_icon']} 风力: {weather_info['windscale']} 级 / {weather_info['windspeed']} km/h {weather_info['wind_icon']} 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}</div>", unsafe_allow_html=True)
+        if float(weather_info['precip']) > 0.0:
+            precip = '☔'
+        else:
+            precip = '🌂'
+        st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {city_name} 天气: {weather_info['weather_icon']} 温度: {weather_info['temp']} ℃ {weather_info['temp_icon']} / 体感温度: {weather_info['feelslike']} ℃ {weather_info['feelslike_icon']}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>降水: {weather_info['precip']} mm {precip} 能见度: {weather_info['vis']} km 云量: {cloud}% 大气压强: {weather_info['pressure']} hPa</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>风向: {weather_info['winddir']} {weather_info['winddir_icon']} 风力: {weather_info['windscale']} 级 / {weather_info['windspeed']} km/h {weather_info['wind_icon']} 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}</div>", unsafe_allow_html=True)
 
 
 global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, GD_CITYCODE, HF_CITYCODE, HF_CITYNAME
@@ -1554,11 +1549,11 @@ if st.session_state.logged_in:
         displayBigTime()
         displayAppInfo(300)
         if weather_provider == 'gd':
-            display_weather_gd(GD_CITYCODE[st.session_state.StationCN], 'center')
+            display_weather_gd(GD_CITYCODE[st.session_state.StationCN])
         elif weather_provider == 'hf':
             # 手动测试
-            display_weather_hf(HF_CITYCODE[st.session_state.StationCN], 'center')
-            #display_weather_hf('310115', 'center')
+            #display_weather_hf(HF_CITYCODE[st.session_state.StationCN])
+            display_weather_hf('101010900')
         st.divider()
         displayVisitCounter()
     elif selected == "工作量录入":
