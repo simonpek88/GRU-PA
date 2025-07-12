@@ -11,6 +11,7 @@ user_pa/
 .pems/
 *.pem
 mysql_pool.py
+MyComponentsScript/thw.html
 test*.py
 temp_humidity_windspeed_gauge.html
 ~$*

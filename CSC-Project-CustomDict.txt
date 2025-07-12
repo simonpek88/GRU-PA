@@ -69,6 +69,7 @@ keyactionlog
 keyup
 levelname
 linecap
+linestyle
 listinsheet
 maptype
 markertype
