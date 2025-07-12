@@ -19,6 +19,11 @@
 					"label": "displayAppInfo"
 				},
 				{
+					"line": 232,
+					"column": 54,
+					"label": "aboutReadme"
+				},
+				{
 					"line": 261,
 					"column": 19,
 					"label": "display_pypi"
@@ -89,9 +94,24 @@
 					"label": "gen_cal_chart"
 				},
 				{
+					"line": 1321,
+					"column": 46,
+					"label": "display_weather"
+				},
+				{
+					"line": 1331,
+					"column": 30,
+					"label": "display_history_weather"
+				},
+				{
 					"line": 1340,
 					"column": 23,
 					"label": "main"
+				},
+				{
+					"line": 1447,
+					"column": 49,
+					"label": "display_weather_hf"
 				},
 				{
 					"line": 1528,
@@ -107,6 +127,16 @@
 					"line": 4,
 					"column": 6,
 					"label": "update info"
+				}
+			]
+		},
+		{
+			"path": "hf_weather.py",
+			"bookmarks": [
+				{
+					"line": 6,
+					"column": 56,
+					"label": "get_weather"
 				}
 			]
 		}

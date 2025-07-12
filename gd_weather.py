@@ -3,16 +3,19 @@ import re
 
 import requests
 
+from commFunc import getEncryptKeys
+
 
 def get_weather(city_code):
+    gd_key = getEncryptKeys('gd_key')
     url = 'https://restapi.amap.com/v3/weather/weatherInfo?parameters'
     params_realtime = {
-        'key':'0befa0ca3650bc4cbf6d9d2607b13001',
+        'key':gd_key,
         'city':city_code,
         'extensions':'base'
     }
     params_estimate = {
-        'key':'0befa0ca3650bc4cbf6d9d2607b13001',
+        'key':gd_key,
         'city':city_code,
         'extensions':'all'
     }

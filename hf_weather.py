@@ -9,7 +9,7 @@ def get_weather(city_code, query_type, query_date=None):
     headers = {
         'Authorization': f'Bearer {jwt_token}'
     }
-    if query_type == 'lives':
+    if query_type == 'now':
         response = requests.get(f'https://kq359en4pj.re.qweatherapi.com/v7/weather/now?location={city_code}', headers=headers)
     elif query_type == 'historical':
         response = requests.get(f'https://kq359en4pj.re.qweatherapi.com/v7/historical/weather?location={city_code}&date={query_date}', headers=headers)
@@ -28,7 +28,6 @@ def get_city_history_weather(city_code, query_date=None):
         if city_weather_info.get('code') == '200':
             history_data = city_weather_info['weatherDaily'] if city_weather_info.get('weatherDaily') else None
             history_data_hourly = city_weather_info['weatherHourly'] if city_weather_info.get('weatherHourly') else None
-            print(history_data_hourly)
 
             if history_data:
                 # 提取数据
@@ -121,6 +120,113 @@ def get_city_history_weather(city_code, query_date=None):
                     'humidity_hourly': '/'.join(humidity_pack),
                     'pressure_hourly': '/'.join(pressure_pack),
                     'weather_icon_hourly': '/'.join(weather_icon_pack)
+                }
+
+    except Exception as e:
+        # 异常处理
+        print(f"Error fetching weather data: {e}")
+
+    return None
+
+
+def get_city_now_weather(city_code):
+    # 输入验证
+    if not isinstance(city_code, str) or not city_code.isdigit():
+        raise ValueError("Invalid city code")
+
+    try:
+        city_weather_info = get_weather(city_code, 'now')
+        #print(city_weather_info)
+
+        # 检查状态码
+        if city_weather_info.get('code') == '200':
+            # 直接获取天气信息，不需要使用.get()因为已经是字典了
+            now = city_weather_info['now'] if city_weather_info.get('now') else None
+
+            if now:
+                # 提取数据
+                obstime = now["obsTime"]  # 获取发布数据时间
+                weather = now["text"]  # 天气现象
+                temp = now["temp"] # 温度
+                feelslike = now["feelsLike"] # 体感温度
+                winddir = now["windDir"]  # 风向
+                windscale = now["windScale"] # 风级
+                windspeed = now["windSpeed"]  # 风力
+                humidity = now["humidity"]  # 湿度
+                precip = now["precip"] # 降水
+                pressure = now["pressure"] # 大气压强
+                vis = now["vis"] # 能见度
+                cloud = now["cloud"] # 云量
+
+                WEATHERICON = {'多云': '☁️', '阴': '⛅', '小雨': '🌦️', '中雨': '🌧️', '大雨': '🌧️', '暴雨': '🌧️💧', '雷阵雨': '⛈️', '小雪': '🌨️',
+                            '中雪': '❄️🌨', '大雪': '🌨❄️🌨', '暴雪': '❄️🌨❄️', '晴': '☀️', '雾': '🌫️', '霾': '🌫️', '风': '💨', '雪': '🌨️',
+                            '冰雹': '🌨️', '冻雨': '❄️', '沙尘暴': '🌪️'}
+                weather_icon = WEATHERICON[weather]
+
+                wind_power_dig = int(windspeed)
+                # 根据风力强度选择图标
+                if wind_power_dig < 5:
+                    wind_icon = '🍃 微风'
+                elif 5 <= wind_power_dig < 10:
+                    wind_icon = '🌬️ 轻风'
+                elif 10 <= wind_power_dig < 20:
+                    wind_icon = '🌬️ 和风'
+                elif 20 <= wind_power_dig < 30:
+                    wind_icon = '💨 强风'
+                elif 30 <= wind_power_dig < 40:
+                    wind_icon = '🌪️ 大风'
+                else:
+                    wind_icon = '🌀 暴风'
+
+                temperature_dig = int(temp)
+                # 根据温度选择体感图标
+                if temperature_dig < 10:
+                    temp_icon = '❄️ 寒冷'
+                elif 10 <= temperature_dig <= 25:
+                    temp_icon = '🌿 舒适'
+                elif 26 <= temperature_dig <= 35:
+                    temp_icon = '☀️ 较热'
+                else:
+                    temp_icon = '🔥 高温'
+
+                # 根据温度选择体感图标
+                feelslike_dig = int(feelslike)
+                if feelslike_dig < 10:
+                    feelslike_icon = '❄️ 寒冷'
+                elif 10 <= feelslike_dig <= 25:
+                    feelslike_icon = '🌿 舒适'
+                elif 26 <= feelslike_dig <= 35:
+                    feelslike_icon = '☀️ 较热'
+                else:
+                    feelslike_icon = '🔥 高温'
+
+                humidity_dig = int(humidity)
+                # 根据湿度选择图标
+                if humidity_dig < 40:
+                    humidity_icon = '🌵 干燥'
+                elif 40 <= humidity_dig <= 70:
+                    humidity_icon = '💧 舒适'
+                else:
+                    humidity_icon = '💦 潮湿'
+
+                return {
+                    'obstime': obstime,
+                    'weather': weather,
+                    'temp': temp,
+                    'feelslike': feelslike,
+                    'winddir': winddir,
+                    'windscale': windscale,
+                    'windspeed': windspeed,
+                    'humidity': humidity,
+                    'precip': precip,
+                    'pressure': pressure,
+                    'vis': vis,
+                    'cloud': cloud,
+                    'weather_icon': weather_icon,
+                    'temp_icon': temp_icon,
+                    'feelslike_icon': feelslike_icon,
+                    'wind_icon': wind_icon,
+                    'humidity_icon': humidity_icon
                 }
 
     except Exception as e:

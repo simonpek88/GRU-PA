@@ -45,6 +45,7 @@ examidd
 examresult
 fancywipe
 favques
+feelslike
 fibq
 Fileinfo
 flipcountdown
@@ -79,6 +80,7 @@ nbinsx
 Neue
 nivo
 Objs
+obstime
 openpyxl
 oxml
 pems
@@ -121,6 +123,7 @@ visitcount
 visitcounter
 VTAB
 wcswidth
+winddir
 windir
 windscale
 windspeed
