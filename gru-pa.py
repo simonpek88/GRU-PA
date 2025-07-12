@@ -1325,7 +1325,14 @@ def display_weather_gd(city_code):
 
 
 def display_history_weather():
-    query_date = st.date_input('查询时间', value=datetime.date.today() - datetime.timedelta(days=1), min_value=datetime.date.today() - datetime.timedelta(days=10), max_value=datetime.date.today() - datetime.timedelta(days=1))
+    sql = "SELECT MIN(weather_date) from weather_history"
+    date_result = execute_sql(cur, sql)
+    if date_result:
+        query_min_date = date_result[0][0]
+    else:
+        query_min_date = datetime.datetime.now() - datetime.timedelta(days=10)
+        query_min_date = query_min_date.strftime('%Y-%m-%d')
+    query_date = st.date_input('查询时间', value=datetime.date.today() - datetime.timedelta(days=1), min_value=query_min_date, max_value=datetime.date.today() - datetime.timedelta(days=1))
     query_date_convert = str(query_date).replace('-', '')
     city_code = HF_CITYCODE.get(st.session_state.StationCN)
     city_name = HF_CITYNAME.get(st.session_state.StationCN)
@@ -1407,7 +1414,7 @@ def plot_wind_speed_curve(hourly_data1, hourly_data2):
 
     # 添加第二个数据集到图表
     fig.add_trace(
-        go.Scatter(x=df2['小时'], y=df2['风力'], name='风力', line=dict(color='green', dash='solid')),
+        go.Scatter(x=df2['小时'], y=df2['风力'], name='风力', line=dict(color='green', dash='dash')),
         secondary_y=True,
     )
 

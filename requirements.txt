@@ -1,4 +1,9 @@
 dbutils==3.1.1
+dill==0.3.8
+fsspec==2025.3.0
+multiprocess==0.70.16
+NumPy==2.3.1
+openpyxl==3.1.5
 python-docx==1.2.0
 pandas==2.3.0
 plotly==6.2.0
@@ -6,6 +11,7 @@ pycryptodome==3.23.0
 PyMySQL==1.1.1
 python_docx==1.2.0
 pybadges==3.0.1
+PyJWT==2.10.1
 streamlit==1.46.1
 streamlit_antd_components==0.3.2
 streamlit_extras==0.7.5
