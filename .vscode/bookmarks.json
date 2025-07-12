@@ -14,14 +14,9 @@
 					"label": "login"
 				},
 				{
-					"line": 159,
+					"line": 152,
 					"column": 21,
 					"label": "displayAppInfo"
-				},
-				{
-					"line": 232,
-					"column": 16,
-					"label": "aboutInfo"
 				},
 				{
 					"line": 261,
@@ -29,12 +24,7 @@
 					"label": "display_pypi"
 				},
 				{
-					"line": 268,
-					"column": 43,
-					"label": "get_multi_days_task"
-				},
-				{
-					"line": 285,
+					"line": 279,
 					"column": 17,
 					"label": "task_input"
 				},
@@ -99,29 +89,14 @@
 					"label": "gen_cal_chart"
 				},
 				{
-					"line": 1321,
-					"column": 46,
-					"label": "display_weather"
-				},
-				{
-					"line": 1335,
-					"column": 30,
-					"label": "display_history_weather"
-				},
-				{
 					"line": 1340,
 					"column": 23,
 					"label": "main"
 				},
 				{
-					"line": 1419,
-					"column": 33,
-					"label": "menu weather"
-				},
-				{
-					"line": 1440,
-					"column": 21,
-					"label": "gen_temp_gauge"
+					"line": 1528,
+					"column": 27,
+					"label": "menu_main"
 				}
 			]
 		},
