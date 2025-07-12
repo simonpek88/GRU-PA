@@ -11,6 +11,8 @@ user_pa/
 .pems/
 *.pem
 mysql_pool.py
+test*.py
+temp_humidity_windspeed_gauge.html
 ~$*
 Images/badges/Python-badge.svg
 etest.py
