@@ -17,14 +17,14 @@ def create_gauge_chart(name, value, min_value, max_value, start_angle, end_angle
             center=[f"{y}%", f"{x}%"],  # 图表位置
             detail_label_opts=opts.LabelOpts(
                 formatter="{value}",
-                font_size=12
+                font_size=14
             ),
             min_=min_value,
             max_=max_value,
             start_angle=start_angle,
             end_angle=end_angle,
             title_label_opts=opts.LabelOpts(
-                font_size=10,
+                font_size=12,
                 color="blue",
                 font_family="Microsoft YaHei"
             ),
@@ -97,14 +97,15 @@ html_content = f"""
 with open('./MyComponentsScript/thw.html', 'w', encoding='utf-8') as f:
     f.write(html_content)
 
-print("HTML 文件已生成: thw.html")
-
 # 设置Edge的无头模式
 edge_options = EdgeOptions()
 edge_options.add_argument("--headless")  # 无头模式，不打开浏览器窗口
 edge_options.add_argument("--disable-gpu")
 edge_options.add_argument("--no-sandbox")
 
+# 抑制 DevTools 日志输出
+edge_options.add_experimental_option('excludeSwitches', ['enable-logging'])
+edge_options.add_argument("--log-level=3")  # 只显示严重错误
 driver = webdriver.Edge(options=edge_options)
 
 # 获取当前脚本所在目录，并构造HTML文件的绝对路径
