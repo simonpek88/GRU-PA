@@ -10,6 +10,7 @@ docs/
 user_pa/
 .pems/
 *.pem
+mysql_pool.py
 ~$*
 Images/badges/Python-badge.svg
 etest.py
