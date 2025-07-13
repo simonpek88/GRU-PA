@@ -130,6 +130,7 @@ verinfo
 visitcount
 visitcounter
 VTAB
+wcol
 wcswidth
 winddir
 WINDDIRECTIONICON

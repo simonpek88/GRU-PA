@@ -20,6 +20,7 @@ from docx.shared import Pt, RGBColor
 from openpyxl.cell import MergedCell
 from openpyxl.styles import Alignment, Border, Font, Side
 from plotly.subplots import make_subplots
+from streamlit_extras.metric_cards import style_metric_cards
 from wcwidth import wcswidth
 
 from commFunc import (execute_sql, execute_sql_and_commit, get_update_content,
@@ -1474,9 +1475,51 @@ def display_weather_hf(city_code):
         st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>降水: {weather_info['precip']} mm {precip} 能见度: {weather_info['vis']} km 云量: {cloud}% 大气压强: {weather_info['pressure']} hPa</div>", unsafe_allow_html=True)
         st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>风向: {weather_info['winddir']} {weather_info['winddir_icon_html']} 风力: {weather_info['windscale']} 级 / {weather_info['windspeed']} km/h {weather_info['wind_icon']} 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}</div>", unsafe_allow_html=True)
         st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#000000; font-size:14px;'>更新时间: {weather_info['obstime'][5:-6].replace('T', ' ')}</div>", unsafe_allow_html=True)
-        #with open("./MyComponentsScript/thw.html", "r", encoding="utf-8") as f:
-            #thw_gauge = f.read()
-        #components.html(thw_gauge, height=400)
+
+
+def display_weather_hf_metric(city_code):
+    weather_info = get_city_now_weather(city_code)
+    city_name = HF_CITYNAME.get(st.session_state.StationCN)
+    if weather_info:
+        if weather_info['cloud']:
+            cloud = weather_info['cloud']
+        else:
+            cloud = 'N/A'
+        if float(weather_info['precip']) > 0.0:
+            precip = '☔'
+        else:
+            precip = '🌂'
+        st.markdown(f'##### {city_name} - 实时天气')
+        wcol = st.columns(4)
+        wcol[0].metric(label='天气', value=f"{weather_info['weather']} {weather_info['weather_icon']}")
+        wcol[1].metric(label='🌡️温度', value=f"{weather_info['temp']}℃ {weather_info['temp_icon']}")
+        wcol[2].metric(label='🧘体感温度', value=f"{weather_info['feelslike']}℃ {weather_info['feelslike_icon']}")
+        wcol[3].metric(label='降水', value=f"{weather_info['precip']} mm {precip}")
+        wcol[0].metric(label='能见度', value=f"{weather_info['vis']} km")
+        wcol[1].metric(label='云量', value=f"{cloud}%")
+        wcol[2].metric(label='大气压强', value=f"{weather_info['pressure']} hPa")
+        wcol[3].metric(label='湿度', value=f"{weather_info['humidity']}% {weather_info['humidity_icon']}")
+        wcol[0].metric(label='风向', value=weather_info['winddir'])
+        wcol[1].metric(label='风力', value=f"{weather_info['windspeed']} km/h {weather_info['wind_icon']}")
+        wcol[2].metric(label='更新时间', value=weather_info['obstime'][5:-6].replace('T', ' '))
+        style_metric_cards(border_left_color="#426edd")
+
+
+@st.fragment
+def displayVisitCounter_static():
+    sql = "SELECT pyLM from verinfo where pyFile = 'visitcounter'"
+    visitcount = execute_sql(cur, sql)[0][0]
+    st.markdown(f"<font face='微软雅黑' size=3><center>**第 {visitcount} 位访问者**</center></font>", unsafe_allow_html=True)
+
+
+@st.fragment
+def displayAppInfo_static():
+    st.markdown(f"<font face='微软雅黑' color=purple size=16><center>**{APPNAME_CN}**</center></font>", unsafe_allow_html=True)
+    verinfo, verLM = getVerInfo()
+    st.markdown(f"<font face='微软雅黑' size=5><center>软件版本: {int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{int(verinfo / 10)} building {verinfo}</center></font>", unsafe_allow_html=True)
+    st.markdown(f"<font face='微软雅黑' size=3><center>更新时间: {time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))}</center></font>", unsafe_allow_html=True)
+    update_type, update_content = get_update_content(f"./CHANGELOG.md")
+    st.markdown(f"<font face='微软雅黑' color=blue size=4><center>更新内容: {update_type} - {update_content}</center></font>", unsafe_allow_html=True)
 
 
 global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, GD_CITYCODE, HF_CITYCODE, HF_CITYNAME
@@ -1569,16 +1612,19 @@ if st.session_state.logged_in:
         app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{verinfo}'
         app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
         gen_badge(conn, cur, [], 'MySQL', APPNAME_EN, app_version, app_lm)
-        displayBigTime()
-        displayAppInfo(300)
+        #displayBigTime()
+        #displayAppInfo(300)
+        displayAppInfo_static()
         if weather_provider == 'gd':
             display_weather_gd(GD_CITYCODE[st.session_state.StationCN])
         elif weather_provider == 'hf':
-            display_weather_hf(HF_CITYCODE[st.session_state.StationCN])
+            #display_weather_hf(HF_CITYCODE[st.session_state.StationCN])
+            display_weather_hf_metric(HF_CITYCODE[st.session_state.StationCN])
             # 手动测试
             #display_weather_hf('101010900')
         st.divider()
-        displayVisitCounter()
+        #displayVisitCounter()
+        displayVisitCounter_static()
     elif selected == "工作量录入":
         task_input()
     elif selected == "工作量手工录入":
