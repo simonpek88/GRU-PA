@@ -1322,8 +1322,19 @@ def aboutLicense():
 def display_weather_gd(city_code):
     weather_info = get_city_weather(city_code)
     if weather_info:
-        st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {weather_info['city']} 天气: {weather_info['weather_icon']} 温度: {weather_info['temperature']} ℃ {weather_info['temp_icon']}</div>", unsafe_allow_html=True)
-        st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>风向: {weather_info['winddirection']} 风力: {weather_info['windpower']} 米/秒 {weather_info['wind_icon']} 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}</div>", unsafe_allow_html=True)
+        st.markdown(f"#### {weather_info['city']} - 实时天气")
+        #st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {weather_info['city']} 天气: {weather_info['weather_icon']} 温度: {weather_info['temperature']} ℃ {weather_info['temp_icon']}</div>", unsafe_allow_html=True)
+        #st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>风向: {weather_info['winddirection']} 风力: {weather_info['windpower']} km/h {weather_info['wind_icon']} 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}</div>", unsafe_allow_html=True)
+        wcol = st.columns(3)
+        #wcol[0].metric('地区', weather_info['city'])
+        wcol[0].metric(label='天气',value=f"{weather_info['weather']} {weather_info['weather_icon']}")
+        wcol[1].metric(label='温度', value=f"{weather_info['temperature']} ℃ {weather_info['temp_icon']}")
+        wcol[2].metric(label='湿度', value=f"{weather_info['humidity']}% {weather_info['humidity_icon']}")
+        wcol[0].metric(label='风向', value=f"{weather_info['winddirection']}风")
+        wcol[1].metric(label='风力', value=f"{weather_info['windpower']} km/s {weather_info['wind_icon']}")
+        wcol[2].metric(label='更新时间', value=f"{weather_info['reporttime'][2:]}")
+        # 设置度量卡片的样式
+        style_metric_cards(border_left_color="#8581d9")
 
 
 def display_history_weather():
