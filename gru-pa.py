@@ -230,6 +230,7 @@ def changelog():
 
 def aboutReadme():
     st.markdown(open("./README.md", "r", encoding="utf-8").read(), unsafe_allow_html=True)
+    st.image("./thw_gauge.png")
 
 def aboutInfo():
     updatePyFileinfo()
@@ -1325,7 +1326,9 @@ def display_weather_gd(city_code):
 
 
 def display_history_weather():
-    sql = "SELECT MIN(weather_date) from weather_history"
+    city_code = HF_CITYCODE.get(st.session_state.StationCN)
+    city_name = HF_CITYNAME.get(st.session_state.StationCN)
+    sql = f"SELECT MIN(weather_date) from weather_history where city_code = '{city_code}'"
     date_result = execute_sql(cur, sql)
     if date_result:
         query_min_date = date_result[0][0]
@@ -1334,8 +1337,6 @@ def display_history_weather():
         query_min_date = query_min_date.strftime('%Y-%m-%d')
     query_date = st.date_input('查询时间', value=datetime.date.today() - datetime.timedelta(days=1), min_value=query_min_date, max_value=datetime.date.today() - datetime.timedelta(days=1))
     query_date_convert = str(query_date).replace('-', '')
-    city_code = HF_CITYCODE.get(st.session_state.StationCN)
-    city_name = HF_CITYNAME.get(st.session_state.StationCN)
     display_area = st.empty()
     sql = f"SELECT sunrise, sunset, moonrise, moonset, moonPhase, tempMax, tempMin, humidity, pressure, moon_icon, temp_icon, humidity_icon, temp_hourly, windspeed_hourly, humidity_hourly, weather_icon_hourly, precip_hourly, windscale_hourly FROM weather_history WHERE city_code = '{city_code}' and weather_date = '{query_date}'"
     cur.execute(sql)
@@ -1473,9 +1474,9 @@ def display_weather_hf(city_code):
         st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>降水: {weather_info['precip']} mm {precip} 能见度: {weather_info['vis']} km 云量: {cloud}% 大气压强: {weather_info['pressure']} hPa</div>", unsafe_allow_html=True)
         st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>风向: {weather_info['winddir']} {weather_info['winddir_icon_html']} 风力: {weather_info['windscale']} 级 / {weather_info['windspeed']} km/h {weather_info['wind_icon']} 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}</div>", unsafe_allow_html=True)
         st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#000000; font-size:14px;'>更新时间: {weather_info['obstime'][5:-6].replace('T', ' ')}</div>", unsafe_allow_html=True)
-        with open("./MyComponentsScript/thw.html", "r", encoding="utf-8") as f:
-            thw_gauge = f.read()
-        components.html(thw_gauge, height=400)
+        #with open("./MyComponentsScript/thw.html", "r", encoding="utf-8") as f:
+            #thw_gauge = f.read()
+        #components.html(thw_gauge, height=400)
 
 
 global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, GD_CITYCODE, HF_CITYCODE, HF_CITYNAME
