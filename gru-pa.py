@@ -232,7 +232,6 @@ def changelog():
 
 def aboutReadme():
     st.markdown(open("./README.md", "r", encoding="utf-8").read(), unsafe_allow_html=True)
-    st.image("./thw_gauge.png")
 
 def aboutInfo():
     updatePyFileinfo()
