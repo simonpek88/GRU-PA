@@ -20,6 +20,7 @@ from docx.shared import Pt, RGBColor
 from openpyxl.cell import MergedCell
 from openpyxl.styles import Alignment, Border, Font, Side
 from plotly.subplots import make_subplots
+from streamlit_condition_tree import condition_tree
 from streamlit_extras.metric_cards import style_metric_cards
 from wcwidth import wcswidth
 
@@ -1485,7 +1486,7 @@ def display_weather_hf(city_code):
         st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {city_name} 天气: {weather_info['weather']} {weather_icon_html} 🌡️温度: {weather_info['temp']}℃ / 🧘温度: {weather_info['feelslike']}℃ {weather_info['feelslike_icon']}</div>", unsafe_allow_html=True)
         st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>降水: {weather_info['precip']} mm {precip} 能见度: {weather_info['vis']} km 云量: {cloud}% 大气压强: {weather_info['pressure']} hPa</div>", unsafe_allow_html=True)
         st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>风向: {weather_info['winddir']} {weather_info['winddir_icon_html']} 风力: {weather_info['windscale']} 级 / {weather_info['windspeed']} km/h {weather_info['wind_icon']} 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}</div>", unsafe_allow_html=True)
-        st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#000000; font-size:14px;'>更新时间: {weather_info['obstime'][5:-6].replace('T', ' ')}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#000000; font-size:14px;'>更新时间: {weather_info['obstime'][2:-6].replace('T', ' ')}</div>", unsafe_allow_html=True)
 
 
 def display_weather_hf_metric(city_code):
@@ -1512,7 +1513,7 @@ def display_weather_hf_metric(city_code):
         wcol[3].metric(label='湿度', value=f"{weather_info['humidity']}% {weather_info['humidity_icon']}")
         wcol[0].metric(label='风向', value=weather_info['winddir'])
         wcol[1].metric(label='风力', value=f"{weather_info['windspeed']} km/h {weather_info['wind_icon']}")
-        wcol[2].metric(label='更新时间', value=weather_info['obstime'][5:-6].replace('T', ' '))
+        wcol[2].metric(label='更新时间', value=weather_info['obstime'][2:-6].replace('T', ' '))
         style_metric_cards(border_left_color="#426edd")
 
 
@@ -1531,6 +1532,83 @@ def displayAppInfo_static():
     st.markdown(f"<font face='微软雅黑' size=3><center>更新时间: {time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))}</center></font>", unsafe_allow_html=True)
     update_type, update_content = get_update_content(f"./CHANGELOG.md")
     st.markdown(f"<font face='微软雅黑' color=blue size=4><center>更新内容: {update_type} - {update_content}</center></font>", unsafe_allow_html=True)
+
+
+def combine_query():
+    st.markdown("### <font face='微软雅黑' color=tear><center>工作量高级查询</center></font>", unsafe_allow_html=True)
+    btn_query = st.button("查询")
+    clerk_cname_pack, task_group_pack = [], []
+    sql = f"SELECT userCName from users where clerk_pa = 1 and StationCN = '{st.session_state.StationCN}' order by ID"
+    result = execute_sql(cur, sql)
+    for row in result:
+        clerk_cname_pack.append({'value': row[0], 'title': row[0]})
+    sql = f"SELECT DISTINCT(task_group) from clerk_work where StationCN = '{st.session_state.StationCN}'"
+    result = execute_sql(cur, sql)
+    for row in result:
+        task_group_pack.append({'value': row[0], 'title': row[0]})
+    sql = f"SELECT MIN(task_score), MAX(task_score) from clerk_work where StationCN = '{st.session_state.StationCN}'"
+    result = execute_sql(cur, sql)
+    min_task_score = result[0][0]
+    max_task_score = result[0][1]
+
+    config = {
+    'fields': {
+        'clerk_cname': {
+            'label': '姓名',
+            'type': 'select',
+            'fieldSettings': {
+            'listValues': clerk_cname_pack,
+            },
+        },
+        'task_date': {
+            'label': '日期',
+            'type': 'date',
+            'operators': ['between']
+        },
+        'task_group': {
+            'label': '工作组别',
+            'type': 'select',
+            'fieldSettings': {
+            'listValues': task_group_pack,
+            },
+        },
+        'task_score': {
+            'label': '单项分值',
+            'type': 'number',
+            'fieldSettings': {
+            'min': min_task_score,
+            'max': max_task_score,
+            'step': 1
+            },
+            'preferWidgets': ['slider', 'rangeslider'],
+        },
+        'task_approved': {
+            'label': '是否已核定',
+            'type': 'boolean',
+            'operators': ['equal'],
+        }
+    }
+    }
+
+    sql_query = condition_tree(
+        config,
+        return_type='sql',
+        placeholder='暂无查询条件',
+    )
+
+    if  sql_query and btn_query:
+        sql = f"SELECT ID, task_date, clerk_cname, clerk_work, task_score, task_group, task_approved FROM clerk_work where StationCN = '{st.session_state.StationCN}' and {sql_query}"
+        sql = sql.replace('task_approved = true', 'task_approved = 1').replace('task_approved = false', 'task_approved = 0')
+        #st.write(sql)
+        result = execute_sql(cur, sql)
+        if result:
+            df = pd.DataFrame(result, dtype=str)
+            df.columns = ["ID", "日期", "员工姓名", "工作项", "单项分值", "工作组别", "核定状态"]
+            for index, value in enumerate(result):
+                df.loc[index, "核定状态"] = "已核定" if df["核定状态"][index] == '1' else "未核定"
+            st.dataframe(df)
+        else:
+            st.info("没有查询到符合条件的记录")
 
 
 global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, GD_CITYCODE, HF_CITYCODE, HF_CITYNAME
@@ -1570,6 +1648,7 @@ if st.session_state.logged_in:
                     sac.MenuItem('统计查询及导出', icon='clipboard-data'),
                     sac.MenuItem('趋势图', icon='bar-chart-line'),
                     sac.MenuItem('数据检查与核定', icon='check2-all'),
+                    sac.MenuItem('高级查询', icon='search'),
                     sac.MenuItem('历史天气', icon='cloud-sun'),
                     sac.MenuItem('公告发布', icon='journal-arrow-up'),
                     sac.MenuItem("重置数据库ID", icon="bootstrap-reboot"),
@@ -1650,6 +1729,8 @@ if st.session_state.logged_in:
         gen_chart()
     elif selected == "数据检查与核定":
         check_data()
+    elif selected == "高级查询":
+        combine_query()
     elif selected == "公告发布":
         input_public_notice()
     elif selected == "历史天气":

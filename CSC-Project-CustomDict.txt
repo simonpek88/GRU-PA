@@ -5,6 +5,7 @@ AIGM
 aikey
 aikeys
 ampm
+andfanilo
 animationend
 antd
 APIKEY
@@ -65,6 +66,7 @@ imshow
 indiv
 indivquescount
 JAVDB
+jscode
 JXQW
 keyactionlog
 keyup
@@ -107,6 +109,7 @@ questable
 questionaff
 questo
 questype
+rangeslider
 reporttime
 Resultto
 retroclockbox
