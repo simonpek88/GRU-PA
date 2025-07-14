@@ -87,6 +87,7 @@ def login():
                 st.session_state.StationCN = result[0][3]
                 st.session_state.clerkType = result[0][4]
                 st.session_state.userPwRechecked = False
+                refresh_users_setup()
                 # 更新访问次数
                 sql = "UPDATE verinfo set pyLM = pyLM + 1 where pyFile = 'visitcounter'"
                 execute_sql_and_commit(conn, cur, sql)
@@ -1339,6 +1340,7 @@ def display_weather_gd(city_code):
 
 
 def display_history_weather():
+    st.markdown("### <font face='微软雅黑' color=green><center>历史天气</center></font>", unsafe_allow_html=True)
     city_code = HF_CITYCODE.get(st.session_state.StationCN)
     city_name = HF_CITYNAME.get(st.session_state.StationCN)
     sql = f"SELECT MIN(weather_date) from weather_history where city_code = '{city_code}'"
@@ -1525,7 +1527,7 @@ def displayVisitCounter_static():
     # 生成徽章样式的访问计数器
     badge_svg = badge(left_text='访  问  次  数', right_text=f'{visitcount}', right_color='brightgreen')
     # 将badge_svg包裹在具有居中和缩放样式的<div>标签中
-    centered_and_scaled_badge = f"<div style='display: flex; justify-content: center; transform: scale(1.5);'>{badge_svg}</div>"
+    centered_and_scaled_badge = f"<div style='display: flex; justify-content: center; transform: scale(1.3);'>{badge_svg}</div>"
     st.markdown(centered_and_scaled_badge, unsafe_allow_html=True)
 
 
@@ -1616,7 +1618,41 @@ def combine_query():
             st.info("没有查询到符合条件的记录")
 
 
-global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, GD_CITYCODE, HF_CITYCODE, HF_CITYNAME
+def update_users_setup(param_name, param_value, action_type):
+    if action_type == 'update':
+        sql = f"UPDATE users_setup SET param_value = {int(param_value)} where param_name = '{param_name}'"
+        execute_sql_and_commit(conn, cur, sql)
+    elif action_type == 'insert':
+        sql = f"INSERT INTO users_setup (userID, userCName, param_name, param_value) VALUES ({st.session_state.userID}, '{st.session_state.userCName}', '{param_name}', {int(param_value)})"
+        execute_sql_and_commit(conn, cur, sql)
+
+
+def users_setup():
+    st.markdown("### <font face='微软雅黑' color=blue><center>个人设置</center></font>", unsafe_allow_html=True)
+    for index, value in enumerate(SETUP_NAME_PACK):
+        sql = f"SELECT userID, userCName, param_value from users_setup where userID = {st.session_state.userID} and param_name = '{value}'"
+        cur.execute(sql)
+        result = cur.fetchone()
+        st.markdown(f'##### {SETUP_LABEL_PACK[index]}')
+        if result:
+            sac.switch(label='', value=bool(int(result[2])), key=f'setup_{value}_{result[0]}', align='start', on_label='On', off_label='Off')
+            update_users_setup(value, st.session_state[f'setup_{value}_{result[0]}'], 'update')
+        else:
+            sac.switch(label='', value=True, key=f'setup_{value}_{st.session_state.userID}', align='start', on_label='On', off_label='Off')
+            update_users_setup(value, st.session_state[f'setup_{value}_{st.session_state.userID}'], 'insert')
+
+
+def refresh_users_setup():
+    for index, value in enumerate(SETUP_NAME_PACK):
+        sql = f"SELECT userID, userCName, param_value from users_setup where userID = {st.session_state.userID} and param_name = '{value}'"
+        result = execute_sql(cur, sql)
+        if result:
+            st.session_state[value] = bool(result[0][2])
+        else:
+            st.session_state[value] = True
+
+
+global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, GD_CITYCODE, HF_CITYCODE, HF_CITYNAME, SETUP_NAME_PACK, SETUP_LABEL_PACK
 APPNAME_CN = "站室绩效考核系统KPI-PA"
 APPNAME_EN = "GRU-PA"
 MAXDEDUCTSCORE = -20
@@ -1625,6 +1661,8 @@ MDTASKDAYS = 28
 GD_CITYCODE = {'北京站': '110113', '天津站': '120116', '总控室': '120116', '调控中心': '120116', '武清站': '120114'}
 HF_CITYCODE = {'北京站': '101010400', '天津站': '101031100', '总控室': '101031100', '调控中心': '101031100', '武清站': '101030200'}
 HF_CITYNAME = {'北京站': '顺义区', '天津站': '滨海新区', '总控室': '滨海新区', '调控中心': '滨海新区', '武清站': '武清区'}
+SETUP_NAME_PACK = ['static_show', 'weather_show', 'weather_metric', 'weather_provider']
+SETUP_LABEL_PACK = ['主页展示方式: :green[On 静态文字] :orange[Off 特效文字]', '天气展示', '天气展示方式: :green[On 卡片] :orange[Off 文字] :violet[高德只有卡片模式]', '天气数据源: :green[On 和风] :orange[Off 高德]']
 conn = get_connection()
 cur = conn.cursor()
 st.logo(image="./Images/logos/GRU-PA-logo.png", icon_image="./Images/logos/GRU-PA-logo.png", size="large")
@@ -1658,6 +1696,9 @@ if st.session_state.logged_in:
                     sac.MenuItem('公告发布', icon='journal-arrow-up'),
                     sac.MenuItem("重置数据库ID", icon="bootstrap-reboot"),
                 ]),
+                sac.MenuItem('设置', icon='gear', children=[
+                    sac.MenuItem('个人设置', icon='sliders'),
+                ]),
                 sac.MenuItem('账户', icon='person-gear', children=[
                     sac.MenuItem('密码修改', icon='key'),
                     sac.MenuItem('密码重置', icon='person-gear'),
@@ -1682,6 +1723,9 @@ if st.session_state.logged_in:
                     sac.MenuItem('趋势图', icon='bar-chart-line'),
                     sac.MenuItem('历史天气', icon='cloud-sun'),
                 ]),
+                sac.MenuItem('设置', icon='gear', children=[
+                    sac.MenuItem('个人设置', icon='sliders'),
+                ]),
                 sac.MenuItem('账户', icon='person-gear', children=[
                     sac.MenuItem('密码修改', icon='key'),
                     sac.MenuItem('登出', icon='box-arrow-right'),
@@ -1700,26 +1744,38 @@ if st.session_state.logged_in:
     if selected == "公告":
         public_notice()
     elif selected == "主页":
-        #displayBigTimeCircle()
-        updatePyFileinfo()
+        # 刷新个人设置
+        refresh_users_setup()
         # 更新版本信息
+        updatePyFileinfo()
         verinfo, verLM = getVerInfo()
         app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{verinfo}'
         app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
         gen_badge(conn, cur, [], 'MySQL', APPNAME_EN, app_version, app_lm)
-        #displayBigTime()
-        #displayAppInfo(300)
-        displayAppInfo_static()
-        if weather_provider == 'gd':
-            display_weather_gd(GD_CITYCODE[st.session_state.StationCN])
-        elif weather_provider == 'hf':
-            #display_weather_hf(HF_CITYCODE[st.session_state.StationCN])
-            display_weather_hf_metric(HF_CITYCODE[st.session_state.StationCN])
-            # 手动测试
-            #display_weather_hf('101010900')
-        st.divider()
-        #displayVisitCounter()
-        displayVisitCounter_static()
+        if st.session_state.static_show:
+            displayAppInfo_static()
+        else:
+            displayBigTime()
+            displayAppInfo(300)
+        if st.session_state.weather_show:
+            if st.session_state.weather_provider:
+                if st.session_state.weather_metric:
+                    display_weather_hf_metric(HF_CITYCODE[st.session_state.StationCN])
+                    # 手动测试
+                    #display_weather_hf_metric('101010900')
+                else:
+                    display_weather_hf(HF_CITYCODE[st.session_state.StationCN])
+                    st.header(' ')
+            else:
+                display_weather_gd(GD_CITYCODE[st.session_state.StationCN])
+        else:
+            st.header(' ')
+            st.header(' ')
+        sac.divider(label='', icon=sac.BsIcon(name='boxes', size=20), align='center')
+        if st.session_state.static_show:
+            displayVisitCounter_static()
+        else:
+            displayVisitCounter()
     elif selected == "工作量录入":
         task_input()
     elif selected == "工作量手工录入":
@@ -1742,6 +1798,8 @@ if st.session_state.logged_in:
         display_history_weather()
     elif selected == "重置数据库ID":
         reset_table_num()
+    elif selected == "个人设置":
+        users_setup()
     elif selected == "密码修改":
         changePassword()
     elif selected == "密码重置":
