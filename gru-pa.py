@@ -87,6 +87,8 @@ def login():
                 st.session_state.StationCN = result[0][3]
                 st.session_state.clerkType = result[0][4]
                 st.session_state.userPwRechecked = False
+                # 获取城市编码
+                get_city_code()
                 # 自动获取历史天气, 免得过期后数据无法获取
                 auto_get_history_weather()
                 # 更新用户设置
@@ -1337,15 +1339,15 @@ def display_weather_gd(city_code):
         wcol[2].metric(label='湿度', value=f"{weather_info['humidity']}% {weather_info['humidity_icon']}")
         wcol[0].metric(label='风向', value=f"{weather_info['winddirection']}风")
         wcol[1].metric(label='风力', value=f"{weather_info['windpower']} km/s {weather_info['wind_icon']}")
-        wcol[2].metric(label='更新时间', value=f"{weather_info['reporttime'][2:]}")
+        wcol[2].metric(label='数据更新时间', value=f"{weather_info['reporttime'][2:]}")
         # 设置度量卡片的样式
         style_metric_cards(border_left_color="#8581d9")
 
 
 def display_history_weather():
     st.markdown("### <font face='微软雅黑' color=green><center>历史天气</center></font>", unsafe_allow_html=True)
-    city_code = HF_CITYCODE.get(st.session_state.StationCN)
-    city_name = HF_CITYNAME.get(st.session_state.StationCN)
+    city_code = st.session_state.hf_city_code
+    city_name = st.session_state.cityname
     sql = f"SELECT MIN(weather_date) from weather_history where city_code = '{city_code}'"
     date_result = execute_sql(cur, sql)
     if date_result:
@@ -1467,7 +1469,7 @@ def plot_data_curve(hourly_data):
 
 def display_weather_hf(city_code):
     weather_info = get_city_now_weather(city_code)
-    city_name = HF_CITYNAME.get(st.session_state.StationCN)
+    city_name = st.session_state.cityname
     if weather_info:
         if weather_info['cloud']:
             cloud = weather_info['cloud']
@@ -1491,12 +1493,12 @@ def display_weather_hf(city_code):
         st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {city_name} 天气: {weather_info['weather']} {weather_icon_html} 🌡️温度: {weather_info['temp']}℃ / 🧘温度: {weather_info['feelslike']}℃ {weather_info['feelslike_icon']}</div>", unsafe_allow_html=True)
         st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>降水: {weather_info['precip']} mm {precip} 能见度: {weather_info['vis']} km 云量: {cloud}% 大气压强: {weather_info['pressure']} hPa</div>", unsafe_allow_html=True)
         st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>风向: {weather_info['winddir']} {weather_info['winddir_icon_html']} 风力: {weather_info['windscale']} 级 / {weather_info['windspeed']} km/h {weather_info['wind_icon']} 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}</div>", unsafe_allow_html=True)
-        st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#000000; font-size:14px;'>更新时间: {weather_info['obstime'][2:-6].replace('T', ' ')}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#000000; font-size:14px;'>数据更新时间: {weather_info['obstime'][2:-6].replace('T', ' ')}</div>", unsafe_allow_html=True)
 
 
 def display_weather_hf_metric(city_code):
     weather_info = get_city_now_weather(city_code)
-    city_name = HF_CITYNAME.get(st.session_state.StationCN)
+    city_name = st.session_state.cityname
     if weather_info:
         if weather_info['cloud']:
             cloud = weather_info['cloud']
@@ -1518,7 +1520,7 @@ def display_weather_hf_metric(city_code):
         wcol[3].metric(label='湿度', value=f"{weather_info['humidity']}% {weather_info['humidity_icon']}")
         wcol[0].metric(label='风向', value=weather_info['winddir'])
         wcol[1].metric(label='风力', value=f"{weather_info['windspeed']} km/h {weather_info['wind_icon']}")
-        wcol[2].metric(label='更新时间', value=weather_info['obstime'][2:-6].replace('T', ' '))
+        wcol[2].metric(label='数据更新时间', value=weather_info['obstime'][2:-6].replace('T', ' '))
         style_metric_cards(border_left_color="#426edd")
 
 
@@ -1609,7 +1611,6 @@ def combine_query():
     if  sql_query and btn_query:
         sql = f"SELECT ID, task_date, clerk_cname, clerk_work, task_score, task_group, task_approved FROM clerk_work where StationCN = '{st.session_state.StationCN}' and {sql_query}"
         sql = sql.replace('task_approved = true', 'task_approved = 1').replace('task_approved = false', 'task_approved = 0')
-        #st.write(sql)
         result = execute_sql(cur, sql)
         if result:
             df = pd.DataFrame(result, dtype=str)
@@ -1655,29 +1656,40 @@ def refresh_users_setup():
             st.session_state[value] = True
 
 
+def get_city_code():
+    st.session_state.cityname = STATION_CITYNAME[st.session_state.StationCN]
+    sql = f"SELECT location_ID, AD_code from hf_cn_city where Location_Name_ZH = '{st.session_state.cityname}'"
+    result = execute_sql(cur, sql)
+    if result:
+        st.session_state.hf_city_code = result[0][0]
+        st.session_state.gd_city_code = result[0][1]
+    else:
+        st.error("城市编码获取失败")
+
+
 def auto_get_history_weather():
-    city_code = HF_CITYCODE.get(st.session_state.StationCN)
-    city_name = HF_CITYNAME.get(st.session_state.StationCN)
-    query_date = datetime.datetime.now() - datetime.timedelta(days=1)
-    query_date = query_date.strftime('%Y-%m-%d')
-    sql = f"SELECT ID FROM weather_history WHERE city_code = '{city_code}' and weather_date = '{query_date}'"
-    cur.execute(sql)
-    result = cur.fetchone()
-    if not result:
-        weather_info = get_city_history_weather(city_code, str(query_date).replace('-', ''))
-        sql = f"INSERT INTO weather_history (weather_date, city_code, city_name, sunrise, sunset, moonrise, moonset, moonPhase, tempMax, tempMin, humidity, pressure, moon_icon, temp_icon, humidity_icon, temp_hourly, weather_hourly, precip_hourly, windir_hourly, windscale_hourly, windspeed_hourly, humidity_hourly, pressure_hourly, weather_icon_hourly) VALUES ('{query_date}', '{city_code}', '{city_name}', '{weather_info['sunrise']}', '{weather_info['sunset']}', '{weather_info['moonrise']}', '{weather_info['moonset']}', '{weather_info['moonPhase']}', '{weather_info['tempMax']}', '{weather_info['tempMin']}', '{weather_info['humidity']}', '{weather_info['pressure']}', '{weather_info['moon_icon']}', '{weather_info['temp_icon']}', '{weather_info['humidity_icon']}', '{weather_info['temp_hourly']}', '{weather_info['weather_hourly']}', '{weather_info['precip_hourly']}', '{weather_info['windir_hourly']}', '{weather_info['windscale_hourly']}', '{weather_info['windspeed_hourly']}', '{weather_info['humidity_hourly']}', '{weather_info['pressure_hourly']}', '{weather_info['weather_icon_hourly']}')"
-        execute_sql_and_commit(conn, cur, sql)
+    city_code = st.session_state.hf_city_code
+    city_name = st.session_state.cityname
+    for i in range(1, 11):
+        st.progress(value=i / 10, text=f'正在获取 {city_name} 的第{i}天历史天气数据...')
+        query_date = datetime.datetime.now() - datetime.timedelta(days=i)
+        query_date = query_date.strftime('%Y-%m-%d')
+        sql = f"SELECT ID FROM weather_history WHERE city_code = '{city_code}' and weather_date = '{query_date}'"
+        cur.execute(sql)
+        result = cur.fetchone()
+        if not result:
+            weather_info = get_city_history_weather(city_code, str(query_date).replace('-', ''))
+            sql = f"INSERT INTO weather_history (weather_date, city_code, city_name, sunrise, sunset, moonrise, moonset, moonPhase, tempMax, tempMin, humidity, pressure, moon_icon, temp_icon, humidity_icon, temp_hourly, weather_hourly, precip_hourly, windir_hourly, windscale_hourly, windspeed_hourly, humidity_hourly, pressure_hourly, weather_icon_hourly) VALUES ('{query_date}', '{city_code}', '{city_name}', '{weather_info['sunrise']}', '{weather_info['sunset']}', '{weather_info['moonrise']}', '{weather_info['moonset']}', '{weather_info['moonPhase']}', '{weather_info['tempMax']}', '{weather_info['tempMin']}', '{weather_info['humidity']}', '{weather_info['pressure']}', '{weather_info['moon_icon']}', '{weather_info['temp_icon']}', '{weather_info['humidity_icon']}', '{weather_info['temp_hourly']}', '{weather_info['weather_hourly']}', '{weather_info['precip_hourly']}', '{weather_info['windir_hourly']}', '{weather_info['windscale_hourly']}', '{weather_info['windspeed_hourly']}', '{weather_info['humidity_hourly']}', '{weather_info['pressure_hourly']}', '{weather_info['weather_icon_hourly']}')"
+            execute_sql_and_commit(conn, cur, sql)
 
 
-global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, GD_CITYCODE, HF_CITYCODE, HF_CITYNAME, SETUP_NAME_PACK, SETUP_LABEL_PACK
+global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, STATION_CITYNAME, SETUP_NAME_PACK, SETUP_LABEL_PACK
 APPNAME_CN = "站室绩效考核系统KPI-PA"
 APPNAME_EN = "GRU-PA"
 MAXDEDUCTSCORE = -20
 CHARTFONTSIZE = 14
 MDTASKDAYS = 28
-GD_CITYCODE = {'北京站': '110113', '天津站': '120116', '总控室': '120116', '调控中心': '120116', '武清站': '120114'}
-HF_CITYCODE = {'北京站': '101010400', '天津站': '101031100', '总控室': '101031100', '调控中心': '101031100', '武清站': '101030200'}
-HF_CITYNAME = {'北京站': '顺义区', '天津站': '滨海新区', '总控室': '滨海新区', '调控中心': '滨海新区', '武清站': '武清区'}
+STATION_CITYNAME = {'北京站': '顺义', '天津站': '滨海新区', '总控室': '滨海新区', '调控中心': '滨海新区', '武清站': '武清'}
 SETUP_NAME_PACK = ['static_show', 'weather_show', 'weather_metric', 'weather_provider']
 SETUP_LABEL_PACK = ['主页展示方式: :green[On 静态文字] :orange[Off 特效文字]', '天气展示', '天气展示方式: :green[On 卡片] :orange[Off 文字] :violet[高德只有卡片模式]', '天气数据源: :green[On 和风] :orange[Off 高德]']
 conn = get_connection()
@@ -1777,14 +1789,14 @@ if st.session_state.logged_in:
         if st.session_state.weather_show:
             if st.session_state.weather_provider:
                 if st.session_state.weather_metric:
-                    display_weather_hf_metric(HF_CITYCODE[st.session_state.StationCN])
+                    display_weather_hf_metric(st.session_state.hf_city_code)
                     # 手动测试
                     #display_weather_hf_metric('101010900')
                 else:
-                    display_weather_hf(HF_CITYCODE[st.session_state.StationCN])
+                    display_weather_hf(st.session_state.hf_city_code)
                     st.header(' ')
             else:
-                display_weather_gd(GD_CITYCODE[st.session_state.StationCN])
+                display_weather_gd(st.session_state.gd_city_code)
         else:
             st.header(' ')
             st.header(' ')

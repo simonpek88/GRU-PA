@@ -119,6 +119,11 @@
 					"label": "main"
 				},
 				{
+					"line": 1657,
+					"column": 31,
+					"label": "auto_get_history_weather"
+				},
+				{
 					"line": 1712,
 					"column": 44,
 					"label": "main_menu"
