@@ -104,6 +104,11 @@
 					"label": "display_weather_hf_metric"
 				},
 				{
+					"line": 1519,
+					"column": 33,
+					"label": "displayVisitCounter_static"
+				},
+				{
 					"line": 1537,
 					"column": 20,
 					"label": "combine_query"
@@ -112,6 +117,11 @@
 					"line": 1630,
 					"column": 38,
 					"label": "main"
+				},
+				{
+					"line": 1712,
+					"column": 44,
+					"label": "main_menu"
 				}
 			]
 		},

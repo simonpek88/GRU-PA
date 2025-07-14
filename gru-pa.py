@@ -20,6 +20,7 @@ from docx.shared import Pt, RGBColor
 from openpyxl.cell import MergedCell
 from openpyxl.styles import Alignment, Border, Font, Side
 from plotly.subplots import make_subplots
+from pybadges import badge
 from streamlit_condition_tree import condition_tree
 from streamlit_extras.metric_cards import style_metric_cards
 from wcwidth import wcswidth
@@ -1520,7 +1521,12 @@ def display_weather_hf_metric(city_code):
 def displayVisitCounter_static():
     sql = "SELECT pyLM from verinfo where pyFile = 'visitcounter'"
     visitcount = execute_sql(cur, sql)[0][0]
-    st.markdown(f"<font face='微软雅黑' size=3><center>**第 {visitcount} 位访问者**</center></font>", unsafe_allow_html=True)
+
+    # 生成徽章样式的访问计数器
+    badge_svg = badge(left_text='访  问  次  数', right_text=f'{visitcount}', right_color='brightgreen')
+    # 将badge_svg包裹在具有居中和缩放样式的<div>标签中
+    centered_and_scaled_badge = f"<div style='display: flex; justify-content: center; transform: scale(1.5);'>{badge_svg}</div>"
+    st.markdown(centered_and_scaled_badge, unsafe_allow_html=True)
 
 
 @st.fragment
