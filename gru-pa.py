@@ -87,6 +87,9 @@ def login():
                 st.session_state.StationCN = result[0][3]
                 st.session_state.clerkType = result[0][4]
                 st.session_state.userPwRechecked = False
+                # 自动获取历史天气, 免得过期后数据无法获取
+                auto_get_history_weather()
+                # 更新用户设置
                 refresh_users_setup()
                 # 更新访问次数
                 sql = "UPDATE verinfo set pyLM = pyLM + 1 where pyFile = 'visitcounter'"
@@ -1650,6 +1653,20 @@ def refresh_users_setup():
             st.session_state[value] = bool(result[0][2])
         else:
             st.session_state[value] = True
+
+
+def auto_get_history_weather():
+    city_code = HF_CITYCODE.get(st.session_state.StationCN)
+    city_name = HF_CITYNAME.get(st.session_state.StationCN)
+    query_date = datetime.datetime.now() - datetime.timedelta(days=1)
+    query_date = query_date.strftime('%Y-%m-%d')
+    sql = f"SELECT ID FROM weather_history WHERE city_code = '{city_code}' and weather_date = '{query_date}'"
+    cur.execute(sql)
+    result = cur.fetchone()
+    if not result:
+        weather_info = get_city_history_weather(city_code, str(query_date).replace('-', ''))
+        sql = f"INSERT INTO weather_history (weather_date, city_code, city_name, sunrise, sunset, moonrise, moonset, moonPhase, tempMax, tempMin, humidity, pressure, moon_icon, temp_icon, humidity_icon, temp_hourly, weather_hourly, precip_hourly, windir_hourly, windscale_hourly, windspeed_hourly, humidity_hourly, pressure_hourly, weather_icon_hourly) VALUES ('{query_date}', '{city_code}', '{city_name}', '{weather_info['sunrise']}', '{weather_info['sunset']}', '{weather_info['moonrise']}', '{weather_info['moonset']}', '{weather_info['moonPhase']}', '{weather_info['tempMax']}', '{weather_info['tempMin']}', '{weather_info['humidity']}', '{weather_info['pressure']}', '{weather_info['moon_icon']}', '{weather_info['temp_icon']}', '{weather_info['humidity_icon']}', '{weather_info['temp_hourly']}', '{weather_info['weather_hourly']}', '{weather_info['precip_hourly']}', '{weather_info['windir_hourly']}', '{weather_info['windscale_hourly']}', '{weather_info['windspeed_hourly']}', '{weather_info['humidity_hourly']}', '{weather_info['pressure_hourly']}', '{weather_info['weather_icon_hourly']}')"
+        execute_sql_and_commit(conn, cur, sql)
 
 
 global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, GD_CITYCODE, HF_CITYCODE, HF_CITYNAME, SETUP_NAME_PACK, SETUP_LABEL_PACK
