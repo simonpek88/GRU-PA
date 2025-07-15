@@ -728,7 +728,7 @@ def reset_table_num(flag_force=False):
                     execute_sql_and_commit(conn, cur, sql)
                     i += 2
         if not flag_force:
-            st.success(f"{modify_table} ID重置成功")
+            st.success("数据库ID重置成功")
 
 
 #@st.fragment
@@ -912,7 +912,7 @@ def deduction_input():
     deduct_userCName = col1.selectbox("请选择用户", userCName)
     deduct_userID = userID[userCName.index(deduct_userCName)]
     deduct_date = col2.date_input("请选择日期", datetime.date.today(), max_value="today")
-    sql = f"SELECT pa_content, pa_score from gru_pa_deduct where StationCN = '{st.session_state.StationCN}' order by ID"
+    sql = f"SELECT pa_content, pa_score from gru_pa_deduct where StationCN = '{st.session_state.StationCN}' order by pa_score, pa_content"
     rows = execute_sql(cur, sql)
     for row in rows:
         pa_deduct.append(row[0])
@@ -921,20 +921,16 @@ def deduction_input():
     if task_deduct:
         task_score = pa_deduct_score[pa_deduct.index(task_deduct)]
     else:
-        task_score = -1
-    deduct_score = col2.number_input("扣分", min_value=MAXDEDUCTSCORE, max_value=-1, value=task_score, step=1, placeholder=f"最小值{MAXDEDUCTSCORE}, 最大值-1")
+        task_score = -50
+    deduct_score = col2.number_input("扣分", min_value=MAXDEDUCTSCORE, max_value=-10, value=task_score, step=10)
     deduct_content = col1.text_area("自定义扣分项内容", value=task_deduct, placeholder="可选择固定扣分项后修改", height=100)
     confirm_btn_add = st.button("确认添加")
     if confirm_btn_add:
         #st.write(deduct_content, deduct_score, deduct_userID, deduct_userCName, deduct_date)
         if deduct_content:
-            sql = f"SELECT ID from clerk_work where task_date = '{deduct_date}' and clerk_work = '{deduct_content}' and clerk_id = {deduct_userID}"
-            if not execute_sql(cur, sql):
-                sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group, task_approved, StationCN) VALUES ('{deduct_date}', {deduct_userID}, '{deduct_userCName}', '{deduct_content}', {deduct_score}, '扣分', 1, '{st.session_state.StationCN}')"
-                execute_sql_and_commit(conn, cur, sql)
-                st.success(f"{deduct_userCName} 扣分项添加成功")
-            else:
-                st.error(f"{deduct_userCName} {deduct_date} {deduct_content} 扣分项已存在")
+            sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group, task_approved, StationCN) VALUES ('{deduct_date}', {deduct_userID}, '{deduct_userCName}', '{deduct_content}', {deduct_score}, '扣分', 1, '{st.session_state.StationCN}')"
+            execute_sql_and_commit(conn, cur, sql)
+            st.success(f"{deduct_userCName} 扣分项添加成功")
             sql = f"SELECT ID from gru_pa_deduct where pa_content = '{deduct_content}' and pa_score = {deduct_score} and StationCN = '{st.session_state.StationCN}'"
             if not execute_sql(cur, sql):
                 sql = f"INSERT INTO gru_pa_deduct(pa_content, pa_score, StationCN) VALUES ('{deduct_content}', {deduct_score}, '{st.session_state.StationCN}')"
@@ -1520,7 +1516,7 @@ def display_weather_hf_metric(city_code):
         wcol[3].metric(label='湿度', value=f"{weather_info['humidity']}% {weather_info['humidity_icon']}")
         wcol[0].metric(label='风向', value=weather_info['winddir'])
         wcol[1].metric(label='风力', value=f"{weather_info['windspeed']} km/h {weather_info['wind_icon']}")
-        wcol[2].metric(label='数据更新时间', value=weather_info['obstime'][2:-6].replace('T', ' '))
+        wcol[2].metric(label='数据更新时间', value=weather_info['obstime'][5:-6].replace('T', ' '))
         style_metric_cards(border_left_color="#426edd")
 
 
@@ -1671,7 +1667,7 @@ def auto_get_history_weather():
     city_code = st.session_state.hf_city_code
     city_name = st.session_state.cityname
     for i in range(1, 11):
-        st.progress(value=i / 10, text=f'正在获取 {city_name} 的第{i}天历史天气数据...')
+        #st.progress(value=i / 10, text=f'正在获取 {city_name} 的第{i}天历史天气数据...')
         query_date = datetime.datetime.now() - datetime.timedelta(days=i)
         query_date = query_date.strftime('%Y-%m-%d')
         sql = f"SELECT ID FROM weather_history WHERE city_code = '{city_code}' and weather_date = '{query_date}'"
@@ -1686,7 +1682,7 @@ def auto_get_history_weather():
 global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, STATION_CITYNAME, SETUP_NAME_PACK, SETUP_LABEL_PACK
 APPNAME_CN = "站室绩效考核系统KPI-PA"
 APPNAME_EN = "GRU-PA"
-MAXDEDUCTSCORE = -20
+MAXDEDUCTSCORE = -200
 CHARTFONTSIZE = 14
 MDTASKDAYS = 28
 STATION_CITYNAME = {'北京站': '顺义', '天津站': '滨海新区', '总控室': '滨海新区', '调控中心': '滨海新区', '武清站': '武清'}
