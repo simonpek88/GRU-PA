@@ -279,7 +279,7 @@ def aboutInfo():
     module_img = st.columns(cols_limit)
     for index, value in enumerate(module_pack):
         module_img[index % cols_limit].caption(value)
-        module_img[index % cols_limit].image(f'./Images/logos/{value.replace(" ", "_").lower()}.png')
+        module_img[index % cols_limit].image(f'./Images/logos/{value.replace(" ", "_")}.png')
     display_pypi()
     if st.context.theme.type == 'dark':
         st.write("###### :violet[为了获得更好的使用体验, 请使用浅色主题]")
@@ -292,7 +292,7 @@ def display_pypi():
     db_type = 'MySQL'
     cols_limit = 5
     pypi = st.columns(cols_limit)
-    badge_pack = ['streamlit', 'pandas', 'NumPY', 'plotly', 'openpyxl', 'python-docx', 'PyJWT']
+    badge_pack = ['Streamlit', 'Pandas', 'NumPY', 'Plotly', 'Openpyxl', 'Python-docx', 'PyJWT']
     verinfo, verLM = getVerInfo()
     app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{verinfo}'
     app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
@@ -303,6 +303,7 @@ def display_pypi():
 
     pypi[0].image(f'./Images/badges/{APPNAME_EN}-badge.svg')
     pypi[1].image(f'./Images/badges/{APPNAME_EN}-lm-badge.svg')
+    pypi[2].image('./Images/badges/build-badge.svg')
 
 
 def get_md_task_status(task_date, userID, task_content):
