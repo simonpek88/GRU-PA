@@ -29,9 +29,9 @@
 					"label": "display_pypi"
 				},
 				{
-					"line": 285,
+					"line": 297,
 					"column": 17,
-					"label": "task_input"
+					"label": "task input"
 				},
 				{
 					"line": 366,
@@ -89,17 +89,17 @@
 					"label": "gen_cal_chart"
 				},
 				{
+					"line": 1321,
+					"column": 46,
+					"label": "display_weather"
+				},
+				{
 					"line": 1340,
 					"column": 30,
 					"label": "display_history_weather"
 				},
 				{
 					"line": 1491,
-					"column": 41,
-					"label": "display_weather_hf_metric"
-				},
-				{
-					"line": 1494,
 					"column": 41,
 					"label": "display_weather_hf_metric"
 				},

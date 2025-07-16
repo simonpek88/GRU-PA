@@ -110,6 +110,10 @@ def login():
                     st.session_state.menu_index = 0
                 else:
                     st.session_state.menu_index = 1
+                # 删除超过MAXREVDAYS天的数据
+                del_date = cal_date(-MAXREVDAYS)
+                sql = f"DELETE from pa_share where pa_date <= '{del_date}'"
+                execute_sql_and_commit(conn, cur, sql)
                 st.set_page_config(layout="wide")
                 st.rerun()
             elif not verifyUPW[0]:
@@ -310,8 +314,10 @@ def task_input():
         st.markdown(f':red[总分:] {ttl_score}')
     else:
         st.markdown(f'###### :red[无任何记录]')
+    sql = f"INSERT INTO pa_share (pa_ID, pa_content, share_score, StationCN, share_date) SELECT ID, pa_content, pa_score, '{st.session_state.StationCN}', '{task_date}' from gru_pa where StationCN = '{st.session_state.StationCN}' and pa_share = 1 and pa_content not in (SELECT pa_content from pa_share where StationCN = '{st.session_state.StationCN}' and share_date = '{task_date}')"
+    execute_sql_and_commit(conn, cur, sql)
     with st.expander(f"# :green[常用]", expanded=True):
-        sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task from gru_pa where StationCN = '{st.session_state.StationCN}' and comm_task = 1 order by ID"
+        sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task, pa_share from gru_pa where StationCN = '{st.session_state.StationCN}' and comm_task = 1 order by ID"
         rows2 = execute_sql(cur, sql)
         for row2 in rows2:
             if row2[5] == MDTASKDAYS:
@@ -1679,12 +1685,23 @@ def auto_get_history_weather():
             execute_sql_and_commit(conn, cur, sql)
 
 
-global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, STATION_CITYNAME, SETUP_NAME_PACK, SETUP_LABEL_PACK
+def cal_date(diff_days):
+    if diff_days > 0:
+        result_date = datetime.datetime.now() + datetime.timedelta(days=diff_days)
+    else:
+        result_date = datetime.datetime.now() - datetime.timedelta(days=abs(diff_days))
+    result_date = result_date.strftime('%Y-%m-%d')
+
+    return result_date
+
+
+global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, STATION_CITYNAME, SETUP_NAME_PACK, SETUP_LABEL_PACK, MAXREVDAYS
 APPNAME_CN = "站室绩效考核系统KPI-PA"
 APPNAME_EN = "GRU-PA"
 MAXDEDUCTSCORE = -200
 CHARTFONTSIZE = 14
 MDTASKDAYS = 28
+MAXREVDAYS = 45
 STATION_CITYNAME = {'北京站': '顺义', '天津站': '滨海新区', '总控室': '滨海新区', '调控中心': '滨海新区', '武清站': '武清'}
 SETUP_NAME_PACK = ['static_show', 'weather_show', 'weather_metric', 'weather_provider']
 SETUP_LABEL_PACK = ['主页展示方式: :green[On 静态文字] :orange[Off 特效文字]', '天气展示', '天气展示方式: :green[On 卡片] :orange[Off 文字] :violet[高德只有卡片模式]', '天气数据源: :green[On 和风] :orange[Off 高德]']
