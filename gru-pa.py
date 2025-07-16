@@ -254,13 +254,14 @@ def aboutReadme():
     for line in lines:
         if line.startswith("    ![GRU-PA ver]"):
             line = f"    ![GRU-PA ver](https://img.shields.io/badge/ver-{app_version}-blue.svg)"
-        if line.startswith("    ![GRU-PA updated]"):
+        elif line.startswith("    ![GRU-PA updated]"):
             line = f"    ![GRU-PA updated](https://img.shields.io/badge/updated-{app_lm.replace('-', '/')[:10]}%20{app_lm[-5:]}-orange.svg)"
-        if line.startswith("      !["):
+        elif line.startswith("      !["):
             for each in package_pack:
-                if line.startswith(f"    ![{each}]"):
+                if line.startswith(f"      ![{each}]"):
                     package_ver = importlib.metadata.version(each)
-                    line = f"    ![{each}](https://img.shields.io/badge/{each.replace('-', '_')}-{package_ver}-blue.svg)"
+                    line = f"      ![{each}](https://img.shields.io/badge/{each.replace('-', '_')}-{package_ver}-blue.svg)"
+                    break
         new_content = new_content + line + "\n"
     new_content = new_content.replace('\n\n', '\n')
     with open("./README.md", "w", encoding='utf-8') as f:
@@ -1729,6 +1730,8 @@ def auto_get_history_weather():
             weather_info = get_city_history_weather(city_code, str(query_date).replace('-', ''))
             sql = f"INSERT INTO weather_history (weather_date, city_code, city_name, sunrise, sunset, moonrise, moonset, moonPhase, tempMax, tempMin, humidity, pressure, moon_icon, temp_icon, humidity_icon, temp_hourly, weather_hourly, precip_hourly, windir_hourly, windscale_hourly, windspeed_hourly, humidity_hourly, pressure_hourly, weather_icon_hourly) VALUES ('{query_date}', '{city_code}', '{city_name}', '{weather_info['sunrise']}', '{weather_info['sunset']}', '{weather_info['moonrise']}', '{weather_info['moonset']}', '{weather_info['moonPhase']}', '{weather_info['tempMax']}', '{weather_info['tempMin']}', '{weather_info['humidity']}', '{weather_info['pressure']}', '{weather_info['moon_icon']}', '{weather_info['temp_icon']}', '{weather_info['humidity_icon']}', '{weather_info['temp_hourly']}', '{weather_info['weather_hourly']}', '{weather_info['precip_hourly']}', '{weather_info['windir_hourly']}', '{weather_info['windscale_hourly']}', '{weather_info['windspeed_hourly']}', '{weather_info['humidity_hourly']}', '{weather_info['pressure_hourly']}', '{weather_info['weather_icon_hourly']}')"
             execute_sql_and_commit(conn, cur, sql)
+        else:
+            break
 
 
 def cal_date(diff_days):
