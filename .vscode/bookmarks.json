@@ -54,11 +54,6 @@
 					"label": "manual_input"
 				},
 				{
-					"line": 721,
-					"column": 61,
-					"label": "menu"
-				},
-				{
 					"line": 743,
 					"column": 22,
 					"label": "deduction_input"
@@ -67,11 +62,6 @@
 					"line": 801,
 					"column": 17,
 					"label": "check_data"
-				},
-				{
-					"line": 931,
-					"column": 16,
-					"label": "gen_chart"
 				},
 				{
 					"line": 976,

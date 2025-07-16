@@ -11,6 +11,7 @@ antd
 APIKEY
 APPNAME
 apsw
+argmin
 axisline
 axisopts
 backcolor
@@ -64,6 +65,7 @@ gener
 glowintext
 hhiiss
 imshow
+imwrite
 indiv
 indivquescount
 JAVDB

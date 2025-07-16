@@ -9,6 +9,8 @@ __pycache__/
 docs/
 user_pa/
 .pems/
+ID_Photos/
+FaceCompare.py
 *.pem
 mysql_pool.py
 thw_gauge.png
