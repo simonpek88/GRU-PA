@@ -28,7 +28,7 @@ from wcwidth import wcswidth
 
 from commFunc import (execute_sql, execute_sql_and_commit, get_update_content,
                       getUserEDKeys, getVerInfo, updatePyFileinfo)
-from face_login import face_login
+from face_login import face_login, update_face_data
 from gd_weather import get_city_weather
 from gen_badges import gen_badge
 from hf_weather import get_city_history_weather, get_city_now_weather
@@ -61,13 +61,19 @@ def login():
             userID = userID[userCName.index(query_userCName)]
         else:
             userID = None
-
+        sql = f"SELECT Count(ID) from users_face_data where StationCN = '{station_type}'"
+        cur.execute(sql)
+        face_data_counter = cur.fetchone()[0]
+        if face_data_counter == 0:
+            face_login_available = False
+        else:
+            face_login_available = True
         # 用户密码输入框
         userPassword = st.text_input("请输入密码", max_chars=8, placeholder="用户初始密码为1234", type="password", autocomplete="off")
         login_type = sac.segmented(
             items=[
                 sac.SegmentedItem(label="密码登录"),
-                sac.SegmentedItem(label="面部识别登录"),
+                sac.SegmentedItem(label="面部识别登录", disabled=not face_login_available),
             ], align="start", color='green'
         )
         # 登录按钮
@@ -1577,13 +1583,14 @@ def display_weather_hf_metric(city_code):
         wcol[1].metric(label='🌡️温度', value=f"{weather_info['temp']}℃ {weather_info['temp_icon']}")
         wcol[2].metric(label='🧘体感温度', value=f"{weather_info['feelslike']}℃ {weather_info['feelslike_icon']}")
         wcol[3].metric(label='降水', value=f"{weather_info['precip']} mm {precip}")
-        wcol[0].metric(label='能见度', value=f"{weather_info['vis']} km")
-        wcol[1].metric(label='云量', value=f"{cloud}%")
-        wcol[2].metric(label='大气压强', value=f"{weather_info['pressure']} hPa")
-        wcol[3].metric(label='湿度', value=f"{weather_info['humidity']}% {weather_info['humidity_icon']}")
+        #wcol[1].metric(label='云量', value=f"{cloud}%")
+        #wcol[2].metric(label='大气压强', value=f"{weather_info['pressure']} hPa")
         wcol[0].metric(label='风向', value=weather_info['winddir'])
         wcol[1].metric(label='风力', value=f"{weather_info['windspeed']} km/h {weather_info['wind_icon']}")
-        wcol[2].metric(label='数据更新时间', value=weather_info['obstime'][5:-6].replace('T', ' '))
+        wcol[2].metric(label='湿度', value=f"{weather_info['humidity']}% {weather_info['humidity_icon']}")
+        wcol[3].metric(label='能见度', value=f"{weather_info['vis']} km")
+        #wcol[2].metric(label='数据更新时间', value=weather_info['obstime'][5:-6].replace('T', ' '))
+        st.caption(f"数据更新时间: {weather_info['obstime'][5:-6].replace('T', ' ')}")
         style_metric_cards(border_left_color="#426edd")
 
 
@@ -1811,6 +1818,7 @@ weather_provider = 'hf'
 selected = None
 
 if "logged_in" not in st.session_state:
+    update_face_data()
     st.session_state.logged_in = False
     login()
 

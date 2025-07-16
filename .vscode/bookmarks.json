@@ -84,11 +84,6 @@
 					"label": "gen_cal_chart"
 				},
 				{
-					"line": 1321,
-					"column": 46,
-					"label": "display_weather"
-				},
-				{
 					"line": 1340,
 					"column": 30,
 					"label": "display_history_weather"
@@ -99,14 +94,14 @@
 					"label": "display_weather_hf_metric"
 				},
 				{
-					"line": 1519,
-					"column": 33,
-					"label": "displayVisitCounter_static"
-				},
-				{
 					"line": 1537,
 					"column": 20,
 					"label": "combine_query"
+				},
+				{
+					"line": 1567,
+					"column": 41,
+					"label": "display_weather_hf_metric"
 				},
 				{
 					"line": 1630,
@@ -124,14 +119,9 @@
 					"label": "更新用户设置"
 				},
 				{
-					"line": 1712,
-					"column": 44,
-					"label": "main_menu"
-				},
-				{
-					"line": 1789,
-					"column": 15,
-					"label": "exicon"
+					"line": 1812,
+					"column": 23,
+					"label": "main"
 				}
 			]
 		},
