@@ -112,7 +112,7 @@ def login():
                     st.session_state.menu_index = 1
                 # 删除超过MAXREVDAYS天的数据
                 del_date = cal_date(-MAXREVDAYS)
-                sql = f"DELETE from pa_share where pa_date <= '{del_date}'"
+                sql = f"DELETE from pa_share where share_date <= '{del_date}'"
                 execute_sql_and_commit(conn, cur, sql)
                 st.set_page_config(layout="wide")
                 st.rerun()
@@ -314,48 +314,25 @@ def task_input():
         st.markdown(f':red[总分:] {ttl_score}')
     else:
         st.markdown(f'###### :red[无任何记录]')
+    # 更新共享分
     sql = f"INSERT INTO pa_share (pa_ID, pa_content, share_score, StationCN, share_date) SELECT ID, pa_content, pa_score, '{st.session_state.StationCN}', '{task_date}' from gru_pa where StationCN = '{st.session_state.StationCN}' and pa_share = 1 and pa_content not in (SELECT pa_content from pa_share where StationCN = '{st.session_state.StationCN}' and share_date = '{task_date}')"
     execute_sql_and_commit(conn, cur, sql)
+    # 常用任务
     with st.expander(f"# :green[常用]", expanded=True):
         sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task, pa_share from gru_pa where StationCN = '{st.session_state.StationCN}' and comm_task = 1 order by ID"
         rows2 = execute_sql(cur, sql)
         for row2 in rows2:
-            if row2[5] == MDTASKDAYS:
-                display_md_task = get_md_task_status(task_date, st.session_state.userID, row2[1])
-            else:
-                display_md_task = True
-            if row2[6] == st.session_state.clerkType and flag_auto_task:
-                auto_task = True
-            else:
-                auto_task = False
-            if row2[5] > 0 and display_md_task:
-                st.checkbox(f":red[{row2[1]} 分值:{row2[2]}]", value=auto_task, key=f"task_work_{row2[0]}")
-            elif display_md_task:
-                st.checkbox(f"{row2[1]} 分值:{row2[2]}", value=auto_task, key=f"task_work_{row2[0]}")
-            if row2[4] == 1:
-                st.number_input(f"倍数", min_value=1, max_value=10, value=1, step=1, key=f"task_multi_{row2[0]}")
+            show_task_list(row2, task_date, flag_auto_task)
+    # 所有任务组别
     sql = f"SELECT DISTINCT(task_group) from gru_pa where StationCN = '{st.session_state.StationCN}'"
     rows = execute_sql(cur, sql)
     for row in rows:
-        sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task from gru_pa where StationCN = '{st.session_state.StationCN}' and task_group = '{row[0]}' and comm_task = 0 order by ID"
+        sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task, pa_share from gru_pa where StationCN = '{st.session_state.StationCN}' and task_group = '{row[0]}' and comm_task = 0 order by ID"
         rows2 = execute_sql(cur, sql)
         if rows2:
             with st.expander(f"# :green[{row[0]}]", expanded=False):
                 for row2 in rows2:
-                    if row2[5] == MDTASKDAYS:
-                        display_md_task = get_md_task_status(task_date, st.session_state.userID, row2[1])
-                    else:
-                        display_md_task = True
-                    if row2[6] == st.session_state.clerkType and flag_auto_task:
-                        auto_task = True
-                    else:
-                        auto_task = False
-                    if row2[5] > 0 and display_md_task:
-                        st.checkbox(f":red[{row2[1]} 分值:{row2[2]}]", value=auto_task, key=f"task_work_{row2[0]}")
-                    elif display_md_task:
-                        st.checkbox(f"{row2[1]} 分值:{row2[2]}", value=auto_task, key=f"task_work_{row2[0]}")
-                    if row2[4] == 1:
-                        st.number_input(f"倍数", min_value=1, max_value=10, value=1, step=1, key=f"task_multi_{row2[0]}")
+                    show_task_list(row2, task_date, flag_auto_task)
     if confirm_btn_input:
         for key in st.session_state.keys():
             if key.startswith("task_work_") and st.session_state[key]:
@@ -364,16 +341,60 @@ def task_input():
                 sql = f"SELECT pa_content, pa_score, task_group from gru_pa where ID = {task_id}"
                 task_result = execute_sql(cur, sql)
                 task_content, task_score, task_group = task_result[0]
+                task_score = st.session_state[f'task_score_{task_id}']
                 if f'task_multi_{task_id}' in st.session_state.keys():
                     task_score *= st.session_state[f'task_multi_{task_id}']
-                    #st.write(f"倍数: {st.session_state[f'task_multi_{task_id}']}")
+                    temp_task_multi = st.session_state[f'task_multi_{task_id}']
+                else:
+                    temp_task_multi = 1
                 sql = f"SELECT ID from clerk_work where task_date = '{task_date}' and clerk_id = {st.session_state.userID} and clerk_work = '{task_content}' and task_group = '{task_group}'"
                 if not execute_sql(cur, sql):
-                    sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group, StationCN) VALUES ('{task_date}', {st.session_state.userID}, '{st.session_state.userCName}', '{task_content}', {task_score}, '{task_group}', '{st.session_state.StationCN}')"
+                    sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group, StationCN, task_multi) VALUES ('{task_date}', {st.session_state.userID}, '{st.session_state.userCName}', '{task_content}', {task_score}, '{task_group}', '{st.session_state.StationCN}', {temp_task_multi})"
                     execute_sql_and_commit(conn, cur, sql)
                     st.toast(f"工作量: [{task_content}] 分值: [{task_score}] 添加成功！")
+                    sql = f"UPDATE pa_share set share_score = share_score - {task_score} where pa_ID = {task_id} and StationCN = '{st.session_state.StationCN}' and share_date = '{task_date}'"
+                    print(sql)
+                    execute_sql_and_commit(conn, cur, sql)
                 else:
                     st.warning(f"工作量: [{task_content}] 已存在！")
+
+
+def show_task_list(row2, task_date, flag_auto_task):
+    if row2[5] == MDTASKDAYS:
+        display_md_task = get_md_task_status(task_date, st.session_state.userID, row2[1])
+    else:
+        display_md_task = True
+    if row2[6] == st.session_state.clerkType and flag_auto_task:
+        auto_task = True
+    else:
+        auto_task = False
+    if row2[7] == 0:
+        title_score_info = '分值'
+    else:
+        title_score_info = '总分值'
+    if row2[5] > 0 and display_md_task:
+        st.checkbox(f":red[{row2[1]} {title_score_info}:{row2[2]}]", value=auto_task, key=f"task_work_{row2[0]}")
+    elif display_md_task:
+        st.checkbox(f"{row2[1]} {title_score_info}:{row2[2]}", value=auto_task, key=f"task_work_{row2[0]}")
+    task_col = st.columns(4)
+    if row2[4] == 1:
+        task_col[0].number_input(f"倍数", min_value=1, max_value=10, value=1, step=1, key=f"task_multi_{row2[0]}")
+        task_col_index = 1
+    else:
+        task_col_index = 0
+    if row2[7] == 1:
+        sql = f"SELECT share_score from pa_share WHERE pa_id = {row2[0]} and share_date = '{task_date}'"
+        cur.execute(sql)
+        share_score = cur.fetchone()[0]
+        score_type = ':red[共享分值]'
+        min_score = 1
+        score_show = int(share_score / 2)
+    else:
+        share_score = row2[2]
+        score_type = ':blue[固定分值]'
+        min_score = row2[2]
+        score_show = row2[2]
+    task_col[task_col_index].number_input(label=score_type, min_value=min_score, max_value=share_score, value=score_show, step=1, key=f"task_score_{row2[0]}", help=f"最小分值{min_score} 最大分值{share_score}, 固定分值不可更改, 共享分值请与同事讨论后填写")
 
 
 def query_task():
@@ -1695,6 +1716,31 @@ def cal_date(diff_days):
     return result_date
 
 
+def reset_table():
+    reset_type = sac.segmented(
+        items=[
+            sac.SegmentedItem(label="重置数据库ID", icon="bootstrap-reboot"),
+            sac.SegmentedItem(label="更新固定分值", icon="database-up"),
+        ], align="center"
+    )
+
+    if reset_type == "重置数据库ID":
+        reset_table_num()
+    elif reset_type == "更新固定分值":
+        btn_update_fixed_score = st.button(label="更新固定分值", type='primary')
+        if btn_update_fixed_score:
+            st.button(label="确认更新", type='secondary', on_click=update_fixed_score)
+
+
+def update_fixed_score():
+    sql = f"SELECT pa_content, pa_score from gru_pa where pa_share = 0 and StationCN = '{st.session_state.StationCN}'"
+    rows = execute_sql(cur, sql)
+    for row in rows:
+        sql = f"UPDATE clerk_work SET task_score = {row[1]} * task_multi where pa_content = '{row[0]}'"
+        execute_sql_and_commit(conn, cur, sql)
+    st.success("固定分值更新成功")
+
+
 global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, STATION_CITYNAME, SETUP_NAME_PACK, SETUP_LABEL_PACK, MAXREVDAYS
 APPNAME_CN = "站室绩效考核系统KPI-PA"
 APPNAME_EN = "GRU-PA"
@@ -1736,7 +1782,7 @@ if st.session_state.logged_in:
                     sac.MenuItem('高级查询', icon='search'),
                     sac.MenuItem('历史天气', icon='cloud-sun'),
                     sac.MenuItem('公告发布', icon='journal-arrow-up'),
-                    sac.MenuItem("重置数据库ID", icon="bootstrap-reboot"),
+                    sac.MenuItem("数据库操作", icon="database-check"),
                 ]),
                 sac.MenuItem('设置', icon='gear', children=[
                     sac.MenuItem('个人设置', icon='sliders'),
@@ -1838,8 +1884,8 @@ if st.session_state.logged_in:
         input_public_notice()
     elif selected == "历史天气":
         display_history_weather()
-    elif selected == "重置数据库ID":
-        reset_table_num()
+    elif selected == "数据库操作":
+        reset_table()
     elif selected == "个人设置":
         users_setup()
     elif selected == "密码修改":
