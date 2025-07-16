@@ -129,9 +129,19 @@
 					"label": "auto_get_history_weather"
 				},
 				{
+					"line": 1693,
+					"column": 26,
+					"label": "更新用户设置"
+				},
+				{
 					"line": 1712,
 					"column": 44,
 					"label": "main_menu"
+				},
+				{
+					"line": 1789,
+					"column": 15,
+					"label": "exicon"
 				}
 			]
 		},

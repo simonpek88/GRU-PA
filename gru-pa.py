@@ -325,10 +325,12 @@ def get_md_task_status(task_date, userID, task_content):
 @st.fragment
 def task_input():
     st.markdown("### <font face='微软雅黑' color=red><center>工作量录入</center></font>", unsafe_allow_html=True)
+    # 刷新用户设置
+    refresh_users_setup('auto_task_check')
     col1, col2 = st.columns(2)
     col1.markdown(f"#### 当前用户: {st.session_state.userCName}")
     with col1:
-        flag_auto_task = sac.switch("自动带入默认工作", value=True, align="start", on_label="On")
+        flag_auto_task = sac.switch("自动选择日常工作", value=st.session_state.auto_task_check, align="start", on_label="On")
     task_date = col2.date_input('工作时间', value=datetime.date.today(), max_value="today")
     confirm_btn_input = st.button("确认添加")
     ttl_score = 0
@@ -346,7 +348,7 @@ def task_input():
     sql = f"INSERT INTO pa_share (pa_ID, pa_content, share_score, StationCN, share_date) SELECT ID, pa_content, pa_score, '{st.session_state.StationCN}', '{task_date}' from gru_pa where StationCN = '{st.session_state.StationCN}' and pa_share = 1 and pa_content not in (SELECT pa_content from pa_share where StationCN = '{st.session_state.StationCN}' and share_date = '{task_date}')"
     execute_sql_and_commit(conn, cur, sql)
     # 常用任务
-    with st.expander(f"# :green[常用]", expanded=True):
+    with st.expander(f"# :green[常用]", icon=':material/bookmark_star:', expanded=True):
         sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task, pa_share from gru_pa where StationCN = '{st.session_state.StationCN}' and comm_task = 1 order by ID"
         rows2 = execute_sql(cur, sql)
         for row2 in rows2:
@@ -358,7 +360,11 @@ def task_input():
         sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task, pa_share from gru_pa where StationCN = '{st.session_state.StationCN}' and task_group = '{row[0]}' and comm_task = 0 order by ID"
         rows2 = execute_sql(cur, sql)
         if rows2:
-            with st.expander(f"# :green[{row[0]}]", expanded=False):
+            if row[0] in EXICON:
+                expand_icon = EXICON[row[0]]
+            else:
+                expand_icon = 'dashboard_customize'
+            with st.expander(f"# :green[{row[0]}]", icon=f':material/{expand_icon}:', expanded=False):
                 for row2 in rows2:
                     show_task_list(row2, task_date, flag_auto_task)
     if confirm_btn_input:
@@ -722,16 +728,18 @@ def manual_input():
     task_date = col1.date_input('工作时间', value=datetime.date.today(), max_value="today")
     task_group = col2.selectbox('工作组别', items, index=None, accept_new_options=True)
     task_score = col3.number_input("单项分值", min_value=1, max_value=300, value=10, step=1)
-    opt1, opt2, opt3 = st.columns(3)
+    opt = st.columns(4)
     if st.session_state.userType == 'admin':
-        with opt1:
+        with opt[0]:
             flag_add_pa = sac.switch("加入固定列表", value=False, align="start", on_label="On")
-        with opt2:
+        with opt[1]:
             flag_multi_score = sac.switch("多倍计算", value=False, align="start", on_label="On")
-        with opt3:
+        with opt[2]:
             flag_comm_task = sac.switch("设为常用", value=False, align="start", on_label="On")
+        with opt[3]:
+            flag_share_score = sac.switch("共享分值", value=False, align="start", on_label="On")
     else:
-        flag_add_pa, flag_multi_score, flag_comm_task = False, False, False
+        flag_add_pa, flag_multi_score, flag_comm_task, flag_share_score = False, False, False, False
     task_content = st.text_area("工作内容", height=100)
     confirm_btn_manual = st.button("确认添加")
     if task_group and task_content and confirm_btn_manual:
@@ -745,7 +753,7 @@ def manual_input():
         if flag_add_pa:
             sql = f"SELECT ID from gru_pa where StationCN = '{st.session_state.StationCN}' and pa_content = '{task_content}' and task_group = '{task_group}' and pa_score = {task_score}"
             if not execute_sql(cur, sql):
-                sql = f"INSERT INTO gru_pa (pa_content, pa_score, pa_group, task_group, multi_score, comm_task, StationCN) VALUES ('{task_content}', {task_score}, '全员', '{task_group}', {int(flag_multi_score)}, {int(flag_comm_task)}, '{st.session_state.StationCN}')"
+                sql = f"INSERT INTO gru_pa (pa_content, pa_score, pa_group, task_group, multi_score, comm_task, StationCN, pa_share) VALUES ('{task_content}', {task_score}, '全员', '{task_group}', {int(flag_multi_score)}, {int(flag_comm_task)}, '{st.session_state.StationCN}', {int(flag_share_score)})"
                 execute_sql_and_commit(conn, cur, sql)
                 reset_table_num(True)
                 st.toast(f"工作量: [{task_content}] 添加至列表成功！")
@@ -1689,14 +1697,21 @@ def users_setup():
             update_users_setup(value, st.session_state[f'setup_{value}_{st.session_state.userID}'], 'insert')
 
 
-def refresh_users_setup():
-    for index, value in enumerate(SETUP_NAME_PACK):
+def refresh_users_setup(refresh_param_name=None):
+    temp_setup_name_pack = []
+    if refresh_param_name:
+        temp_setup_name_pack.append(refresh_param_name)
+    else:
+        temp_setup_name_pack = SETUP_NAME_PACK
+    for index, value in enumerate(temp_setup_name_pack):
         sql = f"SELECT userID, userCName, param_value from users_setup where userID = {st.session_state.userID} and param_name = '{value}'"
         result = execute_sql(cur, sql)
         if result:
             st.session_state[value] = bool(result[0][2])
         else:
             st.session_state[value] = True
+            sql = f"INSERT INTO users_setup (userID, userCName, param_name, param_value) VALUES ({st.session_state.userID}, '{st.session_state.userCName}', '{value}', 1)"
+            execute_sql_and_commit(conn, cur, sql)
 
 
 def get_city_code():
@@ -1739,6 +1754,7 @@ def cal_date(diff_days):
 
 
 def reset_table():
+    st.markdown("### <font face='微软雅黑' color=red><center>数据库操作</center></font>", unsafe_allow_html=True)
     reset_type = sac.segmented(
         items=[
             sac.SegmentedItem(label="重置数据库ID", icon="bootstrap-reboot"),
@@ -1763,7 +1779,7 @@ def update_fixed_score():
     st.success("固定分值更新成功")
 
 
-global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, STATION_CITYNAME, SETUP_NAME_PACK, SETUP_LABEL_PACK, MAXREVDAYS
+global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, STATION_CITYNAME, SETUP_NAME_PACK, SETUP_LABEL_PACK, MAXREVDAYS, EXICON
 APPNAME_CN = "站室绩效考核系统KPI-PA"
 APPNAME_EN = "GRU-PA"
 MAXDEDUCTSCORE = -200
@@ -1771,8 +1787,11 @@ CHARTFONTSIZE = 14
 MDTASKDAYS = 28
 MAXREVDAYS = 45
 STATION_CITYNAME = {'北京站': '顺义', '天津站': '滨海新区', '总控室': '滨海新区', '调控中心': '滨海新区', '武清站': '武清'}
-SETUP_NAME_PACK = ['static_show', 'weather_show', 'weather_metric', 'weather_provider']
-SETUP_LABEL_PACK = ['主页展示方式: :green[On 静态文字] :orange[Off 特效文字]', '天气展示', '天气展示方式: :green[On 卡片] :orange[Off 文字] :violet[高德只有卡片模式]', '天气数据源: :green[On 和风] :orange[Off 高德]']
+SETUP_NAME_PACK = ['static_show', 'weather_show', 'weather_metric', 'weather_provider', 'auto_task_check']
+SETUP_LABEL_PACK = ['主页展示方式: :green[On 静态文字] :orange[Off 特效文字]', '天气展示', '天气展示方式: :green[On 卡片] :orange[Off 文字] :violet[高德只有卡片模式]', '天气数据源: :green[On 和风] :orange[Off 高德]', '自动选择日常工作:']
+EXICON = {'基础工作': 'work', '输油作业': 'oil_barrel', '通球扫线': 'panorama_photosphere', '维修保养': 'construction', '过滤器更换': 'tools_installation_kit', '检测检查': 'mystery', '清理保洁': 'cleaning_services'}
+EXICON2 = {'财务工作': 'finance', '台账及报表': 'dataset', '行政管理': 'enterprise', '宣传及党务': 'full_coverage', '汽车管理': 'car_gear', '公务外派': 'business_center', '特殊作业票': 'fact_check', '加班': 'person_play'}
+EXICON.update(EXICON2)
 conn = get_connection()
 cur = conn.cursor()
 st.logo(image="./Images/logos/GRU-PA-logo.png", icon_image="./Images/logos/GRU-PA-logo.png", size="large")
