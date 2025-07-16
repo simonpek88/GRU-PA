@@ -284,6 +284,7 @@ def aboutInfo():
     if st.context.theme.type == 'dark':
         st.write("###### :violet[为了获得更好的使用体验, 请使用浅色主题]")
     sac.divider(align="center", color="gray")
+    st.image("./Images/badges/license-badge.svg")
     st.caption(":violet[Copyright © 2025 Simon. All rights reserved.]")
     st.image("./Images/logos/simon-logo.png", width=50)
 
