@@ -28,6 +28,7 @@ from wcwidth import wcswidth
 
 from commFunc import (execute_sql, execute_sql_and_commit, get_update_content,
                       getUserEDKeys, getVerInfo, updatePyFileinfo)
+from face_login import face_login
 from gd_weather import get_city_weather
 from gen_badges import gen_badge
 from hf_weather import get_city_history_weather, get_city_now_weather
@@ -63,65 +64,76 @@ def login():
 
         # 用户密码输入框
         userPassword = st.text_input("请输入密码", max_chars=8, placeholder="用户初始密码为1234", type="password", autocomplete="off")
-
+        login_type = sac.segmented(
+            items=[
+                sac.SegmentedItem(label="密码登录"),
+                sac.SegmentedItem(label="面部识别登录"),
+            ], align="start", color='green'
+        )
         # 登录按钮
         buttonLogin = st.button("登录")
 
     # 如果点击了登录按钮
+    result = None
     if buttonLogin:
-        # 如果用户编码和密码不为空
-        if userID and userPassword:
-            # 验证用户密码
-            verifyUPW = verifyUserPW(userID, userPassword)
-            # 如果密码验证成功
-            if verifyUPW[0]:
-                userPassword = verifyUPW[1]
-            sql = f"SELECT userID, userCName, userType, StationCN, clerk_type from users where userID = {userID} and userPassword = '{userPassword}'"
-            result = execute_sql(cur, sql)
-            if result:
-                st.toast(f"用户: {result[0][1]} 登录成功, 欢迎回来")
-                login.empty()
-                st.session_state.logged_in = True
-                st.session_state.userID = result[0][0]
-                st.session_state.userCName = result[0][1]
-                st.session_state.userType = result[0][2]
-                st.session_state.StationCN = result[0][3]
-                st.session_state.clerkType = result[0][4]
-                st.session_state.userPwRechecked = False
-                # 获取城市编码
-                get_city_code()
-                # 自动获取历史天气, 免得过期后数据无法获取
-                auto_get_history_weather()
-                # 更新用户设置
-                refresh_users_setup()
-                # 更新访问次数
-                sql = "UPDATE verinfo set pyLM = pyLM + 1 where pyFile = 'visitcounter'"
-                execute_sql_and_commit(conn, cur, sql)
-                updatePyFileinfo()
-                # 更新版本信息
-                verinfo, verLM = getVerInfo()
-                app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{verinfo}'
-                app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
-                gen_badge(conn, cur, [], 'MySQL', APPNAME_EN, app_version, app_lm)
-                now = datetime.datetime.now()
-                valid_time = now.strftime("%Y-%m-%d")
-                sql = f"SELECT notice from notices where StationCN = '{st.session_state.StationCN}' and start_time >= '{valid_time}' and '{valid_time}' <= end_time"
-                result = execute_sql(cur, sql)
-                if result:
-                    st.session_state.menu_index = 0
-                else:
-                    st.session_state.menu_index = 1
-                # 删除超过MAXREVDAYS天的数据
-                del_date = cal_date(-MAXREVDAYS)
-                sql = f"DELETE from pa_share where share_date <= '{del_date}'"
-                execute_sql_and_commit(conn, cur, sql)
-                st.set_page_config(layout="wide")
-                st.rerun()
-            elif not verifyUPW[0]:
-                st.error("登录失败, 请检查用户名和密码, 若忘记密码请联系管理员重置")
+        if login_type == "密码登录":
+            # 如果用户编码和密码不为空
+            if userID and userPassword:
+                # 验证用户密码
+                verifyUPW = verifyUserPW(userID, userPassword)
+                # 如果密码验证成功
+                if verifyUPW[0]:
+                    #userPassword = verifyUPW[1]
+                    sql = f"SELECT userID, userCName, userType, StationCN, clerk_type from users where userID = {userID} and userPassword = '{verifyUPW[1]}'"
+                    result = execute_sql(cur, sql)
+                elif not verifyUPW[0]:
+                    st.error("登录失败, 请检查密码, 若忘记密码请联系管理员重置")
+            else:
+                st.warning("请选择用户并输入密码")
+        elif login_type == "面部识别登录":
+            st.info("正在启动面部识别, 请稍等...")
+            result = face_login(station_type)
+    if result:
+        st.toast(f"用户: {result[0][1]} 登录成功, 欢迎回来")
+        login.empty()
+        st.session_state.logged_in = True
+        st.session_state.userID = result[0][0]
+        st.session_state.userCName = result[0][1]
+        st.session_state.userType = result[0][2]
+        st.session_state.StationCN = result[0][3]
+        st.session_state.clerkType = result[0][4]
+        st.session_state.userPwRechecked = False
+        # 获取城市编码
+        get_city_code()
+        # 自动获取历史天气, 免得过期后数据无法获取
+        auto_get_history_weather()
+        # 更新用户设置
+        refresh_users_setup()
+        # 更新访问次数
+        sql = "UPDATE verinfo set pyLM = pyLM + 1 where pyFile = 'visitcounter'"
+        execute_sql_and_commit(conn, cur, sql)
+        updatePyFileinfo()
+        # 更新版本信息
+        verinfo, verLM = getVerInfo()
+        app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{verinfo}'
+        app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
+        gen_badge(conn, cur, [], 'MySQL', APPNAME_EN, app_version, app_lm)
+        now = datetime.datetime.now()
+        valid_time = now.strftime("%Y-%m-%d")
+        sql = f"SELECT notice from notices where StationCN = '{st.session_state.StationCN}' and start_time >= '{valid_time}' and '{valid_time}' <= end_time"
+        result = execute_sql(cur, sql)
+        if result:
+            st.session_state.menu_index = 0
         else:
-            st.warning("请输入用户编码和密码")
-
+            st.session_state.menu_index = 1
+        # 删除超过MAXREVDAYS天的数据
+        del_date = cal_date(-MAXREVDAYS)
+        sql = f"DELETE from pa_share where share_date <= '{del_date}'"
+        execute_sql_and_commit(conn, cur, sql)
+        st.set_page_config(layout="wide")
+        st.rerun()
+    elif login_type == "面部识别登录" and buttonLogin:
+        st.error("面部识别失败, 请使用密码登录")
 
 def logout():
     # 关闭游标
