@@ -365,16 +365,16 @@ def task_input():
         for key in st.session_state.keys():
             if key.startswith("task_work_") and st.session_state[key]:
                 #st.write(key, st.session_state[key])
+                temp_task_multi = 1
                 task_id = key[key.rfind("_") + 1:]
                 sql = f"SELECT pa_content, pa_score, task_group from gru_pa where ID = {task_id}"
                 task_result = execute_sql(cur, sql)
                 task_content, task_score, task_group = task_result[0]
-                task_score = st.session_state[f'task_score_{task_id}']
+                if f'task_score_{task_id}' in st.session_state.keys():
+                    task_score = st.session_state[f'task_score_{task_id}']
                 if f'task_multi_{task_id}' in st.session_state.keys():
                     task_score *= st.session_state[f'task_multi_{task_id}']
                     temp_task_multi = st.session_state[f'task_multi_{task_id}']
-                else:
-                    temp_task_multi = 1
                 sql = f"SELECT ID from clerk_work where task_date = '{task_date}' and clerk_id = {st.session_state.userID} and clerk_work = '{task_content}' and task_group = '{task_group}'"
                 if not execute_sql(cur, sql):
                     sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group, StationCN, task_multi) VALUES ('{task_date}', {st.session_state.userID}, '{st.session_state.userCName}', '{task_content}', {task_score}, '{task_group}', '{st.session_state.StationCN}', {temp_task_multi})"
@@ -397,9 +397,12 @@ def show_task_list(row2, task_date, flag_auto_task):
     else:
         auto_task = False
     if row2[7] == 0:
-        title_score_info = '分值'
+        if row2[4] == 1:
+            title_score_info = ':blue[单次分值]'
+        else:
+            title_score_info = ':green[分值]'
     else:
-        title_score_info = '总分值'
+        title_score_info = ':orange[总分值]'
     if row2[5] > 0 and display_md_task:
         st.checkbox(f":red[{row2[1]} {title_score_info}:{row2[2]}]", value=auto_task, key=f"task_work_{row2[0]}")
     elif display_md_task:
@@ -407,22 +410,11 @@ def show_task_list(row2, task_date, flag_auto_task):
     task_col = st.columns(4)
     if row2[4] == 1:
         task_col[0].number_input(f"倍数", min_value=1, max_value=10, value=1, step=1, key=f"task_multi_{row2[0]}")
-        task_col_index = 1
-    else:
-        task_col_index = 0
     if row2[7] == 1:
         sql = f"SELECT share_score from pa_share WHERE pa_id = {row2[0]} and share_date = '{task_date}'"
         cur.execute(sql)
         share_score = cur.fetchone()[0]
-        score_type = ':red[共享分值]'
-        min_score = 1
-        score_show = int(share_score / 2)
-    else:
-        share_score = row2[2]
-        score_type = ':blue[固定分值]'
-        min_score = row2[2]
-        score_show = row2[2]
-    task_col[task_col_index].number_input(label=score_type, min_value=min_score, max_value=share_score, value=score_show, step=1, key=f"task_score_{row2[0]}", help=f"最小分值{min_score} 最大分值{share_score}, 固定分值不可更改, 共享分值请与同事讨论后填写")
+        task_col[0].number_input(label=":red[共享分值]", min_value=1, max_value=share_score, value=int(share_score / 2), step=1, key=f"task_score_{row2[0]}", help=f"最大值{share_score}, 共享分值请与协作者协商后填写")
 
 
 def query_task():
