@@ -24,6 +24,11 @@
 					"label": "aboutInfo"
 				},
 				{
+					"line": 243,
+					"column": 18,
+					"label": "about readme"
+				},
+				{
 					"line": 261,
 					"column": 19,
 					"label": "display_pypi"

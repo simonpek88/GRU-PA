@@ -12,6 +12,7 @@ user_pa/
 *.pem
 mysql_pool.py
 thw_gauge.png
+README2.md
 MyComponentsScript/thw.html
 test*.py
 temp_humidity_windspeed_gauge.html

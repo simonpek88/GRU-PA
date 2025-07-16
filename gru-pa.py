@@ -1,6 +1,7 @@
 # coding utf-8
 import calendar
 import datetime
+import importlib.metadata
 import os
 import time
 
@@ -242,7 +243,31 @@ def changelog():
 
 
 def aboutReadme():
+    new_content = ''
+    package_pack = ['Streamlit', 'NumPY', 'Pandas', 'Plotly', 'Python-docx', 'Openpyxl', 'XlsxWriter', 'PyJWT']
+    with open('./README.md', 'r', encoding='utf-8') as file:
+        lines = file.readlines()
+
+    verinfo, verLM = getVerInfo()
+    app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{verinfo}'
+    app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
+    for line in lines:
+        if line.startswith("    ![GRU-PA ver]"):
+            line = f"    ![GRU-PA ver](https://img.shields.io/badge/ver-{app_version}-blue.svg)"
+        if line.startswith("    ![GRU-PA updated]"):
+            line = f"    ![GRU-PA updated](https://img.shields.io/badge/updated-{app_lm.replace('-', '/')[:10]}%20{app_lm[-5:]}-orange.svg)"
+        if line.startswith("      !["):
+            for each in package_pack:
+                if line.startswith(f"    ![{each}]"):
+                    package_ver = importlib.metadata.version(each)
+                    line = f"    ![{each}](https://img.shields.io/badge/{each.replace('-', '_')}-{package_ver}-blue.svg)"
+        new_content = new_content + line + "\n"
+    new_content = new_content.replace('\n\n', '\n')
+    with open("./README.md", "w", encoding='utf-8') as f:
+        f.write(new_content)
+
     st.markdown(open("./README.md", "r", encoding="utf-8").read(), unsafe_allow_html=True)
+
 
 def aboutInfo():
     updatePyFileinfo()
