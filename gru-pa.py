@@ -42,6 +42,7 @@ from mysql_pool import get_connection
 @st.fragment
 def login():
     st.set_page_config(layout="centered")
+    face_type = None
     # 显示应用名称
     st.markdown(f"<font face='微软雅黑' color=purple size=20><center>**{APPNAME_CN}**</center></font>", unsafe_allow_html=True)
     # 登录表单容器
@@ -98,52 +99,61 @@ def login():
                 st.warning("请选择用户并输入密码")
         elif login_type == "面部识别登录":
             st.info("正在启动面部识别, 请稍等...")
-            face_webrtc = True
-            if st.context.ip_address or face_webrtc:
-                result = fr_web_rtc()
+            if st.context.ip_address:
+                face_type = 'webrtc'
+                st.session_state.login_webrtc = True
+                st.session_state.logged_in = True
+                st.session_state.StationCN = station_type
+                st.rerun()
             else:
+                face_type = 'cv'
                 result = face_login_cv(station_type)
     if result:
-        st.toast(f"用户: {result[0][1]} 登录成功, 欢迎回来")
+        login_init(result)
         login.empty()
-        st.session_state.logged_in = True
-        st.session_state.userID = result[0][0]
-        st.session_state.userCName = result[0][1]
-        st.session_state.userType = result[0][2]
-        st.session_state.StationCN = result[0][3]
-        st.session_state.clerkType = result[0][4]
-        st.session_state.userPwRechecked = False
-        # 获取城市编码
-        get_city_code()
-        # 自动获取历史天气, 免得过期后数据无法获取
-        auto_get_history_weather()
-        # 更新用户设置
-        refresh_users_setup()
-        # 更新访问次数
-        sql = "UPDATE verinfo set pyLM = pyLM + 1 where pyFile = 'visitcounter'"
-        execute_sql_and_commit(conn, cur, sql)
-        updatePyFileinfo()
-        # 更新版本信息
-        verinfo, verLM = getVerInfo()
-        app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{verinfo}'
-        app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
-        gen_badge(conn, cur, [], 'MySQL', APPNAME_EN, app_version, app_lm)
-        now = datetime.datetime.now()
-        valid_time = now.strftime("%Y-%m-%d")
-        sql = f"SELECT notice from notices where StationCN = '{st.session_state.StationCN}' and start_time >= '{valid_time}' and '{valid_time}' <= end_time"
-        result = execute_sql(cur, sql)
-        if result:
-            st.session_state.menu_index = 0
-        else:
-            st.session_state.menu_index = 1
-        # 删除超过MAXREVDAYS天的数据
-        del_date = cal_date(-MAXREVDAYS)
-        sql = f"DELETE from pa_share where share_date <= '{del_date}'"
-        execute_sql_and_commit(conn, cur, sql)
-        st.set_page_config(layout="wide")
         st.rerun()
-    elif login_type == "面部识别登录" and buttonLogin and not face_webrtc:
+    elif login_type == "面部识别登录" and buttonLogin and face_type == 'cv':
         st.error("面部识别失败, 请使用密码登录")
+
+
+def login_init(result):
+    st.empty()
+    st.toast(f"用户: {result[0][1]} 登录成功, 欢迎回来")
+    st.session_state.logged_in = True
+    st.session_state.userID = result[0][0]
+    st.session_state.userCName = result[0][1]
+    st.session_state.userType = result[0][2]
+    st.session_state.StationCN = result[0][3]
+    st.session_state.clerkType = result[0][4]
+    st.session_state.userPwRechecked = False
+    # 获取城市编码
+    get_city_code()
+    # 自动获取历史天气, 免得过期后数据无法获取
+    auto_get_history_weather()
+    # 更新用户设置
+    refresh_users_setup()
+    # 更新访问次数
+    sql = "UPDATE verinfo set pyLM = pyLM + 1 where pyFile = 'visitcounter'"
+    execute_sql_and_commit(conn, cur, sql)
+    updatePyFileinfo()
+    # 更新版本信息
+    verinfo, verLM = getVerInfo()
+    app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{verinfo}'
+    app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
+    gen_badge(conn, cur, [], 'MySQL', APPNAME_EN, app_version, app_lm)
+    now = datetime.datetime.now()
+    valid_time = now.strftime("%Y-%m-%d")
+    sql = f"SELECT notice from notices where StationCN = '{st.session_state.StationCN}' and start_time >= '{valid_time}' and '{valid_time}' <= end_time"
+    result = execute_sql(cur, sql)
+    if result:
+        st.session_state.menu_index = 0
+    else:
+        st.session_state.menu_index = 1
+    # 删除超过MAXREVDAYS天的数据
+    del_date = cal_date(-MAXREVDAYS)
+    sql = f"DELETE from pa_share where share_date <= '{del_date}'"
+    execute_sql_and_commit(conn, cur, sql)
+    st.set_page_config(layout="wide")
 
 
 def logout():
@@ -1870,6 +1880,8 @@ def get_users_portrait():
 
 
 def fr_web_rtc():
+    st.subheader("面部识别", divider="green")
+    st.markdown("请点击:red[START]开始面部识别")
     face_recog_result = None
     webrtc_ctx = webrtc_streamer(
         key="video-sendonly",
@@ -1920,9 +1932,15 @@ selected = None
 if "logged_in" not in st.session_state:
     update_face_data()
     st.session_state.logged_in = False
+    st.session_state.login_webrtc = False
     login()
-
-if st.session_state.logged_in:
+elif st.session_state.login_webrtc:
+    result = fr_web_rtc()
+    if result:
+        login_init(result)
+        st.session_state.login_webrtc = False
+        st.rerun()
+elif st.session_state.logged_in:
     with st.sidebar:
         st.markdown(f"<font face='微软雅黑' color=green size=4><center>**当前用户:{st.session_state.userCName}**</center></font>", unsafe_allow_html=True)
         #st.markdown(f'### :green[当前用户:] :orange[{st.session_state.userCName}]')

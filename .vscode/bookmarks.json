@@ -14,6 +14,11 @@
 					"label": "login"
 				},
 				{
+					"line": 117,
+					"column": 23,
+					"label": "login_init"
+				},
+				{
 					"line": 159,
 					"column": 21,
 					"label": "displayAppInfo"
