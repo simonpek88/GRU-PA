@@ -43,7 +43,6 @@ def login():
     st.set_page_config(layout="centered")
     # 显示应用名称
     st.markdown(f"<font face='微软雅黑' color=purple size=20><center>**{APPNAME_CN}**</center></font>", unsafe_allow_html=True)
-
     # 登录表单容器
     login = st.empty()
     with login.container(border=True):
@@ -63,11 +62,10 @@ def login():
             userID = None
         sql = f"SELECT Count(ID) from users_face_data where StationCN = '{station_type}'"
         cur.execute(sql)
-        face_data_counter = cur.fetchone()[0]
-        if face_data_counter == 0:
-            face_login_available = False
-        else:
+        if cur.fetchone()[0] > 0 and st.context.ip_address is None:
             face_login_available = True
+        else:
+            face_login_available = False
         # 用户密码输入框
         userPassword = st.text_input("请输入密码", max_chars=8, placeholder="用户初始密码为1234", type="password", autocomplete="off")
         login_type = sac.segmented(
@@ -262,7 +260,7 @@ def changelog():
 
 def aboutReadme():
     new_content = ''
-    package_pack = ['Streamlit', 'NumPY', 'Pandas', 'Plotly', 'Python-docx', 'Openpyxl', 'XlsxWriter', 'PyJWT']
+    package_pack = ['Streamlit', 'NumPY', 'Pandas', 'Plotly', 'Python-docx', 'Openpyxl', 'XlsxWriter', 'Opencv-python', 'Dlib', 'Face-recognition', 'PyJWT']
     with open('./README.md', 'r', encoding='utf-8') as file:
         lines = file.readlines()
 
@@ -293,7 +291,7 @@ def aboutInfo():
     cols_limit = 5
     st.subheader("关于本软件", divider="rainbow")
     st.subheader(":blue[Powered by Python and Streamlit]")
-    module_pack = ['Python', 'MySQL', 'Streamlit', 'Pandas', 'NumPy', 'Plotly', 'Openpyxl', 'Python-Docx', 'PyJWT']
+    module_pack = ['Python', 'MySQL', 'Streamlit', 'Pandas', 'NumPy', 'Plotly', 'Dlib', 'Openpyxl', 'Python-Docx', 'PyJWT']
     module_img = st.columns(cols_limit)
     for index, value in enumerate(module_pack):
         module_img[index % cols_limit].caption(value)
@@ -311,7 +309,7 @@ def display_pypi():
     db_type = 'MySQL'
     cols_limit = 5
     pypi = st.columns(cols_limit)
-    badge_pack = ['Streamlit', 'Pandas', 'NumPY', 'Plotly', 'Openpyxl', 'Python-docx', 'PyJWT']
+    badge_pack = ['Streamlit', 'Pandas', 'NumPY', 'Plotly', 'Dlib', 'Openpyxl', 'Python-docx', 'PyJWT']
     verinfo, verLM = getVerInfo()
     app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{verinfo}'
     app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))

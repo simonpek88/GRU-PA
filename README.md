@@ -4,8 +4,8 @@ Grass-roots unit performance appraisal system (KPI-PA).
 
 - GRU-PA 站室绩效考核系统KPI-PA
 
-    ![GRU-PA ver](https://img.shields.io/badge/ver-0.4.434-blue.svg)
-    ![GRU-PA updated](https://img.shields.io/badge/updated-2025/07/17%2010:37-orange.svg)
+    ![GRU-PA ver](https://img.shields.io/badge/ver-0.4.436-blue.svg)
+    ![GRU-PA updated](https://img.shields.io/badge/updated-2025/07/17%2011:05-orange.svg)
     ![GRU-PA build](https://img.shields.io/badge/build-passing-green.svg)
 
 ## 站室绩效考核系统KPI-PA 是一个前端基于 Streamlit 框架，后端基于Python数据处理的web应用，旨在简化站室工作量录入、统计及考核
@@ -30,12 +30,15 @@ Grass-roots unit performance appraisal system (KPI-PA).
     - 手工安装
       - MySQL # 数据库
       - Streamlit # 前端框架
-      - streamlit-antd-components/extras/keyup # 前端组件库
-      - streamlit_condition_tree # 条件树SQL语句生成
-      - pycryptodome # 数据加密模块
-      - plotly # 数据可视化
-      - python-docx # Word文档操作
-      - openpyxl/XlsxWriter # Excel文档操作
+      - Streamlit-antd-components/extras/keyup # 前端组件库
+      - Streamlit_condition_tree # 条件树SQL语句生成
+      - Pycryptodome # 数据加密模块
+      - Plotly # 数据可视化
+      - Python-docx # Word文档操作
+      - Openpyxl/XlsxWriter # Excel文档操作
+      - Opencv-python # 图像处理
+      - Dlib # 人脸识别库
+      - Face-recognition # 人脸识别
       - PyJWT # JSON Web Token认证
       - ...
 
@@ -48,6 +51,9 @@ Grass-roots unit performance appraisal system (KPI-PA).
       ![Python-docx](https://img.shields.io/badge/Python_docx-1.2.0-blue.svg)
       ![Openpyxl](https://img.shields.io/badge/Openpyxl-3.1.5-blue.svg)
       ![XlsxWriter](https://img.shields.io/badge/XlsxWriter-3.2.5-blue.svg)
+      ![Opencv-python](https://img.shields.io/badge/Opencv_python-4.11.0.86-blue.svg)
+      ![Dlib](https://img.shields.io/badge/Dlib-20.0.0-blue.svg)
+      ![Face-recognition](https://img.shields.io/badge/Face_recognition-1.3.0-blue.svg)
       ![PyJWT](https://img.shields.io/badge/PyJWT-2.10.1-blue.svg)
 
     - 或使用提供的requirements.txt文件自动安装
