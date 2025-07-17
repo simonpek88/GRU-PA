@@ -1888,6 +1888,23 @@ def get_users_portrait():
                 st.toast("照片保存失败!")
 
 
+def camera_capture():
+    st.subheader("面部识别", divider="green")
+    img_file_buffer = st.camera_input("获取面部图像", width=800)
+
+    if img_file_buffer is not None:
+        # To read image file buffer as bytes:
+        bytes_data = img_file_buffer.getvalue()
+        # Check the type of bytes_data:
+        # Should output: <class 'bytes'>
+        cap_file = f"snapshot_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.jpg"
+        with open(f"./ID_Photos/{cap_file}", "wb") as f:
+            f.write(bytes_data)
+        if os.path.exists(f"./ID_Photos/{cap_file}"):
+            result = face_login_webrtc(s, f"./ID_Photos/{cap_file}")
+            print(result)
+
+
 def fr_web_rtc():
     st.subheader("面部识别", divider="green")
     st.markdown("请点击:red[START]开始面部识别")

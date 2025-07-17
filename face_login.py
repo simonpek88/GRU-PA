@@ -66,8 +66,9 @@ def clean_snapshot():
                 os.remove(pathIn)
 
 
-def face_compare(known_faces, face_image, toleranceValue=0.6):
-    #face_image = face_recognition.load_image_file(pathIn)
+def face_compare(known_faces, face_image, pathIn=None, toleranceValue=0.6):
+    if pathIn:
+        face_image = face_recognition.load_image_file(pathIn)
     face_locations = face_recognition.face_locations(face_image)
     tmp_encodings = face_recognition.face_encodings(face_image, face_locations, num_jitters=10, model='large')
     if tmp_encodings:
@@ -83,7 +84,7 @@ def face_compare(known_faces, face_image, toleranceValue=0.6):
 def update_face_data():
     for root, dirs, files in os.walk('./ID_Photos'):
         for file in files:
-            if os.path.splitext(file)[1].lower() == '.jpg':
+            if os.path.splitext(file)[1].lower() == '.jpg' and not os.path.splitext(file)[0].startswith('snapshot_'):
                 face_data = ''
                 userID = os.path.splitext(file)[0]
                 if userID.find('_') != -1:
@@ -127,7 +128,7 @@ def face_login_webrtc(StationCN, frame):
     for each in face_data_all:
         known_encoding.append(each[0])
         userID_Pack.append(each[1])
-    result = face_compare(known_encoding, frame)
+    result = face_compare(known_encoding, frame, pathIn=frame)
     if result[1]:
         userID = userID_Pack[result[0]]
 
