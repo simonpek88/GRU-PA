@@ -86,6 +86,7 @@ def update_face_data():
             if os.path.splitext(file)[1].lower() == '.jpg':
                 face_data = ''
                 userID = os.path.splitext(file)[0]
+                userID = userID[:userID.find('_')]
                 pathIn = os.path.join(root, file)
                 with open(pathIn, 'rb') as f:
                     sha1obj = hashlib.sha256()
@@ -107,8 +108,6 @@ def update_face_data():
                             print('获取用户信息失败!')
                     else:
                         print('面部数据获取失败!')
-                else:
-                    print('面部数据已存在!')
 
 
 def load_face_data(StationCN):
