@@ -114,9 +114,9 @@
 					"label": "auto_get_history_weather"
 				},
 				{
-					"line": 1693,
+					"line": 1771,
 					"column": 26,
-					"label": "更新用户设置"
+					"label": "refresh_users_setup"
 				},
 				{
 					"line": 1871,

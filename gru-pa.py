@@ -65,7 +65,8 @@ def login():
             userID = None
         sql = f"SELECT Count(ID) from users_face_data where StationCN = '{station_type}'"
         cur.execute(sql)
-        if cur.fetchone()[0] > 0 and st.session_state.face_login:
+        camera_exist = check_camera()
+        if cur.fetchone()[0] > 0 and camera_exist:
             face_login_available = True
         else:
             face_login_available = False
@@ -1883,6 +1884,8 @@ def get_users_portrait():
                 f.write(bytes_data)
             if os.path.exists(f"./ID_Photos/{pic_file}"):
                 st.toast("照片保存成功!")
+            else:
+                st.toast("照片保存失败!")
 
 
 def fr_web_rtc():
