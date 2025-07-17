@@ -133,6 +133,7 @@ turnnumber
 tywx
 unixepoch
 unpad
+utgf
 verinfo
 visitcount
 visitcounter

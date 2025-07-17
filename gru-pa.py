@@ -344,7 +344,9 @@ def get_md_task_status(task_date, userID, task_content):
 def task_input():
     st.markdown("### <font face='微软雅黑' color=red><center>工作量录入</center></font>", unsafe_allow_html=True)
     # 刷新用户设置
-    refresh_users_setup('auto_task_check')
+    refresh_users_setup()
+    # 更新用户工作组别频率
+    update_users_group_frequency()
     col1, col2 = st.columns(2)
     col1.markdown(f"#### 当前用户: {st.session_state.userCName}")
     with col1:
@@ -365,15 +367,30 @@ def task_input():
     # 更新共享分
     sql = f"INSERT INTO pa_share (pa_ID, pa_content, share_score, StationCN, share_date) SELECT ID, pa_content, pa_score, '{st.session_state.StationCN}', '{task_date}' from gru_pa where StationCN = '{st.session_state.StationCN}' and pa_share = 1 and pa_content not in (SELECT pa_content from pa_share where StationCN = '{st.session_state.StationCN}' and share_date = '{task_date}')"
     execute_sql_and_commit(conn, cur, sql)
+    expander_col = st.columns(2)
     # 常用任务
-    with st.expander(f"# :green[常用]", icon=':material/bookmark_star:', expanded=True):
+    with expander_col[0].expander(f"# :green[常用]", icon=':material/bookmark_star:', expanded=True):
         sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task, pa_share from gru_pa where StationCN = '{st.session_state.StationCN}' and comm_task = 1 order by ID"
         rows2 = execute_sql(cur, sql)
         for row2 in rows2:
             show_task_list(row2, task_date, flag_auto_task)
     # 所有任务组别
-    sql = f"SELECT DISTINCT(task_group) from gru_pa where StationCN = '{st.session_state.StationCN}'"
+    if st.session_state.task_group_sort:
+        sql = f"""
+            SELECT tg.task_group
+            FROM (
+                SELECT DISTINCT gru_pa.task_group
+                FROM gru_pa
+                WHERE gru_pa.StationCN = '{st.session_state.StationCN}'
+            ) tg
+            JOIN users_task_group_freq utgf ON tg.task_group = utgf.task_group
+            WHERE utgf.userID = {st.session_state.userID}
+            ORDER BY utgf.task_group_freq DESC
+        """
+    else:
+        sql = f"SELECT DISTINCT(task_group) from gru_pa where StationCN = '{st.session_state.StationCN}'"
     rows = execute_sql(cur, sql)
+    expander_col_index = 1
     for row in rows:
         sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task, pa_share from gru_pa where StationCN = '{st.session_state.StationCN}' and task_group = '{row[0]}' and comm_task = 0 order by ID"
         rows2 = execute_sql(cur, sql)
@@ -382,9 +399,10 @@ def task_input():
                 expand_icon = EXICON[row[0]]
             else:
                 expand_icon = 'dashboard_customize'
-            with st.expander(f"# :green[{row[0]}]", icon=f':material/{expand_icon}:', expanded=False):
+            with expander_col[expander_col_index % 2].expander(f"# :green[{row[0]}]", icon=f':material/{expand_icon}:', expanded=False):
                 for row2 in rows2:
                     show_task_list(row2, task_date, flag_auto_task)
+            expander_col_index += 1
     if confirm_btn_input:
         for key in st.session_state.keys():
             if key.startswith("task_work_") and st.session_state[key]:
@@ -1722,13 +1740,8 @@ def users_setup():
             update_users_setup(value, st.session_state[f'setup_{value}_{st.session_state.userID}'], 'insert')
 
 
-def refresh_users_setup(refresh_param_name=None):
-    temp_setup_name_pack = []
-    if refresh_param_name:
-        temp_setup_name_pack.append(refresh_param_name)
-    else:
-        temp_setup_name_pack = SETUP_NAME_PACK
-    for index, value in enumerate(temp_setup_name_pack):
+def refresh_users_setup():
+    for index, value in enumerate(SETUP_NAME_PACK):
         sql = f"SELECT userID, userCName, param_value from users_setup where userID = {st.session_state.userID} and param_name = '{value}'"
         result = execute_sql(cur, sql)
         if result:
@@ -1804,6 +1817,20 @@ def update_fixed_score():
     st.success("固定分值更新成功")
 
 
+def update_users_group_frequency():
+    sql = f"SELECT DISTINCT(task_group) from gru_pa where StationCN = '{st.session_state.StationCN}'"
+    rows = execute_sql(cur, sql)
+    for row in rows:
+        sql = f"SELECT ID from users_task_group_freq where userID = {st.session_state.userID} and task_group = '{row[0]}'"
+        if not execute_sql(cur, sql):
+            sql = f"INSERT INTO users_task_group_freq (userID, userCName, task_group) VALUES ({st.session_state.userID}, '{st.session_state.userCName}', '{row[0]}')"
+            execute_sql_and_commit(conn, cur, sql)
+        sql = f"SELECT count(ID) from clerk_work where clerk_ID = {st.session_state.userID} and task_group = '{row[0]}'"
+        result = execute_sql(cur, sql)
+        sql = f"UPDATE users_task_group_freq SET task_group_freq = {result[0][0]} where userID = {st.session_state.userID} and userCName = '{st.session_state.userCName}' and task_group = '{row[0]}'"
+        execute_sql_and_commit(conn, cur, sql)
+
+
 global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, STATION_CITYNAME, SETUP_NAME_PACK, SETUP_LABEL_PACK, MAXREVDAYS, EXICON
 APPNAME_CN = "站室绩效考核系统KPI-PA"
 APPNAME_EN = "GRU-PA"
@@ -1812,8 +1839,8 @@ CHARTFONTSIZE = 14
 MDTASKDAYS = 28
 MAXREVDAYS = 45
 STATION_CITYNAME = {'北京站': '顺义', '天津站': '滨海新区', '总控室': '滨海新区', '调控中心': '滨海新区', '武清站': '武清'}
-SETUP_NAME_PACK = ['static_show', 'weather_show', 'weather_metric', 'weather_provider', 'auto_task_check']
-SETUP_LABEL_PACK = ['主页展示方式: :green[On 静态文字] :orange[Off 特效文字]', '天气展示', '天气展示方式: :green[On 卡片] :orange[Off 文字] :violet[高德只有卡片模式]', '天气数据源: :green[On 和风] :orange[Off 高德]', '自动选择日常工作:']
+SETUP_NAME_PACK = ['static_show', 'weather_show', 'weather_metric', 'weather_provider', 'auto_task_check', 'task_group_sort']
+SETUP_LABEL_PACK = ['主页展示方式: :green[On 静态文字] :orange[Off 特效文字]', '天气展示', '天气展示方式: :green[On 卡片] :orange[Off 文字] :violet[高德只有卡片模式]', '天气数据源: :green[On 和风] :orange[Off 高德]', '自动选择日常工作:', '工作组排序: :green[On 个性化] :orange[Off 固定]']
 EXICON = {'基础工作': 'work', '输油作业': 'oil_barrel', '通球扫线': 'panorama_photosphere', '维修保养': 'construction', '过滤器更换': 'tools_installation_kit', '检测检查': 'mystery', '清理保洁': 'cleaning_services'}
 EXICON2 = {'财务工作': 'finance', '台账及报表': 'dataset', '行政管理': 'enterprise', '宣传及党务': 'full_coverage', '汽车管理': 'car_gear', '公务外派': 'business_center', '特殊作业票': 'fact_check', '加班': 'person_play'}
 EXICON.update(EXICON2)

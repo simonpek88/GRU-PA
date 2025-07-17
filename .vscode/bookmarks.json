@@ -34,7 +34,7 @@
 					"label": "display_pypi"
 				},
 				{
-					"line": 325,
+					"line": 343,
 					"column": 17,
 					"label": "task input"
 				},
@@ -102,11 +102,6 @@
 					"line": 1567,
 					"column": 41,
 					"label": "display_weather_hf_metric"
-				},
-				{
-					"line": 1630,
-					"column": 38,
-					"label": "main"
 				},
 				{
 					"line": 1657,
