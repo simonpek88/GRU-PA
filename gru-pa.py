@@ -1048,7 +1048,8 @@ def gen_chart():
     #st.markdown("### <font face='微软雅黑' color=red><center>趋势图</center></font>", unsafe_allow_html=True)
     st.subheader("趋势图", divider="rainbow")
     col1, col2, col3 = st.columns(3)
-    tab1, tab2 = st.tabs(["📈 图表", "🗃 数据"])
+    tab1, tab2 = st.tabs(["📊 图表", "🧮 数据"])
+    #tab1, tab2 = st.tabs(["📈 图表", "📋 数据"])
     if st.session_state.userType == 'admin':
         userID, userCName = [], []
         sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa = 1 order by ID"
