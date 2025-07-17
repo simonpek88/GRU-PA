@@ -101,12 +101,17 @@ def login():
                 st.warning("请选择用户并输入密码")
         elif login_type == "面部识别登录":
             st.info("正在启动面部识别, 请稍等...")
-            if st.context.ip_address:
-                face_type = 'webrtc'
-                st.session_state.login_webrtc = True
-                st.session_state.logged_in = True
-                st.session_state.StationCN = station_type
-                st.rerun()
+            #face_type = 'st_camera'
+            if st.context.ip_address or face_type == 'st_camera':
+                if face_type == 'st_camera':
+                    login.empty()
+                    camera_capture(station_type)
+                else:
+                    face_type = 'webrtc'
+                    st.session_state.login_webrtc = True
+                    st.session_state.logged_in = True
+                    st.session_state.StationCN = station_type
+                    st.rerun()
             else:
                 face_type = 'cv'
                 result = face_login_cv(station_type)
@@ -1887,11 +1892,11 @@ def get_users_portrait():
             else:
                 st.toast("照片保存失败!")
 
-
-def camera_capture():
+@st.fragment
+def camera_capture(stationCN):
     st.subheader("面部识别", divider="green")
+    st.markdown('请点击:red[Take Photo]按钮获取面部图像')
     img_file_buffer = st.camera_input("获取面部图像", width=800)
-
     if img_file_buffer is not None:
         # To read image file buffer as bytes:
         bytes_data = img_file_buffer.getvalue()
@@ -1901,8 +1906,10 @@ def camera_capture():
         with open(f"./ID_Photos/{cap_file}", "wb") as f:
             f.write(bytes_data)
         if os.path.exists(f"./ID_Photos/{cap_file}"):
-            result = face_login_webrtc(s, f"./ID_Photos/{cap_file}")
-            print(result)
+            result = face_login_webrtc(stationCN, f"./ID_Photos/{cap_file}")
+            if result:
+                login_init(result)
+                st.rerun()
 
 
 def fr_web_rtc():

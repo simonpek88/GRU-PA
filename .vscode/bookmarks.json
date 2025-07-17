@@ -127,6 +127,11 @@
 					"line": 1881,
 					"column": 21,
 					"label": "main"
+				},
+				{
+					"line": 1894,
+					"column": 30,
+					"label": "camera_capture"
 				}
 			]
 		},
