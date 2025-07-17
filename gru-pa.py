@@ -342,7 +342,8 @@ def get_md_task_status(task_date, userID, task_content):
 
 @st.fragment
 def task_input():
-    st.markdown("### <font face='微软雅黑' color=red><center>工作量录入</center></font>", unsafe_allow_html=True)
+    #st.markdown("### <font face='微软雅黑' color=red><center>工作量录入</center></font>", unsafe_allow_html=True)
+    st.subheader("任务批量录入", divider="green")
     # 刷新用户设置
     refresh_users_setup()
     # 更新用户工作组别频率
@@ -460,7 +461,8 @@ def show_task_list(row2, task_date, flag_auto_task):
 
 
 def query_task():
-    st.markdown("### <font face='微软雅黑' color=red><center>工作量查询及导出</center></font>", unsafe_allow_html=True)
+    #st.markdown("### <font face='微软雅黑' color=red><center>工作量查询及导出</center></font>", unsafe_allow_html=True)
+    st.subheader("工作量查询及导出", divider="orange")
     col1, col2, col3 = st.columns(3)
     if st.session_state.userType == 'admin':
         userID, userCName = [], []
@@ -754,7 +756,8 @@ def _new_page_field(run, field_code):
 
 def manual_input():
     items = []
-    st.markdown("### <font face='微软雅黑' color=red><center>工作量手工录入</center></font>", unsafe_allow_html=True)
+    #st.markdown("### <font face='微软雅黑' color=red><center>工作量手工录入</center></font>", unsafe_allow_html=True)
+    st.subheader("工作量手工录入", divider="green")
     st.markdown(f"#### 当前用户: {st.session_state.userCName}")
     sql = f"SELECT DISTINCT(task_group) from gru_pa where StationCN = '{st.session_state.StationCN}'"
     rows = execute_sql(cur, sql)
@@ -824,7 +827,8 @@ def reset_table_num(flag_force=False):
 
 #@st.fragment
 def task_modify():
-    st.markdown("### <font face='微软雅黑' color=red><center>记录修改</center></font>", unsafe_allow_html=True)
+    #st.markdown("### <font face='微软雅黑' color=red><center>记录修改</center></font>", unsafe_allow_html=True)
+    st.subheader("记录修改", divider="red")
     col1, col2, col3, col4 = st.columns(4)
     if st.session_state.userType == 'admin':
         userID, userCName = [], []
@@ -900,7 +904,8 @@ def modify_task(task_modify_id, query_userID):
 
 @st.fragment
 def check_data():
-    st.markdown("### <font face='微软雅黑' color=red><center>数据检查与核定</center></font>", unsafe_allow_html=True)
+    #st.markdown("### <font face='微软雅黑' color=red><center>数据检查与核定</center></font>", unsafe_allow_html=True)
+    st.subheader("数据检查与核定", divider="blue")
     col1, col2 = st.columns(2)
     userID, userCName = [], []
     sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa = 1 order by ID"
@@ -992,7 +997,8 @@ def actionResetUserPW(rUserName):
 
 
 def deduction_input():
-    st.markdown("### <font face='微软雅黑' color=red><center>减分项录入</center></font>", unsafe_allow_html=True)
+    #st.markdown("### <font face='微软雅黑' color=red><center>减分项录入</center></font>", unsafe_allow_html=True)
+    st.subheader("减分项录入", divider="red")
     col1, col2 = st.columns(2)
     userID, userCName, pa_deduct, pa_deduct_score = [], [], [], []
     sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa = 1 order by ID"
@@ -1039,7 +1045,8 @@ def highlight_max(x, forecolor='black', backcolor="#D61919"):
 
 
 def gen_chart():
-    st.markdown("### <font face='微软雅黑' color=red><center>趋势图</center></font>", unsafe_allow_html=True)
+    #st.markdown("### <font face='微软雅黑' color=red><center>趋势图</center></font>", unsafe_allow_html=True)
+    st.subheader("趋势图", divider="rainbow")
     col1, col2, col3 = st.columns(3)
     tab1, tab2 = st.tabs(["📈 图表", "🗃 数据"])
     if st.session_state.userType == 'admin':
@@ -1368,7 +1375,8 @@ def gen_chart():
 
 
 def input_public_notice():
-    st.markdown("### <font face='微软雅黑' color=green><center>公告发布</center></font>", unsafe_allow_html=True)
+    #st.markdown("### <font face='微软雅黑' color=green><center>公告发布</center></font>", unsafe_allow_html=True)
+    st.subheader("公告发布", divider="red")
     col1, col2 = st.columns(2)
     query_date_start = col1.date_input('公告开始时间', value=datetime.date.today(), min_value="today", max_value=datetime.date.today() + datetime.timedelta(days=180))
     query_date_end = col2.date_input('公告结束时间', value=datetime.date.today(), min_value="today", max_value=datetime.date.today() + datetime.timedelta(days=180))
@@ -1391,7 +1399,8 @@ def input_public_notice():
 
 
 def public_notice():
-    st.markdown("### <font face='微软雅黑' color=red><center>站内公告</center></font>", unsafe_allow_html=True)
+    #st.markdown("### <font face='微软雅黑' color=red><center>站内公告</center></font>", unsafe_allow_html=True)
+    st.subheader("站内公告", divider="red")
     now = datetime.datetime.now()
     valid_time = now.strftime("%Y-%m-%d")
     sql = f"SELECT notice from notices where StationCN = '{st.session_state.StationCN}' and start_time >= '{valid_time}' and '{valid_time}' <= end_time"
@@ -1434,7 +1443,8 @@ def display_weather_gd(city_code):
 
 
 def display_history_weather():
-    st.markdown("### <font face='微软雅黑' color=green><center>历史天气</center></font>", unsafe_allow_html=True)
+    #st.markdown("### <font face='微软雅黑' color=green><center>历史天气</center></font>", unsafe_allow_html=True)
+    st.subheader("历史天气", divider="rainbow")
     city_code = st.session_state.hf_city_code
     city_name = st.session_state.cityname
     sql = f"SELECT MIN(weather_date) from weather_history where city_code = '{city_code}'"
@@ -1641,7 +1651,8 @@ def displayAppInfo_static():
 
 
 def combine_query():
-    st.markdown("### <font face='微软雅黑' color=tear><center>工作量高级查询</center></font>", unsafe_allow_html=True)
+    #st.markdown("### <font face='微软雅黑' color=tear><center>工作量高级查询</center></font>", unsafe_allow_html=True)
+    st.subheader("工作量高级查询", divider="violet")
     btn_query = st.button("查询")
     clerk_cname_pack, task_group_pack = [], []
     sql = f"SELECT userCName from users where clerk_pa = 1 and StationCN = '{st.session_state.StationCN}' order by ID"
@@ -1726,7 +1737,8 @@ def update_users_setup(param_name, param_value, action_type):
 
 
 def users_setup():
-    st.markdown("### <font face='微软雅黑' color=blue><center>个人设置</center></font>", unsafe_allow_html=True)
+    #st.markdown("### <font face='微软雅黑' color=blue><center>个人设置</center></font>", unsafe_allow_html=True)
+    st.subheader("个人设置", divider="green")
     for index, value in enumerate(SETUP_NAME_PACK):
         sql = f"SELECT userID, userCName, param_value from users_setup where userID = {st.session_state.userID} and param_name = '{value}'"
         cur.execute(sql)
@@ -1792,7 +1804,9 @@ def cal_date(diff_days):
 
 
 def reset_table():
-    st.markdown("### <font face='微软雅黑' color=red><center>数据库操作</center></font>", unsafe_allow_html=True)
+    #st.markdown("### <font face='微软雅黑' color=red><center>数据库操作</center></font>", unsafe_allow_html=True)
+    st.subheader("数据库操作", divider="red")
+    st.markdown("#### ⚠️请谨慎操作, 记录不可恢复")
     reset_type = sac.segmented(
         items=[
             sac.SegmentedItem(label="重置数据库ID", icon="bootstrap-reboot"),
@@ -1866,7 +1880,7 @@ if st.session_state.logged_in:
                 sac.MenuItem('公告', icon='megaphone'),
                 sac.MenuItem('主页', icon='house'),
                 sac.MenuItem('功能', icon='grid-3x3-gap', children=[
-                    sac.MenuItem('工作量录入', icon='list-task'),
+                    sac.MenuItem('工作量批量录入', icon='list-task'),
                     sac.MenuItem('工作量手工录入', icon='journal-plus'),
                     sac.MenuItem('工作减分项录入', icon='journal-minus'),
                     sac.MenuItem('记录修改', icon='journal-medical'),
@@ -1898,7 +1912,7 @@ if st.session_state.logged_in:
                 sac.MenuItem('公告', icon='megaphone'),
                 sac.MenuItem('主页', icon='house'),
                 sac.MenuItem('功能', icon='grid-3x3-gap', children=[
-                    sac.MenuItem('工作量录入', icon='list-task'),
+                    sac.MenuItem('工作量批量录入', icon='list-task'),
                     sac.MenuItem('工作量手工录入', icon='journal-plus'),
                     sac.MenuItem('记录修改', icon='journal-medical'),
                     sac.MenuItem('统计查询及导出', icon='clipboard-data'),
@@ -1958,7 +1972,7 @@ if st.session_state.logged_in:
             displayVisitCounter_static()
         else:
             displayVisitCounter()
-    elif selected == "工作量录入":
+    elif selected == "工作量批量录入":
         task_input()
     elif selected == "工作量手工录入":
         manual_input()
