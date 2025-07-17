@@ -86,7 +86,8 @@ def update_face_data():
             if os.path.splitext(file)[1].lower() == '.jpg':
                 face_data = ''
                 userID = os.path.splitext(file)[0]
-                userID = userID[:userID.find('_')]
+                if userID.find('_') != -1:
+                    userID = userID[:userID.find('_')]
                 pathIn = os.path.join(root, file)
                 with open(pathIn, 'rb') as f:
                     sha1obj = hashlib.sha256()
