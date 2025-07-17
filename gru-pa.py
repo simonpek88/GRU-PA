@@ -29,7 +29,8 @@ from wcwidth import wcswidth
 
 from commFunc import (execute_sql, execute_sql_and_commit, get_update_content,
                       getUserEDKeys, getVerInfo, updatePyFileinfo)
-from face_login import face_login_cv, face_login_webrtc, update_face_data
+from face_login import (check_camera, face_login_cv, face_login_webrtc,
+                        update_face_data)
 from gd_weather import get_city_weather
 from gen_badges import gen_badge
 from hf_weather import get_city_history_weather, get_city_now_weather
@@ -64,7 +65,7 @@ def login():
             userID = None
         sql = f"SELECT Count(ID) from users_face_data where StationCN = '{station_type}'"
         cur.execute(sql)
-        if cur.fetchone()[0] > 0:
+        if cur.fetchone()[0] > 0 and st.session_state.face_login:
             face_login_available = True
         else:
             face_login_available = False
@@ -1778,6 +1779,11 @@ def refresh_users_setup():
             st.session_state[value] = True
             sql = f"INSERT INTO users_setup (userID, userCName, param_name, param_value) VALUES ({st.session_state.userID}, '{st.session_state.userCName}', '{value}', 1)"
             execute_sql_and_commit(conn, cur, sql)
+    camera_exist = check_camera()
+    if not camera_exist:
+        sql = f"UPDATE users_setup SET param_value = 0 where param_name = 'face_login'"
+        execute_sql_and_commit(conn, cur, sql)
+        st.session_state.face_login = False
 
 
 def get_city_code():
@@ -1918,8 +1924,8 @@ CHARTFONTSIZE = 14
 MDTASKDAYS = 28
 MAXREVDAYS = 45
 STATION_CITYNAME = {'北京站': '顺义', '天津站': '滨海新区', '总控室': '滨海新区', '调控中心': '滨海新区', '武清站': '武清'}
-SETUP_NAME_PACK = ['static_show', 'weather_show', 'weather_metric', 'weather_provider', 'auto_task_check', 'task_group_sort']
-SETUP_LABEL_PACK = ['主页展示方式: :green[On 静态文字] :orange[Off 特效文字]', '天气展示', '天气展示方式: :green[On 卡片] :orange[Off 文字] :violet[高德只有卡片模式]', '天气数据源: :green[On 和风] :orange[Off 高德]', '自动选择日常工作:', '工作组排序: :green[On 个性化] :orange[Off 固定]']
+SETUP_NAME_PACK = ['static_show', 'weather_show', 'weather_metric', 'weather_provider', 'auto_task_check', 'task_group_sort', 'face_login']
+SETUP_LABEL_PACK = ['主页展示方式: :green[On 静态文字] :orange[Off 特效文字]', '天气展示', '天气展示方式: :green[On 卡片] :orange[Off 文字] :violet[高德只有卡片模式]', '天气数据源: :green[On 和风] :orange[Off 高德]', '自动选择日常工作:', '工作组排序: :green[On 个性化] :orange[Off 固定]', '面部识别登录']
 EXICON = {'基础工作': 'work', '输油作业': 'oil_barrel', '通球扫线': 'panorama_photosphere', '维修保养': 'construction', '过滤器更换': 'tools_installation_kit', '检测检查': 'mystery', '清理保洁': 'cleaning_services'}
 EXICON2 = {'财务工作': 'finance', '台账及报表': 'dataset', '行政管理': 'enterprise', '宣传及党务': 'full_coverage', '汽车管理': 'car_gear', '公务外派': 'business_center', '特殊作业票': 'fact_check', '加班': 'person_play'}
 EXICON.update(EXICON2)

@@ -9,7 +9,7 @@ __pycache__/
 docs/
 user_pa/
 .pems/
-ID_Photos/
+ID_Photos/*.jpg
 FaceCompare.py
 *.pem
 mysql_pool.py
