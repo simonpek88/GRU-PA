@@ -140,6 +140,7 @@ visitcounter
 VTAB
 wcol
 wcswidth
+webrtc
 winddir
 WINDDIRECTIONICON
 windir

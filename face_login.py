@@ -14,7 +14,7 @@ from mysql_pool import get_connection
 # cSpell:ignoreRegExp /\b[A-Z]\b/g
 
 
-def face_login(StationCN):
+def face_login_cv(StationCN):
     face_data_all = load_face_data(StationCN)
     known_encoding, userID_Pack, userID = [], [], None
     for each in face_data_all:
@@ -119,6 +119,24 @@ def load_face_data(StationCN):
         face_data_all.append((np.array(row[1].split(), dtype=float), row[0]))
 
     return face_data_all
+
+
+def face_login_webrtc(StationCN, frame):
+    face_data_all = load_face_data(StationCN)
+    known_encoding, userID_Pack, userID = [], [], None
+    for each in face_data_all:
+        known_encoding.append(each[0])
+        userID_Pack.append(each[1])
+    result = face_compare(known_encoding, frame)
+    if result[1]:
+        userID = userID_Pack[result[0]]
+
+    if userID:
+        sql = f"SELECT userID, userCName, userType, StationCN, clerk_type from users where userID = {userID}"
+        result = execute_sql(cur, sql)
+        return result
+
+    return None
 
 
 conn = get_connection()

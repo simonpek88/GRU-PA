@@ -24,11 +24,12 @@ from plotly.subplots import make_subplots
 from pybadges import badge
 from streamlit_condition_tree import condition_tree
 from streamlit_extras.metric_cards import style_metric_cards
+from streamlit_webrtc import WebRtcMode, webrtc_streamer
 from wcwidth import wcswidth
 
 from commFunc import (execute_sql, execute_sql_and_commit, get_update_content,
                       getUserEDKeys, getVerInfo, updatePyFileinfo)
-from face_login import face_login, update_face_data
+from face_login import face_login_cv, face_login_webrtc, update_face_data
 from gd_weather import get_city_weather
 from gen_badges import gen_badge
 from hf_weather import get_city_history_weather, get_city_now_weather
@@ -62,7 +63,7 @@ def login():
             userID = None
         sql = f"SELECT Count(ID) from users_face_data where StationCN = '{station_type}'"
         cur.execute(sql)
-        if cur.fetchone()[0] > 0 and st.context.ip_address is None:
+        if cur.fetchone()[0] > 0:
             face_login_available = True
         else:
             face_login_available = False
@@ -79,6 +80,7 @@ def login():
 
     # 如果点击了登录按钮
     result = None
+    face_webrtc = False
     if buttonLogin:
         if login_type == "密码登录":
             # 如果用户编码和密码不为空
@@ -96,7 +98,11 @@ def login():
                 st.warning("请选择用户并输入密码")
         elif login_type == "面部识别登录":
             st.info("正在启动面部识别, 请稍等...")
-            result = face_login(station_type)
+            face_webrtc = True
+            if st.context.ip_address or face_webrtc:
+                result = fr_web_rtc()
+            else:
+                result = face_login_cv(station_type)
     if result:
         st.toast(f"用户: {result[0][1]} 登录成功, 欢迎回来")
         login.empty()
@@ -136,8 +142,9 @@ def login():
         execute_sql_and_commit(conn, cur, sql)
         st.set_page_config(layout="wide")
         st.rerun()
-    elif login_type == "面部识别登录" and buttonLogin:
+    elif login_type == "面部识别登录" and buttonLogin and not face_webrtc:
         st.error("面部识别失败, 请使用密码登录")
+
 
 def logout():
     # 关闭游标
@@ -1844,6 +1851,53 @@ def update_users_group_frequency():
         execute_sql_and_commit(conn, cur, sql)
 
 
+def get_users_portrait():
+    st.subheader("录入面部数据", divider="green")
+    img_file_buffer = st.camera_input("获取面部图像", width=800)
+
+    if img_file_buffer is not None:
+        # To read image file buffer as bytes:
+        bytes_data = img_file_buffer.getvalue()
+        # Check the type of bytes_data:
+        # Should output: <class 'bytes'>
+        btn_save_picture = st.button("保存照片")
+        pic_file = f"{st.session_state.userID}_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.jpg"
+        if btn_save_picture:
+            with open(f"./ID_Photos/{pic_file}", "wb") as f:
+                f.write(bytes_data)
+            if os.path.exists(f"./ID_Photos/{pic_file}"):
+                st.toast("照片保存成功!")
+
+
+def fr_web_rtc():
+    face_recog_result = None
+    webrtc_ctx = webrtc_streamer(
+        key="video-sendonly",
+        mode=WebRtcMode.SENDONLY,
+        media_stream_constraints={"video": True},
+        video_html_attrs={
+        "style": {"width": "50%", "margin": "0 auto", "border": "0px black solid"},
+        "controls": False,
+        "autoPlay": True,
+        }
+    )
+
+    image_place = st.empty()
+
+    while True:
+        if webrtc_ctx.video_receiver:
+            video_frame = webrtc_ctx.video_receiver.get_frame(timeout=1)
+            img_rgb = video_frame.to_ndarray(format="rgb24")
+            image_place.image(img_rgb)
+            face_recog_result = face_login_webrtc(st.session_state.StationCN, img_rgb)
+            if face_recog_result:
+                break
+        else:
+            break
+
+    return face_recog_result
+
+
 global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, STATION_CITYNAME, SETUP_NAME_PACK, SETUP_LABEL_PACK, MAXREVDAYS, EXICON
 APPNAME_CN = "站室绩效考核系统KPI-PA"
 APPNAME_EN = "GRU-PA"
@@ -1893,6 +1947,7 @@ if st.session_state.logged_in:
                 ]),
                 sac.MenuItem('设置', icon='gear', children=[
                     sac.MenuItem('个人设置', icon='sliders'),
+                    sac.MenuItem('录入面部数据', icon='person-bounding-box'),
                 ]),
                 sac.MenuItem('账户', icon='person-gear', children=[
                     sac.MenuItem('密码修改', icon='key'),
@@ -1920,6 +1975,7 @@ if st.session_state.logged_in:
                 ]),
                 sac.MenuItem('设置', icon='gear', children=[
                     sac.MenuItem('个人设置', icon='sliders'),
+                    sac.MenuItem('录入面部数据', icon='person-bounding-box'),
                 ]),
                 sac.MenuItem('账户', icon='person-gear', children=[
                     sac.MenuItem('密码修改', icon='key'),
@@ -1995,6 +2051,8 @@ if st.session_state.logged_in:
         reset_table()
     elif selected == "个人设置":
         users_setup()
+    elif selected == "录入面部数据":
+        get_users_portrait()
     elif selected == "密码修改":
         changePassword()
     elif selected == "密码重置":
