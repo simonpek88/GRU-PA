@@ -114,6 +114,11 @@
 					"label": "更新用户设置"
 				},
 				{
+					"line": 1871,
+					"column": 17,
+					"label": "fr_web_rtc"
+				},
+				{
 					"line": 1881,
 					"column": 21,
 					"label": "main"
