@@ -1925,7 +1925,7 @@ def camera_capture(stationCN):
 
 def fr_web_rtc():
     st.subheader("面部识别", divider="green")
-    st.markdown('请点击:red[Take Photo]按钮获取面部图像, 识别后点击:blue[Clear Photo]恢复视频')
+    st.markdown('请点击:red[开始]进行面部识别')
     face_recog_result = None
     webrtc_ctx = webrtc_streamer(
         key="video-sendonly",
@@ -1935,6 +1935,15 @@ def fr_web_rtc():
         "style": {"width": "50%", "margin": "0 auto", "border": "0px black solid"},
         "controls": False,
         "autoPlay": True,
+        },
+        translations={
+            "start": "开始",
+            "stop": "停止",
+            "select_device": "设备选择",
+            "media_api_not_available": "无法使用媒体API的环境",
+            "device_ask_permission": "请允许访问媒体设备",
+            "device_not_available": "无法使用媒体设备",
+            "device_access_denied": "访问媒体设备被拒绝",
         },
         # WebRTC 配置中使用STUN服务器
         rtc_configuration = {
