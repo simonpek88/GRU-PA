@@ -42,7 +42,8 @@ def face_login_cv(StationCN):
                 userID = userID_Pack[result[0]]
                 if debug:
                     for index, value in enumerate(result[2]):
-                        print(f"用户ID: {userID_Pack[index]} 识别: {value}")
+                        if value:
+                            print(f"用户ID: {userID_Pack[index]} 识别: {value}")
             break
         else:
             i += 1
@@ -69,7 +70,7 @@ def clean_snapshot():
                 os.remove(pathIn)
 
 
-def face_compare(known_faces, face_image, pathIn=None, toleranceValue=0.6):
+def face_compare(known_faces, face_image, pathIn=None, toleranceValue=0.5):
     if pathIn:
         face_image = face_recognition.load_image_file(pathIn)
     clean_snapshot()
@@ -77,7 +78,7 @@ def face_compare(known_faces, face_image, pathIn=None, toleranceValue=0.6):
     tmp_encodings = face_recognition.face_encodings(face_image, face_locations, num_jitters=10, model='large')
     if tmp_encodings:
         unknown_encoding = tmp_encodings[0]
-        results = face_recognition.compare_faces(known_faces, unknown_encoding)
+        results = face_recognition.compare_faces(known_faces, unknown_encoding, tolerance=toleranceValue)
         for index, is_match in enumerate(results):
             if is_match:
                 return index, is_match, results
@@ -126,13 +127,13 @@ def load_face_data(StationCN):
     return face_data_all
 
 
-def face_login_webrtc(StationCN, frame):
+def face_login_webrtc(StationCN, frame, tolerance=0.5):
     face_data_all = load_face_data(StationCN)
     known_encoding, userID_Pack, userID = [], [], None
     for each in face_data_all:
         known_encoding.append(each[0])
         userID_Pack.append(each[1])
-    result = face_compare(known_encoding, frame, pathIn=frame)
+    result = face_compare(known_encoding, frame, pathIn=frame, toleranceValue=tolerance)
     if result[1]:
         userID = userID_Pack[result[0]]
 
@@ -155,4 +156,4 @@ def check_camera():
 conn = get_connection()
 cur = conn.cursor()
 cmd = 'setx OPENCV_VIDEOIO_PRIORITY_MSMF 0'
-debug = True
+debug = False

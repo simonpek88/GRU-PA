@@ -1914,7 +1914,7 @@ def camera_capture(stationCN):
 
 def fr_web_rtc():
     st.subheader("面部识别", divider="green")
-    st.markdown("请点击:red[START]开始面部识别")
+    st.markdown('请点击:red[Take Photo]按钮获取面部图像, 识别后点击:blue[Clear Photo]恢复视频')
     face_recog_result = None
     webrtc_ctx = webrtc_streamer(
         key="video-sendonly",
@@ -1941,6 +1941,31 @@ def fr_web_rtc():
             break
 
     return face_recog_result
+
+
+@st.fragment
+def face_recognize_test(stationCN):
+    st.subheader("面部识别测试", divider="rainbow")
+    st.markdown('请点击:red[Take Photo]按钮获取面部图像, 识别后点击:blue[Clear Photo]恢复视频')
+    col = st.columns(4)
+    tolerance = col[0].number_input("请输入容差值", min_value=0.2, max_value=1.0, value=0.5, step=0.01)
+    img_file_buffer = st.camera_input("获取面部图像", width=800)
+    if img_file_buffer is not None:
+        st.info("识别中...")
+        # To read image file buffer as bytes:
+        bytes_data = img_file_buffer.getvalue()
+        # Check the type of bytes_data:
+        # Should output: <class 'bytes'>
+        cap_file = f"snapshot_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.jpg"
+        with open(f"./ID_Photos/{cap_file}", "wb") as f:
+            f.write(bytes_data)
+        if os.path.exists(f"./ID_Photos/{cap_file}"):
+            result = face_login_webrtc(stationCN, f"./ID_Photos/{cap_file}", tolerance)
+            if result:
+                for each in result:
+                    st.markdown(f'ID: {each[0]} 用户: {each[1]} 站室: {each[3]}')
+            else:
+                st.warning("未找到匹配用户")
 
 
 global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, STATION_CITYNAME, SETUP_NAME_PACK, SETUP_LABEL_PACK, MAXREVDAYS, EXICON
@@ -1999,6 +2024,7 @@ elif st.session_state.logged_in:
                 sac.MenuItem('设置', icon='gear', children=[
                     sac.MenuItem('个人设置', icon='sliders'),
                     sac.MenuItem('录入面部数据', icon='person-bounding-box'),
+                    sac.MenuItem('面部识别测试', icon='person-video3'),
                 ]),
                 sac.MenuItem('账户', icon='person-gear', children=[
                     sac.MenuItem('密码修改', icon='key'),
@@ -2104,6 +2130,8 @@ elif st.session_state.logged_in:
         users_setup()
     elif selected == "录入面部数据":
         get_users_portrait()
+    elif selected == "面部识别测试":
+        face_recognize_test(st.session_state.StationCN)
     elif selected == "密码修改":
         changePassword()
     elif selected == "密码重置":

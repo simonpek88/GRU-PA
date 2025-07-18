@@ -132,6 +132,11 @@
 					"line": 1894,
 					"column": 30,
 					"label": "camera_capture"
+				},
+				{
+					"line": 1946,
+					"column": 35,
+					"label": "face_recognize_test"
 				}
 			]
 		},
@@ -152,6 +157,16 @@
 					"line": 16,
 					"column": 29,
 					"label": "face_login_cv"
+				},
+				{
+					"line": 73,
+					"column": 61,
+					"label": "face_compare"
+				},
+				{
+					"line": 129,
+					"column": 55,
+					"label": "face_login_webrtc"
 				}
 			]
 		}
