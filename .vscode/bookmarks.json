@@ -119,11 +119,6 @@
 					"label": "refresh_users_setup"
 				},
 				{
-					"line": 1871,
-					"column": 17,
-					"label": "fr_web_rtc"
-				},
-				{
 					"line": 1881,
 					"column": 21,
 					"label": "main"
@@ -134,9 +129,19 @@
 					"label": "camera_capture"
 				},
 				{
+					"line": 1924,
+					"column": 17,
+					"label": "fr_web_rtc"
+				},
+				{
 					"line": 1946,
 					"column": 35,
 					"label": "face_recognize_test"
+				},
+				{
+					"line": 2019,
+					"column": 32,
+					"label": "main"
 				}
 			]
 		},

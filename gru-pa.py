@@ -100,8 +100,9 @@ def login():
             else:
                 st.warning("请选择用户并输入密码")
         elif login_type == "面部识别登录":
-            if st.context.ip_address:
-                face_type = 'web-cam'
+            client_host = st.context.headers['host']
+            if not client_host.startswith('localhost'):
+                face_type = 'webrtc'
                 if face_type == 'web-cam':
                     st.info("正在启动面部识别(web-cam), 请稍等...")
                     login.empty()
@@ -1934,6 +1935,15 @@ def fr_web_rtc():
         "style": {"width": "50%", "margin": "0 auto", "border": "0px black solid"},
         "controls": False,
         "autoPlay": True,
+        },
+        # WebRTC 配置中使用STUN服务器
+        rtc_configuration = {
+            "iceServers": [
+                #{"urls": "stun:stun.l.google.com:19302"},
+                #{"urls": "stun:stun1.l.google.com:19302"},
+                {"urls": "stun.ekiga.net:3478"},
+                {"urls": "stun.ideasip.com:3478"},
+            ]
         }
     )
 
