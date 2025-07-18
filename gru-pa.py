@@ -1762,17 +1762,23 @@ def update_users_setup(param_name, param_value, action_type):
 def users_setup():
     #st.markdown("### <font face='微软雅黑' color=blue><center>个人设置</center></font>", unsafe_allow_html=True)
     st.subheader("个人设置", divider="green")
+    col_limit = 3
+    col = st.columns(col_limit)
+    col_index = 0
     for index, value in enumerate(SETUP_NAME_PACK):
         sql = f"SELECT userID, userCName, param_value from users_setup where userID = {st.session_state.userID} and param_name = '{value}'"
         cur.execute(sql)
         result = cur.fetchone()
-        st.markdown(f'##### {SETUP_LABEL_PACK[index]}')
+        col[col_index % col_limit].markdown(f'##### {SETUP_LABEL_PACK[index]}')
         if result:
-            sac.switch(label='', value=bool(int(result[2])), key=f'setup_{value}_{result[0]}', align='start', on_label='On', off_label='Off')
+            with col[col_index % col_limit]:
+                sac.switch(label='', value=bool(int(result[2])), key=f'setup_{value}_{result[0]}', align='start', on_label='On', off_label='Off')
             update_users_setup(value, st.session_state[f'setup_{value}_{result[0]}'], 'update')
         else:
-            sac.switch(label='', value=True, key=f'setup_{value}_{st.session_state.userID}', align='start', on_label='On', off_label='Off')
+            with col[col_index % col_limit]:
+                sac.switch(label='', value=True, key=f'setup_{value}_{st.session_state.userID}', align='start', on_label='On', off_label='Off')
             update_users_setup(value, st.session_state[f'setup_{value}_{st.session_state.userID}'], 'insert')
+        col_index += 1
 
 
 def refresh_users_setup():
@@ -1947,7 +1953,7 @@ def fr_web_rtc():
 def face_recognize_test(stationCN):
     st.subheader("面部识别测试", divider="rainbow")
     st.markdown('请点击:red[Take Photo]按钮获取面部图像, 识别后点击:blue[Clear Photo]恢复视频')
-    col = st.columns(4)
+    col = st.columns(5)
     tolerance = col[0].number_input("请输入容差值", min_value=0.2, max_value=1.0, value=0.5, step=0.01)
     img_file_buffer = st.camera_input("获取面部图像", width=800)
     if img_file_buffer is not None:
