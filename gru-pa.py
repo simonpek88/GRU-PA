@@ -100,19 +100,21 @@ def login():
             else:
                 st.warning("请选择用户并输入密码")
         elif login_type == "面部识别登录":
-            st.info("正在启动面部识别, 请稍等...")
-            #face_type = 'st_camera'
-            if st.context.ip_address or face_type == 'st_camera':
-                if face_type == 'st_camera':
+            if st.context.ip_address:
+                face_type = 'web-cam'
+                if face_type == 'web-cam':
+                    st.info("正在启动面部识别(web-cam), 请稍等...")
                     login.empty()
                     camera_capture(station_type)
                 else:
+                    st.info("正在启动面部识别(web-rtc), 请稍等...")
                     face_type = 'webrtc'
                     st.session_state.login_webrtc = True
                     st.session_state.logged_in = True
                     st.session_state.StationCN = station_type
                     st.rerun()
             else:
+                st.info("正在启动面部识别(Logitech-cam), 请稍等...")
                 face_type = 'cv'
                 result = face_login_cv(station_type)
     if result:
