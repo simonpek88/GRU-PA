@@ -102,7 +102,7 @@ def login():
         elif login_type == "面部识别登录":
             client_host = st.context.headers['host']
             if not client_host.startswith('localhost'):
-                face_type = 'webrtc'
+                face_type = 'web-cam'
                 if face_type == 'web-cam':
                     st.info("正在启动面部识别(web-cam), 请稍等...")
                     login.empty()
@@ -1906,7 +1906,7 @@ def get_users_portrait():
 @st.fragment
 def camera_capture(stationCN):
     st.subheader("面部识别", divider="green")
-    st.markdown('请点击:red[Take Photo]按钮获取面部图像')
+    st.markdown('请点击:red[Take Photo]获取面部图像, 人脸识别后照片会自动销毁, 请放心使用')
     img_file_buffer = st.camera_input("获取面部图像", width=800)
     if img_file_buffer is not None:
         # To read image file buffer as bytes:
@@ -1946,13 +1946,8 @@ def fr_web_rtc():
             "device_access_denied": "访问媒体设备被拒绝",
         },
         # WebRTC 配置中使用STUN服务器
-        rtc_configuration = {
-            "iceServers": [
-                #{"urls": "stun:stun.l.google.com:19302"},
-                #{"urls": "stun:stun1.l.google.com:19302"},
-                {"urls": "stun.ekiga.net:3478"},
-                {"urls": "stun.ideasip.com:3478"},
-            ]
+        rtc_configuration={
+            "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
         }
     )
 
@@ -1975,7 +1970,7 @@ def fr_web_rtc():
 @st.fragment
 def face_recognize_test(stationCN):
     st.subheader("面部识别测试", divider="rainbow")
-    st.markdown('请点击:red[Take Photo]按钮获取面部图像, 识别后点击:blue[Clear Photo]恢复视频')
+    st.markdown('请点击:red[Take Photo]获取面部图像, 识别后请点击:blue[Clear Photo]恢复视频')
     col = st.columns(5)
     tolerance = col[0].number_input("请输入容差值", min_value=0.2, max_value=1.0, value=0.5, step=0.01)
     img_file_buffer = st.camera_input("获取面部图像", width=800)
