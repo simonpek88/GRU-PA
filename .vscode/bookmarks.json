@@ -144,6 +144,16 @@
 					"label": "update info"
 				}
 			]
+		},
+		{
+			"path": "face_login.py",
+			"bookmarks": [
+				{
+					"line": 16,
+					"column": 29,
+					"label": "face_login_cv"
+				}
+			]
 		}
 	]
 }

@@ -40,6 +40,9 @@ def face_login_cv(StationCN):
         if result[1] or i > 30:
             if result[1]:
                 userID = userID_Pack[result[0]]
+                if debug:
+                    for index, value in enumerate(result[2]):
+                        print(f"用户ID: {userID_Pack[index]} 识别: {value}")
             break
         else:
             i += 1
@@ -77,7 +80,7 @@ def face_compare(known_faces, face_image, pathIn=None, toleranceValue=0.6):
         results = face_recognition.compare_faces(known_faces, unknown_encoding)
         for index, is_match in enumerate(results):
             if is_match:
-                return index, is_match
+                return index, is_match, results
 
     return None, False
 
@@ -152,3 +155,4 @@ def check_camera():
 conn = get_connection()
 cur = conn.cursor()
 cmd = 'setx OPENCV_VIDEOIO_PRIORITY_MSMF 0'
+debug = True
