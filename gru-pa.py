@@ -29,8 +29,7 @@ from wcwidth import wcswidth
 
 from commFunc import (execute_sql, execute_sql_and_commit, get_update_content,
                       getUserEDKeys, getVerInfo, updatePyFileinfo)
-from face_login import (check_camera, face_login_cv, face_login_webrtc,
-                        update_face_data)
+from face_login import face_login_cv, face_login_webrtc, update_face_data
 from gd_weather import get_city_weather
 from gen_badges import gen_badge
 from hf_weather import get_city_history_weather, get_city_now_weather
@@ -43,6 +42,7 @@ from mysql_pool import get_connection
 @st.fragment
 def login():
     st.set_page_config(layout="centered")
+    client_local = True if st.context.headers['host'].startswith('localhost') else False
     face_type = None
     # 显示应用名称
     st.markdown(f"<font face='微软雅黑' color=purple size=20><center>**{APPNAME_CN}**</center></font>", unsafe_allow_html=True)
@@ -65,11 +65,7 @@ def login():
             userID = None
         sql = f"SELECT Count(ID) from users_face_data where StationCN = '{station_type}'"
         cur.execute(sql)
-        camera_exist = check_camera()
-        if cur.fetchone()[0] > 0 and camera_exist:
-            face_login_available = True
-        else:
-            face_login_available = False
+        face_login_available = True if cur.fetchone()[0] > 0 else False
         # 用户密码输入框
         userPassword = st.text_input("请输入密码", max_chars=8, placeholder="用户初始密码为1234", type="password", autocomplete="off")
         login_type = sac.segmented(
@@ -100,8 +96,7 @@ def login():
             else:
                 st.warning("请选择用户并输入密码")
         elif login_type == "人脸识别登录":
-            client_host = st.context.headers['host']
-            if not client_host.startswith('localhost'):
+            if not client_local:
                 face_type = 'web-cam'
                 if face_type == 'web-cam':
                     st.info("正在启动人脸识别(web-cam), 请稍等...")
@@ -117,7 +112,7 @@ def login():
                 else:
                     st.error("人脸识别失败, 请使用密码登录")
             else:
-                st.info("正在启动人脸识别(Logitech-cam), 请稍等...")
+                st.info("正在启动人脸识别(Logi-cam), 请稍等...")
                 face_type = 'cv'
                 result = face_login_cv(station_type)
     if result:
@@ -1881,6 +1876,7 @@ def update_users_group_frequency():
 
 def get_users_portrait():
     st.subheader("录入人脸数据", divider="green")
+    st.markdown(":red[仅限本人使用， 否则准确率会大幅降低]")
     img_file_buffer = st.camera_input("获取人脸图像", width=800)
 
     if img_file_buffer is not None:

@@ -145,14 +145,6 @@ def face_login_webrtc(StationCN, frame, tolerance=0.5):
     return None
 
 
-def check_camera():
-    cap = cv2.VideoCapture(0)
-    flag = cap.isOpened()
-    cap.release()
-
-    return flag
-
-
 conn = get_connection()
 cur = conn.cursor()
 cmd = 'setx OPENCV_VIDEOIO_PRIORITY_MSMF 0'
