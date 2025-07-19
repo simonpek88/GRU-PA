@@ -4,8 +4,8 @@ Grass-roots unit performance appraisal system (KPI-PA).
 
 - GRU-PA 站室绩效考核系统KPI-PA
 
-    ![GRU-PA ver](https://img.shields.io/badge/ver-0.5.518-blue.svg)
-    ![GRU-PA updated](https://img.shields.io/badge/updated-2025/07/18%2018:34-orange.svg)
+    ![GRU-PA ver](https://img.shields.io/badge/ver-0.5.531-blue.svg)
+    ![GRU-PA updated](https://img.shields.io/badge/updated-2025/07/18%2021:40-orange.svg)
     ![GRU-PA build](https://img.shields.io/badge/build-passing-green.svg)
 
 ## 站室绩效考核系统KPI-PA 是一个前端基于 Streamlit 框架，后端基于Python数据处理的web应用，旨在简化站室工作量录入、统计及考核
@@ -22,13 +22,12 @@ Grass-roots unit performance appraisal system (KPI-PA).
 
 ## Install
 
-1. 下载并安装[Python](https://www.python.org/)(3.9<=版本<=3.13)
+1. 下载并安装[Python](https://www.python.org/)(3.9<=版本<3.13)
 2. 下载并安装[MySQL](https://dev.mysql.com/downloads/mysql/)(8.4.5)
 3. 克隆仓库到本地或者解压提供的源代码包
 4. 配置环境变量, 将Python和Streamlit的安装路径添加到环境变量中
 5. 安装依赖
     - 手工安装
-      - MySQL # 数据库
       - Streamlit # 前端框架
       - Streamlit-antd-components/extras/keyup # 前端组件库
       - Streamlit_condition_tree # 条件树SQL语句生成
@@ -62,19 +61,21 @@ Grass-roots unit performance appraisal system (KPI-PA).
     - a. 打开命令行工具cmd或Cmder
     - b. 进入程序目录
     - c. 运行
-      - `streamlit run gru-pa.py --server.port 8510`
+      - `streamlit run gru-pa.py`
 7. 访问地址
     - 本机运行, 请访问`http://localhost:8510` (端口可使用--server.port参数自行修改)
     - 服务器运行，请访问`http://域名:8510` (具体域名请询问管理员)
 
 ## Construction
 
-- .streamlit # Streamlit配置文件, 默认端口8501([修改前请查阅相关文档](https://docs.streamlit.io/develop/api-reference/configuration/config.toml))
+- .streamlit/config.toml # Streamlit配置文件, 默认端口8510([修改前请查阅相关文档](https://docs.streamlit.io/develop/api-reference/configuration/config.toml))
 - gru-pa.py # 入口文件及主程序 All in one
 - commFunc.py # 公共函数
 - gen_badges.py # 徽章生成
 - hf_weather.py # 和风天气API
 - gd_weather.py # 高德天气API
+- user_pa # 用户导出文档
+- ID_Photos # 用户头像, 用于生成面部识别数据(不同步至服务器)
 - MyComponentsScript # 自定义组件脚本
 - css # css样式文件
 - js # js脚本文件
@@ -94,6 +95,7 @@ Grass-roots unit performance appraisal system (KPI-PA).
 - 趋势图
 - 数据检查与审核
 - 高级查询
+- 人脸图片提交
 - 历史天气
 - 公告发布
 - 数据库操作(ID重置及批量更新固定分数项)
@@ -101,6 +103,7 @@ Grass-roots unit performance appraisal system (KPI-PA).
 ## Features
 
 - 采用多种技术简化用户工作量
+- 人脸识别登录
 
 ## Git Repository
 
@@ -110,4 +113,4 @@ Grass-roots unit performance appraisal system (KPI-PA).
 
 ![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-MIT © 2024-2027 Simon Lau TradeMark :rainbow[Enjoy for AP] ™
+MIT © 2025 Simon Lau TradeMark :rainbow[Enjoy for AP] ™

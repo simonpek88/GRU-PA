@@ -75,7 +75,7 @@ def login():
         login_type = sac.segmented(
             items=[
                 sac.SegmentedItem(label="密码登录"),
-                sac.SegmentedItem(label="面部识别登录", disabled=not face_login_available),
+                sac.SegmentedItem(label="人脸识别登录", disabled=not face_login_available),
             ], align="start", color='green'
         )
         # 登录按钮
@@ -99,33 +99,33 @@ def login():
                     st.error("登录失败, 请检查密码, 若忘记密码请联系管理员重置")
             else:
                 st.warning("请选择用户并输入密码")
-        elif login_type == "面部识别登录":
+        elif login_type == "人脸识别登录":
             client_host = st.context.headers['host']
             if not client_host.startswith('localhost'):
                 face_type = 'web-cam'
                 if face_type == 'web-cam':
-                    st.info("正在启动面部识别(web-cam), 请稍等...")
+                    st.info("正在启动人脸识别(web-cam), 请稍等...")
                     login.empty()
                     camera_capture(station_type)
                 elif face_type == 'webrtc':
-                    st.info("正在启动面部识别(webrtc), 请稍等...")
+                    st.info("正在启动人脸识别(webrtc), 请稍等...")
                     face_type = 'webrtc'
                     st.session_state.login_webrtc = True
                     st.session_state.logged_in = True
                     st.session_state.StationCN = station_type
                     st.rerun()
                 else:
-                    st.error("面部识别失败, 请使用密码登录")
+                    st.error("人脸识别失败, 请使用密码登录")
             else:
-                st.info("正在启动面部识别(Logitech-cam), 请稍等...")
+                st.info("正在启动人脸识别(Logitech-cam), 请稍等...")
                 face_type = 'cv'
                 result = face_login_cv(station_type)
     if result:
         login_init(result)
         login.empty()
         st.rerun()
-    elif login_type == "面部识别登录" and buttonLogin and face_type == 'cv':
-        st.error("面部识别失败, 请使用密码登录")
+    elif login_type == "人脸识别登录" and buttonLogin and face_type == 'cv':
+        st.error("人脸识别失败, 请使用密码登录")
 
 
 def login_init(result):
@@ -1796,11 +1796,6 @@ def refresh_users_setup():
             st.session_state[value] = True
             sql = f"INSERT INTO users_setup (userID, userCName, param_name, param_value) VALUES ({st.session_state.userID}, '{st.session_state.userCName}', '{value}', 1)"
             execute_sql_and_commit(conn, cur, sql)
-    camera_exist = check_camera()
-    if not camera_exist:
-        sql = f"UPDATE users_setup SET param_value = 0 where param_name = 'face_login'"
-        execute_sql_and_commit(conn, cur, sql)
-        st.session_state.face_login = False
 
 
 def get_city_code():
@@ -1885,8 +1880,8 @@ def update_users_group_frequency():
 
 
 def get_users_portrait():
-    st.subheader("录入面部数据", divider="green")
-    img_file_buffer = st.camera_input("获取面部图像", width=800)
+    st.subheader("录入人脸数据", divider="green")
+    img_file_buffer = st.camera_input("获取人脸图像", width=800)
 
     if img_file_buffer is not None:
         # To read image file buffer as bytes:
@@ -1905,9 +1900,9 @@ def get_users_portrait():
 
 @st.fragment
 def camera_capture(stationCN):
-    st.subheader("面部识别", divider="green")
-    st.markdown('请点击:red[Take Photo]获取面部图像, 人脸识别后照片会自动销毁, 请放心使用')
-    img_file_buffer = st.camera_input("获取面部图像", width=800)
+    st.subheader("人脸识别", divider="green")
+    st.markdown('请点击:red[Take Photo]获取人脸图像, 人脸识别后照片会自动销毁, 请放心使用')
+    img_file_buffer = st.camera_input("获取人脸图像", width=800)
     if img_file_buffer is not None:
         # To read image file buffer as bytes:
         bytes_data = img_file_buffer.getvalue()
@@ -1924,8 +1919,8 @@ def camera_capture(stationCN):
 
 
 def fr_web_rtc():
-    st.subheader("面部识别", divider="green")
-    st.markdown('请点击:red[开始]进行面部识别')
+    st.subheader("人脸识别", divider="green")
+    st.markdown('请点击:red[开始]进行人脸识别')
     face_recog_result = None
     webrtc_ctx = webrtc_streamer(
         key="video-sendonly",
@@ -1969,11 +1964,11 @@ def fr_web_rtc():
 
 @st.fragment
 def face_recognize_test(stationCN):
-    st.subheader("面部识别测试", divider="rainbow")
-    st.markdown('请点击:red[Take Photo]获取面部图像, 识别后请点击:blue[Clear Photo]恢复视频')
+    st.subheader("人脸识别测试", divider="rainbow")
+    st.markdown('请点击:red[Take Photo]获取人脸图像, 识别后请点击:blue[Clear Photo]恢复视频')
     col = st.columns(5)
     tolerance = col[0].number_input("请输入容差值", min_value=0.2, max_value=1.0, value=0.5, step=0.01)
-    img_file_buffer = st.camera_input("获取面部图像", width=800)
+    img_file_buffer = st.camera_input("获取人脸图像", width=800)
     if img_file_buffer is not None:
         st.info("识别中...")
         # To read image file buffer as bytes:
@@ -2000,8 +1995,8 @@ CHARTFONTSIZE = 14
 MDTASKDAYS = 28
 MAXREVDAYS = 45
 STATION_CITYNAME = {'北京站': '顺义', '天津站': '滨海新区', '总控室': '滨海新区', '调控中心': '滨海新区', '武清站': '武清'}
-SETUP_NAME_PACK = ['static_show', 'weather_show', 'weather_metric', 'weather_provider', 'auto_task_check', 'task_group_sort', 'face_login']
-SETUP_LABEL_PACK = ['主页展示方式: :green[On 静态文字] :orange[Off 特效文字]', '天气展示', '天气展示方式: :green[On 卡片] :orange[Off 文字] :violet[高德只有卡片模式]', '天气数据源: :green[On 和风] :orange[Off 高德]', '自动选择日常工作:', '工作组排序: :green[On 个性化] :orange[Off 固定]', '面部识别登录']
+SETUP_NAME_PACK = ['static_show', 'weather_show', 'weather_metric', 'weather_provider', 'auto_task_check', 'task_group_sort']
+SETUP_LABEL_PACK = ['主页展示方式: :green[On 静态文字] :orange[Off 特效文字]', '天气展示', '天气展示方式: :green[On 卡片] :orange[Off 文字] :violet[高德只有卡片模式]', '天气数据源: :green[On 和风] :orange[Off 高德]', '自动选择日常工作:', '工作组排序: :green[On 个性化] :orange[Off 固定]']
 EXICON = {'基础工作': 'work', '输油作业': 'oil_barrel', '通球扫线': 'panorama_photosphere', '维修保养': 'construction', '过滤器更换': 'tools_installation_kit', '检测检查': 'mystery', '清理保洁': 'cleaning_services'}
 EXICON2 = {'财务工作': 'finance', '台账及报表': 'dataset', '行政管理': 'enterprise', '宣传及党务': 'full_coverage', '汽车管理': 'car_gear', '公务外派': 'business_center', '特殊作业票': 'fact_check', '加班': 'person_play'}
 EXICON.update(EXICON2)
@@ -2047,8 +2042,8 @@ elif st.session_state.logged_in:
                 ]),
                 sac.MenuItem('设置', icon='gear', children=[
                     sac.MenuItem('个人设置', icon='sliders'),
-                    sac.MenuItem('录入面部数据', icon='person-bounding-box'),
-                    sac.MenuItem('面部识别测试', icon='person-video3'),
+                    sac.MenuItem('录入人脸数据', icon='person-bounding-box'),
+                    sac.MenuItem('人脸识别测试', icon='person-video3'),
                 ]),
                 sac.MenuItem('账户', icon='person-gear', children=[
                     sac.MenuItem('密码修改', icon='key'),
@@ -2076,7 +2071,7 @@ elif st.session_state.logged_in:
                 ]),
                 sac.MenuItem('设置', icon='gear', children=[
                     sac.MenuItem('个人设置', icon='sliders'),
-                    sac.MenuItem('录入面部数据', icon='person-bounding-box'),
+                    sac.MenuItem('录入人脸数据', icon='person-bounding-box'),
                 ]),
                 sac.MenuItem('账户', icon='person-gear', children=[
                     sac.MenuItem('密码修改', icon='key'),
@@ -2152,9 +2147,9 @@ elif st.session_state.logged_in:
         reset_table()
     elif selected == "个人设置":
         users_setup()
-    elif selected == "录入面部数据":
+    elif selected == "录入人脸数据":
         get_users_portrait()
-    elif selected == "面部识别测试":
+    elif selected == "人脸识别测试":
         face_recognize_test(st.session_state.StationCN)
     elif selected == "密码修改":
         changePassword()
