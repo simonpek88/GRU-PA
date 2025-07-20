@@ -139,6 +139,11 @@
 					"label": "face_recognize_test"
 				},
 				{
+					"line": 1962,
+					"column": 37,
+					"label": "face_recognize_verify"
+				},
+				{
 					"line": 2019,
 					"column": 32,
 					"label": "main"

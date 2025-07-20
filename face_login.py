@@ -15,11 +15,8 @@ from mysql_pool import get_connection
 
 
 def face_login_cv(StationCN):
-    face_data_all = load_face_data(StationCN)
-    known_encoding, userID_Pack, userID = [], [], None
-    for each in face_data_all:
-        known_encoding.append(each[0])
-        userID_Pack.append(each[1])
+    known_encoding, userID_Pack = load_face_data(StationCN)
+    userID = None
     # 获取摄像头
     cap = cv2.VideoCapture(0)
     # 检查摄像头是否成功打开
@@ -35,7 +32,6 @@ def face_login_cv(StationCN):
 
         #filename = f"./ID_Photos/snapshot_{index}.jpg"
         #cv2.imwrite(filename, frame)
-        #result = face_compare(filename, known_encoding, frame)
         result = face_compare(known_encoding, frame)
         if result[1] or i > 30:
             if result[1]:
@@ -83,7 +79,7 @@ def face_compare(known_faces, face_image, pathIn=None, toleranceValue=0.5):
             if is_match:
                 return index, is_match, results
 
-    return None, False
+    return None, False, None
 
 
 def update_face_data():
@@ -118,21 +114,19 @@ def update_face_data():
 
 
 def load_face_data(StationCN):
-    face_data_all = []
+    face_data_pack, userID_pack = [], []
     sql = f"SELECT userID, face_data FROM users_face_data where StationCN = '{StationCN}'"
     rows = execute_sql(cur, sql)
     for row in rows:
-        face_data_all.append((np.array(row[1].split(), dtype=float), row[0]))
+        face_data_pack.append(np.array(row[1].split(), dtype=float))
+        userID_pack.append(row[0])
 
-    return face_data_all
+    return face_data_pack, userID_pack
 
 
 def face_login_webrtc(StationCN, frame, tolerance=0.5):
-    face_data_all = load_face_data(StationCN)
-    known_encoding, userID_Pack, userID = [], [], None
-    for each in face_data_all:
-        known_encoding.append(each[0])
-        userID_Pack.append(each[1])
+    known_encoding, userID_Pack = load_face_data(StationCN)
+    userID = None
     result = face_compare(known_encoding, frame, pathIn=frame, toleranceValue=tolerance)
     if result[1]:
         userID = userID_Pack[result[0]]
@@ -143,6 +137,18 @@ def face_login_webrtc(StationCN, frame, tolerance=0.5):
         return result
 
     return None
+
+
+def face_recognize_webrtc(StationCN, frame, tolerance=0.5):
+    known_encoding, userID_Pack = load_face_data(StationCN)
+    userID = []
+    result = face_compare(known_encoding, frame, pathIn=frame, toleranceValue=tolerance)
+    if result[2]:
+        for index, value in enumerate(result[2]):
+            if value:
+                userID.append(userID_Pack[index])
+
+    return userID
 
 
 conn = get_connection()

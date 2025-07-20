@@ -29,7 +29,8 @@ from wcwidth import wcswidth
 
 from commFunc import (execute_sql, execute_sql_and_commit, get_update_content,
                       getUserEDKeys, getVerInfo, updatePyFileinfo)
-from face_login import face_login_cv, face_login_webrtc, update_face_data
+from face_login import (face_login_cv, face_login_webrtc,
+                        face_recognize_webrtc, update_face_data)
 from gd_weather import get_city_weather
 from gen_badges import gen_badge
 from hf_weather import get_city_history_weather, get_city_now_weather
@@ -1959,8 +1960,8 @@ def fr_web_rtc():
 
 
 @st.fragment
-def face_recognize_test(stationCN):
-    st.subheader("人脸识别测试", divider="rainbow")
+def face_recognize_verify(stationCN):
+    st.subheader("人脸识别验证", divider="rainbow")
     st.markdown('请点击:red[Take Photo]获取人脸图像, 识别后请点击:blue[Clear Photo]恢复视频')
     col = st.columns(5)
     tolerance = col[0].number_input("请输入容差值", min_value=0.2, max_value=1.0, value=0.5, step=0.01)
@@ -1975,13 +1976,17 @@ def face_recognize_test(stationCN):
         with open(cap_file, "wb") as f:
             f.write(bytes_data)
         if os.path.exists(cap_file):
-            result = face_login_webrtc(stationCN, cap_file, tolerance)
+            all_id = face_recognize_webrtc(stationCN, cap_file, tolerance)
             os.remove(cap_file)
-            if result:
-                for each in result:
-                    st.markdown(f'##### ID: {each[0]} 用户: {each[1]} 站室: {each[3]}')
+            if all_id:
+                for each_id in all_id:
+                    sql = f"SELECT userID, userCName, userType, StationCN, clerk_type from users where userID = {each_id}"
+                    cur.execute(sql)
+                    result = cur.fetchone()
+                    if result:
+                        st.markdown(f'##### ID: {result[0]} 用户: {result[1]} 站室: {result[3]}')
             else:
-                st.warning("未找到匹配用户")
+                st.markdown('##### 未识别出任何用户!')
 
 
 global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, STATION_CITYNAME, SETUP_NAME_PACK, SETUP_LABEL_PACK, MAXREVDAYS, EXICON
@@ -2147,7 +2152,7 @@ elif st.session_state.logged_in:
     elif selected == "录入人脸数据":
         get_users_portrait()
     elif selected == "人脸识别测试":
-        face_recognize_test(st.session_state.StationCN)
+        face_recognize_verify(st.session_state.StationCN)
     elif selected == "密码修改":
         changePassword()
     elif selected == "密码重置":
