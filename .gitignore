@@ -10,7 +10,6 @@ __pycache__/
 docs/
 user_pa/
 .pems/
-Images/badges/
 ID_Photos/snapshot_*.jpg
 FaceCompare.py
 *.pem
