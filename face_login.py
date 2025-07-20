@@ -75,9 +75,10 @@ def face_compare(known_faces, face_image, pathIn=None, toleranceValue=0.5):
     if tmp_encodings:
         unknown_encoding = tmp_encodings[0]
         results = face_recognition.compare_faces(known_faces, unknown_encoding, tolerance=toleranceValue)
+        results_dist = face_recognition.face_distance(known_faces, unknown_encoding)
         for index, is_match in enumerate(results):
             if is_match:
-                return index, is_match, results
+                return index, is_match, results, results_dist
 
     return None, False, None
 
@@ -141,14 +142,17 @@ def face_login_webrtc(StationCN, frame, tolerance=0.5):
 
 def face_recognize_webrtc(StationCN, frame, tolerance=0.5):
     known_encoding, userID_Pack = load_face_data(StationCN)
-    userID = []
+    user_id_distance = []
     result = face_compare(known_encoding, frame, pathIn=frame, toleranceValue=tolerance)
     if result[2]:
+        photo_id = 1
         for index, value in enumerate(result[2]):
             if value:
-                userID.append(userID_Pack[index])
+                user_id_distance.append((round(result[3][index], 3), userID_Pack[index], photo_id))
+                photo_id += 1
+        user_id_distance.sort()
 
-    return userID
+    return user_id_distance
 
 
 conn = get_connection()

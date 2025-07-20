@@ -1967,26 +1967,28 @@ def face_recognize_verify(stationCN):
     tolerance = col[0].number_input("请输入容差值", min_value=0.2, max_value=1.0, value=0.5, step=0.01)
     img_file_buffer = st.camera_input("获取人脸图像", width=800)
     if img_file_buffer is not None:
-        st.info("识别中...")
-        # To read image file buffer as bytes:
-        bytes_data = img_file_buffer.getvalue()
-        # Check the type of bytes_data:
-        # Should output: <class 'bytes'>
-        cap_file = f"./ID_Photos/snapshot_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.jpg"
-        with open(cap_file, "wb") as f:
-            f.write(bytes_data)
-        if os.path.exists(cap_file):
-            all_id = face_recognize_webrtc(stationCN, cap_file, tolerance)
-            os.remove(cap_file)
-            if all_id:
-                for each_id in all_id:
-                    sql = f"SELECT userID, userCName, userType, StationCN, clerk_type from users where userID = {each_id}"
-                    cur.execute(sql)
-                    result = cur.fetchone()
-                    if result:
-                        st.markdown(f'##### ID: {result[0]} 用户: {result[1]} 站室: {result[3]}')
-            else:
-                st.markdown('##### 未识别出任何用户!')
+        info_col = st.columns(2)
+        with info_col[0]:
+            st.info("人脸识别中...")
+            # To read image file buffer as bytes:
+            bytes_data = img_file_buffer.getvalue()
+            # Check the type of bytes_data:
+            # Should output: <class 'bytes'>
+            cap_file = f"./ID_Photos/snapshot_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.jpg"
+            with open(cap_file, "wb") as f:
+                f.write(bytes_data)
+            if os.path.exists(cap_file):
+                all_id_distance = face_recognize_webrtc(stationCN, cap_file, tolerance)
+                os.remove(cap_file)
+                if all_id_distance:
+                    for user_id_distance in all_id_distance:
+                        sql = f"SELECT userID, userCName, userType, StationCN, clerk_type from users where userID = {user_id_distance[1]}"
+                        cur.execute(sql)
+                        result = cur.fetchone()
+                        if result:
+                            st.markdown(f'##### ID: {result[0]} 用户: {result[1]} 站室: {result[3]} / 图像{user_id_distance[2]} 相似度: {round((1 - user_id_distance[0]) * 100, 1)}%')
+                else:
+                    st.markdown('##### 未识别出任何用户!')
 
 
 global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, STATION_CITYNAME, SETUP_NAME_PACK, SETUP_LABEL_PACK, MAXREVDAYS, EXICON
