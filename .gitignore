@@ -6,10 +6,12 @@ __pycache__/
 # C extensions
 *.so
 
+# user files
 docs/
 user_pa/
 .pems/
 ID_Photos/*.jpg
+Images/badges/
 FaceCompare.py
 *.pem
 mysql_pool.py
