@@ -1884,11 +1884,11 @@ def get_users_portrait():
         # Check the type of bytes_data:
         # Should output: <class 'bytes'>
         btn_save_picture = st.button("保存照片")
-        pic_file = f"{st.session_state.userID}_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.jpg"
+        pic_file = f"./ID_Photos/{st.session_state.userID}_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.jpg"
         if btn_save_picture:
-            with open(f"./ID_Photos/{pic_file}", "wb") as f:
+            with open(pic_file, "wb") as f:
                 f.write(bytes_data)
-            if os.path.exists(f"./ID_Photos/{pic_file}"):
+            if os.path.exists(pic_file):
                 st.toast("照片保存成功!")
             else:
                 st.toast("照片保存失败!")
@@ -1903,11 +1903,12 @@ def camera_capture(stationCN):
         bytes_data = img_file_buffer.getvalue()
         # Check the type of bytes_data:
         # Should output: <class 'bytes'>
-        cap_file = f"snapshot_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.jpg"
-        with open(f"./ID_Photos/{cap_file}", "wb") as f:
+        cap_file = f"./ID_Photos/snapshot_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.jpg"
+        with open(cap_file, "wb") as f:
             f.write(bytes_data)
-        if os.path.exists(f"./ID_Photos/{cap_file}"):
-            result = face_login_webrtc(stationCN, f"./ID_Photos/{cap_file}")
+        if os.path.exists(cap_file):
+            result = face_login_webrtc(stationCN, cap_file)
+            os.remove(cap_file)
             if result:
                 login_init(result)
                 st.rerun()
@@ -1970,14 +1971,15 @@ def face_recognize_test(stationCN):
         bytes_data = img_file_buffer.getvalue()
         # Check the type of bytes_data:
         # Should output: <class 'bytes'>
-        cap_file = f"snapshot_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.jpg"
-        with open(f"./ID_Photos/{cap_file}", "wb") as f:
+        cap_file = f"./ID_Photos/snapshot_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.jpg"
+        with open(cap_file, "wb") as f:
             f.write(bytes_data)
-        if os.path.exists(f"./ID_Photos/{cap_file}"):
-            result = face_login_webrtc(stationCN, f"./ID_Photos/{cap_file}", tolerance)
+        if os.path.exists(cap_file):
+            result = face_login_webrtc(stationCN, cap_file, tolerance)
+            os.remove(cap_file)
             if result:
                 for each in result:
-                    st.markdown(f'ID: {each[0]} 用户: {each[1]} 站室: {each[3]}')
+                    st.markdown(f'##### ID: {each[0]} 用户: {each[1]} 站室: {each[3]}')
             else:
                 st.warning("未找到匹配用户")
 

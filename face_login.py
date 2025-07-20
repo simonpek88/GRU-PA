@@ -73,7 +73,7 @@ def clean_snapshot():
 def face_compare(known_faces, face_image, pathIn=None, toleranceValue=0.5):
     if pathIn:
         face_image = face_recognition.load_image_file(pathIn)
-    clean_snapshot()
+    #clean_snapshot()
     face_locations = face_recognition.face_locations(face_image)
     tmp_encodings = face_recognition.face_encodings(face_image, face_locations, num_jitters=10, model='large')
     if tmp_encodings:
