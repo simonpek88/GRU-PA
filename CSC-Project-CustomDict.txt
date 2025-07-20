@@ -40,6 +40,7 @@ DBSTAT
 dcol
 deepseek
 delUserFiles_
+dets
 dmysql
 docxtopdf
 dyna

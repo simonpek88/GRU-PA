@@ -30,7 +30,7 @@ from wcwidth import wcswidth
 
 from commFunc import (execute_sql, execute_sql_and_commit, get_update_content,
                       getUserEDKeys, getVerInfo, updatePyFileinfo)
-from face_login import (face_login_cv, face_login_webrtc,
+from face_login import (clean_snapshot, face_login_cv, face_login_webrtc,
                         face_recognize_webrtc, update_face_data)
 from gd_weather import get_city_weather
 from gen_badges import gen_badge
@@ -44,7 +44,6 @@ from mysql_pool import get_connection
 @st.fragment
 def login():
     st.set_page_config(layout="centered")
-    client_local = True if st.context.headers['host'].startswith('localhost') else False
     face_type = None
     # 显示应用名称
     st.markdown(f"<font face='微软雅黑' color=purple size=20><center>**{APPNAME_CN}**</center></font>", unsafe_allow_html=True)
@@ -97,7 +96,11 @@ def login():
             else:
                 st.warning("请选择用户并输入密码")
         elif login_type == "人脸识别登录":
-            if not client_local:
+            if st.session_state.client_local:
+                st.info("正在启动人脸识别(Local-cam), 请稍等...")
+                face_type = 'cv'
+                result = face_login_cv(station_type)
+            else:
                 face_type = 'web-cam'
                 if face_type == 'web-cam':
                     st.info("正在启动人脸识别(web-cam), 请稍等...")
@@ -112,10 +115,6 @@ def login():
                     st.rerun()
                 else:
                     st.error("人脸识别失败, 请使用密码登录")
-            else:
-                st.info("正在启动人脸识别(Local-cam), 请稍等...")
-                face_type = 'cv'
-                result = face_login_cv(station_type)
     if result:
         login_init(result)
         login.empty()
@@ -1973,7 +1972,8 @@ def face_recognize_verify(stationCN):
     tolerance = col[0].number_input("请输入测试容差值(0.10 - 1.0 越低越严格)", min_value=0.2, max_value=1.0, value=0.5, step=0.01)
     col[1].markdown(f"系统当前值: {tolerance_now}")
     flag_update = col[2].checkbox("更新容差值", False)
-    img_file_buffer = st.camera_input("获取人脸图像", width=800)
+    img_col = st.columns(2)
+    img_file_buffer = img_col[0].camera_input("获取人脸图像", width=800)
     if img_file_buffer is not None:
         st.info(f"容差值为:{round(tolerance, 2)}，人脸识别中...")
         info_col = st.columns(2)
@@ -1988,6 +1988,10 @@ def face_recognize_verify(stationCN):
             all_id_distance = face_recognize_webrtc(stationCN, cap_file, tolerance, False)
             os.remove(cap_file)
             if all_id_distance:
+                if os.path.exists(f'{cap_file[:-4]}_point.jpg'):
+                    with img_col[1]:
+                        st.write('面部识别点')
+                        st.image(f'{cap_file[:-4]}_point.jpg', use_container_width=True)
                 col_index = 0
                 if flag_update:
                     sql = f"UPDATE users_setup set param_value = {int(round(tolerance, 2) * 100)} where param_name = 'face_tolerance'"
@@ -2031,6 +2035,8 @@ selected = None
 
 if "logged_in" not in st.session_state:
     update_face_data()
+    clean_snapshot()
+    st.session_state.client_local = True if st.context.headers['host'].startswith('localhost') else False
     st.session_state.logged_in = False
     st.session_state.login_webrtc = False
     login()

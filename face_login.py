@@ -6,6 +6,7 @@ import cv2
 import face_recognition
 import numpy as np
 
+import dlib
 from commFunc import execute_sql, execute_sql_and_commit
 from mysql_pool import get_connection
 
@@ -182,6 +183,7 @@ def face_recognize_webrtc(StationCN, frame, tolerance=0.5, use_dyna_tolerance=Fa
     user_id_distance = []
     result = face_compare(known_encoding, frame, pathIn=frame, toleranceValue=tolerance, use_dyna_tolerance=use_dyna_tolerance)
     if result[2]:
+        draw_face_point(frame)
         photo_id = 1
         for index, value in enumerate(result[2]):
             if value:
@@ -190,6 +192,48 @@ def face_recognize_webrtc(StationCN, frame, tolerance=0.5, use_dyna_tolerance=Fa
         user_id_distance.sort()
 
     return user_id_distance
+
+
+def draw_face_point(img_file):
+    #dlib预测器
+    detector = dlib.get_frontal_face_detector()
+    #读入68点数据
+    predictor = dlib.shape_predictor('./dlib/shape_predictor_68_face_landmarks.dat')
+
+    #cv2读取图像
+    img = imread_chinese(img_file)
+
+    #与人脸检测程序相同,使用detector进行人脸检测 dets为返回的结果
+    dets = detector(img, 1)
+    #使用enumerate 函数遍历序列中的元素以及它们的下标
+    #下标k即为人脸序号
+    #left：人脸左边距离图片左边界的距离 ；right：人脸右边距离图片左边界的距离
+    #top：人脸上边距离图片上边界的距离 ；bottom：人脸下边距离图片上边界的距离
+    for k, d in enumerate(dets):
+        #print("dets{}".format(d))
+        #print("Detection {}: Left: {} Top: {} Right: {} Bottom: {}".format(k, d.left(), d.top(), d.right(), d.bottom()))
+
+        #使用predictor进行人脸关键点识别 shape为返回的结果
+        shape = predictor(img, d)
+        #获取第一个和第二个点的坐标（相对于图片而不是框出来的人脸）
+        #print("Part 0: {}, Part 1: {} ...".format(shape.part(0),  shape.part(1)))
+
+        #绘制特征点
+        for index, pt in enumerate(shape.parts()):
+            #print('Part {}: {}'.format(index, pt))
+            pt_pos = (pt.x, pt.y)
+            cv2.circle(img, pt_pos, 2, (255, 0, 0), 1)
+
+    cv2.imwrite(f'{img_file[:-4]}_point.jpg', img)
+
+
+def imread_chinese(path):
+    with open(path, 'rb') as f:
+        data = f.read()
+    img_array = np.frombuffer(data, dtype=np.uint8)
+    img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+
+    return img
 
 
 conn = get_connection()
