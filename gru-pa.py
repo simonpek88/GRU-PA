@@ -4,6 +4,7 @@ import datetime
 import importlib.metadata
 import os
 import time
+from io import BytesIO
 
 import nivo_chart as nc
 import numpy as np
@@ -112,7 +113,7 @@ def login():
                 else:
                     st.error("人脸识别失败, 请使用密码登录")
             else:
-                st.info("正在启动人脸识别(Logi-cam), 请稍等...")
+                st.info("正在启动人脸识别(Local-cam), 请稍等...")
                 face_type = 'cv'
                 result = face_login_cv(station_type)
     if result:
@@ -1876,7 +1877,7 @@ def update_users_group_frequency():
 
 def get_users_portrait():
     st.subheader("录入人脸数据", divider="green")
-    st.markdown(":red[仅限本人使用， 否则准确率会大幅降低]")
+    st.markdown(":red[仅限本人使用， 否则识别率会大幅降低]")
     img_file_buffer = st.camera_input("获取人脸图像", width=800)
 
     if img_file_buffer is not None:
@@ -1884,15 +1885,17 @@ def get_users_portrait():
         bytes_data = img_file_buffer.getvalue()
         # Check the type of bytes_data:
         # Should output: <class 'bytes'>
-        btn_save_picture = st.button("保存照片")
+        btn_save_picture = st.button("生成人脸数据")
         pic_file = f"./ID_Photos/{st.session_state.userID}_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.jpg"
         if btn_save_picture:
             with open(pic_file, "wb") as f:
                 f.write(bytes_data)
             if os.path.exists(pic_file):
-                st.toast("照片保存成功!")
+                update_face_data(pic_file.replace('./ID_Photos/', './ID_Photos\\'))
+                st.toast("人脸数据获取成功!")
             else:
-                st.toast("照片保存失败!")
+                st.toast("数据获取失败!")
+
 
 @st.fragment
 def camera_capture(stationCN):
@@ -1965,30 +1968,42 @@ def face_recognize_verify(stationCN):
     st.markdown('请点击:red[Take Photo]获取人脸图像, 识别后请点击:blue[Clear Photo]恢复视频')
     col = st.columns(5)
     tolerance = col[0].number_input("请输入容差值", min_value=0.2, max_value=1.0, value=0.5, step=0.01)
+    flag_update = col[1].checkbox("更新人脸数据", False)
     img_file_buffer = st.camera_input("获取人脸图像", width=800)
     if img_file_buffer is not None:
+        st.info(f"容差值为:{round(tolerance, 2)}，人脸识别中...")
         info_col = st.columns(2)
-        with info_col[0]:
-            st.info("人脸识别中...")
-            # To read image file buffer as bytes:
-            bytes_data = img_file_buffer.getvalue()
-            # Check the type of bytes_data:
-            # Should output: <class 'bytes'>
-            cap_file = f"./ID_Photos/snapshot_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.jpg"
-            with open(cap_file, "wb") as f:
-                f.write(bytes_data)
-            if os.path.exists(cap_file):
-                all_id_distance = face_recognize_webrtc(stationCN, cap_file, tolerance)
-                os.remove(cap_file)
-                if all_id_distance:
-                    for user_id_distance in all_id_distance:
-                        sql = f"SELECT userID, userCName, userType, StationCN, clerk_type from users where userID = {user_id_distance[1]}"
-                        cur.execute(sql)
-                        result = cur.fetchone()
-                        if result:
-                            st.markdown(f'##### ID: {result[0]} 用户: {result[1]} 站室: {result[3]} / 图像{user_id_distance[2]} 相似度: {round((1 - user_id_distance[0]) * 100, 1)}%')
-                else:
-                    st.markdown('##### 未识别出任何用户!')
+        # To read image file buffer as bytes:
+        bytes_data = img_file_buffer.getvalue()
+        # Check the type of bytes_data:
+        # Should output: <class 'bytes'>
+        cap_file = f"./ID_Photos/snapshot_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.jpg"
+        with open(cap_file, "wb") as f:
+            f.write(bytes_data)
+        if os.path.exists(cap_file):
+            all_id_distance = face_recognize_webrtc(stationCN, cap_file, tolerance, False)
+            os.remove(cap_file)
+            if all_id_distance:
+                col_index = 0
+                if flag_update:
+                    sql = f"UPDATE users_setup set param_value = {int(round(tolerance, 2) * 100)} where param_name = 'face_tolerance'"
+                    execute_sql_and_commit(conn, cur, sql)
+                for user_id_distance in all_id_distance:
+                    sql = f"SELECT userID, userCName, userType, StationCN, clerk_type from users where userID = {user_id_distance[1]}"
+                    cur.execute(sql)
+                    result = cur.fetchone()
+                    info_col[col_index % 2].markdown(f'##### ID: {result[0]} 用户: {result[1]} 站室: {result[3]} / 图像{user_id_distance[2]} 相似度: {round((1 - user_id_distance[0]) * 100, 1)}%')
+                    sql = f"SELECT photo_data, upload_time from users_face_data where userID = '{user_id_distance[1]}' and file_hash = '{user_id_distance[3]}' and photo_data is not Null"
+                    cur.execute(sql)
+                    photo_result = cur.fetchone()
+                    if photo_result:
+                        face_photo = BytesIO(photo_result[0])
+                        info_col[col_index % 2].image(face_photo, caption=f'图像{user_id_distance[2]} 上传时间:{photo_result[1]}', use_container_width=True)
+                    else:
+                        info_col[col_index % 2].write(f"图像{user_id_distance[2]} 不存在")
+                    col_index += 1
+            else:
+                st.markdown('##### 未识别出任何用户!')
 
 
 global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, STATION_CITYNAME, SETUP_NAME_PACK, SETUP_LABEL_PACK, MAXREVDAYS, EXICON

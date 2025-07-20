@@ -134,11 +134,6 @@
 					"label": "fr_web_rtc"
 				},
 				{
-					"line": 1946,
-					"column": 35,
-					"label": "face_recognize_test"
-				},
-				{
 					"line": 1962,
 					"column": 37,
 					"label": "face_recognize_verify"

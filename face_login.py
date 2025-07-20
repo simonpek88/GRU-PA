@@ -15,7 +15,7 @@ from mysql_pool import get_connection
 
 
 def face_login_cv(StationCN):
-    known_encoding, userID_Pack = load_face_data(StationCN)
+    known_encoding, userID_Pack, file_hash_pack = load_face_data(StationCN)
     userID = None
     # 获取摄像头
     cap = cv2.VideoCapture(0)
@@ -66,7 +66,12 @@ def clean_snapshot():
                 os.remove(pathIn)
 
 
-def face_compare(known_faces, face_image, pathIn=None, toleranceValue=0.5):
+def face_compare(known_faces, face_image, pathIn=None, toleranceValue=0.5, use_dyna_tolerance=True):
+    if use_dyna_tolerance:
+        sql = "SELECT param_value from users_setup where param_name = 'face_tolerance'"
+        cur.execute(sql)
+        toleranceValue = round(cur.fetchone()[0] / 100, 2)
+    #print(round(toleranceValue, 2))
     if pathIn:
         face_image = face_recognition.load_image_file(pathIn)
     #clean_snapshot()
@@ -83,50 +88,82 @@ def face_compare(known_faces, face_image, pathIn=None, toleranceValue=0.5):
     return None, False, None
 
 
-def update_face_data():
+def update_face_data(filename=None):
+    os.system('cls')
+    file_pack = []
     for root, dirs, files in os.walk('./ID_Photos'):
         for file in files:
             if os.path.splitext(file)[1].lower() == '.jpg' and not os.path.splitext(file)[0].startswith('snapshot_'):
-                face_data = ''
-                userID = os.path.splitext(file)[0]
-                if userID.find('_') != -1:
-                    userID = userID[:userID.find('_')]
                 pathIn = os.path.join(root, file)
-                with open(pathIn, 'rb') as f:
-                    sha1obj = hashlib.sha256()
-                    sha1obj.update(f.read())
-                    file_hash = sha1obj.hexdigest()
-                sql = f"SELECT ID from users_face_data where userID = {userID} and file_hash = '{file_hash}'"
-                if not execute_sql(cur, sql):
-                    face_image = face_recognition.load_image_file(pathIn)
-                    face_locations = face_recognition.face_locations(face_image)
-                    tmp_encodings = face_recognition.face_encodings(face_image, face_locations, num_jitters=10, model='large')
-                    if tmp_encodings:
-                        face_data = ' '.join([str(item) for item in tmp_encodings[0].flatten()])
-                        sql = f"SELECT userCName, StationCN from users where userID = {userID}"
-                        result = execute_sql(cur, sql)
-                        if result:
-                            sql = f"INSERT INTO users_face_data(userID, userCName, face_data, StationCN, file_hash) VALUES ({userID}, '{result[0][0]}', '{face_data}', '{result[0][1]}', '{file_hash}')"
-                            execute_sql_and_commit(conn, cur, sql)
-                        else:
-                            print('获取用户信息失败!')
-                    else:
-                        print('面部数据获取失败!')
+                if filename:
+                    if pathIn == filename:
+                        file_pack.append(pathIn)
+                        break
+                else:
+                    file_pack.append(pathIn)
+    for pathIn in file_pack:
+        face_data = ''
+        userID = pathIn[pathIn.rfind('\\') + 1:-4]
+        if userID.find('_') != -1:
+            userID = userID[:userID.find('_')]
+        file_hash = get_file_sha256(pathIn)
+        with open(pathIn, 'rb') as f:
+            photo_data = f.read()
+        sql = f"SELECT ID from users_face_data where userID = {userID} and file_hash = '{file_hash}'"
+        if not execute_sql(cur, sql):
+            face_image = face_recognition.load_image_file(pathIn)
+            face_locations = face_recognition.face_locations(face_image)
+            tmp_encodings = face_recognition.face_encodings(face_image, face_locations, num_jitters=10, model='large')
+            if tmp_encodings:
+                face_data = ' '.join([str(item) for item in tmp_encodings[0].flatten()])
+                sql = f"SELECT userCName, StationCN from users where userID = {userID}"
+                cur.execute(sql)
+                result = cur.fetchone()
+                if result:
+                    sql = """
+                        INSERT INTO users_face_data (userID, userCName, face_data, StationCN, file_hash, photo_data)
+                        VALUES (%s, %s, %s, %s, %s, %s)
+                    """
+                    cur.execute(sql, (
+                        userID,
+                        result[0],
+                        face_data,
+                        result[1],
+                        file_hash,
+                        photo_data
+                    ))
+                    conn.commit()
+                    #print(userID, result[0], result[1], file_hash)
+                else:
+                    print(f'{pathIn} 获取用户信息失败! 请核对照片ID')
+            else:
+                os.remove(pathIn)
+                print(f'{pathIn} 面部数据获取失败, 照片已经删除!')
+
+
+def get_file_sha256(file_path):
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+
+    return sha256_hash.hexdigest()
 
 
 def load_face_data(StationCN):
-    face_data_pack, userID_pack = [], []
-    sql = f"SELECT userID, face_data FROM users_face_data where StationCN = '{StationCN}'"
+    userID_pack, face_data_pack, file_hash_pack = [], [], []
+    sql = f"SELECT userID, face_data, file_hash, photo_data FROM users_face_data where StationCN = '{StationCN}'"
     rows = execute_sql(cur, sql)
     for row in rows:
-        face_data_pack.append(np.array(row[1].split(), dtype=float))
         userID_pack.append(row[0])
+        face_data_pack.append(np.array(row[1].split(), dtype=float))
+        file_hash_pack.append(row[2])
 
-    return face_data_pack, userID_pack
+    return face_data_pack, userID_pack, file_hash_pack
 
 
 def face_login_webrtc(StationCN, frame, tolerance=0.5):
-    known_encoding, userID_Pack = load_face_data(StationCN)
+    known_encoding, userID_Pack, file_hash_pack = load_face_data(StationCN)
     userID = None
     result = face_compare(known_encoding, frame, pathIn=frame, toleranceValue=tolerance)
     if result[1]:
@@ -140,15 +177,15 @@ def face_login_webrtc(StationCN, frame, tolerance=0.5):
     return None
 
 
-def face_recognize_webrtc(StationCN, frame, tolerance=0.5):
-    known_encoding, userID_Pack = load_face_data(StationCN)
+def face_recognize_webrtc(StationCN, frame, tolerance=0.5, use_dyna_tolerance=False):
+    known_encoding, userID_Pack, file_hash_pack = load_face_data(StationCN)
     user_id_distance = []
-    result = face_compare(known_encoding, frame, pathIn=frame, toleranceValue=tolerance)
+    result = face_compare(known_encoding, frame, pathIn=frame, toleranceValue=tolerance, use_dyna_tolerance=use_dyna_tolerance)
     if result[2]:
         photo_id = 1
         for index, value in enumerate(result[2]):
             if value:
-                user_id_distance.append((round(result[3][index], 3), userID_Pack[index], photo_id))
+                user_id_distance.append((round(result[3][index], 3), userID_Pack[index], photo_id, file_hash_pack[index]))
                 photo_id += 1
         user_id_distance.sort()
 
