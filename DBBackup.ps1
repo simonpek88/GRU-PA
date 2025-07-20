@@ -4,7 +4,7 @@ if (Test-Path $BACKUP_DIR) {
     $TIMESTAMP = Get-Date -Format "yyyyMMddHHmmss"
     $BACKUP_FILE = "$BACKUP_DIR\GRU-PA-MySQL_Backup_$TIMESTAMP.sql"
 
-    cmd /c mysqldump --defaults-file=.mysql.cnf --opt --skip-extended-insert --max_allowed_packet=128M gru-pa > "$BACKUP_FILE"
+    cmd /c mysqldump --defaults-file=.mysql.cnf gru-pa > "$BACKUP_FILE"
     if (Test-Path $BACKUP_FILE) {
         $file = Get-Item $BACKUP_FILE
         if ($file.Length -gt 0) {

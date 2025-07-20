@@ -108,8 +108,6 @@ def update_face_data(filename=None):
         if userID.find('_') != -1:
             userID = userID[:userID.find('_')]
         file_hash = get_file_sha256(pathIn)
-        with open(pathIn, 'rb') as f:
-            photo_data = f.read()
         sql = f"SELECT ID from users_face_data where userID = {userID} and file_hash = '{file_hash}'"
         if not execute_sql(cur, sql):
             face_image = face_recognition.load_image_file(pathIn)
@@ -122,7 +120,7 @@ def update_face_data(filename=None):
                 result = cur.fetchone()
                 if result:
                     sql = """
-                        INSERT INTO users_face_data (userID, userCName, face_data, StationCN, file_hash, photo_data)
+                        INSERT INTO users_face_data (userID, userCName, face_data, StationCN, file_hash, img_filename)
                         VALUES (%s, %s, %s, %s, %s, %s)
                     """
                     cur.execute(sql, (
@@ -131,7 +129,7 @@ def update_face_data(filename=None):
                         face_data,
                         result[1],
                         file_hash,
-                        photo_data
+                        pathIn
                     ))
                     conn.commit()
                     #print(userID, result[0], result[1], file_hash)
@@ -153,7 +151,7 @@ def get_file_sha256(file_path):
 
 def load_face_data(StationCN):
     userID_pack, face_data_pack, file_hash_pack = [], [], []
-    sql = f"SELECT userID, face_data, file_hash, photo_data FROM users_face_data where StationCN = '{StationCN}'"
+    sql = f"SELECT userID, face_data, file_hash FROM users_face_data where StationCN = '{StationCN}'"
     rows = execute_sql(cur, sql)
     for row in rows:
         userID_pack.append(row[0])
@@ -220,7 +218,7 @@ def draw_face_point(img_file):
         for index, pt in enumerate(shape.parts()):
             #print('Part {}: {}'.format(index, pt))
             pt_pos = (pt.x, pt.y)
-            cv2.circle(img, pt_pos, 2, (255, 0, 0), 1)
+            cv2.circle(img, pt_pos, 2, (139, 134, 0), 1)
 
     cv2.imwrite(f'{img_file[:-4]}_point.jpg', img)
 

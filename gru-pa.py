@@ -4,7 +4,6 @@ import datetime
 import importlib.metadata
 import os
 import time
-from io import BytesIO
 
 import nivo_chart as nc
 import numpy as np
@@ -1969,7 +1968,7 @@ def face_recognize_verify(stationCN):
     sql = "SELECT param_value from users_setup where param_name = 'face_tolerance'"
     cur.execute(sql)
     tolerance_now = round(cur.fetchone()[0] / 100, 2)
-    tolerance = col[0].number_input("请输入测试容差值(0.10 - 1.0 越低越严格)", min_value=0.2, max_value=1.0, value=0.5, step=0.01)
+    tolerance = col[0].number_input("请输入测试容差值(0.2 - 0.8 越低越严格)", min_value=0.2, max_value=0.8, value=0.45, step=0.01)
     col[1].markdown(f"系统当前值: {tolerance_now}")
     flag_update = col[2].checkbox("更新容差值", False)
     img_col = st.columns(2)
@@ -1988,10 +1987,11 @@ def face_recognize_verify(stationCN):
             all_id_distance = face_recognize_webrtc(stationCN, cap_file, tolerance, False)
             os.remove(cap_file)
             if all_id_distance:
-                if os.path.exists(f'{cap_file[:-4]}_point.jpg'):
+                cap_file_point = f'{cap_file[:-4]}_point.jpg'
+                if os.path.exists(cap_file_point):
                     with img_col[1]:
                         st.write('面部识别点')
-                        st.image(f'{cap_file[:-4]}_point.jpg', use_container_width=True)
+                        st.image(cap_file_point, use_container_width=True)
                 col_index = 0
                 if flag_update:
                     sql = f"UPDATE users_setup set param_value = {int(round(tolerance, 2) * 100)} where param_name = 'face_tolerance'"
@@ -2001,14 +2001,16 @@ def face_recognize_verify(stationCN):
                     cur.execute(sql)
                     result = cur.fetchone()
                     info_col[col_index % 2].markdown(f'##### ID: {result[0]} 用户: {result[1]} 站室: {result[2]} 相似度: {round((1 - user_id_distance[0]) * 100, 1)}%')
-                    sql = f"SELECT photo_data, upload_time from users_face_data where userID = '{user_id_distance[1]}' and file_hash = '{user_id_distance[2]}' and photo_data is not Null"
+                    sql = f"SELECT img_filename, upload_time from users_face_data where userID = '{user_id_distance[1]}' and file_hash = '{user_id_distance[2]}' and img_filename is not null"
                     cur.execute(sql)
-                    photo_result = cur.fetchone()
-                    if photo_result:
-                        face_photo = BytesIO(photo_result[0])
-                        info_col[col_index % 2].image(face_photo, caption=f'上传时间:{photo_result[1]}', use_container_width=True)
+                    img_file_result = cur.fetchone()
+                    if img_file_result:
+                        if os.path.exists(img_file_result[0]):
+                            info_col[col_index % 2].image(img_file_result[0], caption=f'上传时间:{img_file_result[1]}', use_container_width=True)
+                        else:
+                            info_col[col_index % 2].write(f"图像文件: {img_file_result[0]} 不存在")
                     else:
-                        info_col[col_index % 2].write(f"图像{user_id_distance[2]} 不存在")
+                        info_col[col_index % 2].write(f"图像文件不存在")
                     col_index += 1
             else:
                 st.markdown('##### 未识别出任何用户!')
