@@ -34,7 +34,7 @@ def face_login_cv(StationCN):
         #filename = f"./ID_Photos/snapshot_{index}.jpg"
         #cv2.imwrite(filename, frame)
         result = face_compare(known_encoding, frame)
-        if result[0] or i > 30:
+        if result[0] or i > 20:
             if result[0]:
                 userID = userID_Pack[result[1]]
             break
@@ -63,7 +63,7 @@ def clean_snapshot():
                 os.remove(pathIn)
 
 
-def face_compare(known_faces, face_image, pathIn=None, toleranceValue=0.5, use_dyna_tolerance=True):
+def face_compare(known_faces, face_image, pathIn=None, toleranceValue=0.45, use_dyna_tolerance=True):
     if use_dyna_tolerance:
         sql = "SELECT param_value from users_setup where param_name = 'face_tolerance'"
         cur.execute(sql)
@@ -137,7 +137,7 @@ def update_face_data(filename=None):
                     print(f'{pathIn} 获取用户信息失败! 请核对照片ID')
             else:
                 os.remove(pathIn)
-                print(f'{pathIn} 面部数据获取失败, 照片已经删除!')
+                print(f'{pathIn} 人脸数据获取失败, 照片已经删除!')
 
 
 def get_file_sha256(file_path):
@@ -161,7 +161,7 @@ def load_face_data(StationCN):
     return face_data_pack, userID_pack, file_hash_pack
 
 
-def face_login_webrtc(StationCN, frame, tolerance=0.5):
+def face_login_webrtc(StationCN, frame, tolerance=0.45):
     known_encoding, userID_Pack, file_hash_pack = load_face_data(StationCN)
     userID = None
     result = face_compare(known_encoding, frame, pathIn=frame, toleranceValue=tolerance)
@@ -176,7 +176,7 @@ def face_login_webrtc(StationCN, frame, tolerance=0.5):
     return None
 
 
-def face_recognize_webrtc(StationCN, frame, tolerance=0.5, use_dyna_tolerance=False):
+def face_recognize_webrtc(StationCN, frame, tolerance=0.45, use_dyna_tolerance=False):
     known_encoding, userID_Pack, file_hash_pack = load_face_data(StationCN)
     user_id_distance = []
     result = face_compare(known_encoding, frame, pathIn=frame, toleranceValue=tolerance, use_dyna_tolerance=use_dyna_tolerance)

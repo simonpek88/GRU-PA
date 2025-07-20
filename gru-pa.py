@@ -1968,7 +1968,7 @@ def face_recognize_verify(stationCN):
     sql = "SELECT param_value from users_setup where param_name = 'face_tolerance'"
     cur.execute(sql)
     tolerance_now = round(cur.fetchone()[0] / 100, 2)
-    tolerance = col[0].number_input("请输入测试容差值(0.2 - 0.8 越低越严格)", min_value=0.2, max_value=0.8, value=0.45, step=0.01)
+    tolerance = col[0].number_input("请输入测试容差值 (越低越严格)", min_value=0.2, max_value=0.8, value=0.45, step=0.01, help='输入范围0.2-0.8, 越低越严格')
     col[1].markdown(f"系统当前值: {tolerance_now}")
     flag_update = col[2].checkbox("更新容差值", False)
     img_col = st.columns(2)
@@ -2000,7 +2000,7 @@ def face_recognize_verify(stationCN):
                     sql = f"SELECT userID, userCName, StationCN from users where userID = {user_id_distance[1]}"
                     cur.execute(sql)
                     result = cur.fetchone()
-                    info_col[col_index % 2].markdown(f'##### ID: {result[0]} 用户: {result[1]} 站室: {result[2]} 相似度: {round((1 - user_id_distance[0]) * 100, 1)}%')
+                    info_col[col_index % 2].markdown(f'##### 用户: {result[1]} 站室: {result[2]} 相似度: {round((1 - user_id_distance[0]) * 100, 1)}%')
                     sql = f"SELECT img_filename, upload_time from users_face_data where userID = '{user_id_distance[1]}' and file_hash = '{user_id_distance[2]}' and img_filename is not null"
                     cur.execute(sql)
                     img_file_result = cur.fetchone()
