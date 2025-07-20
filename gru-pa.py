@@ -79,7 +79,6 @@ def login():
 
     # 如果点击了登录按钮
     result = None
-    face_webrtc = False
     if buttonLogin:
         if login_type == "密码登录":
             # 如果用户编码和密码不为空
