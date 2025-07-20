@@ -34,13 +34,9 @@ def face_login_cv(StationCN):
         #filename = f"./ID_Photos/snapshot_{index}.jpg"
         #cv2.imwrite(filename, frame)
         result = face_compare(known_encoding, frame)
-        if result[1] or i > 30:
-            if result[1]:
-                userID = userID_Pack[result[0]]
-                if debug:
-                    for index, value in enumerate(result[2]):
-                        if value:
-                            print(f"用户ID: {userID_Pack[index]} 识别: {value}")
+        if result[0] or i > 30:
+            if result[0]:
+                userID = userID_Pack[result[1]]
             break
         else:
             i += 1
@@ -82,15 +78,19 @@ def face_compare(known_faces, face_image, pathIn=None, toleranceValue=0.5, use_d
         unknown_encoding = tmp_encodings[0]
         results = face_recognition.compare_faces(known_faces, unknown_encoding, tolerance=toleranceValue)
         results_dist = face_recognition.face_distance(known_faces, unknown_encoding)
+        all_results = []
         for index, is_match in enumerate(results):
             if is_match:
-                return index, is_match, results, results_dist
+                all_results.append([results_dist[index], index])
+        if all_results:
+            all_results.sort()
+            return True, all_results[0][1], all_results[0][0], results, results_dist
+        return False, None, None
 
-    return None, False, None
+    return False, None, None
 
 
 def update_face_data(filename=None):
-    os.system('cls')
     file_pack = []
     for root, dirs, files in os.walk('./ID_Photos'):
         for file in files:
@@ -167,8 +167,8 @@ def face_login_webrtc(StationCN, frame, tolerance=0.5):
     known_encoding, userID_Pack, file_hash_pack = load_face_data(StationCN)
     userID = None
     result = face_compare(known_encoding, frame, pathIn=frame, toleranceValue=tolerance)
-    if result[1]:
-        userID = userID_Pack[result[0]]
+    if result[0]:
+        userID = userID_Pack[result[1]]
 
     if userID:
         sql = f"SELECT userID, userCName, userType, StationCN, clerk_type from users where userID = {userID}"
@@ -182,13 +182,11 @@ def face_recognize_webrtc(StationCN, frame, tolerance=0.5, use_dyna_tolerance=Fa
     known_encoding, userID_Pack, file_hash_pack = load_face_data(StationCN)
     user_id_distance = []
     result = face_compare(known_encoding, frame, pathIn=frame, toleranceValue=tolerance, use_dyna_tolerance=use_dyna_tolerance)
-    if result[2]:
+    if result[0]:
         draw_face_point(frame)
-        photo_id = 1
-        for index, value in enumerate(result[2]):
+        for index, value in enumerate(result[3]):
             if value:
-                user_id_distance.append((round(result[3][index], 3), userID_Pack[index], photo_id, file_hash_pack[index]))
-                photo_id += 1
+                user_id_distance.append((round(result[4][index], 3), userID_Pack[index], file_hash_pack[index]))
         user_id_distance.sort()
 
     return user_id_distance
@@ -239,4 +237,3 @@ def imread_chinese(path):
 conn = get_connection()
 cur = conn.cursor()
 cmd = 'setx OPENCV_VIDEOIO_PRIORITY_MSMF 0'
-debug = False

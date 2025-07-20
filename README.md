@@ -4,8 +4,8 @@ Grass-roots unit performance appraisal system (KPI-PA).
 
 - GRU-PA 站室绩效考核系统KPI-PA
 
-    ![GRU-PA ver](https://img.shields.io/badge/ver-0.5.531-blue.svg)
-    ![GRU-PA updated](https://img.shields.io/badge/updated-2025/07/18%2021:40-orange.svg)
+    ![GRU-PA ver](https://img.shields.io/badge/ver-0.5.572-blue.svg)
+    ![GRU-PA updated](https://img.shields.io/badge/updated-2025/07/20%2021:46-orange.svg)
     ![GRU-PA build](https://img.shields.io/badge/build-passing-green.svg)
 
 ## 站室绩效考核系统KPI-PA 是一个前端基于 Streamlit 框架，后端基于Python数据处理的web应用，旨在简化站室工作量录入、统计及考核
@@ -36,7 +36,7 @@ Grass-roots unit performance appraisal system (KPI-PA).
       - Python-docx # Word文档操作
       - Openpyxl/XlsxWriter # Excel文档操作
       - Opencv-python # 图像处理
-      - Dlib # 人脸识别库
+      - Dlib # 人脸识别库(可选GPU加速)
       - Face-recognition # 人脸识别
       - PyJWT # JSON Web Token认证
       - ...
@@ -44,13 +44,13 @@ Grass-roots unit performance appraisal system (KPI-PA).
       ![Python](https://img.shields.io/badge/Python-3.12.6-blue.svg)
       ![MySQL](https://img.shields.io/badge/MySQL-8.4.5-blue.svg)
       ![Streamlit](https://img.shields.io/badge/Streamlit-1.47.0-blue.svg)
-      ![NumPY](https://img.shields.io/badge/NumPY-2.2.6-blue.svg)
-      ![Pandas](https://img.shields.io/badge/Pandas-2.3.1-blue.svg)
+      ![NumPY](https://img.shields.io/badge/NumPY-1.26.4-blue.svg)
+      ![Pandas](https://img.shields.io/badge/Pandas-2.3.0-blue.svg)
       ![Plotly](https://img.shields.io/badge/Plotly-6.2.0-blue.svg)
       ![Python-docx](https://img.shields.io/badge/Python_docx-1.2.0-blue.svg)
       ![Openpyxl](https://img.shields.io/badge/Openpyxl-3.1.5-blue.svg)
       ![XlsxWriter](https://img.shields.io/badge/XlsxWriter-3.2.5-blue.svg)
-      ![Opencv-python](https://img.shields.io/badge/Opencv_python-4.12.0.88-blue.svg)
+      ![Opencv-python](https://img.shields.io/badge/Opencv_python-4.11.0.86-blue.svg)
       ![Dlib](https://img.shields.io/badge/Dlib-20.0.0-blue.svg)
       ![Face-recognition](https://img.shields.io/badge/Face_recognition-1.3.0-blue.svg)
       ![PyJWT](https://img.shields.io/badge/PyJWT-2.10.1-blue.svg)
@@ -75,7 +75,7 @@ Grass-roots unit performance appraisal system (KPI-PA).
 - hf_weather.py # 和风天气API
 - gd_weather.py # 高德天气API
 - user_pa # 用户导出文档
-- ID_Photos # 用户头像, 用于生成面部识别数据(不同步至服务器)
+- ID_Photos # 用户面部图像, 用于生成人脸识别数据(加密后存储于数据库)
 - MyComponentsScript # 自定义组件脚本
 - css # css样式文件
 - js # js脚本文件

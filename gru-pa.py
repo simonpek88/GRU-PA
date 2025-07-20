@@ -1997,16 +1997,16 @@ def face_recognize_verify(stationCN):
                     sql = f"UPDATE users_setup set param_value = {int(round(tolerance, 2) * 100)} where param_name = 'face_tolerance'"
                     execute_sql_and_commit(conn, cur, sql)
                 for user_id_distance in all_id_distance:
-                    sql = f"SELECT userID, userCName, userType, StationCN, clerk_type from users where userID = {user_id_distance[1]}"
+                    sql = f"SELECT userID, userCName, StationCN from users where userID = {user_id_distance[1]}"
                     cur.execute(sql)
                     result = cur.fetchone()
-                    info_col[col_index % 2].markdown(f'##### ID: {result[0]} 用户: {result[1]} 站室: {result[3]} / 图像{user_id_distance[2]} 相似度: {round((1 - user_id_distance[0]) * 100, 1)}%')
-                    sql = f"SELECT photo_data, upload_time from users_face_data where userID = '{user_id_distance[1]}' and file_hash = '{user_id_distance[3]}' and photo_data is not Null"
+                    info_col[col_index % 2].markdown(f'##### ID: {result[0]} 用户: {result[1]} 站室: {result[2]} 相似度: {round((1 - user_id_distance[0]) * 100, 1)}%')
+                    sql = f"SELECT photo_data, upload_time from users_face_data where userID = '{user_id_distance[1]}' and file_hash = '{user_id_distance[2]}' and photo_data is not Null"
                     cur.execute(sql)
                     photo_result = cur.fetchone()
                     if photo_result:
                         face_photo = BytesIO(photo_result[0])
-                        info_col[col_index % 2].image(face_photo, caption=f'图像{user_id_distance[2]} 上传时间:{photo_result[1]}', use_container_width=True)
+                        info_col[col_index % 2].image(face_photo, caption=f'上传时间:{photo_result[1]}', use_container_width=True)
                     else:
                         info_col[col_index % 2].write(f"图像{user_id_distance[2]} 不存在")
                     col_index += 1
