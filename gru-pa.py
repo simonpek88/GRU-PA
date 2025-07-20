@@ -1965,10 +1965,14 @@ def fr_web_rtc():
 @st.fragment
 def face_recognize_verify(stationCN):
     st.subheader("人脸识别验证", divider="rainbow")
-    st.markdown('请点击:red[Take Photo]获取人脸图像, 识别后请点击:blue[Clear Photo]恢复视频')
+    st.markdown('请点击:red[Take Photo]获取人脸图像, 识别后请点击:blue[Clear photo]恢复视频')
     col = st.columns(5)
-    tolerance = col[0].number_input("请输入容差值", min_value=0.2, max_value=1.0, value=0.5, step=0.01)
-    flag_update = col[1].checkbox("更新人脸数据", False)
+    sql = "SELECT param_value from users_setup where param_name = 'face_tolerance'"
+    cur.execute(sql)
+    tolerance_now = round(cur.fetchone()[0] / 100, 2)
+    tolerance = col[0].number_input("请输入测试容差值(0.10 - 1.0 越低越严格)", min_value=0.2, max_value=1.0, value=0.5, step=0.01)
+    col[1].markdown(f"系统当前值: {tolerance_now}")
+    flag_update = col[2].checkbox("更新容差值", False)
     img_file_buffer = st.camera_input("获取人脸图像", width=800)
     if img_file_buffer is not None:
         st.info(f"容差值为:{round(tolerance, 2)}，人脸识别中...")
