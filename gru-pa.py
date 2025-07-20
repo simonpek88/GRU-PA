@@ -96,7 +96,7 @@ def login():
                 st.warning("请选择用户并输入密码")
         elif login_type == "人脸识别登录":
             if st.session_state.client_local:
-                st.info("正在启动人脸识别(Local-cam), 请稍等...")
+                st.info("正在启动人脸识别(local-cam), 请稍等...")
                 face_type = 'cv'
                 result = face_login_cv(station_type)
             else:

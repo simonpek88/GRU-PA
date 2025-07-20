@@ -30,17 +30,17 @@ def face_login_cv(StationCN):
 
         # 显示图像
         #cv2.imshow("Face Recognize", frame)
-
-        #filename = f"./ID_Photos/snapshot_{index}.jpg"
+        # 保存图片
+        #filename = f"./ID_Photos/snapshot_{i}.jpg"
         #cv2.imwrite(filename, frame)
         result = face_compare(known_encoding, frame)
-        if result[0] or i > 20:
+        if result[0] or i > 40:
             if result[0]:
                 userID = userID_Pack[result[1]]
             break
         else:
             i += 1
-            time.sleep(0.5)
+            time.sleep(0.2)
 
     # 释放摄像头
     cap.release()
