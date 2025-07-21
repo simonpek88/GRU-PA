@@ -283,7 +283,7 @@ def changelog():
 
 def aboutReadme():
     new_content = ''
-    package_pack = ['Streamlit', 'NumPY', 'Pandas', 'Plotly', 'Python-docx', 'Openpyxl', 'XlsxWriter', 'Opencv-python', 'Dlib', 'Face-recognition', 'PyJWT']
+    package_pack = ['Streamlit', 'NumPY', 'Pandas', 'Plotly', 'Python-docx', 'Openpyxl', 'XlsxWriter', 'PyJWT', 'Dlib', 'Face-recognition', 'Opencv-python', 'Streamlit-webrtc']
     with open('./README.md', 'r', encoding='utf-8') as file:
         lines = file.readlines()
 
@@ -294,7 +294,7 @@ def aboutReadme():
         if line.startswith("    ![GRU-PA ver]"):
             line = f"    ![GRU-PA ver](https://img.shields.io/badge/ver-{app_version}-blue.svg)"
         elif line.startswith("    ![GRU-PA updated]"):
-            line = f"    ![GRU-PA updated](https://img.shields.io/badge/updated-{app_lm.replace('-', '/')[:10]}%20{app_lm[-5:]}-orange.svg)"
+            line = f"    ![GRU-PA updated](https://img.shields.io/badge/updated-{app_lm.replace('-', '/')[2:10]}%20{app_lm[-5:]}-orange.svg)"
         elif line.startswith("      !["):
             for each in package_pack:
                 if line.startswith(f"      ![{each}]"):
@@ -445,7 +445,6 @@ def task_input():
                     execute_sql_and_commit(conn, cur, sql)
                     st.toast(f"工作量: [{task_content}] 分值: [{task_score}] 添加成功！")
                     sql = f"UPDATE pa_share set share_score = share_score - {task_score} where pa_ID = {task_id} and StationCN = '{st.session_state.StationCN}' and share_date = '{task_date}'"
-                    print(sql)
                     execute_sql_and_commit(conn, cur, sql)
                 else:
                     st.warning(f"工作量: [{task_content}] 已存在！")
@@ -478,7 +477,9 @@ def show_task_list(row2, task_date, flag_auto_task):
         sql = f"SELECT share_score from pa_share WHERE pa_id = {row2[0]} and share_date = '{task_date}'"
         cur.execute(sql)
         share_score = cur.fetchone()[0]
-        task_col[0].number_input(label=":red[共享分值]", min_value=1, max_value=share_score, value=int(share_score / 2), step=1, key=f"task_score_{row2[0]}", help=f"最大值{share_score}, 共享分值请与协作者协商后填写")
+        if share_score < 0:
+            share_score = 0
+        task_col[0].number_input(label=":red[共享分值]", min_value=0, max_value=share_score, value=int(share_score / 2), step=1, key=f"task_score_{row2[0]}", help=f"最大值{share_score}, 共享分值请与协作者协商后填写")
 
 
 def query_task():
@@ -843,7 +844,7 @@ def reset_table_num(flag_force=False):
                     execute_sql_and_commit(conn, cur, sql)
                     i += 2
         if not flag_force:
-            st.success("数据库ID重置成功")
+            st.success("数据库PA-Number重置成功")
 
 
 #@st.fragment
@@ -937,7 +938,7 @@ def check_data():
     query_date_start = col1.date_input('查询开始时间', value=datetime.date.today())
     query_date_end = col2.date_input('查询结束时间', value=datetime.date.today())
     dur_time = query_date_end - query_date_start
-    st.markdown(f'##### 统计周期: {dur_time.days}天')
+    st.markdown(f'##### 统计周期: {dur_time.days + 1}天')
     confirm_btn_check = col1.button("检查")
     confirm_btn_approv = col2.button("核定")
     if confirm_btn_check:
@@ -1837,12 +1838,12 @@ def reset_table():
     st.markdown("#### ⚠️请谨慎操作, 记录不可恢复")
     reset_type = sac.segmented(
         items=[
-            sac.SegmentedItem(label="重置数据库ID", icon="bootstrap-reboot"),
+            sac.SegmentedItem(label="重置PA-Number", icon="bootstrap-reboot"),
             sac.SegmentedItem(label="更新固定分值", icon="database-up"),
         ], align="center"
     )
 
-    if reset_type == "重置数据库ID":
+    if reset_type == "重置PA-Number":
         reset_table_num()
     elif reset_type == "更新固定分值":
         btn_update_fixed_score = st.button(label="更新固定分值", type='primary')
