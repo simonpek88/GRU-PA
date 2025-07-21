@@ -170,12 +170,13 @@ def execute_sql_and_commit(conn, cur, sql, params=None):
 
 
 def updatePyFileinfo():
+    allow_file_type = ['.py', '.md', '.ps1', '.bat', '.txt']
     for root, dirs, files in os.walk("./"):
         # 当遍历到根目录时
         if root == "./":
             for file in files:
                 # 判断文件后缀是否为.py且文件名不以"test-"开头
-                if os.path.splitext(file)[1].lower() == '.py' and not os.path.splitext(file)[0].lower().startswith("test-"):
+                if os.path.splitext(file)[1].lower() in allow_file_type and not os.path.splitext(file)[0].lower().startswith("test-"):
                     # 获取文件的完整路径
                     pathIn = os.path.join(root, file)
                     # 获取文件名（不含后缀）
