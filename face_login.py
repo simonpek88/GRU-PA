@@ -191,34 +191,39 @@ def face_recognize_webrtc(StationCN, frame, tolerance=0.45, use_dyna_tolerance=F
 
 
 def draw_face_point(img_file):
-    #dlib预测器
+    # dlib预测器
     detector = dlib.get_frontal_face_detector()
-    #读入68点数据
+    # 读入68点数据
     predictor = dlib.shape_predictor('./dlib/shape_predictor_68_face_landmarks.dat')
 
-    #cv2读取图像
+    # cv2读取图像
     img = imread_chinese(img_file)
 
-    #与人脸检测程序相同,使用detector进行人脸检测 dets为返回的结果
+    # 与人脸检测程序相同,使用detector进行人脸检测 dets为返回的结果
     dets = detector(img, 1)
-    #使用enumerate 函数遍历序列中的元素以及它们的下标
-    #下标k即为人脸序号
-    #left：人脸左边距离图片左边界的距离 ；right：人脸右边距离图片左边界的距离
-    #top：人脸上边距离图片上边界的距离 ；bottom：人脸下边距离图片上边界的距离
+    # 使用enumerate 函数遍历序列中的元素以及它们的下标
+    # 下标k即为人脸序号
+    # left：人脸左边距离图片左边界的距离 ；right：人脸右边距离图片左边界的距离
+    # top：人脸上边距离图片上边界的距离 ；bottom：人脸下边距离图片上边界的距离
     for k, d in enumerate(dets):
         #print("dets{}".format(d))
         #print("Detection {}: Left: {} Top: {} Right: {} Bottom: {}".format(k, d.left(), d.top(), d.right(), d.bottom()))
 
-        #使用predictor进行人脸关键点识别 shape为返回的结果
+        # 使用predictor进行人脸关键点识别 shape为返回的结果
         shape = predictor(img, d)
-        #获取第一个和第二个点的坐标（相对于图片而不是框出来的人脸）
+        # 获取第一个和第二个点的坐标（相对于图片而不是框出来的人脸）
         #print("Part 0: {}, Part 1: {} ...".format(shape.part(0),  shape.part(1)))
 
-        #绘制特征点
+        # 绘制特征点
         for index, pt in enumerate(shape.parts()):
             #print('Part {}: {}'.format(index, pt))
             pt_pos = (pt.x, pt.y)
-            cv2.circle(img, pt_pos, 2, (139, 134, 0), 1)
+            cv2.circle(img, pt_pos, 2, (255, 0, 0), 1)
+        # 在人脸框左上角添加序号
+        cv2.putText(img, f"Face {k + 1}", (d.left(), d.top() - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 1, lineType=cv2.LINE_AA)
+        # 绘制头像框
+        cv2.rectangle(img, (d.left(), d.top()), (d.right(), d.bottom()), (139, 134, 0), 2)
 
     cv2.imwrite(f'{img_file[:-4]}_point.jpg', img)
 
