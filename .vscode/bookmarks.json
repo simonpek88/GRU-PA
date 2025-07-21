@@ -44,7 +44,7 @@
 					"label": "task_input"
 				},
 				{
-					"line": 366,
+					"line": 491,
 					"column": 17,
 					"label": "query_task"
 				},
@@ -54,14 +54,9 @@
 					"label": "task_modify"
 				},
 				{
-					"line": 646,
+					"line": 785,
 					"column": 19,
-					"label": "manual_input"
-				},
-				{
-					"line": 743,
-					"column": 22,
-					"label": "deduction_input"
+					"label": "manual input"
 				},
 				{
 					"line": 857,
@@ -77,6 +72,11 @@
 					"line": 976,
 					"column": 54,
 					"label": "chart_type"
+				},
+				{
+					"line": 1068,
+					"column": 22,
+					"label": "deduction_input"
 				},
 				{
 					"line": 1081,

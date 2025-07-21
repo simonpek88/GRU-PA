@@ -784,53 +784,65 @@ def _new_page_field(run, field_code):
 
 
 def manual_input():
-    items = []
     #st.markdown("### <font face='微软雅黑' color=red><center>工作量手工录入</center></font>", unsafe_allow_html=True)
     st.subheader("工作量手工录入", divider="green")
-    st.markdown(f"#### 当前用户: {st.session_state.userCName}")
+    items = []
+    col1, col2, col3, col4 = st.columns(4)
+    if st.session_state.userType == 'admin':
+        userID, userCName = [], []
+        sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa = 1 order by ID"
+        rows = execute_sql(cur, sql)
+        for row in rows:
+            userID.append(row[0])
+            userCName.append(row[1])
+        add_userCName = col1.selectbox("请选择查询用户", userCName)
+        add_userID = userID[userCName.index(add_userCName)]
+    elif st.session_state.userType == 'user':
+        col1.markdown(f"#### 当前用户: {st.session_state.userCName}")
+        add_userCName = st.session_state.userCName
+        add_userID = st.session_state.userID
     sql = f"SELECT DISTINCT(task_group) from gru_pa where StationCN = '{st.session_state.StationCN}'"
     rows = execute_sql(cur, sql)
     for row in rows:
         items.append(row[0])
-    col1, col2, col3 = st.columns(3)
-    task_date = col1.date_input('工作时间', value=datetime.date.today(), max_value="today")
-    task_group = col2.selectbox('工作组别', items, index=None, accept_new_options=True)
-    task_score = col3.number_input("单项分值", min_value=1, max_value=300, value=10, step=1)
-    opt = st.columns(4)
+    task_date = col2.date_input('工作时间', value=datetime.date.today(), max_value="today")
+    task_group = col3.selectbox('工作组别', items, index=None, accept_new_options=True)
+    task_score = col4.number_input("单项分值", min_value=1, max_value=300, value=10, step=1)
     if st.session_state.userType == 'admin':
-        with opt[0]:
+        with col1:
             flag_add_pa = sac.switch("加入固定列表", value=False, align="start", on_label="On")
-        with opt[1]:
+        with col2:
             flag_multi_score = sac.switch("多倍计算", value=False, align="start", on_label="On")
-        with opt[2]:
+        with col3:
             flag_comm_task = sac.switch("设为常用", value=False, align="start", on_label="On")
-        with opt[3]:
+        with col4:
             flag_share_score = sac.switch("共享分值", value=False, align="start", on_label="On")
     else:
         flag_add_pa, flag_multi_score, flag_comm_task, flag_share_score = False, False, False, False
     task_content = st.text_area("工作内容", height=100)
     confirm_btn_manual = st.button("确认添加")
     if task_group and task_content and confirm_btn_manual:
-        sql = f"SELECT ID from clerk_work where task_date = '{task_date}' and clerk_id = {st.session_state.userID} and clerk_work = '{task_content}' and task_group = '{task_group}'"
+        sql = f"SELECT ID from clerk_work where task_date = '{task_date}' and clerk_id = {add_userID} and clerk_work = '{task_content}' and task_group = '{task_group}'"
         if not execute_sql(cur, sql):
-            sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group, StationCN) VALUES ('{task_date}', {st.session_state.userID}, '{st.session_state.userCName}', '{task_content}', {task_score}, '{task_group}', '{st.session_state.StationCN}')"
+            sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group, StationCN) VALUES ('{task_date}', {add_userID}, '{add_userCName}', '{task_content}', {task_score}, '{task_group}', '{st.session_state.StationCN}')"
             execute_sql_and_commit(conn, cur, sql)
-            st.toast(f"工作量: [{task_content}] 添加成功！")
+            st.toast(f"用户: :green[{add_userCName}] 工作量: :blue[{task_content}] 添加成功！")
         else:
-            st.warning(f"工作量: [{task_content}] 已存在！")
+            st.warning(f"工作量: :blue[{task_content}] 已存在！")
         if flag_add_pa:
             sql = f"SELECT ID from gru_pa where StationCN = '{st.session_state.StationCN}' and pa_content = '{task_content}' and task_group = '{task_group}' and pa_score = {task_score}"
             if not execute_sql(cur, sql):
                 sql = f"INSERT INTO gru_pa (pa_content, pa_score, pa_group, task_group, multi_score, comm_task, StationCN, pa_share) VALUES ('{task_content}', {task_score}, '全员', '{task_group}', {int(flag_multi_score)}, {int(flag_comm_task)}, '{st.session_state.StationCN}', {int(flag_share_score)})"
                 execute_sql_and_commit(conn, cur, sql)
                 reset_table_num(True)
-                st.toast(f"工作量: [{task_content}] 添加至列表成功！")
+                st.toast(f"工作量: :blue[{task_content}] 添加至列表成功！")
             else:
-                st.warning(f"工作量: [{task_content}] 在列表中已存在！")
+                st.warning(f"工作量: :blue[{task_content}] 在列表中已存在！")
     elif not task_group:
         st.warning(f"请选择工作组！")
     elif not task_content:
         st.warning(f"请输入工作内容！")
+
 
 def reset_table_num(flag_force=False):
     if not flag_force:
@@ -1085,12 +1097,12 @@ def deduction_input():
         if deduct_content:
             sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group, task_approved, StationCN) VALUES ('{deduct_date}', {deduct_userID}, '{deduct_userCName}', '{deduct_content}', {deduct_score}, '扣分', 1, '{st.session_state.StationCN}')"
             execute_sql_and_commit(conn, cur, sql)
-            st.success(f"{deduct_userCName} 扣分项添加成功")
+            st.success(f"用户: :blue[{deduct_userCName}] 扣分项: :red[{deduct_content}] 添加成功")
             sql = f"SELECT ID from gru_pa_deduct where pa_content = '{deduct_content}' and pa_score = {deduct_score} and StationCN = '{st.session_state.StationCN}'"
             if not execute_sql(cur, sql):
                 sql = f"INSERT INTO gru_pa_deduct(pa_content, pa_score, StationCN) VALUES ('{deduct_content}', {deduct_score}, '{st.session_state.StationCN}')"
                 execute_sql_and_commit(conn, cur, sql)
-                st.success(f"{deduct_content} 扣分项已添加至固定列表")
+                st.success(f"扣分项: :red[{deduct_content}] 已添加至固定列表")
                 reset_table_num(True)
         else:
             st.error("请输入扣分项内容")
