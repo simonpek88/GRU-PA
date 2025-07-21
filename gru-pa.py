@@ -2105,6 +2105,10 @@ elif st.session_state.logged_in:
         #displaySmallTime()
         #displaySmallClock()
         if st.session_state.userType == "admin":
+            if st.session_state.userID == 1:
+                dangerous_func = True
+            else:
+                dangerous_func = False
             selected = sac.menu([
                 sac.MenuItem('公告', icon='megaphone'),
                 sac.MenuItem('主页', icon='house'),
@@ -2119,7 +2123,7 @@ elif st.session_state.logged_in:
                     sac.MenuItem('高级查询', icon='search'),
                     sac.MenuItem('历史天气', icon='cloud-sun'),
                     sac.MenuItem('公告发布', icon='journal-arrow-up'),
-                    sac.MenuItem("数据库操作", icon="database-check"),
+                    sac.MenuItem("数据库操作", icon="database-check", disabled=not dangerous_func),
                 ]),
                 sac.MenuItem('设置', icon='gear', children=[
                     sac.MenuItem('个人设置', icon='sliders'),
