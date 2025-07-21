@@ -1994,7 +1994,8 @@ def face_recognize_verify(stationCN):
             f.write(bytes_data)
         if os.path.exists(cap_file):
             all_id_distance = face_recognize_webrtc(stationCN, cap_file, tolerance, False)
-            os.remove(cap_file)
+            if os.path.exists(cap_file):
+                os.remove(cap_file)
             if all_id_distance:
                 cap_file_point = f'{cap_file[:-4]}_point.jpg'
                 if os.path.exists(cap_file_point):
