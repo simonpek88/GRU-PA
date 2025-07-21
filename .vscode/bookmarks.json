@@ -39,9 +39,9 @@
 					"label": "display_pypi"
 				},
 				{
-					"line": 343,
+					"line": 364,
 					"column": 17,
-					"label": "task input"
+					"label": "task_input"
 				},
 				{
 					"line": 366,

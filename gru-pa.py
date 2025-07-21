@@ -470,15 +470,15 @@ def show_task_list(row2, task_date, flag_auto_task):
         st.checkbox(f":red[{row2[1]} {title_score_info}:{row2[2]}]", value=auto_task, key=f"task_work_{row2[0]}")
     elif display_md_task:
         st.checkbox(f"{row2[1]} {title_score_info}:{row2[2]}", value=auto_task, key=f"task_work_{row2[0]}")
-    task_col = st.columns(4)
+    task_col = st.columns(3)
     if row2[4] == 1:
         task_col[0].number_input(f"倍数", min_value=1, max_value=10, value=1, step=1, key=f"task_multi_{row2[0]}")
     if row2[7] == 1:
         sql = f"SELECT share_score from pa_share WHERE pa_id = {row2[0]} and share_date = '{task_date}'"
         cur.execute(sql)
         share_score = cur.fetchone()[0]
-        if share_score < 0:
-            share_score = 0
+        if share_score == 0:
+            task_col[0].markdown(f':blue[无剩余分值, 请与同事协商更改]')
         task_col[0].number_input(label=":red[共享分值]", min_value=0, max_value=share_score, value=int(share_score / 2), step=1, key=f"task_score_{row2[0]}", help=f"最大值{share_score}, 共享分值请与协作者协商后填写")
 
 
@@ -1839,16 +1839,55 @@ def reset_table():
     reset_type = sac.segmented(
         items=[
             sac.SegmentedItem(label="重置PA-Number", icon="bootstrap-reboot"),
+            sac.SegmentedItem(label="重置工作组别热度", icon="sliders2"),
+            sac.SegmentedItem(label="更新ID自增量初始值", icon="database-exclamation"),
             sac.SegmentedItem(label="更新固定分值", icon="database-up"),
-        ], align="center"
+        ], align="center", color='red'
     )
 
     if reset_type == "重置PA-Number":
         reset_table_num()
+    elif reset_type == "重置工作组别热度":
+        sql = "TRUNCATE TABLE users_task_group_freq"
+        execute_sql_and_commit(conn, cur, sql)
+        update_users_group_frequency()
+        st.success("工作组别热度更新完成")
+    elif reset_type == "更新ID自增量初始值":
+        sql = """
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_schema = %s AND table_type = 'BASE TABLE'
+        """
+        result = execute_sql(cur, sql, params=('gru-pa',))
+        if result:
+            for table_name in result:
+                reset_auto_increment(table_name[0])
     elif reset_type == "更新固定分值":
         btn_update_fixed_score = st.button(label="更新固定分值", type='primary')
         if btn_update_fixed_score:
             st.button(label="确认更新", type='secondary', on_click=update_fixed_score)
+
+
+def reset_auto_increment(table_name):
+    """
+    重置指定表的自增 ID 初始值为当前最大 ID + 1
+    :param table_name: 表名
+    """
+    try:
+        # 查询最大 ID
+        sql = f"SELECT MAX(id) FROM {table_name}"
+        result = execute_sql(cur, sql)
+        max_id = result[0][0] if result and result[0][0] is not None else 0
+
+        # 设置自增为最大 ID + 1
+        next_auto_inc = max_id + 1
+        alter_sql = f"ALTER TABLE {table_name} AUTO_INCREMENT = {next_auto_inc}"
+        if execute_sql_and_commit(conn, cur, alter_sql):
+            st.success(f"✅ 表 {table_name} 自增ID已重置为 {next_auto_inc}")
+        else:
+            st.error(f"❌ 表 {table_name} 自增ID重置失败, 请检查表是否存在或权限是否足够")
+    except Exception as e:
+        st.error(f"⚠️ 表 {table_name} 重置发生异常：{e}")
 
 
 def update_fixed_score():
@@ -2038,7 +2077,7 @@ STATION_CITYNAME = {'北京站': '顺义', '天津站': '滨海新区', '总控�
 SETUP_NAME_PACK = ['static_show', 'weather_show', 'weather_metric', 'weather_provider', 'auto_task_check', 'task_group_sort']
 SETUP_LABEL_PACK = ['主页展示方式: :green[On 静态文字] :orange[Off 特效文字]', '天气展示', '天气展示方式: :green[On 卡片] :orange[Off 文字] :violet[高德只有卡片模式]', '天气数据源: :green[On 和风] :orange[Off 高德]', '自动选择日常工作:', '工作组排序: :green[On 个性化] :orange[Off 固定]']
 EXICON = {'基础工作': 'work', '输油作业': 'oil_barrel', '通球扫线': 'panorama_photosphere', '维修保养': 'construction', '过滤器更换': 'tools_installation_kit', '检测检查': 'mystery', '清理保洁': 'cleaning_services'}
-EXICON2 = {'财务工作': 'finance', '台账及报表': 'dataset', '行政管理': 'enterprise', '宣传及党务': 'full_coverage', '汽车管理': 'car_gear', '公务外派': 'business_center', '特殊作业票': 'fact_check', '加班': 'person_play'}
+EXICON2 = {'财务工作': 'finance', '台账及报表': 'dataset', '行政管理': 'enterprise', '宣传及党务': 'full_coverage', '汽车管理': 'car_gear', '公务外派': 'business_center', '特殊作业票': 'fact_check', '额外加分项': 'person_play'}
 EXICON.update(EXICON2)
 conn = get_connection()
 cur = conn.cursor()
