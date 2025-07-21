@@ -1876,6 +1876,15 @@ def update_users_group_frequency():
 def get_users_portrait():
     st.subheader("录入人脸数据", divider="green")
     st.markdown(":red[仅限本人使用， 否则识别率会大幅降低]")
+    col1, col2 = st.columns(2)
+    temp_userID, temp_userCName = [], []
+    sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' order by ID"
+    rows = execute_sql(cur, sql)
+    for row in rows:
+        temp_userID.append(row[0])
+        temp_userCName.append(row[1])
+    img_userCName = col1.selectbox("请选择查询用户", temp_userCName)
+    img_userID = temp_userID[temp_userCName.index(img_userCName)]
     img_file_buffer = st.camera_input("获取人脸图像", width=800)
 
     if img_file_buffer is not None:
@@ -1884,15 +1893,15 @@ def get_users_portrait():
         # Check the type of bytes_data:
         # Should output: <class 'bytes'>
         btn_save_picture = st.button("生成人脸数据")
-        pic_file = f"./ID_Photos/{st.session_state.userID}_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.jpg"
+        pic_file = f"./ID_Photos/{img_userID}_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.jpg"
         if btn_save_picture:
             with open(pic_file, "wb") as f:
                 f.write(bytes_data)
             if os.path.exists(pic_file):
                 update_face_data(pic_file.replace('./ID_Photos/', './ID_Photos\\'))
-                st.toast("人脸数据获取成功!")
+                st.toast(f"{img_userCName} 人脸数据获取成功!")
             else:
-                st.toast("数据获取失败!")
+                st.toast(f"{img_userCName} 人脸数据获取失败!")
 
 
 @st.fragment
