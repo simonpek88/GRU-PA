@@ -1883,7 +1883,7 @@ def get_users_portrait():
     for row in rows:
         temp_userID.append(row[0])
         temp_userCName.append(row[1])
-    img_userCName = col1.selectbox("请选择查询用户", temp_userCName)
+    img_userCName = col1.selectbox("请选择录入用户", temp_userCName)
     img_userID = temp_userID[temp_userCName.index(img_userCName)]
     img_file_buffer = st.camera_input("获取人脸图像", width=800)
 

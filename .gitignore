@@ -10,6 +10,8 @@ __pycache__/
 docs/
 user_pa/
 .pems/
+Images/badges/GRU-PA-badge.svg
+Images/badges/GRU-PA-lm-badge.svg
 ID_Photos/snapshot_*.jpg
 FaceCompare.py
 *.pem
