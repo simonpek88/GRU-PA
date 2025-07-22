@@ -1949,7 +1949,7 @@ def reset_table():
             cmd = f'mysqldump --defaults-file=.mysql.cnf gru-pa > {backup_file}'
             os.system(cmd)
             if os.path.exists(backup_file):
-                st.success("数据库备份完成")
+                st.success(f"{backup_file[backup_file.rfind('/') + 1:-4]} 数据库备份完成")
             else:
                 st.error("数据库备份失败")
 
