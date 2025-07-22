@@ -870,7 +870,7 @@ def manual_input():
 
 def reset_table_num(flag_force=False):
     if not flag_force:
-        confirm_btn_reset = st.button("确认重置")
+        confirm_btn_reset = st.button("确认重置PA-Number")
     else:
         confirm_btn_reset = True
     if confirm_btn_reset:
@@ -1927,28 +1927,34 @@ def reset_table():
     if reset_type == "重置PA-Number":
         reset_table_num()
     elif reset_type == "重置工作组别热度":
-        sql = "TRUNCATE TABLE users_task_group_freq"
-        execute_sql_and_commit(conn, cur, sql)
-        update_users_group_frequency()
-        st.success("工作组别热度更新完成")
+        btn_reset_task_group = st.button(label="确认重置工作组别热度")
+        if btn_reset_task_group:
+            sql = "TRUNCATE TABLE users_task_group_freq"
+            execute_sql_and_commit(conn, cur, sql)
+            update_users_group_frequency()
+            st.success("工作组别热度更新完成")
     elif reset_type == "更新ID初始值":
-        sql = """
-            SELECT table_name
-            FROM information_schema.tables
-            WHERE table_schema = %s AND table_type = 'BASE TABLE'
-        """
-        result = execute_sql(cur, sql, params=('gru-pa',))
-        if result:
-            for table_name in result:
-                reset_auto_increment(table_name[0])
+        btn_reset_table_id = st.button(label="确认更新ID初始值")
+        if btn_reset_table_id:
+            sql = """
+                SELECT table_name
+                FROM information_schema.tables
+                WHERE table_schema = %s AND table_type = 'BASE TABLE'
+            """
+            result = execute_sql(cur, sql, params=('gru-pa',))
+            if result:
+                for table_name in result:
+                    reset_auto_increment(table_name[0])
     elif reset_type == "更新PA-Share":
-        sql = "SELECT DISTINCT(share_date) from pa_share order by share_date"
-        date_results = execute_sql(cur, sql)
-        sql = "TRUNCATE TABLE pa_share"
-        execute_sql_and_commit(conn, cur, sql)
-        for date_result in date_results:
-            update_pa_share(date_result[0])
-        st.success("PA-Share更新完成")
+        btn_reset_pa_share = st.button(label="确认更新PA-Share")
+        if btn_reset_pa_share:
+            sql = "SELECT DISTINCT(share_date) from pa_share order by share_date"
+            date_results = execute_sql(cur, sql)
+            sql = "TRUNCATE TABLE pa_share"
+            execute_sql_and_commit(conn, cur, sql)
+            for date_result in date_results:
+                update_pa_share(date_result[0])
+            st.success("PA-Share更新完成")
     elif reset_type == "更新固定分值":
         btn_update_fixed_score = st.button(label="更新固定分值", type='primary')
         if btn_update_fixed_score:
@@ -1991,7 +1997,7 @@ def update_fixed_score():
     sql = f"SELECT pa_content, pa_score from gru_pa where pa_share = 0 and StationCN = '{st.session_state.StationCN}'"
     rows = execute_sql(cur, sql)
     for row in rows:
-        sql = f"UPDATE clerk_work SET task_score = {row[1]} * task_multi where pa_content = '{row[0]}'"
+        sql = f"UPDATE clerk_work SET task_score = {row[1]} * task_multi where pa_content = '{row[0]}' and StationCN = '{st.session_state.StationCN}'"
         execute_sql_and_commit(conn, cur, sql)
     st.success("固定分值更新成功")
 
