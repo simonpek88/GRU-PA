@@ -59,14 +59,14 @@
 					"label": "deduction_input"
 				},
 				{
-					"line": 793,
-					"column": 19,
-					"label": "manual_input"
-				},
-				{
 					"line": 801,
 					"column": 17,
 					"label": "check_data"
+				},
+				{
+					"line": 810,
+					"column": 19,
+					"label": "manual_input"
 				},
 				{
 					"line": 976,
@@ -134,13 +134,18 @@
 					"label": "fr_web_rtc"
 				},
 				{
-					"line": 1962,
+					"line": 2019,
+					"column": 32,
+					"label": "main"
+				},
+				{
+					"line": 2098,
 					"column": 37,
 					"label": "face_recognize_verify"
 				},
 				{
-					"line": 2019,
-					"column": 32,
+					"line": 2165,
+					"column": 15,
 					"label": "main"
 				}
 			]

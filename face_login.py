@@ -48,7 +48,7 @@ def face_login_cv(StationCN):
     #cv2.destroyAllWindows()
 
     if userID:
-        sql = f"SELECT userID, userCName, userType, StationCN, clerk_type from users where userID = {userID}"
+        sql = f"SELECT userID, userCName, userType, StationCN from users where userID = {userID}"
         result = execute_sql(cur, sql)
         return result
 
@@ -169,7 +169,7 @@ def face_login_webrtc(StationCN, frame, tolerance=0.45):
         userID = userID_Pack[result[1]]
 
     if userID:
-        sql = f"SELECT userID, userCName, userType, StationCN, clerk_type from users where userID = {userID}"
+        sql = f"SELECT userID, userCName, userType, StationCN from users where userID = {userID}"
         result = execute_sql(cur, sql)
         return result
 
