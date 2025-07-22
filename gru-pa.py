@@ -870,6 +870,7 @@ def reset_table_num(flag_force=False):
 def task_modify():
     #st.markdown("### <font face='微软雅黑' color=red><center>记录修改</center></font>", unsafe_allow_html=True)
     st.subheader("记录修改", divider="red")
+    sac.alert("已核定的记录无法修改和删除", icon="warning", banner=True, closable=True)
     col1, col2, col3, col4 = st.columns(4)
     if st.session_state.userType == 'admin':
         userID, userCName = [], []
@@ -1890,6 +1891,7 @@ def reset_table():
             sac.SegmentedItem(label="重置工作组别热度", icon="sliders2"),
             sac.SegmentedItem(label="更新ID自增量初始值", icon="database-exclamation"),
             sac.SegmentedItem(label="更新固定分值", icon="database-up"),
+            sac.SegmentedItem(label="数据库备份", icon="backpack4"),
         ], align="center", color='red'
     )
 
@@ -1914,6 +1916,16 @@ def reset_table():
         btn_update_fixed_score = st.button(label="更新固定分值", type='primary')
         if btn_update_fixed_score:
             st.button(label="确认更新", type='secondary', on_click=update_fixed_score)
+    elif reset_type == "数据库备份":
+        btn_backup = st.button(label="开始备份")
+        if btn_backup:
+            backup_file = f"./MySQL_Backup/GRU-PA-MySQL_Backup_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.sql"
+            cmd = f'mysqldump --defaults-file=.mysql.cnf gru-pa > {backup_file}'
+            os.system(cmd)
+            if os.path.exists(backup_file):
+                st.success("数据库备份完成")
+            else:
+                st.error("数据库备份失败")
 
 
 def reset_auto_increment(table_name):

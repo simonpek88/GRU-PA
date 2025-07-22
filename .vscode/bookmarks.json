@@ -134,6 +134,11 @@
 					"label": "camera_capture"
 				},
 				{
+					"line": 1921,
+					"column": 29,
+					"label": "数据库操作"
+				},
+				{
 					"line": 1924,
 					"column": 17,
 					"label": "fr_web_rtc"
