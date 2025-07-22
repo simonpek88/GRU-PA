@@ -41,10 +41,10 @@
 				{
 					"line": 364,
 					"column": 17,
-					"label": "task_input"
+					"label": "task input"
 				},
 				{
-					"line": 491,
+					"line": 366,
 					"column": 17,
 					"label": "query_task"
 				},
@@ -54,17 +54,17 @@
 					"label": "task_modify"
 				},
 				{
-					"line": 785,
+					"line": 743,
+					"column": 22,
+					"label": "deduction_input"
+				},
+				{
+					"line": 793,
 					"column": 19,
-					"label": "manual input"
+					"label": "manual_input"
 				},
 				{
-					"line": 857,
-					"column": 18,
-					"label": "task_modify"
-				},
-				{
-					"line": 929,
+					"line": 801,
 					"column": 17,
 					"label": "check_data"
 				},
@@ -72,11 +72,6 @@
 					"line": 976,
 					"column": 54,
 					"label": "chart_type"
-				},
-				{
-					"line": 1068,
-					"column": 22,
-					"label": "deduction_input"
 				},
 				{
 					"line": 1081,
@@ -132,11 +127,6 @@
 					"line": 1894,
 					"column": 30,
 					"label": "camera_capture"
-				},
-				{
-					"line": 1921,
-					"column": 29,
-					"label": "数据库操作"
 				},
 				{
 					"line": 1924,

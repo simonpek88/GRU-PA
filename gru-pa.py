@@ -389,10 +389,21 @@ def task_input():
     # 更新共享分
     sql = f"INSERT INTO pa_share (pa_ID, pa_content, share_score, StationCN, share_date) SELECT ID, pa_content, pa_score, '{st.session_state.StationCN}', '{task_date}' from gru_pa where StationCN = '{st.session_state.StationCN}' and pa_share = 1 and pa_content not in (SELECT pa_content from pa_share where StationCN = '{st.session_state.StationCN}' and share_date = '{task_date}')"
     execute_sql_and_commit(conn, cur, sql)
+    sql = f"SELECT pa_content from pa_share where StationCN = '{st.session_state.StationCN}' and share_date = '{task_date}'"
+    rows = execute_sql(cur, sql)
+    for row in rows:
+        sql = f"SELECT pa_score from gru_pa where pa_content = '{row[0]}' and StationCN = '{st.session_state.StationCN}' and pa_share = 1"
+        org_score = execute_sql(cur, sql)[0][0]
+        sql = f"SELECT task_score from clerk_work where clerk_work = '{row[0]}' and StationCN = '{st.session_state.StationCN}' and task_date = '{task_date}'"
+        results = execute_sql(cur, sql)
+        for result in results:
+            org_score = org_score - result[0]
+        sql = f"UPDATE pa_share set share_score = {org_score} where pa_content = '{row[0]}' and StationCN = '{st.session_state.StationCN}' and share_date = '{task_date}'"
+        execute_sql_and_commit(conn, cur, sql)
     expander_col = st.columns(2)
     # 常用任务
     with expander_col[0].expander(f"# :green[常用]", icon=':material/bookmark_star:', expanded=True):
-        sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task, pa_share from gru_pa where StationCN = '{st.session_state.StationCN}' and comm_task = 1 order by ID"
+        sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task, pa_share, task_type from gru_pa where StationCN = '{st.session_state.StationCN}' and comm_task = 1 order by ID"
         rows2 = execute_sql(cur, sql)
         for row2 in rows2:
             show_task_list(row2, task_date, flag_auto_task)
@@ -414,7 +425,7 @@ def task_input():
     rows = execute_sql(cur, sql)
     expander_col_index = 1
     for row in rows:
-        sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task, pa_share from gru_pa where StationCN = '{st.session_state.StationCN}' and task_group = '{row[0]}' and comm_task = 0 order by ID"
+        sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task, pa_share, task_type from gru_pa where StationCN = '{st.session_state.StationCN}' and task_group = '{row[0]}' and comm_task = 0 order by ID"
         rows2 = execute_sql(cur, sql)
         if rows2:
             if row[0] in EXICON:
@@ -470,23 +481,31 @@ def show_task_list(row2, task_date, flag_auto_task):
         st.checkbox(f":red[{row2[1]} {title_score_info}:{row2[2]}]", value=auto_task, key=f"task_work_{row2[0]}")
     elif display_md_task:
         st.checkbox(f"{row2[1]} {title_score_info}:{row2[2]}", value=auto_task, key=f"task_work_{row2[0]}")
-    task_col = st.columns(3)
+    task_col = st.columns(2)
     if row2[4] == 1:
         task_col[0].number_input(f"倍数", min_value=1, max_value=10, value=1, step=1, key=f"task_multi_{row2[0]}")
     if row2[7] == 1:
-        sql = f"SELECT clerk_cname from clerk_work where clerk_work = '{row2[1]}' and task_date = '{task_date}' and StationCN = '{st.session_state.StationCN}'"
+        sql = f"SELECT clerk_cname, task_score from clerk_work where clerk_work = '{row2[1]}' and task_date = '{task_date}' and StationCN = '{st.session_state.StationCN}'"
         share_result = execute_sql(cur, sql)
-        share_user_cname = []
+        share_user_cname, share_user_score = [], []
         for share_row in share_result:
             share_user_cname.append(share_row[0])
+            share_user_score.append(share_row[1])
         if share_user_cname:
-            task_col[0].markdown(f":violet[协作者: {'/'.join(share_user_cname)}]")
+            temp_share_info = ''
+            for index, value in enumerate(share_user_cname):
+                temp_share_info = temp_share_info + value + '' + str(share_user_score[index]) + '分/'
+            task_col[0].markdown(f":violet[协作者: {temp_share_info[:-1]}]")
         sql = f"SELECT share_score from pa_share WHERE pa_id = {row2[0]} and share_date = '{task_date}'"
         cur.execute(sql)
         share_score = cur.fetchone()[0]
+        if bool(row2[8]) and share_user_cname:
+            share_score_value = share_score
+        else:
+            share_score_value = int(share_score / 2)
         if share_score == 0:
             task_col[0].markdown(f':blue[无剩余分值, 请与协作者协商更改]')
-        task_col[0].number_input(label=":red[共享分值]", min_value=0, max_value=share_score, value=int(share_score / 2), step=1, key=f"task_score_{row2[0]}", help=f"最大值{share_score}, 共享分值请与协作者协商后填写")
+        task_col[0].number_input(label=":red[共享分值]", min_value=0, max_value=share_score, value=share_score_value, step=1, key=f"task_score_{row2[0]}", help=f"最大值{share_score}, 共享分值请与协作者协商后填写")
 
 
 def query_task():
@@ -809,16 +828,19 @@ def manual_input():
     task_group = col3.selectbox('工作组别', items, index=None, accept_new_options=True)
     task_score = col4.number_input("单项分值", min_value=1, max_value=300, value=10, step=1)
     if st.session_state.userType == 'admin':
-        with col1:
+        opt = st.columns(5)
+        with opt[0]:
             flag_add_pa = sac.switch("加入固定列表", value=False, align="start", on_label="On")
-        with col2:
+        with opt[1]:
             flag_multi_score = sac.switch("多倍计算", value=False, align="start", on_label="On")
-        with col3:
+        with opt[2]:
             flag_comm_task = sac.switch("设为常用", value=False, align="start", on_label="On")
-        with col4:
+        with opt[3]:
             flag_share_score = sac.switch("共享分值", value=False, align="start", on_label="On")
+        with opt[4]:
+            flag_task_type = sac.switch("共享独占", value=False, align="start", on_label="On")
     else:
-        flag_add_pa, flag_multi_score, flag_comm_task, flag_share_score = False, False, False, False
+        flag_add_pa, flag_multi_score, flag_comm_task, flag_share_score, flag_task_type = False, False, False, False, False
     task_content = st.text_area("工作内容", height=100)
     confirm_btn_manual = st.button("确认添加")
     if task_group and task_content and confirm_btn_manual:
@@ -832,7 +854,7 @@ def manual_input():
         if flag_add_pa:
             sql = f"SELECT ID from gru_pa where StationCN = '{st.session_state.StationCN}' and pa_content = '{task_content}' and task_group = '{task_group}' and pa_score = {task_score}"
             if not execute_sql(cur, sql):
-                sql = f"INSERT INTO gru_pa (pa_content, pa_score, pa_group, task_group, multi_score, comm_task, StationCN, pa_share) VALUES ('{task_content}', {task_score}, '全员', '{task_group}', {int(flag_multi_score)}, {int(flag_comm_task)}, '{st.session_state.StationCN}', {int(flag_share_score)})"
+                sql = f"INSERT INTO gru_pa (pa_content, pa_score, pa_group, task_group, multi_score, comm_task, StationCN, pa_share, task_type) VALUES ('{task_content}', {task_score}, '全员', '{task_group}', {int(flag_multi_score)}, {int(flag_comm_task)}, '{st.session_state.StationCN}', {int(flag_share_score)}, {int(flag_task_type)})"
                 execute_sql_and_commit(conn, cur, sql)
                 reset_table_num(True)
                 st.toast(f"工作量: :blue[{task_content}] 添加至列表成功！")
@@ -870,7 +892,7 @@ def reset_table_num(flag_force=False):
 def task_modify():
     #st.markdown("### <font face='微软雅黑' color=red><center>记录修改</center></font>", unsafe_allow_html=True)
     st.subheader("记录修改", divider="red")
-    sac.alert("已核定的记录无法修改和删除", icon="warning", banner=True, closable=True)
+    sac.alert("已核定的记录无法修改和删除, 如若修改请联系管理员", icon="warning", banner=sac.Banner(play=True, direction='left', speed=150, pauseOnHover=True), closable=True)
     col1, col2, col3, col4 = st.columns(4)
     if st.session_state.userType == 'admin':
         userID, userCName = [], []
@@ -888,7 +910,7 @@ def task_modify():
     query_date_start = col2.date_input('查询开始时间', value=datetime.date.today(), max_value="today")
     query_date_end = col3.date_input('查询结束时间', value=datetime.date.today(), max_value="today")
     user_task_id_pack = []
-    sql = f"SELECT clerk_work, task_score, task_group, ID from clerk_work where clerk_id = {query_userID} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}'"
+    sql = f"SELECT clerk_work, task_score, task_group, ID, task_approved from clerk_work where clerk_id = {query_userID} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}'"
     result = execute_sql(cur, sql)
     for row in result:
         user_task_id_pack.append(row[3])
@@ -901,7 +923,11 @@ def task_modify():
             ttl_score = 0
             st.markdown("##### 已输入工作量:\n\n")
             for row in result:
-                st.write(f'ID:{row[3]} :violet[工作类型:] {row[2]} :orange[内容:] {row[0]} :green[分值:] {row[1]}')
+                if bool(row[4]):
+                    approved_info = ':red[已核定]'
+                else:
+                    approved_info = ':green[未核定]'
+                st.write(f'ID:{row[3]} :violet[工作类型:] {row[2]} :orange[内容:] {row[0]} :green[分值:] {row[1]} 状态: {approved_info}')
                 ttl_score += row[1]
             st.markdown(f':red[总分:] {ttl_score}')
         else:
