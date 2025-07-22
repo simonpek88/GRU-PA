@@ -4,8 +4,8 @@ Grass-roots unit performance appraisal system (KPI-PA).
 
 - GRU-PA 站室绩效考核系统KPI-PA
 
-    ![GRU-PA ver](https://img.shields.io/badge/ver-0.6.654-blue.svg)
-    ![GRU-PA updated](https://img.shields.io/badge/updated-25/07/22%2010:54-orange.svg)
+    ![GRU-PA ver](https://img.shields.io/badge/ver-0.6.662-blue.svg)
+    ![GRU-PA updated](https://img.shields.io/badge/updated-25/07/22%2014:44-orange.svg)
     ![GRU-PA build](https://img.shields.io/badge/build-passing-green.svg)
 
 ## 站室绩效考核系统KPI-PA 是一个前端基于 Streamlit 框架，后端基于Python数据处理的web应用，旨在简化站室工作量录入、统计及考核
@@ -108,10 +108,10 @@ Grass-roots unit performance appraisal system (KPI-PA).
 - 趋势图
 - 数据检查与审核
 - 高级查询
-- 人脸图片提交
+- 人脸图片提交及验证
 - 历史天气
 - 公告发布
-- 数据库操作(ID重置及批量更新固定分数项)
+- 数据库操作及备份
 
 ## Features
 
