@@ -844,6 +844,8 @@ def manual_input():
             flag_share_score = sac.switch("共享分值", value=False, align="start", on_label="On")
         with opt[4]:
             flag_task_type = sac.switch("共享独占", value=False, align="start", on_label="On")
+        if flag_task_type:
+            flag_share_score = True
     else:
         flag_add_pa, flag_multi_score, flag_comm_task, flag_share_score, flag_task_type = False, False, False, False, False
     task_content = st.text_area("工作内容", height=100)
@@ -865,6 +867,8 @@ def manual_input():
                 st.toast(f"工作量: :blue[{task_content}] 添加至列表成功！")
             else:
                 st.warning(f"工作量: :blue[{task_content}] 在列表中已存在！")
+        if flag_share_score:
+            update_pa_share(task_date)
     elif not task_group:
         st.warning(f"请选择工作组！")
     elif not task_content:
