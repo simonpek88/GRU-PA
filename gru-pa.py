@@ -530,8 +530,8 @@ def query_task():
         col1.markdown(f"#### 当前用户: {st.session_state.userCName}")
         query_userCName = st.session_state.userCName
         query_userID = st.session_state.userID
-    query_date_start = col2.date_input('查询开始时间', value=datetime.date.today())
-    query_date_end = col3.date_input('查询结束时间', value=datetime.date.today())
+    query_date_start = col2.date_input('查询开始时间', value=datetime.date.today(), max_value="today")
+    query_date_end = col3.date_input('查询结束时间', value=query_date_start, min_value=query_date_start, max_value="today")
     col4, col5, col6, col7 = st.columns(4)
     confirm_btn_output = col4.button("导出为Word文件")
     if st.session_state.userType == 'admin':
@@ -913,7 +913,7 @@ def task_modify():
         query_userID = st.session_state.userID
         query_userCName = st.session_state.userCName
     query_date_start = col2.date_input('查询开始时间', value=datetime.date.today(), max_value="today")
-    query_date_end = col3.date_input('查询结束时间', value=datetime.date.today(), max_value="today")
+    query_date_end = col3.date_input('查询结束时间', value=query_date_start, min_value=query_date_start, max_value="today")
     user_task_id_pack = []
     ttl_score = 0
     st.markdown(f'##### 已输入工作量:')
@@ -1047,8 +1047,8 @@ def check_data():
     for row in rows:
         userID.append(row[0])
         userCName.append(row[1])
-    query_date_start = col1.date_input('查询开始时间', value=datetime.date.today())
-    query_date_end = col2.date_input('查询结束时间', value=datetime.date.today())
+    query_date_start = col1.date_input('查询开始时间', value=datetime.date.today(), max_value="today")
+    query_date_end = col2.date_input('查询结束时间', value=query_date_start, min_value=query_date_start, max_value="today")
     dur_time = query_date_end - query_date_start
     st.markdown(f'##### 统计周期: {dur_time.days + 1}天')
     confirm_btn_check = col1.button("检查")
@@ -1197,8 +1197,8 @@ def gen_chart():
         col1.markdown(f"#### 当前用户: {st.session_state.userCName}")
         query_userCName = st.session_state.userCName
         query_userID = st.session_state.userID
-    query_date_start = col2.date_input('查询开始时间', value=datetime.date.today())
-    query_date_end = col3.date_input('查询结束时间', value=datetime.date.today())
+    query_date_start = col2.date_input('查询开始时间', value=datetime.date.today(), max_value="today")
+    query_date_end = col3.date_input('查询结束时间', value=query_date_start, min_value=query_date_start, max_value="today")
     if st.session_state.userType == 'admin':
         with col1:
             flag_all_user = sac.switch("查询所有用户", value=False, align="start", on_label="On")
@@ -1513,8 +1513,8 @@ def input_public_notice():
     #st.markdown("### <font face='微软雅黑' color=green><center>公告发布</center></font>", unsafe_allow_html=True)
     st.subheader("公告发布", divider="red")
     col1, col2 = st.columns(2)
-    query_date_start = col1.date_input('公告开始时间', value=datetime.date.today(), min_value="today", max_value=datetime.date.today() + datetime.timedelta(days=180))
-    query_date_end = col2.date_input('公告结束时间', value=datetime.date.today(), min_value="today", max_value=datetime.date.today() + datetime.timedelta(days=180))
+    query_date_start = col1.date_input('公告开始时间', value=datetime.date.today(), min_value="today")
+    query_date_end = col2.date_input('公告结束时间', value=query_date_start + datetime.timedelta(days=15), min_value=query_date_start, max_value=query_date_start + datetime.timedelta(days=90))
     confirm_btn_public = st.button('发布')
     display_area = st.empty()
     with display_area.container():
