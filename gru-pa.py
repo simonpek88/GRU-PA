@@ -53,7 +53,7 @@ def login():
         sql = "SELECT DISTINCT(StationCN) from users order by StationCN"
         rows = execute_sql(cur, sql)
         station_type = st.selectbox(label="请选择站点", options=[row[0] for row in rows], index=0)
-        sql = f"SELECT userID, userCName, StationCN from users where StationCN = '{station_type}' order by StationCN, userCName"
+        sql = f"SELECT userID, userCName, StationCN from users where StationCN = '{station_type}' order by login_counter DESC, userCName"
         rows = execute_sql(cur, sql)
         for row in rows:
             userID.append(row[0])
@@ -137,7 +137,7 @@ def login_init(result):
     auto_get_history_weather()
     # 更新用户设置
     refresh_users_setup()
-    # 更新访问次数
+    # 更新系统访问次数
     sql = "UPDATE verinfo set pyLM = pyLM + 1 where pyFile = 'visitcounter'"
     execute_sql_and_commit(conn, cur, sql)
     updatePyFileinfo()
@@ -146,6 +146,9 @@ def login_init(result):
     app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{verinfo}'
     app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
     gen_badge(conn, cur, [], 'MySQL', APPNAME_EN, app_version, app_lm)
+    # 更新用户访问次数
+    sql = f"UPDATE users set login_counter = login_counter + 1 where userID = {st.session_state.userID}"
+    execute_sql_and_commit(conn, cur, sql)
     now = datetime.datetime.now()
     valid_time = now.strftime("%Y-%m-%d")
     sql = f"SELECT notice from notices where StationCN = '{st.session_state.StationCN}' and start_time >= '{valid_time}' and '{valid_time}' <= end_time"
@@ -516,7 +519,7 @@ def query_task():
     col1, col2, col3 = st.columns(3)
     if st.session_state.userType == 'admin':
         userID, userCName = [], []
-        sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa = 1 order by ID"
+        sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa <> 0 order by login_counter DESC, userCName"
         rows = execute_sql(cur, sql)
         for row in rows:
             userID.append(row[0])
@@ -811,7 +814,7 @@ def manual_input():
     col1, col2, col3, col4 = st.columns(4)
     if st.session_state.userType == 'admin':
         userID, userCName = [], []
-        sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa = 1 order by ID"
+        sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa <> 0 order by login_counter DESC, userCName"
         rows = execute_sql(cur, sql)
         for row in rows:
             userID.append(row[0])
@@ -898,7 +901,7 @@ def task_modify():
     col1, col2, col3, col4 = st.columns(4)
     if st.session_state.userType == 'admin':
         userID, userCName = [], []
-        sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa = 1 order by ID"
+        sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa <> 0 order by login_counter DESC, userCName"
         rows = execute_sql(cur, sql)
         for row in rows:
             userID.append(row[0])
@@ -917,8 +920,6 @@ def task_modify():
     for row in result:
         user_task_id_pack.append(row[3])
     task_modify_id = col4.selectbox("请选择任务ID", user_task_id_pack, index=None)
-    form = st.columns(3)
-    confirm_btn_delete = form[0].button("删除", type="primary")
     display_are = st.empty()
     with display_are.container(border=True):
         if result:
@@ -935,17 +936,38 @@ def task_modify():
         else:
             st.markdown(f'###### :red[无任何记录]')
     if task_modify_id:
-        if confirm_btn_delete:
-            form[1].button("确认删除", type="secondary", on_click=delete_task, args=(task_modify_id, query_userID,))
-        display_are.empty()
-        modify_task(task_modify_id, query_userID)
+        confirm_btn_delete = col1.button("删除", type="primary")
+        btn_modify = col3.button("修改", type="primary")
+        sql = f"SELECT task_approved FROM clerk_work where ID = {task_modify_id} and clerk_id = {query_userID}"
+        approved_result = bool(execute_sql(cur, sql)[0][0])
+        if not approved_result or st.session_state.userType == 'admin':
+            sql = f"SELECT clerk_work, task_score from clerk_work where ID = {task_modify_id} and clerk_id = {query_userID}"
+            org_work, org_score = execute_sql(cur, sql)[0]
+            form = st.columns(3)
+            pa_share_results = get_rem_share_score(task_modify_id, query_userID)
+            if pa_share_results[0]:
+                modify_min_value = 0
+                modify_max_value = pa_share_results[1] + pa_share_results[2]
+            else:
+                modify_min_value = MAXDEDUCTSCORE
+                modify_max_value = 1000
+            #st.write(org_score, modify_max_value, modify_min_value)
+            modify_content = form[0].text_area("请输入修改后的内容", value=org_work, height=100)
+            modify_score = form[1].number_input(f"请输入修改后的分值, 最大值{modify_max_value}", min_value=modify_min_value, max_value=modify_max_value, value=org_score, step=1)
+            if confirm_btn_delete:
+                col2.button("确认删除", type="secondary", on_click=delete_task, args=(task_modify_id, query_userID,))
+            elif btn_modify and modify_content != '':
+                col4.button("确认修改", type="secondary", on_click=modify_task, args=(task_modify_id, query_userID, modify_content, modify_score, pa_share_results))
+            elif modify_content == '':
+                st.info('请填写修改内容')
+        else:
+            st.error(f"ID:{task_modify_id} 被核定的记录无法修改, 请联系管理员!")
     else:
         st.info('请选择要处理的记录ID')
 
 
 def delete_task(task_modify_id, query_userID):
-    sql = f"SELECT task_score, clerk_work, task_date from clerk_work where ID = {task_modify_id} and clerk_id = {query_userID}"
-    org_score, org_work, org_date = execute_sql(cur, sql)[0]
+    flag_pa_share, rem_share_score, org_score, org_date, pa_share_id, max_score = get_rem_share_score(task_modify_id, query_userID)
     if st.session_state.userType == 'admin':
         sql = f"DELETE FROM clerk_work where ID = {task_modify_id} and clerk_id = {query_userID}"
     else:
@@ -953,60 +975,53 @@ def delete_task(task_modify_id, query_userID):
     execute_sql_and_commit(conn, cur, sql)
     sql = f"SELECT ID FROM clerk_work where ID = {task_modify_id} and clerk_id = {query_userID}"
     if not execute_sql(cur, sql):
-        st.toast(f"ID:{task_modify_id} 删除成功!")
-        sql = f"SELECT pa_share, ID, pa_score from gru_pa where pa_content = '{org_work}' and StationCN = '{st.session_state.StationCN}'"
-        result = execute_sql(cur, sql)
-        if result:
-            flag_pa_share, pa_share_id, max_score = execute_sql(cur, sql)[0]
-            flag_pa_share = bool(flag_pa_share)
-        else:
-            flag_pa_share = False
         if flag_pa_share:
-            sql = f"UPDATE pa_share set share_score = share_score + {org_score} where pa_ID = {pa_share_id} and share_date = '{org_date}' and StationCN = '{st.session_state.StationCN}'"
-            execute_sql_and_commit(conn, cur, sql)
-            sql = f"SELECT share_score from pa_share where pa_ID = {pa_share_id} and share_date = '{org_date}' and StationCN = '{st.session_state.StationCN}'"
-            modify_share_score = execute_sql(cur, sql)[0][0]
+            modify_share_score = rem_share_score + org_score
             if modify_share_score > max_score:
-                st.error(f"ID:{task_modify_id} 修改错误! 剩余共享分值不能大于共享总分{max_score}!")
+                sql = f"UPDATE pa_share set share_score = {max_score} where pa_ID = {pa_share_id} and share_date = '{org_date}' and StationCN = '{st.session_state.StationCN}'"
+                st.toast(f"ID:{task_modify_id} 分值错误, 剩余共享分值不能大于共享总分{max_score}, 剩余共享分已恢复默认值!")
+            else:
+                sql = f"UPDATE pa_share set share_score = {modify_share_score} where pa_ID = {pa_share_id} and share_date = '{org_date}' and StationCN = '{st.session_state.StationCN}'"
+                st.toast(f"ID:{task_modify_id} 删除成功!")
+            execute_sql_and_commit(conn, cur, sql)
     else:
         st.toast(f"ID:{task_modify_id} 删除失败! 被核定的记录无法删除, 请联系管理员!")
 
 
-def modify_task(task_modify_id, query_userID):
-    sql = f"SELECT task_approved FROM clerk_work where ID = {task_modify_id} and clerk_id = {query_userID}"
-    approved_result = bool(execute_sql(cur, sql)[0][0])
-    if not approved_result or st.session_state.userType == 'admin':
-        sql = f"SELECT clerk_work, task_score, task_group from clerk_work where ID = {task_modify_id} and clerk_id = {query_userID}"
-        modify_task_detail = execute_sql(cur, sql)[0]
-        form = st.columns(3)
-        modify_content = form[0].text_area("请输入修改后的内容", value=modify_task_detail[0], height=100)
-        modify_score = form[1].number_input("请输入修改后的分数", min_value=MAXDEDUCTSCORE, max_value=1000, value=modify_task_detail[1], step=1, placeholder="最大1000")
-        sql = f"SELECT task_score, clerk_work, task_date from clerk_work where ID = {task_modify_id} and clerk_id = {query_userID}"
-        org_score, org_work, org_date = execute_sql(cur, sql)[0]
-        sql = f"SELECT pa_share, ID, pa_score from gru_pa where pa_content = '{org_work}' and StationCN = '{st.session_state.StationCN}'"
-        result = execute_sql(cur, sql)
-        if result:
-            flag_pa_share, pa_share_id, max_score = execute_sql(cur, sql)[0]
-            flag_pa_share = bool(flag_pa_share)
-        else:
-            flag_pa_share = False
-        sql = f"UPDATE clerk_work SET clerk_work = '{modify_content}', task_score = {modify_score} where ID = {task_modify_id} and clerk_id = {query_userID}"
-        execute_sql_and_commit(conn, cur, sql)
-        sql = f"SELECT ID from clerk_work where clerk_work = '{modify_content}' and task_score = {modify_score} and ID = {task_modify_id} and clerk_id = {query_userID}"
-        if execute_sql(cur, sql):
-            if flag_pa_share:
-                sql = f"UPDATE pa_share set share_score = share_score - {modify_score - org_score} where pa_ID = {pa_share_id} and share_date = '{org_date}' and StationCN = '{st.session_state.StationCN}'"
-                execute_sql_and_commit(conn, cur, sql)
-                sql = f"SELECT share_score from pa_share where pa_ID = {pa_share_id} and share_date = '{org_date}' and StationCN = '{st.session_state.StationCN}'"
-                modify_share_score = execute_sql(cur, sql)[0][0]
-                if modify_share_score < 0:
-                    st.error(f"ID:{task_modify_id} 修改错误! 剩余共享分值不能小于0!")
-                elif modify_share_score > max_score:
-                    st.error(f"ID:{task_modify_id} 修改错误! 剩余共享分值不能大于共享总分{max_score}!")
-        else:
-            st.error(f"ID:{task_modify_id} 修改失败! 请检查输入的内容是否正确!")
+def get_rem_share_score(task_modify_id, query_userID):
+    sql = f"SELECT task_score, clerk_work, task_date from clerk_work where ID = {task_modify_id} and clerk_id = {query_userID}"
+    org_score, org_work, org_date = execute_sql(cur, sql)[0]
+    sql = f"SELECT pa_share, ID, pa_score from gru_pa where pa_content = '{org_work}' and StationCN = '{st.session_state.StationCN}'"
+    pa_share_result = execute_sql(cur, sql)
+    if pa_share_result:
+        flag_pa_share, pa_share_id, max_score = pa_share_result[0]
+        flag_pa_share = bool(flag_pa_share)
     else:
-        st.error(f"ID:{task_modify_id} 修改失败! 被核定的记录无法修改, 请联系管理员!")
+        flag_pa_share = False
+    if flag_pa_share:
+        sql = f"SELECT share_score from pa_share where pa_ID = {pa_share_id} and share_date = '{org_date}' and StationCN = '{st.session_state.StationCN}'"
+        rem_pa_share_result = execute_sql(cur, sql)
+        if rem_pa_share_result:
+            rem_share_score = rem_pa_share_result[0][0]
+            return True, rem_share_score, org_score, org_date, pa_share_id, max_score
+        else:
+            return False, None, None, None, None, None
+
+    return False, None, None, None, None, None
+
+
+def modify_task(task_modify_id, query_userID, modify_content, modify_score, flag_share_pack):
+    flag_pa_share, rem_share_score, org_score, org_date, pa_share_id, max_score = flag_share_pack
+    sql = f"UPDATE clerk_work SET clerk_work = '{modify_content}', task_score = {modify_score} where ID = {task_modify_id} and clerk_id = {query_userID}"
+    execute_sql_and_commit(conn, cur, sql)
+    if flag_pa_share:
+        sql = f"UPDATE pa_share set share_score = share_score - {modify_score - org_score} where pa_ID = {pa_share_id} and share_date = '{org_date}' and StationCN = '{st.session_state.StationCN}'"
+        execute_sql_and_commit(conn, cur, sql)
+    sql = f"SELECT ID from clerk_work where clerk_work = '{modify_content}' and task_score = {modify_score} and ID = {task_modify_id} and clerk_id = {query_userID}"
+    if execute_sql(cur, sql):
+        st.toast(f"ID:{task_modify_id} 工作:{modify_content} 分值:{modify_score} 修改成功!")
+    else:
+        st.toast(f"ID:{task_modify_id} 修改失败! 请检查输入的内容及分值是否正确!")
 
 
 @st.fragment
@@ -1015,7 +1030,7 @@ def check_data():
     st.subheader("数据检查与核定", divider="blue")
     col1, col2 = st.columns(2)
     userID, userCName = [], []
-    sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa = 1 order by ID"
+    sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa <> 0 order by login_counter DESC, userCName"
     rows = execute_sql(cur, sql)
     for row in rows:
         userID.append(row[0])
@@ -1060,7 +1075,7 @@ def resetPassword():
         st.write(":red[**重置用户信息**]")
         # 获取用户编码
         userID, userCName = [], []
-        sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' order by ID"
+        sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' order by login_counter DESC, userCName"
         rows = execute_sql(cur, sql)
         for row in rows:
             userID.append(row[0])
@@ -1108,7 +1123,7 @@ def deduction_input():
     st.subheader("减分项录入", divider="red")
     col1, col2 = st.columns(2)
     userID, userCName, pa_deduct, pa_deduct_score = [], [], [], []
-    sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa = 1 order by ID"
+    sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa <> 0 order by login_counter DESC, userCName"
     rows = execute_sql(cur, sql)
     for row in rows:
         userID.append(row[0])
@@ -1159,7 +1174,7 @@ def gen_chart():
     #tab1, tab2 = st.tabs(["📈 图表", "📋 数据"])
     if st.session_state.userType == 'admin':
         userID, userCName = [], []
-        sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa = 1 order by ID"
+        sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa <> 0 order by login_counter DESC, userCName"
         rows = execute_sql(cur, sql)
         for row in rows:
             userID.append(row[0])
@@ -1763,7 +1778,7 @@ def combine_query():
     st.subheader("工作量高级查询", divider="violet")
     btn_query = st.button("查询")
     clerk_cname_pack, task_group_pack = [], []
-    sql = f"SELECT userCName from users where clerk_pa = 1 and StationCN = '{st.session_state.StationCN}' order by ID"
+    sql = f"SELECT userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa <> 0 order by login_counter DESC, userCName"
     result = execute_sql(cur, sql)
     for row in result:
         clerk_cname_pack.append({'value': row[0], 'title': row[0]})
@@ -2029,7 +2044,7 @@ def get_users_portrait():
     st.markdown(":red[仅限本人使用， 否则识别率会大幅降低]")
     col1, col2 = st.columns(2)
     temp_userID, temp_userCName = [], []
-    sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' order by ID"
+    sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' order by login_counter DESC, userCName"
     rows = execute_sql(cur, sql)
     for row in rows:
         temp_userID.append(row[0])
