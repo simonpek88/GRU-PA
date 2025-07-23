@@ -10,6 +10,7 @@ __pycache__/
 docs/
 user_pa/
 .pems/
+.vscode/settings.json
 Images/badges/GRU-PA-badge.svg
 Images/badges/GRU-PA-lm-badge.svg
 ID_Photos/snapshot_*.jpg
