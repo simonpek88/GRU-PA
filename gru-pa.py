@@ -572,7 +572,7 @@ def query_task():
             st.dataframe(df.style.apply(highlight_max, subset=[color_field]))
             st.markdown(f':green[共计:] {len(rows)}项工作{affix_info} :red[总分:] {ttl_score}')
     else:
-        st.info(f":red[没有查询到符合条件的记录]")
+        st.info(f":red[未查询到记录]")
     if flag_approved:
         approved_info = "全部已审核"
     else:
@@ -656,7 +656,7 @@ def query_task():
             else:
                 st.error(f":red[文件导出失败]")
         else:
-            st.info(f":red[没有查询到符合条件的记录]")
+            st.info(f":red[未查询到记录]")
     elif confirm_btn_output_excel:
         display_area.empty()
         sql = f"SELECT clerk_cname, clerk_work, AVG(task_score), COUNT(clerk_work), AVG(task_score) * COUNT(clerk_work), task_group FROM clerk_work WHERE task_approved >= {int(flag_approved)} AND task_date >= '{query_date_start}' AND task_date <= '{query_date_end}' and StationCN = '{st.session_state.StationCN}' GROUP BY clerk_cname, clerk_work, task_group ORDER BY clerk_cname"
@@ -915,26 +915,38 @@ def task_modify():
     query_date_start = col2.date_input('查询开始时间', value=datetime.date.today(), max_value="today")
     query_date_end = col3.date_input('查询结束时间', value=datetime.date.today(), max_value="today")
     user_task_id_pack = []
-    sql = f"SELECT clerk_work, task_score, task_group, ID, task_approved from clerk_work where clerk_id = {query_userID} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}'"
+    ttl_score = 0
+    st.markdown(f'##### 已输入工作量:')
+    # 已核定工作量
+    sql = f"SELECT clerk_work, task_score, task_group, ID, task_approved from clerk_work where clerk_id = {query_userID} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' and task_approved = 1"
     result = execute_sql(cur, sql)
     for row in result:
         user_task_id_pack.append(row[3])
+    with st.expander(":green[已核定]", icon=":material/checklist:", expanded=False):
+        display_are = st.empty()
+        with display_are.container():
+            if result:
+                for row in result:
+                    st.write(f'ID:{row[3]} :violet[工作类型:] {row[2]} :orange[内容:] {row[0]} :green[分值:] {row[1]}')
+                    ttl_score += row[1]
+            else:
+                st.markdown(f'###### :red[未查询到记录]')
+    # 未核定工作量
+    sql = f"SELECT clerk_work, task_score, task_group, ID, task_approved from clerk_work where clerk_id = {query_userID} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' and task_approved = 0"
+    result = execute_sql(cur, sql)
+    for row in result:
+        user_task_id_pack.append(row[3])
+    with st.expander(":blue[未核定]", icon=":material/notes:", expanded=True):
+        display_are = st.empty()
+        with display_are.container():
+            if result:
+                for row in result:
+                    st.write(f'ID:{row[3]} :violet[工作类型:] {row[2]} :orange[内容:] {row[0]} :green[分值:] {row[1]}')
+                    ttl_score += row[1]
+            else:
+                st.markdown(f'###### :red[未查询到记录]')
+    st.markdown(f':red[总分:] {ttl_score}')
     task_modify_id = col4.selectbox("请选择任务ID", user_task_id_pack, index=None)
-    display_are = st.empty()
-    with display_are.container(border=True):
-        if result:
-            ttl_score = 0
-            st.markdown("##### 已输入工作量:\n\n")
-            for row in result:
-                if bool(row[4]):
-                    approved_info = ':red[已核定]'
-                else:
-                    approved_info = ':green[未核定]'
-                st.write(f'ID:{row[3]} :violet[工作类型:] {row[2]} :orange[内容:] {row[0]} :green[分值:] {row[1]} 状态: {approved_info}')
-                ttl_score += row[1]
-            st.markdown(f':red[总分:] {ttl_score}')
-        else:
-            st.markdown(f'###### :red[无任何记录]')
     if task_modify_id:
         confirm_btn_delete = col1.button("删除", type="primary")
         btn_modify = col3.button("修改", type="primary")
@@ -1257,7 +1269,7 @@ def gen_chart():
                     st.plotly_chart(fig)
                     df = pd.DataFrame(raws_data, columns=["姓名", "日期", "合计分值"])
                 else:
-                    st.info("没有查询到符合条件的记录")
+                    st.info("未查询到记录")
     elif chart_type.startswith("柱状图"):
         if "分组" in chart_type:
             bar_type = "group"
@@ -1294,7 +1306,7 @@ def gen_chart():
                     )
                     st.plotly_chart(fig)
                 else:
-                    st.info("没有查询到符合条件的记录")
+                    st.info("未查询到记录")
     elif chart_type == "日历热度图":
         with tab1:
             with charArea.container(border=True):
@@ -1340,7 +1352,7 @@ def gen_chart():
                     }
                     nc.nivo_chart(data=calendar_chart["data"], layout=calendar_chart["layout"])
                 else:
-                    st.info("没有查询到符合条件的记录")
+                    st.info("未查询到记录")
     elif chart_type == "漏斗图":
         with tab1:
             with charArea.container(border=True):
@@ -1367,7 +1379,7 @@ def gen_chart():
                     fig.update_layout(font=dict(size=CHARTFONTSIZE))
                     st.plotly_chart(fig)
                 else:
-                    st.info("没有查询到符合条件的记录")
+                    st.info("未查询到记录")
     elif chart_type == "饼图":
         with tab1:
             with charArea.container(border=True):
@@ -1402,7 +1414,7 @@ def gen_chart():
                     fig.update_layout(showlegend=False, font=dict(size=12))
                     st.plotly_chart(fig, use_container_width=True)
                 else:
-                    st.info("没有查询到符合条件的记录")
+                    st.info("未查询到记录")
     elif chart_type == "旭日图":
         with tab1:
             with charArea.container(border=True):
@@ -1432,7 +1444,7 @@ def gen_chart():
                     fig.update_layout(margin=dict(t=50, l=0, r=0, b=0), font=dict(size=CHARTFONTSIZE))
                     st.plotly_chart(fig, use_container_width=True)
                 else:
-                    st.info("没有查询到符合条件的记录")
+                    st.info("未查询到记录")
     elif chart_type == "矩阵树图":
         with tab1:
             with charArea.container(border=True):
@@ -1460,7 +1472,7 @@ def gen_chart():
                     fig.update_layout(margin=dict(t=50, l=0, r=0, b=0), font=dict(size=CHARTFONTSIZE))
                     st.plotly_chart(fig, use_container_width=True)
                 else:
-                    st.info("没有查询到符合条件的记录")
+                    st.info("未查询到记录")
     elif chart_type == "中位数图":
         with tab1:
             with charArea.container(border=True):
@@ -1490,11 +1502,11 @@ def gen_chart():
                                     yanchor='bottom')
                     st.plotly_chart(fig, use_container_width=True)
                 else:
-                    st.info("没有查询到符合条件的记录")
+                    st.info("未查询到记录")
     if raws_data:
         tab2.write(df)
     else:
-        tab2.info("没有查询到符合条件的记录")
+        tab2.info("未查询到记录")
 
 
 def input_public_notice():
@@ -1634,7 +1646,7 @@ def display_history_weather():
         with chart_col[1]:
             plot_data_curve(weather_info['humidity_hourly'].split('/'))
     else:
-        st.info("没有查询历史天气记录")
+        st.info("未查询到历史天气记录")
 
 def plot_wind_speed_curve(hourly_data1, hourly_data2):
     df1 = pd.DataFrame({
@@ -1847,7 +1859,7 @@ def combine_query():
                 df.loc[index, "核定状态"] = "已核定" if df["核定状态"][index] == '1' else "未核定"
             st.dataframe(df)
         else:
-            st.info("没有查询到符合条件的记录")
+            st.info("未查询到记录")
 
 
 def update_users_setup(param_name, param_value, action_type):
