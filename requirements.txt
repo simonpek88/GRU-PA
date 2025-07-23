@@ -17,3 +17,4 @@ streamlit_antd_components==0.3.2
 streamlit_condition_tree==0.3.0
 streamlit_extras==0.7.5
 streamlit-nivo==0.1.8
+streamlit-webrtc==0.63.3
