@@ -39,6 +39,7 @@ from mysql_pool import get_connection
 # cSpell:ignoreRegExp /[^\s]{16,}/
 # cSpell:ignoreRegExp /\b[A-Z]{3,15}\b/g
 # cSpell:ignoreRegExp /\b[A-Z]\b/g
+# user trae ide
 
 @st.fragment
 def login():
