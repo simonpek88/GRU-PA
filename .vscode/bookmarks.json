@@ -69,6 +69,11 @@
 					"label": "manual_input"
 				},
 				{
+					"line": 893,
+					"column": 18,
+					"label": "task_modify"
+				},
+				{
 					"line": 976,
 					"column": 54,
 					"label": "chart_type"

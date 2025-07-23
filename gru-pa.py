@@ -955,8 +955,12 @@ def delete_task(task_modify_id, query_userID):
     if not execute_sql(cur, sql):
         st.toast(f"ID:{task_modify_id} 删除成功!")
         sql = f"SELECT pa_share, ID, pa_score from gru_pa where pa_content = '{org_work}' and StationCN = '{st.session_state.StationCN}'"
-        flag_pa_share, pa_share_id, max_score = execute_sql(cur, sql)[0]
-        flag_pa_share = bool(flag_pa_share)
+        result = execute_sql(cur, sql)
+        if result:
+            flag_pa_share, pa_share_id, max_score = execute_sql(cur, sql)[0]
+            flag_pa_share = bool(flag_pa_share)
+        else:
+            flag_pa_share = False
         if flag_pa_share:
             sql = f"UPDATE pa_share set share_score = share_score + {org_score} where pa_ID = {pa_share_id} and share_date = '{org_date}' and StationCN = '{st.session_state.StationCN}'"
             execute_sql_and_commit(conn, cur, sql)
@@ -980,8 +984,12 @@ def modify_task(task_modify_id, query_userID):
         sql = f"SELECT task_score, clerk_work, task_date from clerk_work where ID = {task_modify_id} and clerk_id = {query_userID}"
         org_score, org_work, org_date = execute_sql(cur, sql)[0]
         sql = f"SELECT pa_share, ID, pa_score from gru_pa where pa_content = '{org_work}' and StationCN = '{st.session_state.StationCN}'"
-        flag_pa_share, pa_share_id, max_score = execute_sql(cur, sql)[0]
-        flag_pa_share = bool(flag_pa_share)
+        result = execute_sql(cur, sql)
+        if result:
+            flag_pa_share, pa_share_id, max_score = execute_sql(cur, sql)[0]
+            flag_pa_share = bool(flag_pa_share)
+        else:
+            flag_pa_share = False
         sql = f"UPDATE clerk_work SET clerk_work = '{modify_content}', task_score = {modify_score} where ID = {task_modify_id} and clerk_id = {query_userID}"
         execute_sql_and_commit(conn, cur, sql)
         sql = f"SELECT ID from clerk_work where clerk_work = '{modify_content}' and task_score = {modify_score} and ID = {task_modify_id} and clerk_id = {query_userID}"
