@@ -535,7 +535,7 @@ def query_task():
     col4, col5, col6, col7 = st.columns(4)
     confirm_btn_output = col4.button("导出为Word文件")
     if st.session_state.userType == 'admin':
-        confirm_btn_output_excel = col5.button("导出统计报表")
+        confirm_btn_output_excel = col5.button("导出统计报表(全部人员)")
     else:
         confirm_btn_output_excel = False
     with col6:
