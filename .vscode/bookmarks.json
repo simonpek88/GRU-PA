@@ -84,6 +84,11 @@
 					"label": "日历热度图"
 				},
 				{
+					"line": 1185,
+					"column": 16,
+					"label": "gen_chart"
+				},
+				{
 					"line": 1200,
 					"column": 103,
 					"label": "temp"
