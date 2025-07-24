@@ -133,6 +133,8 @@ def login_init(result):
     st.session_state.userType = result[0][2]
     st.session_state.StationCN = result[0][3]
     st.session_state.userPwRechecked = False
+    # 获取系统设置
+    get_system_setup()
     # 获取城市编码
     get_city_code()
     # 自动获取历史天气, 免得过期后数据无法获取
@@ -160,7 +162,7 @@ def login_init(result):
     else:
         st.session_state.menu_index = 1
     # 删除超过MAXREVDAYS天的数据
-    del_date = cal_date(-MAXREVDAYS)
+    del_date = cal_date(-st.session_state.max_rev_days)
     sql = f"DELETE from pa_share where share_date <= '{del_date}'"
     execute_sql_and_commit(conn, cur, sql)
     st.set_page_config(layout="wide")
@@ -458,7 +460,7 @@ def task_input():
 
 
 def show_task_list(row2, task_date, flag_auto_task, task_clerk_type):
-    if row2[5] == MDTASKDAYS:
+    if row2[5] == st.session_state.md_task_days:
         display_md_task = get_md_task_status(task_date, st.session_state.userID, row2[1])
     else:
         display_md_task = True
@@ -543,7 +545,7 @@ def query_task():
     else:
         confirm_btn_output_excel = False
     with col6:
-        flag_approved = sac.switch("仅限已核定工作", value=False, on_label="On")
+        flag_approved = sac.switch("仅限已核定工作", value=True, on_label="On")
     with col7:
         flag_combine = sac.switch("合并统计", value=False, on_label="On")
     if flag_combine:
@@ -969,7 +971,7 @@ def task_modify():
                 modify_min_value = 0
                 modify_max_value = pa_share_results[1] + pa_share_results[2]
             else:
-                modify_min_value = MAXDEDUCTSCORE
+                modify_min_value = st.session_state.max_deduct_score
                 modify_max_value = 1000
             #st.write(org_score, modify_max_value, modify_min_value)
             modify_content = form[0].text_area("请输入修改后的内容", value=org_work, height=100)
@@ -1162,7 +1164,7 @@ def deduction_input():
         task_score = pa_deduct_score[pa_deduct.index(task_deduct)]
     else:
         task_score = -50
-    deduct_score = col2.number_input("扣分", min_value=MAXDEDUCTSCORE, max_value=-10, value=task_score, step=10)
+    deduct_score = col2.number_input("扣分", min_value=st.session_state.max_deduct_score, max_value=-10, value=task_score, step=10)
     deduct_content = col1.text_area("自定义扣分项内容", value=task_deduct, placeholder="可选择固定扣分项后修改", height=100)
     confirm_btn_add = st.button("确认添加")
     if confirm_btn_add:
@@ -1268,7 +1270,7 @@ def gen_chart():
                 yaxis=dict(title="主轴",
                             rangemode="normal"),
                 template="simple_white",
-                font=dict(size=CHARTFONTSIZE),
+                font=dict(size=st.session_state.chart_font_size),
                 yaxis2=dict(
                     title="",
                     overlaying='y',
@@ -1304,7 +1306,7 @@ def gen_chart():
             fig.update_layout(
                 xaxis_tickangle=-45,
                 template="simple_white",
-                font=dict(size=CHARTFONTSIZE)
+                font=dict(size=st.session_state.chart_font_size)
             )
     elif chart_type == "日历热度图":
         with tab1:
@@ -1373,7 +1375,7 @@ def gen_chart():
                 color_discrete_sequence=px.colors.qualitative.Prism
             )
             # 放大图表整体字体
-            fig.update_layout(font=dict(size=CHARTFONTSIZE))
+            fig.update_layout(font=dict(size=st.session_state.chart_font_size))
     elif chart_type == "饼图":
         for index, value in enumerate(userID):
             sql = f"SELECT task_group, sum(task_score) from clerk_work where task_approved >= {int(flag_approved)} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_group order by sum(task_score) DESC"
@@ -1428,7 +1430,7 @@ def gen_chart():
                 color_continuous_scale='Plasma',
                 title="工作量（工作组别 → 用户）",
             )
-            fig.update_layout(margin=dict(t=50, l=0, r=0, b=0), font=dict(size=CHARTFONTSIZE))
+            fig.update_layout(margin=dict(t=50, l=0, r=0, b=0), font=dict(size=st.session_state.chart_font_size))
     elif chart_type == "矩阵树图":
         for index, value in enumerate(userID):
             # 查询每个用户的任务分值按工作组别汇总
@@ -1451,7 +1453,7 @@ def gen_chart():
                 title="工作量（工作组别 → 用户）",
                 hover_data={'合计分值': True}
             )
-            fig.update_layout(margin=dict(t=50, l=0, r=0, b=0), font=dict(size=CHARTFONTSIZE))
+            fig.update_layout(margin=dict(t=50, l=0, r=0, b=0), font=dict(size=st.session_state.chart_font_size))
     elif chart_type == "中位数图":
         sql = f"SELECT clerk_cname, sum(task_score) from clerk_work where StationCN = '{st.session_state.StationCN}' and task_approved >= {int(flag_approved)} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY clerk_cname order by clerk_cname"
         result = execute_sql(cur, sql)
@@ -1469,12 +1471,12 @@ def gen_chart():
                         x0=-0.5, x1=len(df) - 0.5,
                         y0=median_score, y1=median_score,
                         line=dict(color='red', dash='dash'))
-            fig.update_layout(font=dict(size=CHARTFONTSIZE))
+            fig.update_layout(font=dict(size=st.session_state.chart_font_size))
             # 将中位数标注移到线上方，并调整字体大小
             fig.add_annotation(x=len(df) - 1, y=median_score + 12,  # 向上偏移
                             text=f'中位数: {median_score:.0f}',
                             showarrow=False,
-                            font=dict(color='red', size=CHARTFONTSIZE + 2),
+                            font=dict(color='red', size=st.session_state.chart_font_size + 2),
                             xanchor='right',
                             yanchor='bottom')
     if raws_data:
@@ -2129,7 +2131,7 @@ def fr_web_rtc():
 @st.fragment
 def face_recognize_verify(stationCN):
     st.subheader("人脸识别验证", divider="rainbow")
-    st.markdown('请点击:red[Take Photo]获取人脸图像, 识别后请点击:blue[Clear photo]恢复视频')
+    st.markdown('请点击:red[Take Photo]获取人脸图像, 识别后请点击:blue[Clear photo]恢复捕捉')
     col = st.columns(5)
     sql = "SELECT param_value from users_setup where param_name = 'face_tolerance'"
     cur.execute(sql)
@@ -2164,32 +2166,68 @@ def face_recognize_verify(stationCN):
                     sql = f"UPDATE users_setup set param_value = {int(round(tolerance, 2) * 100)} where param_name = 'face_tolerance'"
                     execute_sql_and_commit(conn, cur, sql)
                 for user_id_distance in all_id_distance:
-                    sql = f"SELECT userID, userCName, StationCN from users where userID = {user_id_distance[1]}"
-                    cur.execute(sql)
-                    result = cur.fetchone()
-                    info_col[col_index % 2].markdown(f'##### 用户: {result[1]} 站室: {result[2]} 相似度: {round((1 - user_id_distance[0]) * 100, 1)}%')
-                    sql = f"SELECT img_filename, upload_time from users_face_data where userID = '{user_id_distance[1]}' and file_hash = '{user_id_distance[2]}' and img_filename is not null"
-                    cur.execute(sql)
-                    img_file_result = cur.fetchone()
-                    if img_file_result:
-                        if os.path.exists(img_file_result[0]):
-                            info_col[col_index % 2].image(img_file_result[0], caption=f'上传时间:{img_file_result[1]}', use_container_width=True)
+                    if user_id_distance[0] <= round((100 - st.session_state.min_distance) / 100, 2):
+                        sql = f"SELECT userID, userCName, StationCN from users where userID = {user_id_distance[1]}"
+                        cur.execute(sql)
+                        result = cur.fetchone()
+                        info_col[col_index % 2].markdown(f'##### 用户: {result[1]} 站室: {result[2]} 相似度: {round((1 - user_id_distance[0]) * 100, 1)}%')
+                        sql = f"SELECT img_filename, upload_time from users_face_data where userID = '{user_id_distance[1]}' and file_hash = '{user_id_distance[2]}' and img_filename is not null"
+                        cur.execute(sql)
+                        img_file_result = cur.fetchone()
+                        if img_file_result:
+                            if os.path.exists(img_file_result[0]):
+                                info_col[col_index % 2].image(img_file_result[0], caption=f'上传时间:{img_file_result[1]}', use_container_width=True)
+                            else:
+                                info_col[col_index % 2].write(f"图像文件: {img_file_result[0]} 不存在")
                         else:
-                            info_col[col_index % 2].write(f"图像文件: {img_file_result[0]} 不存在")
-                    else:
-                        info_col[col_index % 2].write(f"图像文件不存在")
-                    col_index += 1
+                            info_col[col_index % 2].write(f"图像文件不存在")
+                        col_index += 1
             else:
                 st.markdown('##### 未识别出任何用户!')
 
 
-global APPNAME_CN, APPNAME_EN, MAXDEDUCTSCORE, CHARTFONTSIZE, MDTASKDAYS, WEATHERICON, STATION_CITYNAME, SETUP_NAME_PACK, SETUP_LABEL_PACK, MAXREVDAYS, EXICON
+@st.fragment
+def system_setup():
+    #st.markdown("### <font face='微软雅黑' color=blue><center>系统设置</center></font>", unsafe_allow_html=True)
+    st.subheader("系统设置", divider="red")
+    btn_system_setup_update = st.button("更新系统设置")
+    col_limit = 3
+    col = st.columns(col_limit)
+    col_index = 0
+    sql = f"SELECT param_value, param_name, userCName from users_setup where userID = -1 order by ID"
+    results = execute_sql(cur, sql)
+    for each in results:
+        affix_info = ''
+        if each[1] == 'max_deduct_score':
+            min_value, max_value, step_value = -400, -10, 10
+        elif each[1] == 'chart_font_size':
+            min_value, max_value, step_value = 10, 20, 1
+        elif each[1] == 'md_task_days':
+            min_value, max_value, step_value = 28, 31, 1
+        elif each[1] == 'max_rev_days':
+            min_value, max_value, step_value = 14, 60, 2
+        elif each[1] == 'min_distance':
+            min_value, max_value, step_value, affix_info = 50, 90, 2, '%'
+        st.session_state[each[1]] = col[col_index % col_limit].number_input(label=f'{each[2]}{affix_info}', value=each[0], min_value=min_value, max_value=max_value, step=step_value)
+        col_index += 1
+    if btn_system_setup_update:
+        for each in results:
+            if each[0] != st.session_state[each[1]]:
+                sql = f"UPDATE users_setup set param_value = {st.session_state[each[1]]} where param_name = '{each[1]}' and userID = -1"
+                execute_sql_and_commit(conn, cur, sql)
+                st.success(f'{each[2]} 更新成功')
+
+
+def get_system_setup():
+    sql = f"SELECT param_value, param_name from users_setup where userID = -1 order by ID"
+    results = execute_sql(cur, sql)
+    for each in results:
+        st.session_state[each[1]] = each[0]
+
+
+global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME, SETUP_NAME_PACK, SETUP_LABEL_PACK, EXICON
 APPNAME_CN = "站室绩效考核系统KPI-PA"
 APPNAME_EN = "GRU-PA"
-MAXDEDUCTSCORE = -200
-CHARTFONTSIZE = 14
-MDTASKDAYS = 28
-MAXREVDAYS = 32
 STATION_CITYNAME = {'北京站': '顺义', '天津站': '滨海新区', '总控室': '滨海新区', '调控中心': '滨海新区', '武清站': '武清'}
 SETUP_NAME_PACK = ['static_show', 'weather_show', 'weather_metric', 'weather_provider', 'auto_task_check', 'task_group_sort', 'task_clerk_type']
 SETUP_LABEL_PACK = ['主页展示方式: :green[On 静态文字] :orange[Off 特效文字]', '天气展示', '天气展示方式: :green[On 卡片] :orange[Off 文字] :violet[高德只有卡片模式]', '天气数据源: :green[On 和风] :orange[Off 高德]', '自动选择日常工作:', '工作组排序: :green[On 个性化] :orange[Off 固定]', '岗位工作类型: :green[On 值班] :orange[Off 白班]']
@@ -2243,7 +2281,8 @@ elif st.session_state.logged_in:
                     sac.MenuItem("数据库操作", icon="database-check", disabled=not dangerous_func),
                 ]),
                 sac.MenuItem('设置', icon='gear', children=[
-                    sac.MenuItem('个人设置', icon='sliders'),
+                    sac.MenuItem('个人设置', icon='sliders2'),
+                    sac.MenuItem('系统设置', icon='sliders2-vertical', disabled=not dangerous_func),
                     sac.MenuItem('录入人脸数据', icon='person-bounding-box'),
                     sac.MenuItem('人脸识别测试', icon='person-video3'),
                 ]),
@@ -2272,7 +2311,7 @@ elif st.session_state.logged_in:
                     sac.MenuItem('历史天气', icon='cloud-sun'),
                 ]),
                 sac.MenuItem('设置', icon='gear', children=[
-                    sac.MenuItem('个人设置', icon='sliders'),
+                    sac.MenuItem('个人设置', icon='sliders2'),
                     sac.MenuItem('录入人脸数据', icon='person-bounding-box'),
                 ]),
                 sac.MenuItem('账户', icon='person-gear', children=[
@@ -2349,6 +2388,8 @@ elif st.session_state.logged_in:
         reset_table()
     elif selected == "个人设置":
         users_setup()
+    elif selected == "系统设置":
+        system_setup()
     elif selected == "录入人脸数据":
         get_users_portrait()
     elif selected == "人脸识别测试":

@@ -4,7 +4,7 @@ Grass-roots unit performance appraisal system (KPI-PA).
 
 - GRU-PA 站室绩效考核系统KPI-PA
 
-    ![GRU-PA ver](https://img.shields.io/badge/ver-0.7.704-blue.svg)
+    ![GRU-PA ver](https://img.shields.io/badge/ver-0.7.705-blue.svg)
     ![GRU-PA updated](https://img.shields.io/badge/updated-25/07/24%2014:29-orange.svg)
     ![GRU-PA build](https://img.shields.io/badge/build-passing-green.svg)
 
