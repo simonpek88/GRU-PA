@@ -193,6 +193,7 @@ def verifyUserPW(vUserName, vUserPW):
 
     return st.session_state.userPwRechecked, vUserEncPW
 
+
 @st.fragment
 def displayBigTimeCircle():
     components.html(open("./MyComponentsScript/Clock-Big-Circle.txt", "r", encoding="utf-8").read(), height=260)
@@ -209,6 +210,7 @@ def displayVisitCounter():
 @st.fragment
 def displaySmallTime():
     components.html(open("./MyComponentsScript/Clock-Small.txt", "r", encoding="utf-8").read(), height=34)
+
 
 @st.fragment
 def displaySmallClock():
@@ -1085,6 +1087,7 @@ def check_data():
         else:
             st.markdown(f'###### :red[无任何记录]')
 
+
 def resetPassword():
     # 显示副标题和分隔线
     st.subheader(":orange[密码重置]", divider="red")
@@ -1481,8 +1484,7 @@ def gen_chart():
                     st.plotly_chart(fig, use_container_width=True)
         tab2.write(df)
     else:
-        tab1.info("未查询到记录")
-        tab2.info("未查询到记录")
+        st.info("未查询到记录")
 
 
 def input_public_notice():
@@ -1623,6 +1625,7 @@ def display_history_weather():
             plot_data_curve(weather_info['humidity_hourly'].split('/'))
     else:
         st.info("未查询到历史天气记录")
+
 
 def plot_wind_speed_curve(hourly_data1, hourly_data2):
     df1 = pd.DataFrame({
