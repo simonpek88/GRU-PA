@@ -479,7 +479,7 @@ def show_task_list(row2, task_date, flag_auto_task, task_clerk_type):
         st.checkbox(f"{row2[1]} {title_score_info}:{row2[2]}", value=auto_task, key=f"task_work_{row2[0]}")
     task_col = st.columns(2)
     if row2[4] == 1:
-        task_col[0].number_input(f"倍数", min_value=1, max_value=10, value=1, step=1, key=f"task_multi_{row2[0]}")
+        task_col[0].number_input(f":green[倍数]", min_value=1, max_value=10, value=1, step=1, key=f"task_multi_{row2[0]}")
     if row2[7] == 1:
         sql = f"SELECT clerk_cname, task_score from clerk_work where clerk_work = '{row2[1]}' and task_date = '{task_date}' and StationCN = '{st.session_state.StationCN}'"
         share_result = execute_sql(cur, sql)
