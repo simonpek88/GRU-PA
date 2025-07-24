@@ -4,6 +4,7 @@ import datetime
 import importlib.metadata
 import os
 import time
+from types import NoneType
 
 import nivo_chart as nc
 import numpy as np
@@ -1221,60 +1222,55 @@ def gen_chart():
             chart_type_pack = chart_type_pack + ['柱状图(分组)', '柱状图(堆叠)', '漏斗图']
         chart_type = st.selectbox("图表类型", chart_type_pack, index=1)
     min_value, max_value = 1000, 0
-    raws_data, df = [], []
+    raws_data, df, fig = [], [], None
     charArea = tab1.empty()
     if chart_type == '折线图':
-        with tab1:
-            # 双Y轴折线图
-            with charArea.container(border=True):
-                fig = go.Figure()
-                for index, value in enumerate(userID):
-                    hot_value, hot_date, temp_value_pack = [], [], []
-                    sql = f"SELECT task_date, sum(task_score) from clerk_work where task_approved >= {int(flag_approved)} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_date order by task_date"
-                    result = execute_sql(cur, sql)
-                    for each in result:
-                        hot_date.append(each[0])
-                        hot_value.append(int(each[1]))
-                        raws_data.append([userCName[index], each[0], int(each[1])])
-                    temp_value_pack = hot_value
-                    if temp_value_pack:
-                        temp_value_pack.sort()
-                        if temp_value_pack[0] < min_value:
-                            min_value = temp_value_pack[0]
-                        if temp_value_pack[-1] > max_value:
-                            max_value = temp_value_pack[-1]
-                        #st.write(min_value, max_value, hot_value)
-                        if temp_value_pack[-1] < max_value / 2:
-                            yax = 'y2'
-                        else:
-                            yax = 'y'
-                        fig.add_trace(
-                            go.Scatter(name=f"{userCName[index]}",
-                                        x=hot_date,
-                                        y=hot_value,
-                                        mode="markers+lines+text",
-                                        text=[
-                                            format(round(x, 2), ",")
-                                            for x in hot_value
-                                        ],
-                                        yaxis=yax,
-                                        textposition="top center"))
-                if raws_data:
-                    fig.update_layout(
-                        title="工作量",
-                        xaxis=dict(title="日期"),
-                        yaxis=dict(title="主轴",
-                                    rangemode="normal"),
-                        template="simple_white",
-                        font=dict(size=CHARTFONTSIZE),
-                        yaxis2=dict(
-                            title="",
-                            overlaying='y',
-                            side='right'))
-                    st.plotly_chart(fig)
-                    df = pd.DataFrame(raws_data, columns=["姓名", "日期", "合计分值"])
+        # 双Y轴折线图
+        fig = go.Figure()
+        for index, value in enumerate(userID):
+            hot_value, hot_date, temp_value_pack = [], [], []
+            sql = f"SELECT task_date, sum(task_score) from clerk_work where task_approved >= {int(flag_approved)} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_date order by task_date"
+            result = execute_sql(cur, sql)
+            for each in result:
+                hot_date.append(each[0])
+                hot_value.append(int(each[1]))
+                raws_data.append([userCName[index], each[0], int(each[1])])
+            temp_value_pack = hot_value
+            if temp_value_pack:
+                temp_value_pack.sort()
+                if temp_value_pack[0] < min_value:
+                    min_value = temp_value_pack[0]
+                if temp_value_pack[-1] > max_value:
+                    max_value = temp_value_pack[-1]
+                #st.write(min_value, max_value, hot_value)
+                if temp_value_pack[-1] < max_value / 2:
+                    yax = 'y2'
                 else:
-                    st.info("未查询到记录")
+                    yax = 'y'
+                fig.add_trace(
+                    go.Scatter(name=f"{userCName[index]}",
+                                x=hot_date,
+                                y=hot_value,
+                                mode="markers+lines+text",
+                                text=[
+                                    format(round(x, 2), ",")
+                                    for x in hot_value
+                                ],
+                                yaxis=yax,
+                                textposition="top center"))
+        if raws_data:
+            fig.update_layout(
+                title="工作量",
+                xaxis=dict(title="日期"),
+                yaxis=dict(title="主轴",
+                            rangemode="normal"),
+                template="simple_white",
+                font=dict(size=CHARTFONTSIZE),
+                yaxis2=dict(
+                    title="",
+                    overlaying='y',
+                    side='right'))
+            df = pd.DataFrame(raws_data, columns=["姓名", "日期", "合计分值"])
     elif chart_type.startswith("柱状图"):
         if "分组" in chart_type:
             bar_type = "group"
@@ -1282,36 +1278,31 @@ def gen_chart():
             bar_type = "stack"
         else:
             bar_type = "relative"
-        with tab1:
-            with charArea.container(border=True):
-                for index, value in enumerate(userID):
-                    sql = f"SELECT task_date, task_group, sum(task_score) from clerk_work where task_approved >= {int(flag_approved)} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_date, task_group order by task_date"
-                    result = execute_sql(cur, sql)
-                    for each in result:
-                        raws_data.append([userCName[index], each[0], each[1], int(each[2])])
-                if raws_data:
-                    df = pd.DataFrame(raws_data, columns=["姓名", "日期", "工作组别", "合计分值"])
-                    # 使用 Plotly Express 生成分组柱状图
-                    fig = px.bar(
-                        df,
-                        x="日期",
-                        y="合计分值",
-                        color="工作组别",
-                        text="合计分值",
-                        title="按日期和工作组别统计",
-                        labels={"合计分值": "总分", "日期": "工作日期", "工作组别": "任务组"},
-                        barmode=bar_type
-                    )
-                    # 调整样式
-                    fig.update_traces(textposition='outside')
-                    fig.update_layout(
-                        xaxis_tickangle=-45,
-                        template="simple_white",
-                        font=dict(size=CHARTFONTSIZE)
-                    )
-                    st.plotly_chart(fig)
-                else:
-                    st.info("未查询到记录")
+        for index, value in enumerate(userID):
+            sql = f"SELECT task_date, task_group, sum(task_score) from clerk_work where task_approved >= {int(flag_approved)} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_date, task_group order by task_date"
+            result = execute_sql(cur, sql)
+            for each in result:
+                raws_data.append([userCName[index], each[0], each[1], int(each[2])])
+        if raws_data:
+            df = pd.DataFrame(raws_data, columns=["姓名", "日期", "工作组别", "合计分值"])
+            # 使用 Plotly Express 生成分组柱状图
+            fig = px.bar(
+                df,
+                x="日期",
+                y="合计分值",
+                color="工作组别",
+                text="合计分值",
+                title="按日期和工作组别统计",
+                labels={"合计分值": "总分", "日期": "工作日期", "工作组别": "任务组"},
+                barmode=bar_type
+            )
+            # 调整样式
+            fig.update_traces(textposition='outside')
+            fig.update_layout(
+                xaxis_tickangle=-45,
+                template="simple_white",
+                font=dict(size=CHARTFONTSIZE)
+            )
     elif chart_type == "日历热度图":
         with tab1:
             with charArea.container(border=True):
@@ -1359,158 +1350,137 @@ def gen_chart():
                 else:
                     st.info("未查询到记录")
     elif chart_type == "漏斗图":
-        with tab1:
-            with charArea.container(border=True):
-                for index, value in enumerate(userID):
-                    sql = f"SELECT task_date, task_group, sum(task_score) from clerk_work where task_approved >= {int(flag_approved)} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_date, task_group order by sum(task_score) DESC"
-                    result = execute_sql(cur, sql)
-                    for each in result:
-                        raws_data.append([userCName[index], each[0], each[1], int(each[2])])
-                if raws_data:
-                    df = pd.DataFrame(raws_data, columns=["姓名", "日期", "工作组别", "合计分值"])
-                    # 按工作组别统计总分并按降序排序
-                    funnel_data = df.groupby("工作组别")["合计分值"].sum().reset_index()
-                    funnel_data = funnel_data.sort_values(by="合计分值", ascending=False)
-                    # 生成漏斗图
-                    fig = px.funnel(
-                        funnel_data,
-                        x="合计分值",
-                        y="工作组别",
-                        title="工作量(日期合并)",
-                        labels={"合计分值": "总分", "工作组别": "任务组别"},
-                        color_discrete_sequence=px.colors.qualitative.Prism
-                    )
-                    # 放大图表整体字体
-                    fig.update_layout(font=dict(size=CHARTFONTSIZE))
-                    st.plotly_chart(fig)
-                else:
-                    st.info("未查询到记录")
+        for index, value in enumerate(userID):
+            sql = f"SELECT task_date, task_group, sum(task_score) from clerk_work where task_approved >= {int(flag_approved)} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_date, task_group order by sum(task_score) DESC"
+            result = execute_sql(cur, sql)
+            for each in result:
+                raws_data.append([userCName[index], each[0], each[1], int(each[2])])
+        if raws_data:
+            df = pd.DataFrame(raws_data, columns=["姓名", "日期", "工作组别", "合计分值"])
+            # 按工作组别统计总分并按降序排序
+            funnel_data = df.groupby("工作组别")["合计分值"].sum().reset_index()
+            funnel_data = funnel_data.sort_values(by="合计分值", ascending=False)
+            # 生成漏斗图
+            fig = px.funnel(
+                funnel_data,
+                x="合计分值",
+                y="工作组别",
+                title="工作量(日期合并)",
+                labels={"合计分值": "总分", "工作组别": "任务组别"},
+                color_discrete_sequence=px.colors.qualitative.Prism
+            )
+            # 放大图表整体字体
+            fig.update_layout(font=dict(size=CHARTFONTSIZE))
     elif chart_type == "饼图":
-        with tab1:
-            with charArea.container(border=True):
-                for index, value in enumerate(userID):
-                    sql = f"SELECT task_group, sum(task_score) from clerk_work where task_approved >= {int(flag_approved)} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_group order by sum(task_score) DESC"
-                    result = execute_sql(cur, sql)
-                    for each in result:
-                        raws_data.append([userCName[index], each[0], int(each[1])])
-                if raws_data:
-                    df = pd.DataFrame(raws_data, columns=["姓名", "工作组别", "合计分值"])
-                    if len(userID) > 1:
-                        pie_data = df.groupby("工作组别")["合计分值"].sum().reset_index()
-                    else:
-                        pie_data = df.copy()
-                    # 计算总和
-                    total = pie_data['合计分值'].sum()
-                    # 添加百分比列
-                    pie_data['百分比'] = (pie_data['合计分值'] / total) * 100
-                    # 保留所有原始条目，不进行合并
-                    final_data = pie_data.copy()
-                    fig = px.pie(
-                        final_data,
-                        names="工作组别",
-                        values="合计分值",
-                        title="工作量(日期合并)",
-                        hole=0.2,
-                        hover_data=["合计分值"],
-                        labels={"合计分值": "总分", "工作组别": "任务组别"},
-                        color_discrete_sequence=px.colors.qualitative.Prism
-                    )
-                    fig.update_traces(textposition='outside', textinfo='percent+label')
-                    fig.update_layout(showlegend=False, font=dict(size=12))
-                    st.plotly_chart(fig, use_container_width=True)
-                else:
-                    st.info("未查询到记录")
+        for index, value in enumerate(userID):
+            sql = f"SELECT task_group, sum(task_score) from clerk_work where task_approved >= {int(flag_approved)} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_group order by sum(task_score) DESC"
+            result = execute_sql(cur, sql)
+            for each in result:
+                raws_data.append([userCName[index], each[0], int(each[1])])
+        if raws_data:
+            df = pd.DataFrame(raws_data, columns=["姓名", "工作组别", "合计分值"])
+            if len(userID) > 1:
+                pie_data = df.groupby("工作组别")["合计分值"].sum().reset_index()
+            else:
+                pie_data = df.copy()
+            # 计算总和
+            total = pie_data['合计分值'].sum()
+            # 添加百分比列
+            pie_data['百分比'] = (pie_data['合计分值'] / total) * 100
+            # 保留所有原始条目，不进行合并
+            final_data = pie_data.copy()
+            fig = px.pie(
+                final_data,
+                names="工作组别",
+                values="合计分值",
+                title="工作量(日期合并)",
+                hole=0.2,
+                hover_data=["合计分值"],
+                labels={"合计分值": "总分", "工作组别": "任务组别"},
+                color_discrete_sequence=px.colors.qualitative.Prism
+            )
+            fig.update_traces(textposition='outside', textinfo='percent+label')
+            fig.update_layout(showlegend=False, font=dict(size=12))
     elif chart_type == "旭日图":
-        with tab1:
-            with charArea.container(border=True):
-                for index, value in enumerate(userID):
-                    # 查询每个用户的任务分值按工作组别汇总
-                    sql = f"SELECT task_group, sum(task_score) from clerk_work where task_approved >= {int(flag_approved)} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_group order by sum(task_score) DESC"
-                    result = execute_sql(cur, sql)
-                    for each in result:
-                        raws_data.append([userCName[index], each[0], int(each[1])])
-                if raws_data:
-                    # 构造 DataFrame
-                    df = pd.DataFrame(raws_data, columns=["姓名", "工作组别", "合计分值"])
-                    if len(userID) > 1:
-                        sunburst_data = df.groupby(["工作组别", "姓名"], as_index=False)["合计分值"].sum()
-                    else:
-                        sunburst_data = df.copy()
-                    # 绘制旭日图
-                    fig = px.sunburst(
-                        sunburst_data,
-                        path=['工作组别', '姓名'],
-                        values='合计分值',
-                        color='合计分值',
-                        hover_data=['合计分值'],
-                        color_continuous_scale='Plasma',
-                        title="工作量（工作组别 → 用户）",
-                    )
-                    fig.update_layout(margin=dict(t=50, l=0, r=0, b=0), font=dict(size=CHARTFONTSIZE))
-                    st.plotly_chart(fig, use_container_width=True)
-                else:
-                    st.info("未查询到记录")
+        for index, value in enumerate(userID):
+            # 查询每个用户的任务分值按工作组别汇总
+            sql = f"SELECT task_group, sum(task_score) from clerk_work where task_approved >= {int(flag_approved)} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_group order by sum(task_score) DESC"
+            result = execute_sql(cur, sql)
+            for each in result:
+                raws_data.append([userCName[index], each[0], int(each[1])])
+        if raws_data:
+            # 构造 DataFrame
+            df = pd.DataFrame(raws_data, columns=["姓名", "工作组别", "合计分值"])
+            if len(userID) > 1:
+                sunburst_data = df.groupby(["工作组别", "姓名"], as_index=False)["合计分值"].sum()
+            else:
+                sunburst_data = df.copy()
+            # 绘制旭日图
+            fig = px.sunburst(
+                sunburst_data,
+                path=['工作组别', '姓名'],
+                values='合计分值',
+                color='合计分值',
+                hover_data=['合计分值'],
+                color_continuous_scale='Plasma',
+                title="工作量（工作组别 → 用户）",
+            )
+            fig.update_layout(margin=dict(t=50, l=0, r=0, b=0), font=dict(size=CHARTFONTSIZE))
     elif chart_type == "矩阵树图":
-        with tab1:
-            with charArea.container(border=True):
-                for index, value in enumerate(userID):
-                    # 查询每个用户的任务分值按工作组别汇总
-                    sql = f"SELECT task_group, sum(task_score) from clerk_work where task_approved >= {int(flag_approved)} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_group order by sum(task_score) DESC"
-                    result = execute_sql(cur, sql)
-                    for each in result:
-                        raws_data.append([userCName[index], each[0], int(each[1])])
-                if raws_data:
-                    df = pd.DataFrame(raws_data, columns=["姓名", "工作组别", "合计分值"])
-                    if len(userID) > 1:
-                        treemap_data = df.groupby(["工作组别", "姓名"], as_index=False)["合计分值"].sum()
-                    else:
-                        treemap_data = df.copy()
-                    fig = px.treemap(
-                        treemap_data,
-                        path=['工作组别', '姓名'],
-                        values='合计分值',
-                        color='合计分值',
-                        color_continuous_scale='Plasma',
-                        title="工作量（工作组别 → 用户）",
-                        hover_data={'合计分值': True}
-                    )
-                    fig.update_layout(margin=dict(t=50, l=0, r=0, b=0), font=dict(size=CHARTFONTSIZE))
-                    st.plotly_chart(fig, use_container_width=True)
-                else:
-                    st.info("未查询到记录")
+        for index, value in enumerate(userID):
+            # 查询每个用户的任务分值按工作组别汇总
+            sql = f"SELECT task_group, sum(task_score) from clerk_work where task_approved >= {int(flag_approved)} and clerk_id = {value} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY task_group order by sum(task_score) DESC"
+            result = execute_sql(cur, sql)
+            for each in result:
+                raws_data.append([userCName[index], each[0], int(each[1])])
+        if raws_data:
+            df = pd.DataFrame(raws_data, columns=["姓名", "工作组别", "合计分值"])
+            if len(userID) > 1:
+                treemap_data = df.groupby(["工作组别", "姓名"], as_index=False)["合计分值"].sum()
+            else:
+                treemap_data = df.copy()
+            fig = px.treemap(
+                treemap_data,
+                path=['工作组别', '姓名'],
+                values='合计分值',
+                color='合计分值',
+                color_continuous_scale='Plasma',
+                title="工作量（工作组别 → 用户）",
+                hover_data={'合计分值': True}
+            )
+            fig.update_layout(margin=dict(t=50, l=0, r=0, b=0), font=dict(size=CHARTFONTSIZE))
     elif chart_type == "中位数图":
-        with tab1:
-            with charArea.container(border=True):
-                sql = f"SELECT clerk_cname, sum(task_score) from clerk_work where StationCN = '{st.session_state.StationCN}' and task_approved >= {int(flag_approved)} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY clerk_cname order by clerk_cname"
-                result = execute_sql(cur, sql)
-                for each in result:
-                    raws_data.append([each[0], int(each[1])])
-                if raws_data:
-                    df = pd.DataFrame(raws_data, columns=["姓名", "合计分值"])
-                    # 计算中位数
-                    median_score = np.nanmedian(df["合计分值"])
-                    # 生成柱状图
-                    fig = px.bar(df, x="姓名", y="合计分值", text_auto=True,
-                                title="工作量分值", labels={"姓名": "员工姓名", "合计分值": "总分值"})
-                    # 添加中位数水平线
-                    fig.add_shape(type='line',
-                                x0=-0.5, x1=len(df) - 0.5,
-                                y0=median_score, y1=median_score,
-                                line=dict(color='red', dash='dash'))
-                    fig.update_layout(font=dict(size=CHARTFONTSIZE))
-                    # 将中位数标注移到线上方，并调整字体大小
-                    fig.add_annotation(x=len(df) - 1, y=median_score + 12,  # 向上偏移
-                                    text=f'中位数: {median_score:.0f}',
-                                    showarrow=False,
-                                    font=dict(color='red', size=CHARTFONTSIZE + 2),
-                                    xanchor='right',
-                                    yanchor='bottom')
-                    st.plotly_chart(fig, use_container_width=True)
-                else:
-                    st.info("未查询到记录")
+        sql = f"SELECT clerk_cname, sum(task_score) from clerk_work where StationCN = '{st.session_state.StationCN}' and task_approved >= {int(flag_approved)} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY clerk_cname order by clerk_cname"
+        result = execute_sql(cur, sql)
+        for each in result:
+            raws_data.append([each[0], int(each[1])])
+        if raws_data:
+            df = pd.DataFrame(raws_data, columns=["姓名", "合计分值"])
+            # 计算中位数
+            median_score = np.nanmedian(df["合计分值"])
+            # 生成柱状图
+            fig = px.bar(df, x="姓名", y="合计分值", text_auto=True,
+                        title="工作量分值", labels={"姓名": "员工姓名", "合计分值": "总分值"})
+            # 添加中位数水平线
+            fig.add_shape(type='line',
+                        x0=-0.5, x1=len(df) - 0.5,
+                        y0=median_score, y1=median_score,
+                        line=dict(color='red', dash='dash'))
+            fig.update_layout(font=dict(size=CHARTFONTSIZE))
+            # 将中位数标注移到线上方，并调整字体大小
+            fig.add_annotation(x=len(df) - 1, y=median_score + 12,  # 向上偏移
+                            text=f'中位数: {median_score:.0f}',
+                            showarrow=False,
+                            font=dict(color='red', size=CHARTFONTSIZE + 2),
+                            xanchor='right',
+                            yanchor='bottom')
     if raws_data:
+        with charArea.container(border=True):
+            if chart_type != "日历热度图":
+                tab1.plotly_chart(fig, use_container_width=True)
         tab2.write(df)
     else:
+        tab1.info("未查询到记录")
         tab2.info("未查询到记录")
 
 
