@@ -2311,9 +2311,9 @@ elif st.session_state.logged_in:
                     sac.MenuItem('登出', icon='box-arrow-right'),
                 ]),
                 sac.MenuItem('关于', icon='layout-wtf', children=[
-                    sac.MenuItem('Changelog', icon='view-list'),
-                    sac.MenuItem('Readme', icon='github'),
-                    sac.MenuItem('关于...', icon='link-45deg'),
+                    sac.MenuItem('Changelog', icon='h-square'),
+                    sac.MenuItem('Readme', icon='clipboard'),
+                    sac.MenuItem('关于...', icon='book'),
                     sac.MenuItem('LICENSE', icon='card-text'),
                 ]),
             ], open_index=[1, 2], index=st.session_state.menu_index)
@@ -2338,9 +2338,9 @@ elif st.session_state.logged_in:
                     sac.MenuItem('登出', icon='box-arrow-right'),
                 ]),
                 sac.MenuItem('关于', icon='layout-wtf', children=[
-                    sac.MenuItem('Changelog', icon='view-list'),
-                    sac.MenuItem('Readme', icon='github'),
-                    sac.MenuItem('关于...', icon='link-45deg'),
+                    sac.MenuItem('Changelog', icon='h-square'),
+                    sac.MenuItem('Readme', icon='clipboard'),
+                    sac.MenuItem('关于...', icon='book'),
                     sac.MenuItem('LICENSE', icon='card-text'),
                 ]),
             ], open_index=[1, 2], index=st.session_state.menu_index)
