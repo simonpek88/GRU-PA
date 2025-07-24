@@ -289,7 +289,7 @@ def changelog():
 
 def aboutReadme():
     new_content = ''
-    package_pack = ['Streamlit', 'NumPY', 'Pandas', 'Plotly', 'Python-docx', 'Openpyxl', 'XlsxWriter', 'PyJWT', 'Dlib', 'Face-recognition', 'Opencv-python', 'Streamlit-webrtc']
+    package_pack = ['Streamlit', 'Streamlit-antd-components', 'NumPY', 'Pandas', 'Plotly', 'Python-docx', 'Openpyxl', 'XlsxWriter', 'PyJWT', 'Dlib', 'Face-recognition', 'Opencv-python', 'Streamlit-webrtc']
     with open('./README.md', 'r', encoding='utf-8') as file:
         lines = file.readlines()
 
@@ -320,7 +320,7 @@ def aboutInfo():
     cols_limit = 5
     st.subheader("关于本软件", divider="rainbow")
     st.subheader(":blue[Powered by Python and Streamlit]")
-    module_pack = ['Python', 'MySQL', 'Streamlit', 'Pandas', 'NumPy', 'Plotly', 'Dlib', 'Openpyxl', 'Python-Docx', 'PyJWT']
+    module_pack = ['Python', 'MySQL', 'Streamlit', 'SAC', 'Pandas', 'NumPy', 'Plotly', 'Dlib', 'Openpyxl', 'Python-Docx']
     module_img = st.columns(cols_limit)
     for index, value in enumerate(module_pack):
         module_img[index % cols_limit].caption(value)
@@ -338,7 +338,7 @@ def display_pypi():
     db_type = 'MySQL'
     cols_limit = 5
     pypi = st.columns(cols_limit)
-    badge_pack = ['Streamlit', 'Pandas', 'NumPY', 'Plotly', 'Dlib', 'Openpyxl', 'Python-docx', 'PyJWT']
+    badge_pack = ['Streamlit', 'streamlit-antd-components', 'Pandas', 'NumPY', 'Plotly', 'Dlib', 'Openpyxl', 'Python-docx']
     verinfo, verLM = getVerInfo()
     app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{verinfo}'
     app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
@@ -346,10 +346,10 @@ def display_pypi():
     badge_pack = ['Python', db_type] + badge_pack
     for index, value in enumerate(badge_pack):
         pypi[index % cols_limit].image(f'./Images/badges/{value}-badge.svg')
-
-    pypi[0].image(f'./Images/badges/{APPNAME_EN}-badge.svg')
-    pypi[1].image(f'./Images/badges/{APPNAME_EN}-lm-badge.svg')
-    pypi[2].image('./Images/badges/build-badge.svg')
+    app_info_col = st.columns(cols_limit)
+    app_info_col[0].image(f'./Images/badges/{APPNAME_EN}-badge.svg')
+    app_info_col[1].image(f'./Images/badges/{APPNAME_EN}-lm-badge.svg')
+    app_info_col[2].image('./Images/badges/build-badge.svg')
 
 
 def get_md_task_status(task_date, userID, task_content):

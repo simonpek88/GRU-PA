@@ -13,8 +13,8 @@ python_docx==1.2.0
 pybadges==3.0.1
 PyJWT==2.10.1
 streamlit==1.47.0
-streamlit_antd_components==0.3.2
-streamlit_condition_tree==0.3.0
-streamlit_extras==0.7.5
+streamlit-antd-components==0.3.2
+streamlit-condition-tree==0.3.0
+streamlit-extras==0.7.5
 streamlit-nivo==0.1.8
 streamlit-webrtc==0.63.3
