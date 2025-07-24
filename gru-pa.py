@@ -1475,9 +1475,10 @@ def gen_chart():
                             xanchor='right',
                             yanchor='bottom')
     if raws_data:
-        with charArea.container(border=True):
-            if chart_type != "日历热度图":
-                tab1.plotly_chart(fig, use_container_width=True)
+        if chart_type != "日历热度图":
+            with tab1:
+                with charArea.container(border=True):
+                    st.plotly_chart(fig, use_container_width=True)
         tab2.write(df)
     else:
         tab1.info("未查询到记录")
