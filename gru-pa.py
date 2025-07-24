@@ -373,6 +373,8 @@ def get_md_task_status(task_date, userID, task_content):
 def task_input():
     #st.markdown("### <font face='微软雅黑' color=red><center>工作量录入</center></font>", unsafe_allow_html=True)
     st.subheader("任务批量录入", divider="green")
+    # 初始化任务组别图标
+    task_group_icon = init_task_group_icon()
     # 刷新用户设置
     refresh_users_setup()
     # 更新用户工作组别频率
@@ -426,8 +428,8 @@ def task_input():
         sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task, pa_share, task_type from gru_pa where StationCN = '{st.session_state.StationCN}' and task_group = '{row[0]}' and comm_task <> {task_clerk_type} order by ID"
         rows2 = execute_sql(cur, sql)
         if rows2:
-            if row[0] in EXICON:
-                expand_icon = EXICON[row[0]]
+            if row[0] in task_group_icon:
+                expand_icon = task_group_icon[row[0]]
             else:
                 expand_icon = 'dashboard_customize'
             with expander_col[expander_col_index % 2].expander(f"# :green[{row[0]}]", icon=f':material/{expand_icon}:', expanded=False):
@@ -2238,12 +2240,20 @@ def init_user_setup_name():
     return key_name_pack, key_intro_pack
 
 
-global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME, EXICON
+def init_task_group_icon():
+    group_icon = {}
+    sql = "SELECT key_name, key_value from icons where icon_type = 'material' order by ID"
+    results = execute_sql(cur, sql)
+    for each in results:
+        group_icon[each[0]] = each[1]
+
+    return group_icon
+
+
+global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME
 APPNAME_CN = "站室绩效考核系统KPI-PA"
 APPNAME_EN = "GRU-PA"
 STATION_CITYNAME = {'北京站': '顺义', '天津站': '滨海新区', '总控室': '滨海新区', '调控中心': '滨海新区', '武清站': '武清'}
-EXICON = {'基础工作': 'work', '输油作业': 'oil_barrel', '通球扫线': 'panorama_photosphere', '维修保养': 'construction', '过滤器更换': 'tools_installation_kit', '检测检查': 'mystery', '清理保洁': 'cleaning_services'}
-EXICON.update({'财务工作': 'finance', '台账及报表': 'dataset', '行政管理': 'enterprise', '宣传及党务': 'full_coverage', '汽车管理': 'car_gear', '公务外派': 'business_center', '特殊作业票': 'fact_check', '额外加分项': 'person_play'})
 conn = get_connection()
 cur = conn.cursor()
 st.logo(image="./Images/logos/GRU-PA-logo.png", icon_image="./Images/logos/GRU-PA-logo.png", size="large")
