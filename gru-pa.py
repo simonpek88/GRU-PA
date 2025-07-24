@@ -40,7 +40,6 @@ from mysql_pool import get_connection
 # cSpell:ignoreRegExp /[^\s]{16,}/
 # cSpell:ignoreRegExp /\b[A-Z]{3,15}\b/g
 # cSpell:ignoreRegExp /\b[A-Z]\b/g
-# use trae ide
 
 @st.fragment
 def login():
@@ -2313,7 +2312,7 @@ elif st.session_state.logged_in:
                 sac.MenuItem('关于', icon='layout-wtf', children=[
                     sac.MenuItem('Changelog', icon='h-square'),
                     sac.MenuItem('Readme', icon='clipboard'),
-                    sac.MenuItem('关于...', icon='book'),
+                    sac.MenuItem('About', icon='book'),
                     sac.MenuItem('LICENSE', icon='card-text'),
                 ]),
             ], open_index=[1, 2], index=st.session_state.menu_index)
@@ -2340,7 +2339,7 @@ elif st.session_state.logged_in:
                 sac.MenuItem('关于', icon='layout-wtf', children=[
                     sac.MenuItem('Changelog', icon='h-square'),
                     sac.MenuItem('Readme', icon='clipboard'),
-                    sac.MenuItem('关于...', icon='book'),
+                    sac.MenuItem('About', icon='book'),
                     sac.MenuItem('LICENSE', icon='card-text'),
                 ]),
             ], open_index=[1, 2], index=st.session_state.menu_index)
@@ -2423,7 +2422,7 @@ elif st.session_state.logged_in:
         changelog()
     elif selected == "Readme":
         aboutReadme()
-    elif selected == "关于...":
+    elif selected == "About":
         aboutInfo()
     elif selected == "LICENSE":
         aboutLicense()
