@@ -1855,14 +1855,15 @@ def update_users_setup(param_name, param_value, action_type):
 def users_setup():
     #st.markdown("### <font face='微软雅黑' color=blue><center>个人设置</center></font>", unsafe_allow_html=True)
     st.subheader("个人设置", divider="green")
+    user_setup_name, user_setup_name_intro = init_user_setup_name()
     col_limit = 3
     col = st.columns(col_limit)
     col_index = 0
-    for index, value in enumerate(SETUP_NAME_PACK):
+    for index, value in enumerate(user_setup_name):
         sql = f"SELECT userID, userCName, param_value from users_setup where userID = {st.session_state.userID} and param_name = '{value}'"
         cur.execute(sql)
         result = cur.fetchone()
-        col[col_index % col_limit].markdown(f'##### {SETUP_LABEL_PACK[index]}')
+        col[col_index % col_limit].markdown(f'##### {user_setup_name_intro[index]}')
         if result:
             with col[col_index % col_limit]:
                 sac.switch(label='', value=bool(int(result[2])), key=f'setup_{value}_{result[0]}', align='start', on_label='On', off_label='Off')
@@ -1875,7 +1876,8 @@ def users_setup():
 
 
 def refresh_users_setup():
-    for index, value in enumerate(SETUP_NAME_PACK):
+    user_setup_name, user_setup_name_intro = init_user_setup_name()
+    for index, value in enumerate(user_setup_name):
         sql = f"SELECT userID, userCName, param_value from users_setup where userID = {st.session_state.userID} and param_name = '{value}'"
         result = execute_sql(cur, sql)
         if result:
@@ -2225,19 +2227,26 @@ def get_system_setup():
         st.session_state[each[1]] = each[0]
 
 
-global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME, SETUP_NAME_PACK, SETUP_LABEL_PACK, EXICON
+def init_user_setup_name():
+    key_name_pack, key_intro_pack = [], []
+    sql = "SELECT key_name, key_intro from users_standard order by ID"
+    results = execute_sql(cur, sql)
+    for each in results:
+        key_name_pack.append(each[0])
+        key_intro_pack.append(each[1])
+
+    return key_name_pack, key_intro_pack
+
+
+global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME, EXICON
 APPNAME_CN = "站室绩效考核系统KPI-PA"
 APPNAME_EN = "GRU-PA"
 STATION_CITYNAME = {'北京站': '顺义', '天津站': '滨海新区', '总控室': '滨海新区', '调控中心': '滨海新区', '武清站': '武清'}
-SETUP_NAME_PACK = ['static_show', 'weather_show', 'weather_metric', 'weather_provider', 'auto_task_check', 'task_group_sort', 'task_clerk_type']
-SETUP_LABEL_PACK = ['主页展示方式: :green[On 静态文字] :orange[Off 特效文字]', '天气展示', '天气展示方式: :green[On 卡片] :orange[Off 文字] :violet[高德只有卡片模式]', '天气数据源: :green[On 和风] :orange[Off 高德]', '自动选择日常工作:', '工作组排序: :green[On 个性化] :orange[Off 固定]', '岗位工作类型: :green[On 值班] :orange[Off 白班]']
 EXICON = {'基础工作': 'work', '输油作业': 'oil_barrel', '通球扫线': 'panorama_photosphere', '维修保养': 'construction', '过滤器更换': 'tools_installation_kit', '检测检查': 'mystery', '清理保洁': 'cleaning_services'}
-EXICON2 = {'财务工作': 'finance', '台账及报表': 'dataset', '行政管理': 'enterprise', '宣传及党务': 'full_coverage', '汽车管理': 'car_gear', '公务外派': 'business_center', '特殊作业票': 'fact_check', '额外加分项': 'person_play'}
-EXICON.update(EXICON2)
+EXICON.update({'财务工作': 'finance', '台账及报表': 'dataset', '行政管理': 'enterprise', '宣传及党务': 'full_coverage', '汽车管理': 'car_gear', '公务外派': 'business_center', '特殊作业票': 'fact_check', '额外加分项': 'person_play'})
 conn = get_connection()
 cur = conn.cursor()
 st.logo(image="./Images/logos/GRU-PA-logo.png", icon_image="./Images/logos/GRU-PA-logo.png", size="large")
-weather_provider = 'hf'
 selected = None
 
 if "logged_in" not in st.session_state:
