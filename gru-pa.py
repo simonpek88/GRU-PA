@@ -1799,6 +1799,11 @@ def combine_query():
             'type': 'date',
             'operators': ['between']
         },
+        'clerk_work': {
+            'label': '任务内容',
+            'type': 'text',
+            #'operators': ['contains', 'not_contains', 'starts_with', 'ends_with'],
+        },
         'task_group': {
             'label': '工作组别',
             'type': 'select',
