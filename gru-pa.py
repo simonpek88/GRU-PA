@@ -1083,10 +1083,10 @@ def check_data():
             approve_pack = sac.transfer(items=task_pack, label='工作量核定', titles=['项目'], reload=True, align='center', search=True, pagination=True, use_container_width=True)
             if confirm_btn_approv and approve_pack:
                 for each in approve_pack:
-                    approve_id = each[each.find('ID:') + 3:].strip()
+                    approve_id = each[each.rfind('ID:') + 3:].strip()
                     sql = f"UPDATE clerk_work SET task_approved = 1 where ID = {approve_id}"
                     execute_sql_and_commit(conn, cur, sql)
-                    st.success(f"**{each} 工作量已核定**")
+                    st.success(f"{each} 工作量已核定")
         else:
             st.markdown(f'###### :red[无任何记录]')
 
