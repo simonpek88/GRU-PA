@@ -1944,6 +1944,7 @@ def reset_table():
             sac.SegmentedItem(label="更新ID初始值", icon="database-exclamation"),
             sac.SegmentedItem(label="更新PA-Share", icon="list-check"),
             sac.SegmentedItem(label="更新固定分值", icon="database-up"),
+            sac.SegmentedItem(label="工作组别调整", icon="collection"),
             sac.SegmentedItem(label="数据库备份", icon="backpack4"),
         ], align="center", color='red'
     )
@@ -1983,6 +1984,8 @@ def reset_table():
         btn_update_fixed_score = st.button(label="更新固定分值", type='primary')
         if btn_update_fixed_score:
             st.button(label="确认更新", type='secondary', on_click=update_fixed_score)
+    elif reset_type == "工作组别调整":
+        modify_task_group()
     elif reset_type == "数据库备份":
         btn_backup = st.button(label="开始备份")
         if btn_backup:
@@ -2252,6 +2255,37 @@ def init_task_group_icon():
         group_icon[each[0]] = each[1]
 
     return group_icon
+
+
+@st.fragment
+def modify_task_group():
+    #st.markdown("### <font face='微软雅黑' color=red><center>工作组别调整</center></font>", unsafe_allow_html=True)
+    st.subheader("工作组别调整", divider="blue")
+    col1, col2 = st.columns(2)
+    org_task_group, target_task_group, item_pack = [], [], []
+    sql = f"SELECT DISTINCT(task_group) from gru_pa where StationCN = '{st.session_state.StationCN}'"
+    rows = execute_sql(cur, sql)
+    for row in rows:
+        org_task_group.append(row[0])
+    target_task_group = org_task_group
+    org_selected = col1.selectbox('原工作组别', org_task_group, index=0)
+    target_selected = col2.selectbox('目标工作组别', target_task_group, index=0)
+    btn_modify = col1.button('调整')
+    if org_selected != target_selected:
+        sql = f"SELECT pa_content, ID from gru_pa where task_group = '{org_selected}' and StationCN = '{st.session_state.StationCN}'"
+        rows = execute_sql(cur, sql)
+        for row in rows:
+            item_pack.append(f'{row[0]} ID:{row[1]}')
+        moved_pack = sac.transfer(items=item_pack, label='工作组别调整', titles=['项目'], reload=True, align='center', search=True, pagination=True, use_container_width=True)
+        if btn_modify and moved_pack:
+            for each in moved_pack:
+                modify_id = each[each.rfind('ID:') + 3:].strip()
+                modify_content = each[:each.rfind('ID:')]
+                sql = f"UPDATE gru_pa SET task_group = '{target_selected}' where ID = {modify_id}"
+                execute_sql_and_commit(conn, cur, sql)
+                sql = f"UPDATE clerk_work SET task_group = '{target_selected}' where clerk_work = '{modify_content}' and StationCN = '{st.session_state.StationCN}'"
+                execute_sql_and_commit(conn, cur, sql)
+                st.success(f":violet[{org_selected}] 中的 :orange[{modify_content}] 已经调整至 :blue[{target_selected}]")
 
 
 global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME
