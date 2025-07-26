@@ -1544,12 +1544,12 @@ def display_weather_gd(city_code):
         weather_info = get_city_weather(city_code)
         if weather_info:
             st.markdown(f"#### {weather_info['city']} - 实时天气")
-            #st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {weather_info['city']} 天气: {weather_info['weather_icon']} 温度: {weather_info['temperature']} ℃ {weather_info['temp_icon']}</div>", unsafe_allow_html=True)
+            #st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {weather_info['city']} 天气: {weather_info['weather_icon']} 温度: {weather_info['temperature']} °C {weather_info['temp_icon']}</div>", unsafe_allow_html=True)
             #st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>风向: {weather_info['winddirection']} 风力: {weather_info['windpower']} km/h {weather_info['wind_icon']} 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}</div>", unsafe_allow_html=True)
             wcol = st.columns(3)
             #wcol[0].metric('地区', weather_info['city'])
             wcol[0].metric(label='天气',value=f"{weather_info['weather']} {weather_info['weather_icon']}")
-            wcol[1].metric(label='温度', value=f"{weather_info['temperature']} ℃ {weather_info['temp_icon']}")
+            wcol[1].metric(label='温度', value=f"{weather_info['temperature']} °C {weather_info['temp_icon']}")
             wcol[2].metric(label='湿度', value=f"{weather_info['humidity']}% {weather_info['humidity_icon']}")
             wcol[0].metric(label='风向', value=f"{weather_info['winddirection']}风")
             wcol[1].metric(label='风力', value=f"{weather_info['windpower']} km/s {weather_info['wind_icon']}")
@@ -1615,7 +1615,7 @@ def display_history_weather():
             windscale_pack.sort(reverse=True)
             windspeed_pack.sort(reverse=True)
             humidity_pack.sort(reverse=True)
-            st.markdown(f"##### 地区: {city_name} 温度: {weather_info['tempMax']} - {weather_info['tempMin']} ℃ {weather_info['temp_icon']}")
+            st.markdown(f"##### 地区: {city_name} 温度: {weather_info['tempMax']} - {weather_info['tempMin']} °C {weather_info['temp_icon']}")
             st.markdown(f"##### 天气: {weather_text.strip()}")
             st.markdown(f"##### 降水: {int(sum(precip_pack))} mm 最大风力: {windscale_pack[0]} kts/ {windspeed_pack[0]} km/h")
             st.markdown(f"##### 湿度: {humidity_pack[0]} - {humidity_pack[-1]}% {weather_info['humidity_icon']} 气压: {weather_info['pressure']} hPa")
@@ -1658,7 +1658,7 @@ def plot_wind_speed_curve(hourly_data1, hourly_data2):
     # 设置图表标题和标签
     fig.update_layout(title_text='温度/风力曲线')
     fig.update_xaxes(title_text='小时')
-    fig.update_yaxes(title_text='温度 (℃)', secondary_y=False)
+    fig.update_yaxes(title_text='温度 (°C)', secondary_y=False)
     fig.update_yaxes(title_text='风力 (m/s)', secondary_y=True)
 
     # 显示图表
@@ -1707,8 +1707,8 @@ def display_weather_hf(city_code):
             """
             icon_size = 24
             weather_info['winddir_icon_html'] = weather_info['winddir_icon_html'].replace('icon_size', f'{icon_size}')
-            #st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {city_name} 天气: {weather_info['weather_icon']} 温度: {weather_info['temp']} ℃ {weather_info['temp_icon']} / 体感温度: {weather_info['feelslike']} ℃ {weather_info['feelslike_icon']}</div>", unsafe_allow_html=True)
-            st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {city_name} 天气: {weather_info['weather']} {weather_icon_html} 🌡️温度: {weather_info['temp']}℃ / 🧘温度: {weather_info['feelslike']}℃ {weather_info['feelslike_icon']}</div>", unsafe_allow_html=True)
+            #st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {city_name} 天气: {weather_info['weather_icon']} 温度: {weather_info['temp']} °C {weather_info['temp_icon']} / 体感温度: {weather_info['feelslike']} °C {weather_info['feelslike_icon']}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {city_name} 天气: {weather_info['weather']} {weather_icon_html} 🌡️温度: {weather_info['temp']}°C / 🧘温度: {weather_info['feelslike']}°C {weather_info['feelslike_icon']}</div>", unsafe_allow_html=True)
             st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>降水: {weather_info['precip']} mm {precip} 能见度: {weather_info['vis']} km 云量: {cloud}% 大气压强: {weather_info['pressure']} hPa</div>", unsafe_allow_html=True)
             st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>风向: {weather_info['winddir']} {weather_info['winddir_icon_html']} 风力: {weather_info['windscale']} 级 / {weather_info['windspeed']} km/h {weather_info['wind_icon']} 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}</div>", unsafe_allow_html=True)
             st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#000000; font-size:14px;'>数据更新时间: {weather_info['obstime'][2:-6].replace('T', ' ')}</div>", unsafe_allow_html=True)
@@ -1731,8 +1731,9 @@ def display_weather_hf_metric(city_code):
             st.markdown(f'##### {city_name} - 实时天气')
             wcol = st.columns(4)
             wcol[0].metric(label='天气', value=f"{weather_info['weather']} {weather_info['weather_icon']}")
-            wcol[1].metric(label='🌡️温度', value=f"{weather_info['temp']}℃ {weather_info['temp_icon']}")
-            wcol[2].metric(label='🧘体感温度', value=f"{weather_info['feelslike']}℃ {weather_info['feelslike_icon']}")
+            #wcol[1].metric(label='🌡️温度', value=f"{weather_info['temp']}°C {weather_info['temp_icon']}")
+            wcol[1].metric(label='🌡️温度', value=f"{weather_info['temp']}°C")
+            wcol[2].metric(label='🧘体感温度', value=f"{weather_info['feelslike']}°C {weather_info['feelslike_icon']}")
             wcol[3].metric(label='降水', value=f"{weather_info['precip']} mm {precip}")
             #wcol[1].metric(label='云量', value=f"{cloud}%")
             #wcol[2].metric(label='大气压强', value=f"{weather_info['pressure']} hPa")

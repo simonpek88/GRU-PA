@@ -119,14 +119,14 @@
 					"label": "combine_query"
 				},
 				{
-					"line": 1567,
-					"column": 41,
-					"label": "display_weather_hf_metric"
-				},
-				{
 					"line": 1657,
 					"column": 31,
 					"label": "auto_get_history_weather"
+				},
+				{
+					"line": 1716,
+					"column": 41,
+					"label": "display_weather_hf_metric"
 				},
 				{
 					"line": 1771,
