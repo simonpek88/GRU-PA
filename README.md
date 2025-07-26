@@ -23,7 +23,7 @@ Grass-roots unit performance appraisal system (GRU-PA).
 ## Install
 
 1. 下载并安装[Python](https://www.python.org/)(3.9<=版本<3.13)
-2. 下载并安装[MySQL](https://dev.mysql.com/downloads/mysql/)(==8.4.5)
+2. 下载并安装[MySQL](https://dev.mysql.com/downloads/mysql/)(==8.4.5 LTS)
 3. 下载并编译安装[Dlib](https://github.com/davisking/dlib)(==20.0.0, 安装VS build tools后手工编译, 编译方法在documents目录中, 推荐GPU加速)
 4. 克隆仓库到本地或者解压提供的源代码包
 5. 配置环境变量, 将Python和Streamlit的安装路径添加到环境变量中
