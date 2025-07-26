@@ -2231,7 +2231,7 @@ def get_system_setup():
 
 def init_user_setup_name():
     key_name_pack, key_intro_pack = [], []
-    sql = "SELECT key_name, key_intro from users_standard order by ID"
+    sql = "SELECT key_name, key_intro from users_setup_template order by ID"
     results = execute_sql(cur, sql)
     for each in results:
         key_name_pack.append(each[0])
