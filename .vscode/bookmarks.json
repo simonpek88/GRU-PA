@@ -59,6 +59,11 @@
 					"label": "deduction_input"
 				},
 				{
+					"line": 801,
+					"column": 17,
+					"label": "check_data"
+				},
+				{
 					"line": 810,
 					"column": 19,
 					"label": "manual_input"
@@ -74,14 +79,14 @@
 					"label": "chart_type"
 				},
 				{
-					"line": 1050,
-					"column": 17,
-					"label": "check_data"
-				},
-				{
 					"line": 1081,
 					"column": 31,
 					"label": "日历热度图"
+				},
+				{
+					"line": 1185,
+					"column": 16,
+					"label": "gen_chart"
 				},
 				{
 					"line": 1200,
@@ -146,15 +151,10 @@
 				{
 					"line": 1935,
 					"column": 18,
-					"label": "数据库操作"
+					"label": "modify db"
 				},
 				{
-					"line": 2019,
-					"column": 32,
-					"label": "main"
-				},
-				{
-					"line": 2098,
+					"line": 2129,
 					"column": 37,
 					"label": "face_recognize_verify"
 				},
@@ -164,9 +164,14 @@
 					"label": "modify_task_group"
 				},
 				{
-					"line": 2295,
-					"column": 19,
-					"label": "main"
+					"line": 2343,
+					"column": 58,
+					"label": "da menu"
+				},
+				{
+					"line": 2449,
+					"column": 27,
+					"label": "sub_menu"
 				}
 			]
 		},

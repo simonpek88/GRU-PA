@@ -1933,32 +1933,21 @@ def cal_date(diff_days):
     return result_date
 
 
-def reset_table():
+def modify_db(sub_func):
     #st.markdown("### <font face='微软雅黑' color=red><center>数据库操作</center></font>", unsafe_allow_html=True)
-    st.subheader("数据库操作", divider="red")
+    st.subheader(sub_func, divider="red")
     st.markdown("#### ⚠️请谨慎操作, 记录不可恢复")
-    reset_type = sac.segmented(
-        items=[
-            sac.SegmentedItem(label="重置PA-Number", icon="bootstrap-reboot"),
-            sac.SegmentedItem(label="重置工作组别热度", icon="sliders2"),
-            sac.SegmentedItem(label="更新ID初始值", icon="database-exclamation"),
-            sac.SegmentedItem(label="更新PA-Share", icon="list-check"),
-            sac.SegmentedItem(label="更新固定分值", icon="database-up"),
-            sac.SegmentedItem(label="工作组别调整", icon="collection"),
-            sac.SegmentedItem(label="数据库备份", icon="backpack4"),
-        ], align="center", color='red'
-    )
 
-    if reset_type == "重置PA-Number":
+    if sub_func == "重置PA-Number":
         reset_table_num()
-    elif reset_type == "重置工作组别热度":
+    elif sub_func == "重置工作组别":
         btn_reset_task_group = st.button(label="确认重置工作组别热度")
         if btn_reset_task_group:
             sql = "TRUNCATE TABLE users_task_group_freq"
             execute_sql_and_commit(conn, cur, sql)
             update_users_group_frequency()
-            st.success("工作组别热度更新完成")
-    elif reset_type == "更新ID初始值":
+            st.success("工作组别热度重置完成")
+    elif sub_func == "更新ID初始值":
         btn_reset_table_id = st.button(label="确认更新ID初始值")
         if btn_reset_table_id:
             sql = """
@@ -1970,7 +1959,7 @@ def reset_table():
             if result:
                 for table_name in result:
                     reset_auto_increment(table_name[0])
-    elif reset_type == "更新PA-Share":
+    elif sub_func == "更新PA-Share":
         btn_reset_pa_share = st.button(label="确认更新PA-Share")
         if btn_reset_pa_share:
             sql = "SELECT DISTINCT(share_date) from pa_share order by share_date"
@@ -1980,13 +1969,17 @@ def reset_table():
             for date_result in date_results:
                 update_pa_share(date_result[0])
             st.success("PA-Share更新完成")
-    elif reset_type == "更新固定分值":
+    elif sub_func == "更新固定分值":
         btn_update_fixed_score = st.button(label="更新固定分值", type='primary')
         if btn_update_fixed_score:
             st.button(label="确认更新", type='secondary', on_click=update_fixed_score)
-    elif reset_type == "工作组别调整":
+    elif sub_func == "组别名称修改":
+        edit_group_name()
+    elif sub_func == "分组内容调整":
         modify_task_group()
-    elif reset_type == "数据库备份":
+    elif sub_func == "工作内容修改":
+        edit_task_content()
+    elif sub_func == "数据库备份":
         btn_backup = st.button(label="开始备份")
         if btn_backup:
             backup_file = f"./MySQL_Backup/GRU-PA-MySQL_Backup_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.sql"
@@ -2249,7 +2242,7 @@ def init_user_setup_name():
 
 def init_task_group_icon():
     group_icon = {}
-    sql = "SELECT key_name, key_value from icons where icon_type = 'material' order by ID"
+    sql = "SELECT key_name, key_value from icons where icon_type = 'task_group' order by ID"
     results = execute_sql(cur, sql)
     for each in results:
         group_icon[each[0]] = each[1]
@@ -2259,18 +2252,15 @@ def init_task_group_icon():
 
 @st.fragment
 def modify_task_group():
-    #st.markdown("### <font face='微软雅黑' color=red><center>工作组别调整</center></font>", unsafe_allow_html=True)
-    st.subheader("工作组别调整", divider="blue")
-    col1, col2 = st.columns(2)
-    org_task_group, target_task_group, item_pack = [], [], []
+    org_task_group, item_pack = [], []
     sql = f"SELECT DISTINCT(task_group) from gru_pa where StationCN = '{st.session_state.StationCN}'"
     rows = execute_sql(cur, sql)
     for row in rows:
         org_task_group.append(row[0])
-    target_task_group = org_task_group
+    col1, col2 = st.columns(2)
     org_selected = col1.selectbox('原工作组别', org_task_group, index=0)
-    target_selected = col2.selectbox('目标工作组别', target_task_group, index=0)
-    btn_modify = col1.button('调整')
+    target_selected = col2.selectbox('目标工作组别', org_task_group, index=0)
+    btn_modify = col1.button('调整组别')
     if org_selected != target_selected:
         sql = f"SELECT pa_content, ID from gru_pa where task_group = '{org_selected}' and StationCN = '{st.session_state.StationCN}'"
         rows = execute_sql(cur, sql)
@@ -2286,6 +2276,57 @@ def modify_task_group():
                 sql = f"UPDATE clerk_work SET task_group = '{target_selected}' where clerk_work = '{modify_content}' and StationCN = '{st.session_state.StationCN}'"
                 execute_sql_and_commit(conn, cur, sql)
                 st.success(f":violet[{org_selected}] 中的 :orange[{modify_content}] 已经调整至 :blue[{target_selected}]")
+
+
+@st.fragment
+def edit_group_name():
+    org_task_group = []
+    sql = f"SELECT DISTINCT(task_group) from gru_pa where StationCN = '{st.session_state.StationCN}'"
+    rows = execute_sql(cur, sql)
+    for row in rows:
+        org_task_group.append(row[0])
+    col1, col2 = st.columns(2)
+    group_selected = col1.selectbox('工作组别', org_task_group, index=0)
+    change_txt = col2.text_input('修改为', group_selected)
+    if group_selected != change_txt:
+        btn_change = col1.button('确认修改')
+        if btn_change:
+            sql = f"UPDATE gru_pa set task_group = '{change_txt}' where task_group = '{group_selected}' and StationCN = '{st.session_state.StationCN}'"
+            execute_sql_and_commit(conn, cur, sql)
+            sql = f"UPDATE clerk_work set task_group = '{change_txt}' where task_group = '{group_selected}' and StationCN = '{st.session_state.StationCN}'"
+            execute_sql_and_commit(conn, cur, sql)
+            sql = f"UPDATE icons set key_name = '{change_txt}' where key_name = '{group_selected}' and icon_type = 'task_group'"
+            execute_sql_and_commit(conn, cur, sql)
+            sql = "TRUNCATE TABLE users_task_group_freq"
+            execute_sql_and_commit(conn, cur, sql)
+            update_users_group_frequency()
+            st.success(f'[{group_selected}] 已修改为 [{change_txt}]')
+
+
+@st.fragment
+def edit_task_content():
+    org_task_group, org_task_content = [], []
+    sql = f"SELECT DISTINCT(task_group) from gru_pa where StationCN = '{st.session_state.StationCN}'"
+    rows = execute_sql(cur, sql)
+    for row in rows:
+        org_task_group.append(row[0])
+    group_selected = st.selectbox('工作组别', org_task_group, index=0)
+    sql = f"SELECT pa_content from gru_pa where task_group = '{group_selected}' and StationCN = '{st.session_state.StationCN}'"
+    rows = execute_sql(cur, sql)
+    for row in rows:
+        org_task_content.append(row[0])
+    change_selected = st.selectbox('工作内容', org_task_content, index=0)
+    change_txt = st.text_input('修改为', change_selected)
+    if change_selected != change_txt:
+        btn_change = st.button('确认修改')
+        if btn_change:
+            sql = f"UPDATE gru_pa set pa_content = '{change_txt}' where task_group = '{group_selected}' and pa_content = '{change_selected}' and StationCN = '{st.session_state.StationCN}'"
+            execute_sql_and_commit(conn, cur, sql)
+            sql = f"UPDATE clerk_work set clerk_work = '{change_txt}' where task_group = '{group_selected}' and clerk_work = '{change_selected}' and StationCN = '{st.session_state.StationCN}'"
+            execute_sql_and_commit(conn, cur, sql)
+            sql = f"UPDATE pa_share set pa_content = '{change_txt}' where pa_content = '{change_selected}' and StationCN = '{st.session_state.StationCN}'"
+            execute_sql_and_commit(conn, cur, sql)
+            st.success(f'[{change_selected}] 已修改为 [{change_txt}]')
 
 
 global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME
@@ -2318,9 +2359,9 @@ elif st.session_state.logged_in:
         #displaySmallClock()
         if st.session_state.userType == "admin":
             if st.session_state.userID == 1 and st.session_state.StationCN == "北京站":
-                dangerous_func = True
+                system_da = True
             else:
-                dangerous_func = False
+                system_da = False
             selected = sac.menu([
                 sac.MenuItem('公告', icon='megaphone'),
                 sac.MenuItem('主页', icon='house'),
@@ -2335,11 +2376,23 @@ elif st.session_state.logged_in:
                     sac.MenuItem('高级查询', icon='search'),
                     sac.MenuItem('历史天气', icon='cloud-sun'),
                     sac.MenuItem('公告发布', icon='journal-arrow-up'),
-                    sac.MenuItem("数据库操作", icon="database-check", disabled=not dangerous_func),
                 ]),
+                sac.MenuItem('数据库操作', icon='database-check', children=[
+                    sac.MenuItem('重置PA-Number', icon='bootstrap-reboot'),
+                    sac.MenuItem('重置工作组别', icon='vignette'),
+                    sac.MenuItem('更新ID初始值', icon='database-exclamation'),
+                    sac.MenuItem('更新PA-Share', icon='list-check'),
+                    sac.MenuItem('更新固定分值', icon='database-up'),
+                    sac.MenuItem('工作组别调整', icon='collection', children=[
+                        sac.MenuItem('组别名称修改', icon='pencil-square'),
+                        sac.MenuItem('分组内容调整', icon='text-indent-left'),
+                        sac.MenuItem('工作内容修改', icon='card-text'),
+                    ]),
+                    sac.MenuItem('数据库备份', icon='backpack4'),
+                ], disabled=not system_da),
                 sac.MenuItem('设置', icon='gear', children=[
                     sac.MenuItem('个人设置', icon='sliders2'),
-                    sac.MenuItem('系统设置', icon='sliders2-vertical', disabled=not dangerous_func),
+                    sac.MenuItem('系统设置', icon='sliders2-vertical', disabled=not system_da),
                     sac.MenuItem('录入人脸数据', icon='person-bounding-box'),
                     sac.MenuItem('人脸识别测试', icon='person-video3'),
                 ]),
@@ -2407,7 +2460,7 @@ elif st.session_state.logged_in:
                 if st.session_state.weather_metric:
                     display_weather_hf_metric(st.session_state.hf_city_code)
                     # 手动测试
-                    #display_weather_hf_metric('101010900')
+                    #display_weather_hf_metric('101090304')
                 else:
                     display_weather_hf(st.session_state.hf_city_code)
                     st.header(' ')
@@ -2441,8 +2494,8 @@ elif st.session_state.logged_in:
         input_public_notice()
     elif selected == "历史天气":
         display_history_weather()
-    elif selected == "数据库操作":
-        reset_table()
+    elif selected == "重置PA-Number" or selected == "重置工作组别" or selected == "更新ID初始值" or selected == "更新PA-Share" or selected == "更新固定分值" or selected == "组别名称修改" or selected == "分组内容调整" or selected == "工作内容修改" or selected == "数据库备份":
+        modify_db(selected)
     elif selected == "个人设置":
         users_setup()
     elif selected == "系统设置":
