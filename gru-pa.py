@@ -4,7 +4,6 @@ import datetime
 import importlib.metadata
 import os
 import time
-from types import NoneType
 
 import nivo_chart as nc
 import numpy as np
@@ -379,7 +378,7 @@ def task_input():
     # 更新用户工作组别频率
     update_users_group_frequency()
     col1, col2 = st.columns(2)
-    col1.markdown(f"#### 当前用户: {st.session_state.userCName}")
+    col1.markdown(f"##### 当前用户: :blue[{st.session_state.userCName}]")
     with col1:
         flag_auto_task = sac.switch("自动选择日常工作", value=st.session_state.auto_task_check, align="start", on_label="On")
         flag_clerk_type = sac.switch("岗位工作类型", value=st.session_state.task_clerk_type, align="start", on_label="值班", off_label="白班")
@@ -534,7 +533,7 @@ def query_task():
         query_userCName = col1.selectbox("请选择查询用户", userCName)
         query_userID = userID[userCName.index(query_userCName)]
     elif st.session_state.userType == 'user':
-        col1.markdown(f"#### 当前用户: {st.session_state.userCName}")
+        col1.markdown(f"##### 当前用户: :blue[{st.session_state.userCName}]")
         query_userCName = st.session_state.userCName
         query_userID = st.session_state.userID
     query_date_start = col2.date_input('查询开始时间', value=datetime.date.today(), max_value="today")
@@ -829,7 +828,7 @@ def manual_input():
         add_userCName = col1.selectbox("请选择查询用户", userCName)
         add_userID = userID[userCName.index(add_userCName)]
     elif st.session_state.userType == 'user':
-        col1.markdown(f"#### 当前用户: {st.session_state.userCName}")
+        col1.markdown(f"##### 当前用户: :blue[{st.session_state.userCName}]")
         add_userCName = st.session_state.userCName
         add_userID = st.session_state.userID
     sql = f"SELECT DISTINCT(task_group) from gru_pa where StationCN = '{st.session_state.StationCN}'"
@@ -920,7 +919,7 @@ def task_modify():
         query_userCName = col1.selectbox("请选择查询用户", userCName)
         query_userID = userID[userCName.index(query_userCName)]
     else:
-        col1.markdown(f"##### 当前用户: {st.session_state.userCName}")
+        col1.markdown(f"##### 当前用户: :blue[{st.session_state.userCName}]")
         query_userID = st.session_state.userID
         query_userCName = st.session_state.userCName
     query_date_start = col2.date_input('查询开始时间', value=datetime.date.today(), max_value="today")
@@ -1206,7 +1205,7 @@ def gen_chart():
         query_userCName = col1.selectbox("请选择查询用户", userCName)
         query_userID = userID[userCName.index(query_userCName)]
     elif st.session_state.userType == 'user':
-        col1.markdown(f"#### 当前用户: {st.session_state.userCName}")
+        col1.markdown(f"##### 当前用户: :blue[{st.session_state.userCName}]")
         query_userCName = st.session_state.userCName
         query_userID = st.session_state.userID
     query_date_start = col2.date_input('查询开始时间', value=datetime.date.today(), max_value="today")
@@ -2041,14 +2040,19 @@ def get_users_portrait():
     st.subheader("录入人脸数据", divider="green")
     st.markdown(":red[仅限本人使用， 否则识别率会大幅降低]")
     col1, col2 = st.columns(2)
-    temp_userID, temp_userCName = [], []
-    sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' order by login_counter DESC, userCName"
-    rows = execute_sql(cur, sql)
-    for row in rows:
-        temp_userID.append(row[0])
-        temp_userCName.append(row[1])
-    img_userCName = col1.selectbox("请选择录入用户", temp_userCName)
-    img_userID = temp_userID[temp_userCName.index(img_userCName)]
+    if st.session_state.userType == 'admin':
+        temp_userID, temp_userCName = [], []
+        sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' order by login_counter DESC, userCName"
+        rows = execute_sql(cur, sql)
+        for row in rows:
+            temp_userID.append(row[0])
+            temp_userCName.append(row[1])
+        img_userCName = col1.selectbox("请选择录入用户", temp_userCName)
+        img_userID = temp_userID[temp_userCName.index(img_userCName)]
+    else:
+        img_userCName = st.session_state.userCName
+        img_userID = st.session_state.userID
+        st.markdown(f'##### 当前用户: :blue[{img_userCName}]')
     img_file_buffer = st.camera_input("获取人脸图像", width=800)
 
     if img_file_buffer is not None:
@@ -2439,7 +2443,6 @@ elif st.session_state.logged_in:
         st.divider()
         st.image(f'./Images/badges/{APPNAME_EN}-badge.svg')
         st.image(f'./Images/badges/{APPNAME_EN}-lm-badge.svg')
-        #st.markdown(f'### :green[当前用户:] :orange[{st.session_state.userCName}]')
     if selected == "公告":
         public_notice()
     elif selected == "主页":

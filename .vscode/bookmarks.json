@@ -14,54 +14,19 @@
 					"label": "login"
 				},
 				{
-					"line": 117,
-					"column": 23,
-					"label": "login_init"
-				},
-				{
-					"line": 159,
-					"column": 21,
+					"line": 220,
+					"column": 35,
 					"label": "displayAppInfo"
 				},
 				{
-					"line": 232,
-					"column": 16,
-					"label": "aboutInfo"
-				},
-				{
-					"line": 243,
-					"column": 18,
-					"label": "about readme"
-				},
-				{
-					"line": 261,
+					"line": 336,
 					"column": 19,
 					"label": "display_pypi"
 				},
 				{
-					"line": 364,
-					"column": 17,
-					"label": "task input"
-				},
-				{
-					"line": 515,
-					"column": 17,
+					"line": 526,
+					"column": 34,
 					"label": "query_task"
-				},
-				{
-					"line": 610,
-					"column": 18,
-					"label": "task_modify"
-				},
-				{
-					"line": 743,
-					"column": 22,
-					"label": "deduction_input"
-				},
-				{
-					"line": 801,
-					"column": 17,
-					"label": "check_data"
 				},
 				{
 					"line": 810,
@@ -69,7 +34,7 @@
 					"label": "manual_input"
 				},
 				{
-					"line": 893,
+					"line": 906,
 					"column": 18,
 					"label": "task_modify"
 				},
@@ -79,9 +44,9 @@
 					"label": "chart_type"
 				},
 				{
-					"line": 1081,
-					"column": 31,
-					"label": "日历热度图"
+					"line": 1049,
+					"column": 17,
+					"label": "check_data"
 				},
 				{
 					"line": 1185,
@@ -89,59 +54,19 @@
 					"label": "gen_chart"
 				},
 				{
-					"line": 1200,
-					"column": 103,
-					"label": "temp"
-				},
-				{
-					"line": 1276,
-					"column": 20,
-					"label": "public_notice"
-				},
-				{
-					"line": 1316,
-					"column": 20,
-					"label": "gen_cal_chart"
-				},
-				{
-					"line": 1340,
-					"column": 30,
-					"label": "display_history_weather"
-				},
-				{
-					"line": 1537,
-					"column": 20,
-					"label": "combine_query"
-				},
-				{
-					"line": 1657,
-					"column": 31,
-					"label": "auto_get_history_weather"
-				},
-				{
 					"line": 1716,
 					"column": 41,
 					"label": "display_weather_hf_metric"
 				},
 				{
-					"line": 1771,
+					"line": 1769,
+					"column": 20,
+					"label": "combine_query"
+				},
+				{
+					"line": 1883,
 					"column": 26,
 					"label": "refresh_users_setup"
-				},
-				{
-					"line": 1881,
-					"column": 21,
-					"label": "main"
-				},
-				{
-					"line": 1894,
-					"column": 30,
-					"label": "camera_capture"
-				},
-				{
-					"line": 1924,
-					"column": 17,
-					"label": "fr_web_rtc"
 				},
 				{
 					"line": 1935,
@@ -149,9 +74,19 @@
 					"label": "modify db"
 				},
 				{
-					"line": 2129,
+					"line": 2039,
+					"column": 25,
+					"label": "get_users_portrait"
+				},
+				{
+					"line": 2095,
+					"column": 17,
+					"label": "web-rtc人脸识别"
+				},
+				{
+					"line": 2140,
 					"column": 37,
-					"label": "face_recognize_verify"
+					"label": "人脸识别验证"
 				},
 				{
 					"line": 2260,
@@ -161,11 +96,11 @@
 				{
 					"line": 2343,
 					"column": 58,
-					"label": "da menu"
+					"label": "main"
 				},
 				{
-					"line": 2449,
-					"column": 27,
+					"line": 2393,
+					"column": 65,
 					"label": "sub_menu"
 				}
 			]
