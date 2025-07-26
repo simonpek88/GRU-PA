@@ -109,11 +109,6 @@
 					"label": "display_history_weather"
 				},
 				{
-					"line": 1491,
-					"column": 41,
-					"label": "display_weather_hf_metric"
-				},
-				{
 					"line": 1537,
 					"column": 20,
 					"label": "combine_query"

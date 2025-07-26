@@ -1,14 +1,14 @@
-# 站室绩效考核系统KPI-PA
+# 站室绩效考核系统GRU-PA
 
-Grass-roots unit performance appraisal system (KPI-PA).
+Grass-roots unit performance appraisal system (GRU-PA).
 
-- GRU-PA 站室绩效考核系统KPI-PA
+- 程序信息
 
-    ![GRU-PA ver](https://img.shields.io/badge/ver-0.7.726-blue.svg)
-    ![GRU-PA updated](https://img.shields.io/badge/updated-25/07/24%2021:49-orange.svg)
+    ![GRU-PA ver](https://img.shields.io/badge/ver-0.7.747-blue.svg)
+    ![GRU-PA updated](https://img.shields.io/badge/updated-25/07/26%2020:19-orange.svg)
     ![GRU-PA build](https://img.shields.io/badge/build-passing-green.svg)
 
-## 站室绩效考核系统KPI-PA 是一个前端基于 Streamlit 框架，后端基于Python数据处理的web应用，旨在简化站室工作量录入、统计及考核
+## 站室绩效考核系统GRU-PA 是一个前端基于 Streamlit 框架，后端基于Python数据处理的web应用，旨在简化站室工作量录入、统计及考核
 
 ## Contents
 
@@ -23,7 +23,7 @@ Grass-roots unit performance appraisal system (KPI-PA).
 ## Install
 
 1. 下载并安装[Python](https://www.python.org/)(3.9<=版本<3.13)
-2. 下载并安装[MySQL](https://dev.mysql.com/downloads/mysql/)(>=8.4.5)
+2. 下载并安装[MySQL](https://dev.mysql.com/downloads/mysql/)(==8.4.5)
 3. 下载并编译安装[Dlib](https://github.com/davisking/dlib)(==20.0.0, 安装VS build tools后手工编译, 编译方法在documents目录中, 推荐GPU加速)
 4. 克隆仓库到本地或者解压提供的源代码包
 5. 配置环境变量, 将Python和Streamlit的安装路径添加到环境变量中
@@ -121,7 +121,7 @@ Grass-roots unit performance appraisal system (KPI-PA).
 
 ## Git Repository
 
-[GRU-PA 站室绩效考核系统KPI-PA](https://github.com/simonpek88/GRU-PA.git)
+[站室绩效考核系统GRU-PA](https://github.com/simonpek88/GRU-PA.git)
 
 ## License
 
