@@ -1782,7 +1782,21 @@ def displayAppInfo_static():
 def combine_query():
     #st.markdown("### <font face='微软雅黑' color=tear><center>工作量高级查询</center></font>", unsafe_allow_html=True)
     st.subheader("工作量高级查询", divider="violet")
-    btn_query = st.button("查询")
+    adm1 = []
+    col = st.columns(4)
+    clerk_type = ['默认', '值班', '白班']
+    btn_query = col[0].button("查询")
+    table_name = col[0].selectbox("请选择表", ['固定列表', '工作量表', '城市代码'])
+    if table_name == '固定列表':
+        table_name = 'gru_pa'
+    elif table_name == '工作量表':
+        table_name = 'clerk_work'
+    elif table_name == '城市代码':
+        table_name = 'hf_cn_city'
+        sql = "SELECT DISTINCT(Adm1_Name_ZH) FROM hf_cn_city"
+        rows = execute_sql(cur, sql)
+        for row in rows:
+            adm1.append(row[0])
     clerk_cname_pack, task_group_pack = [], []
     sql = f"SELECT userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa <> 0 order by login_counter DESC, userCName"
     result = execute_sql(cur, sql)
@@ -1797,49 +1811,132 @@ def combine_query():
     min_task_score = result[0][0]
     max_task_score = result[0][1]
 
-    config = {
-    'fields': {
-        'clerk_cname': {
-            'label': '姓名',
-            'type': 'select',
-            'fieldSettings': {
-            'listValues': clerk_cname_pack,
+    if table_name == 'gru_pa':
+        config = {
+        'fields': {
+            'pa_content': {
+                'label': '工作内容',
+                'type': 'text',
+                #'operators': ['contains', 'not_contains', 'starts_with', 'ends_with'],
             },
-        },
-        'task_date': {
-            'label': '日期',
-            'type': 'date',
-            'operators': ['between']
-        },
-        'clerk_work': {
-            'label': '任务内容',
-            'type': 'text',
-            #'operators': ['contains', 'not_contains', 'starts_with', 'ends_with'],
-        },
-        'task_group': {
-            'label': '工作组别',
-            'type': 'select',
-            'fieldSettings': {
-            'listValues': task_group_pack,
+            'task_group': {
+                'label': '工作组别',
+                'type': 'select',
+                'fieldSettings': {
+                'listValues': task_group_pack,
+                },
             },
-        },
-        'task_score': {
-            'label': '单项分值',
-            'type': 'number',
-            'fieldSettings': {
-            'min': min_task_score,
-            'max': max_task_score,
-            'step': 1
+            'task_score': {
+                'label': '单项分值',
+                'type': 'number',
+                'fieldSettings': {
+                'min': min_task_score,
+                'max': max_task_score,
+                'step': 1
+                },
+                'preferWidgets': ['slider', 'rangeslider'],
             },
-            'preferWidgets': ['slider', 'rangeslider'],
-        },
-        'task_approved': {
-            'label': '是否已核定',
-            'type': 'boolean',
-            'operators': ['equal'],
+            'multi_score': {
+                'label': '多倍数',
+                'type': 'boolean',
+                'operators': ['equal'],
+            },
+            'default_task': {
+                'label': '默认带入',
+                'type': 'select',
+                'fieldSettings': {
+                'listValues': clerk_type,
+                },
+            },
+            'comm_task': {
+                'label': '日常工作',
+                'type': 'select',
+                'fieldSettings': {
+                'listValues': clerk_type,
+                },
+            },
+            'pa_share': {
+                'label': '共享分值',
+                'type': 'boolean',
+                'operators': ['equal'],
+            },
+            'task_type': {
+                'label': '共享独占',
+                'type': 'boolean',
+                'operators': ['equal'],
+            }
         }
-    }
-    }
+        }
+    elif table_name == 'clerk_work':
+        config = {
+        'fields': {
+            'clerk_cname': {
+                'label': '姓名',
+                'type': 'select',
+                'fieldSettings': {
+                'listValues': clerk_cname_pack,
+                },
+            },
+            'task_date': {
+                'label': '日期',
+                'type': 'date',
+                'operators': ['between']
+            },
+            'clerk_work': {
+                'label': '任务内容',
+                'type': 'text',
+                #'operators': ['contains', 'not_contains', 'starts_with', 'ends_with'],
+            },
+            'task_group': {
+                'label': '工作组别',
+                'type': 'select',
+                'fieldSettings': {
+                'listValues': task_group_pack,
+                },
+            },
+            'task_score': {
+                'label': '单项分值',
+                'type': 'number',
+                'fieldSettings': {
+                'min': min_task_score,
+                'max': max_task_score,
+                'step': 1
+                },
+                'preferWidgets': ['slider', 'rangeslider'],
+            },
+            'task_approved': {
+                'label': '核定',
+                'type': 'boolean',
+                'operators': ['equal'],
+            },
+            'task_multi': {
+                'label': '工作量倍数',
+                'type': 'number',
+                'fieldSettings': {
+                'min': 1,
+                'max': 10,
+                'step': 1
+                },
+                'preferWidgets': ['slider', 'rangeslider'],
+            }
+        }
+        }
+    elif table_name == 'hf_cn_city':
+        config = {
+        'fields': {
+            'Adm1_Name_ZH': {
+                'label': '省市名称',
+                'type': 'select',
+                'fieldSettings': {
+                'listValues': adm1,
+                },
+            },
+            'Location_Name_ZH': {
+                'label': '查询地区',
+                'type': 'text',
+            }
+        }
+        }
 
     sql_query = condition_tree(
         config,
@@ -1847,18 +1944,54 @@ def combine_query():
         placeholder='暂无查询条件',
     )
 
-    if  sql_query and btn_query:
-        sql = f"SELECT ID, task_date, clerk_cname, clerk_work, task_score, task_group, task_approved FROM clerk_work where StationCN = '{st.session_state.StationCN}' and {sql_query}"
-        sql = sql.replace('task_approved = true', 'task_approved = 1').replace('task_approved = false', 'task_approved = 0')
-        result = execute_sql(cur, sql)
-        if result:
-            df = pd.DataFrame(result, dtype=str)
-            df.columns = ["ID", "日期", "员工姓名", "工作项", "单项分值", "工作组别", "核定状态"]
-            for index, value in enumerate(result):
-                df.loc[index, "核定状态"] = "已核定" if df["核定状态"][index] == '1' else "未核定"
-            st.dataframe(df)
-        else:
-            st.info("未查询到记录")
+    if sql_query and btn_query:
+        if table_name == 'gru_pa':
+            sql = f"SELECT ID, pa_content, pa_score, task_group, multi_score, default_task, comm_task, pa_share, task_type FROM gru_pa where StationCN = '{st.session_state.StationCN}' and {sql_query}"
+            sql = sql.replace('true', '1').replace('false', '0').replace("'默认'", '0').replace("'值班'", '1').replace("'白班'", '2')
+            result = execute_sql(cur, sql)
+            if result:
+                df = pd.DataFrame(result, dtype=str)
+                df.columns = ["ID", "工作项", "单项分值", "工作组别", "倍数", "默认带入", "日常工作", "共享分值", "共享独占"]
+                for index, value in enumerate(result):
+                    df.loc[index, "倍数"] = "多倍" if df["倍数"][index] == '1' else "单倍"
+                    df.loc[index, "共享分值"] = "共享" if df["共享分值"][index] == '1' else "不共享"
+                    df.loc[index, "共享独占"] = "独占" if df["共享独占"][index] == '1' else "非独占"
+                    if df["默认带入"][index] == '0':
+                        df.loc[index, "默认带入"] = "默认"
+                    elif df["默认带入"][index] == '1':
+                        df.loc[index, "默认带入"] = "值班"
+                    else:
+                        df.loc[index, "默认带入"] = "白班"
+                    if df["日常工作"][index] == '0':
+                        df.loc[index, "日常工作"] = "默认"
+                    elif df["日常工作"][index] == '1':
+                        df.loc[index, "日常工作"] = "值班"
+                    else:
+                        df.loc[index, "日常工作"] = "白班"
+                st.dataframe(df)
+            else:
+                st.info("未查询到记录")
+        elif table_name == 'clerk_work':
+            sql = f"SELECT ID, task_date, clerk_cname, clerk_work, task_score, task_group, task_approved, task_multi FROM clerk_work where StationCN = '{st.session_state.StationCN}' and {sql_query}"
+            sql = sql.replace('true', '1').replace('false', '0')
+            result = execute_sql(cur, sql)
+            if result:
+                df = pd.DataFrame(result, dtype=str)
+                df.columns = ["ID", "日期", "员工姓名", "工作项", "单项分值", "工作组别", "核定状态", "工作量倍数"]
+                for index, value in enumerate(result):
+                    df.loc[index, "核定状态"] = "已核定" if df["核定状态"][index] == '1' else "未核定"
+                st.dataframe(df)
+            else:
+                st.info("未查询到记录")
+        elif table_name == 'hf_cn_city':
+            sql = f"SELECT Location_Name_ZH, Adm1_Name_ZH, Adm2_Name_ZH, Location_ID, AD_code, Latitude, Longitude FROM hf_cn_city where {sql_query}"
+            result = execute_sql(cur, sql)
+            if result:
+                df = pd.DataFrame(result, dtype=str)
+                df.columns = ["地区名称", "省市", "市县", "和风城市代码", "高德城市代码", "经度", "纬度"]
+                st.dataframe(df)
+            else:
+                st.info("未查询到记录")
 
 
 def update_users_setup(param_name, param_value, action_type):
