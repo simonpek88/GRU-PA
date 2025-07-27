@@ -839,21 +839,36 @@ def manual_input():
     task_group = col3.selectbox('工作组别', items, index=None, accept_new_options=True)
     task_score = col4.number_input("单项分值", min_value=1, max_value=300, value=10, step=1)
     if st.session_state.userType == 'admin':
-        opt = st.columns(5)
-        with opt[0]:
+        with col1:
             flag_add_pa = sac.switch("加入固定列表", value=False, align="start", on_label="On")
-        with opt[1]:
+            flag_default_task = st.selectbox("默认带入", ['默认', '值班', '白班'], index=0)
+        with col2:
             flag_multi_score = sac.switch("多倍计算", value=False, align="start", on_label="On")
-        with opt[2]:
-            flag_comm_task = sac.switch("值班常务", value=False, align="start", on_label="On")
-        with opt[3]:
+            flag_comm_task = st.selectbox("常务工作", ['默认', '值班', '白班'], index=0)
+        with col3:
             flag_share_score = sac.switch("共享分值", value=False, align="start", on_label="On")
-        with opt[4]:
+        with col4:
             flag_task_type = sac.switch("共享独占", value=False, align="start", on_label="On")
+        if flag_default_task == "默认":
+            flag_default_task = 0
+        elif flag_default_task == "值班":
+            flag_default_task = 1
+        elif flag_default_task == "白班":
+            flag_default_task = 3
+        if flag_comm_task == "默认":
+            flag_comm_task = 0
+        elif flag_comm_task == "值班":
+            flag_comm_task = 1
+        elif flag_comm_task == "白班":
+            flag_comm_task = 3
+        if flag_default_task > 0 and flag_default_task != flag_comm_task:
+            flag_comm_task = flag_default_task
+        if flag_multi_score:
+            flag_share_score, flag_task_type = False, False
         if flag_task_type:
             flag_share_score = True
     else:
-        flag_add_pa, flag_multi_score, flag_comm_task, flag_share_score, flag_task_type = False, False, False, False, False
+        flag_add_pa, flag_multi_score, flag_comm_task, flag_default_task, flag_share_score, flag_task_type = False, False, False, False, False, False
     task_content = st.text_area("工作内容", height=100)
     confirm_btn_manual = st.button("确认添加")
     if task_group and task_content and confirm_btn_manual:
@@ -867,7 +882,7 @@ def manual_input():
         if flag_add_pa:
             sql = f"SELECT ID from gru_pa where StationCN = '{st.session_state.StationCN}' and pa_content = '{task_content}' and task_group = '{task_group}' and pa_score = {task_score}"
             if not execute_sql(cur, sql):
-                sql = f"INSERT INTO gru_pa (pa_content, pa_score, pa_group, task_group, multi_score, comm_task, StationCN, pa_share, task_type) VALUES ('{task_content}', {task_score}, '全员', '{task_group}', {int(flag_multi_score)}, {int(flag_comm_task)}, '{st.session_state.StationCN}', {int(flag_share_score)}, {int(flag_task_type)})"
+                sql = f"INSERT INTO gru_pa (pa_content, pa_score, pa_group, task_group, multi_score, default_task, comm_task, StationCN, pa_share, task_type) VALUES ('{task_content}', {task_score}, '全员', '{task_group}', {int(flag_multi_score)}, {int(flag_default_task)}, {int(flag_comm_task)}, '{st.session_state.StationCN}', {int(flag_share_score)}, {int(flag_task_type)})"
                 execute_sql_and_commit(conn, cur, sql)
                 reset_table_num(True)
                 st.toast(f"工作量: :blue[{task_content}] 添加至列表成功！")
