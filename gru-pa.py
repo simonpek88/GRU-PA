@@ -397,7 +397,7 @@ def task_input():
         st.markdown(f'###### :red[无任何记录]')
     # 更新共享分
     update_pa_share(task_date)
-    task_clerk_type = 1 if flag_clerk_type else 3
+    task_clerk_type = 1 if flag_clerk_type else 2
     expander_col = st.columns(2)
     # 常用任务
     with expander_col[0].expander(f"# :green[常用]", icon=':material/bookmark_star:', expanded=True):
@@ -816,7 +816,7 @@ def _new_page_field(run, field_code):
 def manual_input():
     #st.markdown("### <font face='微软雅黑' color=red><center>工作量手工录入</center></font>", unsafe_allow_html=True)
     st.subheader("工作量手工录入", divider="green")
-    items = []
+    items, clerk_type = [], ['默认', '值班', '白班']
     col1, col2, col3, col4 = st.columns(4)
     if st.session_state.userType == 'admin':
         userID, userCName = [], []
@@ -841,32 +841,29 @@ def manual_input():
     if st.session_state.userType == 'admin':
         with col1:
             flag_add_pa = sac.switch("加入固定列表", value=False, align="start", on_label="On")
-            flag_default_task = st.selectbox("默认带入", ['默认', '值班', '白班'], index=0)
+            flag_default_task = sac.segmented(label="默认带入",
+                items=clerk_type,
+                align="start", size='sm', color='red', key='default_task', return_index=True
+            )
         with col2:
             flag_multi_score = sac.switch("多倍计算", value=False, align="start", on_label="On")
-            flag_comm_task = st.selectbox("常务工作", ['默认', '值班', '白班'], index=0)
+            flag_comm_task = sac.segmented(label="常用工作",
+                items=clerk_type,
+                align="start", size='sm', color='red', key='comm_task', return_index=True
+            )
         with col3:
             flag_share_score = sac.switch("共享分值", value=False, align="start", on_label="On")
         with col4:
             flag_task_type = sac.switch("共享独占", value=False, align="start", on_label="On")
-        if flag_default_task == "默认":
-            flag_default_task = 0
-        elif flag_default_task == "值班":
-            flag_default_task = 1
-        elif flag_default_task == "白班":
-            flag_default_task = 3
-        if flag_comm_task == "默认":
-            flag_comm_task = 0
-        elif flag_comm_task == "值班":
-            flag_comm_task = 1
-        elif flag_comm_task == "白班":
-            flag_comm_task = 3
         if flag_default_task > 0 and flag_default_task != flag_comm_task:
             flag_comm_task = flag_default_task
-        if flag_multi_score:
+            st.markdown(f"##### :green[常用工作与默认带入值设置冲突, 已自动修正为{clerk_type[flag_comm_task]}]")
+        if flag_multi_score and (flag_share_score or flag_task_type):
             flag_share_score, flag_task_type = False, False
-        if flag_task_type:
+            st.markdown(f"##### :green[多倍计算与共享分值、共享独占设置冲突, 已自动关闭共享分值和共享独占]")
+        if flag_task_type and not flag_share_score:
             flag_share_score = True
+            st.markdown(f"##### :green[共享独占与共享分值设置冲突, 已自动打开共享分值]")
     else:
         flag_add_pa, flag_multi_score, flag_comm_task, flag_default_task, flag_share_score, flag_task_type = False, False, False, False, False, False
     task_content = st.text_area("工作内容", height=100)
@@ -2336,17 +2333,29 @@ def edit_task_content():
     for row in rows:
         org_task_content.append(row[0])
     change_selected = st.selectbox('工作内容', org_task_content, index=0)
+    st.markdown(f"#### :red[修改内容为DELETE表示删除该项工作]")
     change_txt = st.text_input('修改为', change_selected)
     if change_selected != change_txt:
         btn_change = st.button('确认修改')
         if btn_change:
-            sql = f"UPDATE gru_pa set pa_content = '{change_txt}' where task_group = '{group_selected}' and pa_content = '{change_selected}' and StationCN = '{st.session_state.StationCN}'"
-            execute_sql_and_commit(conn, cur, sql)
-            sql = f"UPDATE clerk_work set clerk_work = '{change_txt}' where task_group = '{group_selected}' and clerk_work = '{change_selected}' and StationCN = '{st.session_state.StationCN}'"
-            execute_sql_and_commit(conn, cur, sql)
-            sql = f"UPDATE pa_share set pa_content = '{change_txt}' where pa_content = '{change_selected}' and StationCN = '{st.session_state.StationCN}'"
-            execute_sql_and_commit(conn, cur, sql)
-            st.success(f'[{change_selected}] 已修改为 [{change_txt}]')
+            if change_txt.upper() != 'DELETE':
+                sql = f"UPDATE gru_pa set pa_content = '{change_txt}' where task_group = '{group_selected}' and pa_content = '{change_selected}' and StationCN = '{st.session_state.StationCN}'"
+                execute_sql_and_commit(conn, cur, sql)
+                sql = f"UPDATE clerk_work set clerk_work = '{change_txt}' where task_group = '{group_selected}' and clerk_work = '{change_selected}' and StationCN = '{st.session_state.StationCN}'"
+                execute_sql_and_commit(conn, cur, sql)
+                sql = f"UPDATE pa_share set pa_content = '{change_txt}' where pa_content = '{change_selected}' and StationCN = '{st.session_state.StationCN}'"
+                execute_sql_and_commit(conn, cur, sql)
+                st.success(f'[{change_selected}] 已修改为 [{change_txt}]')
+            elif change_txt == 'DELETE':
+                sql = f"DELETE from gru_pa where pa_content = '{change_selected}' and task_group = '{group_selected}' and StationCN = '{st.session_state.StationCN}'"
+                execute_sql_and_commit(conn, cur, sql)
+                sql = f"DELETE from clerk_work where clerk_work = '{change_selected}' and task_group = '{group_selected}' and StationCN = '{st.session_state.StationCN}'"
+                execute_sql_and_commit(conn, cur, sql)
+                sql = f"DELETE from pa_share where pa_content = '{change_selected}' and StationCN = '{st.session_state.StationCN}'"
+                execute_sql_and_commit(conn, cur, sql)
+                st.success(f'[{change_selected}] 已删除!')
+            elif change_txt == 'delete':
+                st.info(f'如果想删除请键入大写 :red[DELETE]')
 
 
 global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME
