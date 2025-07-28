@@ -89,19 +89,19 @@
 					"label": "display_history_weather"
 				},
 				{
-					"line": 1491,
-					"column": 41,
-					"label": "display_weather_hf_metric"
-				},
-				{
-					"line": 1567,
-					"column": 41,
-					"label": "display_weather_hf_metric"
-				},
-				{
 					"line": 1657,
 					"column": 31,
 					"label": "auto_get_history_weather"
+				},
+				{
+					"line": 1741,
+					"column": 64,
+					"label": "display_weather_hf_metric"
+				},
+				{
+					"line": 1761,
+					"column": 35,
+					"label": "get_weather_warning"
 				},
 				{
 					"line": 1771,
@@ -147,6 +147,11 @@
 					"line": 2326,
 					"column": 24,
 					"label": "edit_task_content"
+				},
+				{
+					"line": 2635,
+					"column": 59,
+					"label": "weather test"
 				}
 			]
 		},
@@ -177,6 +182,21 @@
 					"line": 129,
 					"column": 55,
 					"label": "face_login_webrtc"
+				}
+			]
+		},
+		{
+			"path": "hf_weather.py",
+			"bookmarks": [
+				{
+					"line": 6,
+					"column": 56,
+					"label": "get_weather"
+				},
+				{
+					"line": 287,
+					"column": 36,
+					"label": "hf_warning"
 				}
 			]
 		}

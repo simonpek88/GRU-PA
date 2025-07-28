@@ -33,7 +33,8 @@ from face_login import (clean_snapshot, face_login_cv, face_login_webrtc,
                         face_recognize_webrtc, update_face_data)
 from gd_weather import get_city_weather
 from gen_badges import gen_badge
-from hf_weather import get_city_history_weather, get_city_now_weather
+from hf_weather import (get_city_history_weather, get_city_now_weather,
+                        get_city_warning_now)
 from mysql_pool import get_connection
 
 # cSpell:ignoreRegExp /[^\s]{16,}/
@@ -1713,16 +1714,12 @@ def display_weather_hf(city_code):
                 <head>
                     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/qweather-icons@1.7.0/font/qweather-icons.css">
                 </head>
-                    <i class="qi-{weather_info['weather_icon_id']}"></i>
+                <body>
+                    <i class="qi-{weather_info['weather_icon_id']}" style="font-size: 2em;"></i>
+                </body>
                 </html>
             """
             icon_size = 24
-            weather_info['winddir_icon_html'] = weather_info['winddir_icon_html'].replace('icon_size', f'{icon_size}')
-            #st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {city_name} 天气: {weather_info['weather_icon']} 温度: {weather_info['temp']} °C {weather_info['temp_icon']} / 体感温度: {weather_info['feelslike']} °C {weather_info['feelslike_icon']}</div>", unsafe_allow_html=True)
-            st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {city_name} 天气: {weather_info['weather']} {weather_icon_html} 🌡️温度: {weather_info['temp']}°C / 🧘温度: {weather_info['feelslike']}°C {weather_info['feelslike_icon']}</div>", unsafe_allow_html=True)
-            st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>降水: {weather_info['precip']} mm {precip} 能见度: {weather_info['vis']} km 云量: {cloud}% 大气压强: {weather_info['pressure']} hPa</div>", unsafe_allow_html=True)
-            st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>风向: {weather_info['winddir']} {weather_info['winddir_icon_html']} 风力: {weather_info['windscale']} 级 / {weather_info['windspeed']} km/h {weather_info['wind_icon']} 湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}</div>", unsafe_allow_html=True)
-            st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#000000; font-size:14px;'>数据更新时间: {weather_info['obstime'][2:-6].replace('T', ' ')}</div>", unsafe_allow_html=True)
 
 
 def display_weather_hf_metric(city_code):
@@ -1731,6 +1728,8 @@ def display_weather_hf_metric(city_code):
         weather_info = get_city_now_weather(city_code)
         city_name = st.session_state.cityname
         if weather_info:
+            get_weather_warning(city_code)
+            st.markdown(f'#### {city_name} - 实时天气')
             if weather_info['cloud']:
                 cloud = weather_info['cloud']
             else:
@@ -1739,7 +1738,6 @@ def display_weather_hf_metric(city_code):
                 precip = '☔'
             else:
                 precip = '🌂'
-            st.markdown(f'##### {city_name} - 实时天气')
             wcol = st.columns(4)
             wcol[0].metric(label='天气', value=f"{weather_info['weather']} {weather_info['weather_icon']}")
             #wcol[1].metric(label='🌡️温度', value=f"{weather_info['temp']}°C {weather_info['temp_icon']}")
@@ -1755,6 +1753,27 @@ def display_weather_hf_metric(city_code):
             #wcol[2].metric(label='数据更新时间', value=weather_info['obstime'][5:-6].replace('T', ' '))
             st.caption(f"数据更新时间: {weather_info['obstime'][5:-6].replace('T', ' ')}")
             style_metric_cards(border_left_color="#426edd")
+
+
+def get_weather_warning(city_code):
+    weather_warning = get_city_warning_now(city_code)
+    if weather_warning:
+        st.markdown(f'#### :red[天气预警]')
+        for warning in weather_warning:
+            warning["severityColor"] = warning["severityColor"].replace("Yellow", "DarkGoldenRod")
+            warning_icon_html = f"""
+                <html>
+                <head>
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/qweather-icons@1.7.0/font/qweather-icons.css">
+                </head>
+                <body>
+                    <i class="qi-{warning['type']}" style="font-size: 1.5em;"></i>
+                </body>
+                </html>
+            """
+            st.markdown(f"<font color={warning['severityColor']} style='font-size:22px; font-weight:bold;'>{warning['title']}</font> {warning_icon_html}", unsafe_allow_html=True)
+            st.markdown(f"<font style='font-size:18px; font-weight:bold;'>{warning['text']}</font>", unsafe_allow_html=True)
+        st.divider()
 
 
 @st.fragment
@@ -2619,9 +2638,9 @@ elif st.session_state.logged_in:
         if st.session_state.weather_show:
             if st.session_state.weather_provider:
                 if st.session_state.weather_metric:
-                    display_weather_hf_metric(st.session_state.hf_city_code)
+                    #display_weather_hf_metric(st.session_state.hf_city_code)
                     # 手动测试
-                    #display_weather_hf_metric('101090304')
+                    display_weather_hf_metric('101011100')
                 else:
                     display_weather_hf(st.session_state.hf_city_code)
                     st.header(' ')

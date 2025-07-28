@@ -13,9 +13,10 @@ def get_weather(city_code, query_type, query_date=None):
         response = requests.get(f'https://kq359en4pj.re.qweatherapi.com/v7/weather/now?location={city_code}', headers=headers)
     elif query_type == 'historical':
         response = requests.get(f'https://kq359en4pj.re.qweatherapi.com/v7/historical/weather?location={city_code}&date={query_date}', headers=headers)
+    elif query_type == 'warning':
+        response = requests.get(f'https://kq359en4pj.re.qweatherapi.com/v7/warning/now?location={city_code}', headers=headers)
 
     data = response.json()
-    #print(data)
 
     return data
 
@@ -284,3 +285,39 @@ def get_city_now_weather(city_code):
 
     return None
 
+
+def get_city_warning_now(city_code):
+    try:
+        city_weather_info = get_weather(city_code, 'warning')
+
+        # 检查状态码
+        if city_weather_info.get('code') == '200':
+            warnings = city_weather_info['warning']
+            results = []
+            for warning in warnings:
+                if warning["text"].find('：') != -1:
+                    warning["text"] = warning["text"][warning["text"].find("：") + 1:].strip()
+                results.append({
+                    'id': warning["id"], # 本条预警的唯一标识
+                    'sender': warning["sender"], # 预警发布单位
+                    'pubTime': warning['pubTime'], # 预警发布时间
+                    'title': warning["title"], # 预警信息标题
+                    'startTime': warning["startTime"], # 预警开始时间
+                    'endTime': warning["endTime"], # 预警结束时间
+                    'status': warning["status"], # 预警状态
+                    'severity': warning["severity"], # 预警等级
+                    'severityColor': warning["severityColor"], # 预警严重等级颜色
+                    'type': warning["type"], # 预警类型
+                    'typeName': warning["typeName"], # 预警类型名称
+                    'urgency': warning["urgency"], # 预警信息的紧迫程度
+                    'certainty': warning["certainty"], # 预警信息的确定性
+                    'text': warning["text"] # 预警信息
+                })
+            return results
+
+        return None
+    except Exception as e:
+        # 异常处理
+        print(f"无法获取数据: {e}")
+
+    return None
