@@ -114,6 +114,11 @@
 					"label": "combine_query"
 				},
 				{
+					"line": 1792,
+					"column": 30,
+					"label": "get_weather_aqi"
+				},
+				{
 					"line": 1894,
 					"column": 30,
 					"label": "camera_capture"
@@ -197,6 +202,11 @@
 					"line": 287,
 					"column": 36,
 					"label": "hf_warning"
+				},
+				{
+					"line": 329,
+					"column": 27,
+					"label": "get_city_aqi"
 				}
 			]
 		}

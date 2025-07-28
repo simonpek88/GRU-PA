@@ -33,8 +33,8 @@ from face_login import (clean_snapshot, face_login_cv, face_login_webrtc,
                         face_recognize_webrtc, update_face_data)
 from gd_weather import get_city_weather
 from gen_badges import gen_badge
-from hf_weather import (get_city_history_weather, get_city_now_weather,
-                        get_city_warning_now)
+from hf_weather import (get_city_aqi, get_city_history_weather,
+                        get_city_now_weather, get_city_warning_now)
 from mysql_pool import get_connection
 
 # cSpell:ignoreRegExp /[^\s]{16,}/
@@ -1744,6 +1744,7 @@ def display_weather_hf_metric(city_code):
         city_name = st.session_state.cityname
         if weather_info:
             get_weather_warning(city_code)
+            get_weather_aqi(city_code)
             st.markdown(f'#### {city_name} - 实时天气')
             if weather_info['cloud']:
                 cloud = weather_info['cloud']
@@ -1787,6 +1788,27 @@ def get_weather_warning(city_code):
             """
             st.markdown(f"<font color={warning['severityColor']} style='font-size:22px; font-weight:bold;'>{warning['title']}</font> {warning_icon_html}", unsafe_allow_html=True)
             st.markdown(f"<font style='font-size:18px; font-weight:bold;'>{warning['text']}</font>", unsafe_allow_html=True)
+        st.divider()
+
+
+def get_weather_aqi(city_code):
+    sql = f"SELECT Latitude, Longitude from hf_cn_city where Location_ID = {city_code}"
+    lat, lon = execute_sql(cur, sql)[0]
+    weather_aqi = get_city_aqi(f'{str(lat)[:-2]}_{str(lon)[:-2]}')
+    if weather_aqi:
+        st.markdown(f'#### :green[空气质量]')
+        st.markdown(f"##### {weather_aqi['health_effect']}")
+        wcol = st.columns(4)
+        col_index = 0
+        wcol[0].metric(label='空气质量', value=f"AQI: {weather_aqi['aqi']} 等级: {weather_aqi['category']}")
+        wcol[1].metric(label='质量等级', value=f"{weather_aqi['level']} 级")
+        if weather_aqi['primaryPollutant']:
+            wcol[2].metric(label='主要污染物', value=f"{weather_aqi['primaryPollutant']} {weather_aqi['primaryPollutant_vu']['value']}  {weather_aqi['primaryPollutant_vu']['unit']}")
+        pollutants_col = st.columns(6)
+        for each in weather_aqi['sub_pollutants']:
+            pollutants_col[col_index % 6].metric(label=each, value=f"{weather_aqi['sub_pollutants'][each]['value']} {weather_aqi['sub_pollutants'][each]['unit']}")
+            col_index += 1
+        style_metric_cards(border_left_color=RGBColor(weather_aqi['color']['red'], weather_aqi['color']['green'], weather_aqi['color']['blue']))
         st.divider()
 
 

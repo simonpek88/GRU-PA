@@ -1,4 +1,6 @@
 # coding utf-8
+import os
+
 import requests
 
 from commFunc import gen_jwt
@@ -15,6 +17,10 @@ def get_weather(city_code, query_type, query_date=None):
         response = requests.get(f'https://kq359en4pj.re.qweatherapi.com/v7/historical/weather?location={city_code}&date={query_date}', headers=headers)
     elif query_type == 'warning':
         response = requests.get(f'https://kq359en4pj.re.qweatherapi.com/v7/warning/now?location={city_code}', headers=headers)
+    elif query_type == 'aqi':
+        lat = city_code[:city_code.find('_')]
+        lon = city_code[city_code.find('_') + 1:]
+        response = requests.get(f'https://kq359en4pj.re.qweatherapi.com/airquality/v1/current/{lat}/{lon}', headers=headers)
 
     data = response.json()
 
@@ -314,6 +320,42 @@ def get_city_warning_now(city_code):
                         'certainty': warning["certainty"], # 预警信息的确定性
                         'text': warning["text"] # 预警信息
                     })
+
+            return results
+
+        return None
+    except Exception as e:
+        # 异常处理
+        print(f"无法获取数据: {e}")
+
+    return None
+
+
+def get_city_aqi(city_code):
+    try:
+        city_weather_info = get_weather(city_code, 'aqi')
+
+        # 检查状态码
+        if city_weather_info['indexes']:
+            os.system('cls')
+            results, sub_results = {}, {}
+            results["name"] = city_weather_info['indexes'][0]['name']
+            results["aqi"] = city_weather_info['indexes'][0]['aqi']
+            results["level"] = city_weather_info['indexes'][0]['level']
+            results["category"] = city_weather_info['indexes'][0]['category']
+            results["color"] = city_weather_info['indexes'][0]['color']
+            results["primaryPollutant"] = city_weather_info['indexes'][0]['primaryPollutant']
+            results["health_effect"] = city_weather_info['indexes'][0]['health']['effect']
+            results["primaryPollutant_vu"] = None
+            if results["health_effect"].endswith("。"):
+                results["health_effect"] = results["health_effect"][:-1]
+            for each in city_weather_info['pollutants']:
+                if each['name'] == results['primaryPollutant']:
+                    results['primaryPollutant_vu'] = each['concentration']
+                else:
+                    sub_results[each['name']] = each['concentration']
+            results['sub_pollutants'] = sub_results
+            print(results)
 
             return results
 
