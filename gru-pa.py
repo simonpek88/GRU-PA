@@ -2192,7 +2192,8 @@ def modify_db(sub_func):
             cmd = f'mysqldump --defaults-file=.mysql.cnf gru-pa > {backup_file}'
             os.system(cmd)
             if os.path.exists(backup_file):
-                st.success(f"{backup_file[backup_file.rfind('/') + 1:-4]} 数据库备份完成")
+                backup_file_size = round(os.path.getsize(backup_file) / 1024, 1)
+                st.success(f"{backup_file[backup_file.rfind('/') + 1:-4]} 文件大小: {backup_file_size}KB 数据库备份完成")
             else:
                 st.error("数据库备份失败")
 
