@@ -1743,8 +1743,10 @@ def display_weather_hf_metric(city_code):
         weather_info = get_city_now_weather(city_code)
         city_name = st.session_state.cityname
         if weather_info:
-            get_weather_warning(city_code)
-            get_weather_aqi(city_code)
+            if st.session_state.weather_warning:
+                get_weather_warning(city_code)
+            if st.session_state.weather_aqi:
+                get_weather_aqi(city_code)
             st.markdown(f'#### {city_name} - 实时天气')
             if weather_info['cloud']:
                 cloud = weather_info['cloud']
@@ -1774,6 +1776,7 @@ def get_weather_warning(city_code):
     weather_warning = get_city_warning_now(city_code)
     if weather_warning:
         st.markdown(f'#### :red[天气预警]')
+        warning_id = 1
         for warning in weather_warning:
             warning["severityColor"] = warning["severityColor"].replace("Yellow", "DarkGoldenRod")
             warning_icon_html = f"""
@@ -1786,8 +1789,9 @@ def get_weather_warning(city_code):
                 </body>
                 </html>
             """
-            st.markdown(f"<font color={warning['severityColor']} style='font-size:22px; font-weight:bold;'>{warning['title']}</font> {warning_icon_html}", unsafe_allow_html=True)
+            st.markdown(f"<font color={warning['severityColor']} style='font-size:22px; font-weight:bold;'>No.{warning_id} {warning['title']}</font> {warning_icon_html}", unsafe_allow_html=True)
             st.markdown(f"<font style='font-size:18px; font-weight:bold;'>{warning['text']}</font>", unsafe_allow_html=True)
+            warning_id += 1
         st.divider()
 
 
@@ -1797,16 +1801,18 @@ def get_weather_aqi(city_code):
     weather_aqi = get_city_aqi(f'{str(lat)[:-2]}_{str(lon)[:-2]}')
     if weather_aqi:
         st.markdown(f'#### :green[空气质量]')
-        st.markdown(f"##### {weather_aqi['health_effect']}")
+        st.markdown(f"##### {weather_aqi['health']}")
+        pollutants_rev = {'PM 2.5': 'PM 2.5', 'PM 10': 'PM 10', 'NO2': '二氧化氮', 'O3': '臭氧', 'SO2': '二氧化硫', 'CO': '一氧化碳'}
         wcol = st.columns(4)
         col_index = 0
-        wcol[0].metric(label='空气质量', value=f"AQI: {weather_aqi['aqi']} 等级: {weather_aqi['category']}")
-        wcol[1].metric(label='质量等级', value=f"{weather_aqi['level']} 级")
+        wcol[0].metric(label='空气质量', value=f"AQI: {weather_aqi['aqi']}")
+        wcol[1].metric(label='空气等级', value=f"等级: {weather_aqi['category']}")
+        wcol[2].metric(label='质量等级', value=f"{weather_aqi['level']} 级")
         if weather_aqi['primaryPollutant']:
-            wcol[2].metric(label='主要污染物', value=f"{weather_aqi['primaryPollutant']} {weather_aqi['primaryPollutant_vu']['value']}  {weather_aqi['primaryPollutant_vu']['unit']}")
+            wcol[3].metric(label='主要污染物', value=f"{weather_aqi['primaryPollutant']} {weather_aqi['primaryPollutant_vu']['value']}  {weather_aqi['primaryPollutant_vu']['unit'].replace('m3', 'm³')}")
         pollutants_col = st.columns(6)
         for each in weather_aqi['sub_pollutants']:
-            pollutants_col[col_index % 6].metric(label=each, value=f"{weather_aqi['sub_pollutants'][each]['value']} {weather_aqi['sub_pollutants'][each]['unit']}")
+            pollutants_col[col_index % 6].metric(label=pollutants_rev[each], value=f"{weather_aqi['sub_pollutants'][each]['value']} {weather_aqi['sub_pollutants'][each]['unit'].replace('m3', 'm³')}")
             col_index += 1
         style_metric_cards(border_left_color=RGBColor(weather_aqi['color']['red'], weather_aqi['color']['green'], weather_aqi['color']['blue']))
         st.divider()
@@ -2436,7 +2442,7 @@ def get_system_setup():
 
 def init_user_setup_name():
     key_name_pack, key_intro_pack = [], []
-    sql = "SELECT key_name, key_intro from users_setup_template order by ID"
+    sql = "SELECT key_name, key_intro from users_setup_template order by key_name, ID"
     results = execute_sql(cur, sql)
     for each in results:
         key_name_pack.append(each[0])
@@ -2676,11 +2682,9 @@ elif st.session_state.logged_in:
                 if st.session_state.weather_metric:
                     display_weather_hf_metric(st.session_state.hf_city_code)
                     # 手动测试
-                    #display_weather_hf_metric('101070105')
+                    #display_weather_hf_metric('101050304')
                 else:
                     display_weather_hf(st.session_state.hf_city_code)
-                    # 手动测试
-                    #display_weather_hf('101070105')
                     st.header(' ')
             else:
                 display_weather_gd(st.session_state.gd_city_code)

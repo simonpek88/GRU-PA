@@ -1,6 +1,4 @@
 # coding utf-8
-import os
-
 import requests
 
 from commFunc import gen_jwt
@@ -337,7 +335,6 @@ def get_city_aqi(city_code):
 
         # 检查状态码
         if city_weather_info['indexes']:
-            os.system('cls')
             results, sub_results = {}, {}
             results["name"] = city_weather_info['indexes'][0]['name']
             results["aqi"] = city_weather_info['indexes'][0]['aqi']
@@ -345,17 +342,16 @@ def get_city_aqi(city_code):
             results["category"] = city_weather_info['indexes'][0]['category']
             results["color"] = city_weather_info['indexes'][0]['color']
             results["primaryPollutant"] = city_weather_info['indexes'][0]['primaryPollutant']
-            results["health_effect"] = city_weather_info['indexes'][0]['health']['effect']
+            results["health"] = city_weather_info['indexes'][0]['health']['effect'] + city_weather_info['indexes'][0]['health']['advice']['sensitivePopulation']
             results["primaryPollutant_vu"] = None
-            if results["health_effect"].endswith("。"):
-                results["health_effect"] = results["health_effect"][:-1]
+            if results["health"].endswith("。"):
+                results["health"] = results["health"][:-1]
             for each in city_weather_info['pollutants']:
                 if each['name'] == results['primaryPollutant']:
                     results['primaryPollutant_vu'] = each['concentration']
                 else:
                     sub_results[each['name']] = each['concentration']
             results['sub_pollutants'] = sub_results
-            print(results)
 
             return results
 
