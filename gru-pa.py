@@ -1725,6 +1725,7 @@ def display_weather_hf(city_code):
                     </html>
                 """
                 st.markdown(f"<font style='font-size:24px; font-weight:bold;'>天气: {weather_info['weather']}</font> {weather_icon_html}", unsafe_allow_html=True)
+            qweather_icon = qweather_logo()
             wcol = st.columns(4)
             wcol[0].markdown(f"<font style='font-size:24px; font-weight:bold;'>🌡️温度: {weather_info['temp']}°C</font>", unsafe_allow_html=True)
             wcol[1].markdown(f"<font style='font-size:24px; font-weight:bold;'>🧘体感温度: {weather_info['feelslike']}°C {weather_info['feelslike_icon']}</font>", unsafe_allow_html=True)
@@ -1734,7 +1735,7 @@ def display_weather_hf(city_code):
             wcol[1].markdown(f"<font style='font-size:24px; font-weight:bold;'>风力: {weather_info['windspeed']} km/h {weather_info['wind_icon']}</font>", unsafe_allow_html=True)
             wcol[2].markdown(f"<font style='font-size:24px; font-weight:bold;'>湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}</font>", unsafe_allow_html=True)
             wcol[3].markdown(f"<font style='font-size:24px; font-weight:bold;'>能见度: {weather_info['vis']} km {weather_info['vis_icon']}</font>", unsafe_allow_html=True)
-            st.caption(f"数据更新时间: {weather_info['obstime'][5:-6].replace('T', ' ')} 来源: NMC/ECMWF")
+            st.markdown(f"{qweather_icon}数据更新时间: {weather_info['obstime'][5:-6].replace('T', ' ')} 来源: NMC/ECMWF", unsafe_allow_html=True)
 
 
 def display_weather_hf_metric(city_code):
@@ -1756,19 +1757,20 @@ def display_weather_hf_metric(city_code):
                 precip = '☔'
             else:
                 precip = '🌂'
+            qweather_icon = qweather_logo()
             wcol = st.columns(4)
             wcol[0].metric(label='天气', value=f"{weather_info['weather']} {weather_info['weather_icon']}")
             #wcol[1].metric(label='🌡️温度', value=f"{weather_info['temp']}°C {weather_info['temp_icon']}")
             wcol[1].metric(label='🌡️温度', value=f"{weather_info['temp']}°C")
             wcol[2].metric(label='🧘体感温度', value=f"{weather_info['feelslike']}°C {weather_info['feelslike_icon']}")
-            wcol[3].metric(label='降水', value=f"{weather_info['precip']} mm {precip}")
+            wcol[3].metric(label='降水量(过去1小时)', value=f"{weather_info['precip']} mm {precip}")
             #wcol[1].metric(label='云量', value=f"{cloud}%")
             #wcol[2].metric(label='大气压强', value=f"{weather_info['pressure']} hPa")
             wcol[0].metric(label='风向', value=weather_info['winddir'])
             wcol[1].metric(label='风力', value=f"{weather_info['windspeed']} km/h {weather_info['wind_icon']}")
             wcol[2].metric(label='湿度', value=f"{weather_info['humidity']}% {weather_info['humidity_icon']}")
             wcol[3].metric(label='能见度', value=f"{weather_info['vis']} km {weather_info['vis_icon']}")
-            st.caption(f"数据更新时间: {weather_info['obstime'][5:-6].replace('T', ' ')} 来源: NMC/ECMWF")
+            st.markdown(f"{qweather_icon}数据更新时间: {weather_info['obstime'][5:-6].replace('T', ' ')} 来源: NMC/ECMWF", unsafe_allow_html=True)
             style_metric_cards(border_left_color="#426edd")
 
 
@@ -2552,6 +2554,20 @@ def edit_task_content():
                 st.success(f'[{change_selected}] 已删除!')
             elif change_txt == 'delete':
                 st.info(f'如果想删除请键入大写 :red[DELETE]')
+
+def qweather_logo():
+    qweather_icon = f"""
+        <html>
+        <head>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/qweather-icons@1.7.0/font/qweather-icons.css">
+        </head>
+        <body>
+            <i class="qi-qweather" style="font-size: 1em;"></i>
+        </body>
+        </html>
+    """
+
+    return qweather_icon
 
 
 global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME
