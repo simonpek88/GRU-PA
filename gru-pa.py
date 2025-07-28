@@ -2640,7 +2640,7 @@ elif st.session_state.logged_in:
                 if st.session_state.weather_metric:
                     #display_weather_hf_metric(st.session_state.hf_city_code)
                     # 手动测试
-                    display_weather_hf_metric('101011100')
+                    display_weather_hf_metric('101160805')
                 else:
                     display_weather_hf(st.session_state.hf_city_code)
                     st.header(' ')
