@@ -2067,7 +2067,7 @@ def update_users_setup(param_name, param_value, action_type):
 def users_setup():
     #st.markdown("### <font face='微软雅黑' color=blue><center>个人设置</center></font>", unsafe_allow_html=True)
     st.subheader("个人设置", divider="green")
-    user_setup_name, user_setup_name_intro = init_user_setup_name()
+    user_setup_name, user_setup_name_intro, user_setup_default = init_user_setup_name()
     col_limit = 3
     col = st.columns(col_limit)
     col_index = 0
@@ -2078,25 +2078,25 @@ def users_setup():
         col[col_index % col_limit].markdown(f'##### {user_setup_name_intro[index]}')
         if result:
             with col[col_index % col_limit]:
-                sac.switch(label='', value=bool(int(result[2])), key=f'setup_{value}_{result[0]}', align='start', on_label='On', off_label='Off')
+                sac.switch(label='', value=bool(result[2]), key=f'setup_{value}_{result[0]}', align='start', on_label='On', off_label='Off')
             update_users_setup(value, st.session_state[f'setup_{value}_{result[0]}'], 'update')
         else:
             with col[col_index % col_limit]:
-                sac.switch(label='', value=True, key=f'setup_{value}_{st.session_state.userID}', align='start', on_label='On', off_label='Off')
+                sac.switch(label='', value=bool(user_setup_default[index]), key=f'setup_{value}_{st.session_state.userID}', align='start', on_label='On', off_label='Off')
             update_users_setup(value, st.session_state[f'setup_{value}_{st.session_state.userID}'], 'insert')
         col_index += 1
 
 
 def refresh_users_setup():
-    user_setup_name, user_setup_name_intro = init_user_setup_name()
+    user_setup_name, user_setup_name_intro, user_setup_default = init_user_setup_name()
     for index, value in enumerate(user_setup_name):
         sql = f"SELECT userID, userCName, param_value from users_setup where userID = {st.session_state.userID} and param_name = '{value}'"
         result = execute_sql(cur, sql)
         if result:
             st.session_state[value] = bool(result[0][2])
         else:
-            st.session_state[value] = True
-            sql = f"INSERT INTO users_setup (userID, userCName, param_name, param_value) VALUES ({st.session_state.userID}, '{st.session_state.userCName}', '{value}', 1)"
+            st.session_state[value] = bool(user_setup_default[index])
+            sql = f"INSERT INTO users_setup (userID, userCName, param_name, param_value) VALUES ({st.session_state.userID}, '{st.session_state.userCName}', '{value}', {user_setup_default[index]})"
             execute_sql_and_commit(conn, cur, sql)
 
 
@@ -2441,14 +2441,15 @@ def get_system_setup():
 
 
 def init_user_setup_name():
-    key_name_pack, key_intro_pack = [], []
-    sql = "SELECT key_name, key_intro from users_setup_template order by key_name, ID"
+    key_name_pack, key_intro_pack, default_value_pack = [], [], []
+    sql = "SELECT key_name, key_intro, default_value from users_setup_template order by key_name, ID"
     results = execute_sql(cur, sql)
     for each in results:
         key_name_pack.append(each[0])
         key_intro_pack.append(each[1])
+        default_value_pack.append(each[2])
 
-    return key_name_pack, key_intro_pack
+    return key_name_pack, key_intro_pack, default_value_pack
 
 
 def init_task_group_icon():
