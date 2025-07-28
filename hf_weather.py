@@ -295,24 +295,26 @@ def get_city_warning_now(city_code):
             warnings = city_weather_info['warning']
             results = []
             for warning in warnings:
-                if warning["text"].find('：') != -1:
-                    warning["text"] = warning["text"][warning["text"].find("：") + 1:].strip()
-                results.append({
-                    'id': warning["id"], # 本条预警的唯一标识
-                    'sender': warning["sender"], # 预警发布单位
-                    'pubTime': warning['pubTime'], # 预警发布时间
-                    'title': warning["title"], # 预警信息标题
-                    'startTime': warning["startTime"], # 预警开始时间
-                    'endTime': warning["endTime"], # 预警结束时间
-                    'status': warning["status"], # 预警状态
-                    'severity': warning["severity"], # 预警等级
-                    'severityColor': warning["severityColor"], # 预警严重等级颜色
-                    'type': warning["type"], # 预警类型
-                    'typeName': warning["typeName"], # 预警类型名称
-                    'urgency': warning["urgency"], # 预警信息的紧迫程度
-                    'certainty': warning["certainty"], # 预警信息的确定性
-                    'text': warning["text"] # 预警信息
-                })
+                if warning["status"] == 'active':
+                    if warning["text"].find('：') != -1:
+                        warning["text"] = warning["text"][warning["text"].find("：") + 1:].strip()
+                    results.append({
+                        'id': warning["id"], # 本条预警的唯一标识
+                        'sender': warning["sender"], # 预警发布单位
+                        'pubTime': warning['pubTime'], # 预警发布时间
+                        'title': warning["title"], # 预警信息标题
+                        'startTime': warning["startTime"], # 预警开始时间
+                        'endTime': warning["endTime"], # 预警结束时间
+                        'status': warning["status"], # 预警状态
+                        'severity': warning["severity"], # 预警等级
+                        'severityColor': warning["severityColor"], # 预警严重等级颜色
+                        'type': warning["type"], # 预警类型
+                        'typeName': warning["typeName"], # 预警类型名称
+                        'urgency': warning["urgency"], # 预警信息的紧迫程度
+                        'certainty': warning["certainty"], # 预警信息的确定性
+                        'text': warning["text"] # 预警信息
+                    })
+
             return results
 
         return None

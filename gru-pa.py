@@ -1565,7 +1565,7 @@ def display_weather_gd(city_code):
             wcol[2].metric(label='湿度', value=f"{weather_info['humidity']}% {weather_info['humidity_icon']}")
             wcol[0].metric(label='风向', value=f"{weather_info['winddirection']}风")
             wcol[1].metric(label='风力', value=f"{weather_info['windpower']} km/s {weather_info['wind_icon']}")
-            wcol[2].metric(label='数据更新时间', value=f"{weather_info['reporttime'][5:]}")
+            wcol[2].metric(label='数据更新时间', value=f"{weather_info['reporttime'][5:]} 来源: NMC")
             # 设置度量卡片的样式
             style_metric_cards(border_left_color="#8581d9")
 
@@ -1701,6 +1701,8 @@ def display_weather_hf(city_code):
         weather_info = get_city_now_weather(city_code)
         city_name = st.session_state.cityname
         if weather_info:
+            get_weather_warning(city_code)
+            st.markdown(f'#### {city_name} - 实时天气')
             if weather_info['cloud']:
                 cloud = weather_info['cloud']
             else:
@@ -1709,17 +1711,30 @@ def display_weather_hf(city_code):
                 precip = '☔'
             else:
                 precip = '🌂'
-            weather_icon_html = f"""
-                <html>
-                <head>
-                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/qweather-icons@1.7.0/font/qweather-icons.css">
-                </head>
-                <body>
-                    <i class="qi-{weather_info['weather_icon_id']}" style="font-size: 2em;"></i>
-                </body>
-                </html>
-            """
-            icon_size = 24
+            if st.session_state.weather_icon_type:
+                st.markdown(f"<font style='font-size:24px; font-weight:bold;'>天气: {weather_info['weather']}</font> {weather_info['weather_icon']}", unsafe_allow_html=True)
+            else:
+                weather_icon_html = f"""
+                    <html>
+                    <head>
+                        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/qweather-icons@1.7.0/font/qweather-icons.css">
+                    </head>
+                    <body>
+                        <i class="qi-{weather_info['weather_icon_id']}" style="font-size: 2em;"></i>
+                    </body>
+                    </html>
+                """
+                st.markdown(f"<font style='font-size:24px; font-weight:bold;'>天气: {weather_info['weather']}</font> {weather_icon_html}", unsafe_allow_html=True)
+            wcol = st.columns(4)
+            wcol[0].markdown(f"<font style='font-size:24px; font-weight:bold;'>🌡️温度: {weather_info['temp']}°C</font>", unsafe_allow_html=True)
+            wcol[1].markdown(f"<font style='font-size:24px; font-weight:bold;'>🧘体感温度: {weather_info['feelslike']}°C {weather_info['feelslike_icon']}</font>", unsafe_allow_html=True)
+            wcol[2].markdown(f"<font style='font-size:24px; font-weight:bold;'>降水: {weather_info['precip']} mm {precip}</font>", unsafe_allow_html=True)
+            wcol[3].markdown(f"<font style='font-size:24px; font-weight:bold;'>大气压强: {weather_info['pressure']} hPa</font>", unsafe_allow_html=True)
+            wcol[0].markdown(f"<font style='font-size:24px; font-weight:bold;'>风向: {weather_info['winddir']}</font>", unsafe_allow_html=True)
+            wcol[1].markdown(f"<font style='font-size:24px; font-weight:bold;'>风力: {weather_info['windspeed']} km/h {weather_info['wind_icon']}</font>", unsafe_allow_html=True)
+            wcol[2].markdown(f"<font style='font-size:24px; font-weight:bold;'>湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}</font>", unsafe_allow_html=True)
+            wcol[3].markdown(f"<font style='font-size:24px; font-weight:bold;'>能见度: {weather_info['vis']} km {weather_info['vis_icon']}</font>", unsafe_allow_html=True)
+            st.caption(f"数据更新时间: {weather_info['obstime'][5:-6].replace('T', ' ')} 来源: NMC/ECMWF")
 
 
 def display_weather_hf_metric(city_code):
@@ -1750,8 +1765,7 @@ def display_weather_hf_metric(city_code):
             wcol[1].metric(label='风力', value=f"{weather_info['windspeed']} km/h {weather_info['wind_icon']}")
             wcol[2].metric(label='湿度', value=f"{weather_info['humidity']}% {weather_info['humidity_icon']}")
             wcol[3].metric(label='能见度', value=f"{weather_info['vis']} km {weather_info['vis_icon']}")
-            #wcol[2].metric(label='数据更新时间', value=weather_info['obstime'][5:-6].replace('T', ' '))
-            st.caption(f"数据更新时间: {weather_info['obstime'][5:-6].replace('T', ' ')}")
+            st.caption(f"数据更新时间: {weather_info['obstime'][5:-6].replace('T', ' ')} 来源: NMC/ECMWF")
             style_metric_cards(border_left_color="#426edd")
 
 
@@ -2638,11 +2652,13 @@ elif st.session_state.logged_in:
         if st.session_state.weather_show:
             if st.session_state.weather_provider:
                 if st.session_state.weather_metric:
-                    #display_weather_hf_metric(st.session_state.hf_city_code)
+                    display_weather_hf_metric(st.session_state.hf_city_code)
                     # 手动测试
-                    display_weather_hf_metric('101160805')
+                    #display_weather_hf_metric('101070105')
                 else:
                     display_weather_hf(st.session_state.hf_city_code)
+                    # 手动测试
+                    #display_weather_hf('101070105')
                     st.header(' ')
             else:
                 display_weather_gd(st.session_state.gd_city_code)
