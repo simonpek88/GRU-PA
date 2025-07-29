@@ -19,6 +19,10 @@ def get_weather(city_code, query_type, query_date=None):
         lat = city_code[:city_code.find('_')]
         lon = city_code[city_code.find('_') + 1:]
         response = requests.get(f'https://kq359en4pj.re.qweatherapi.com/airquality/v1/current/{lat}/{lon}', headers=headers)
+    elif query_type == 'pf':
+        lat = city_code[:city_code.find('_')]
+        lon = city_code[city_code.find('_') + 1:]
+        response = requests.get(f'https://kq359en4pj.re.qweatherapi.com/v7/minutely/5m?location={lon},{lat}', headers=headers)
 
     data = response.json()
 
@@ -354,6 +358,23 @@ def get_city_aqi(city_code):
             results['sub_pollutants'] = sub_results
 
             return results
+
+        return None
+    except Exception as e:
+        # 异常处理
+        print(f"无法获取数据: {e}")
+
+    return None
+
+
+def get_city_pf_weather(city_code):
+    try:
+        city_weather_info = get_weather(city_code, 'pf')
+
+        # 检查状态码
+        if city_weather_info.get('code') == '200':
+
+            return city_weather_info['summary']
 
         return None
     except Exception as e:

@@ -34,7 +34,7 @@ from face_login import (clean_snapshot, face_login_cv, face_login_webrtc,
 from gd_weather import get_city_weather
 from gen_badges import gen_badge
 from hf_weather import (get_city_aqi, get_city_history_weather,
-                        get_city_now_weather, get_city_warning_now)
+                        get_city_now_weather, get_city_warning_now, get_city_pf_weather)
 from mysql_pool import get_connection
 
 # cSpell:ignoreRegExp /[^\s]{16,}/
@@ -1764,6 +1764,8 @@ def display_weather_hf_metric(city_code):
                 precip = '☔'
             else:
                 precip = '🌂'
+            weather_info['pf'] = get_weather_precip_future(city_code)
+            weather_info['pf'] = weather_info['pf'].replace('降雨', '')
             qweather_icon = qweather_logo()
             wcol = st.columns(4)
             wcol[0].metric(label='天气', value=f"{weather_info['weather']} {weather_info['weather_icon']}")
@@ -1776,7 +1778,8 @@ def display_weather_hf_metric(city_code):
             wcol[0].metric(label='风向', value=weather_info['winddir'])
             wcol[1].metric(label='风力', value=f"{weather_info['windspeed']} km/h {weather_info['wind_icon']}")
             wcol[2].metric(label='湿度', value=f"{weather_info['humidity']}% {weather_info['humidity_icon']}")
-            wcol[3].metric(label='能见度', value=f"{weather_info['vis']} km {weather_info['vis_icon']}")
+            #wcol[3].metric(label='能见度', value=f"{weather_info['vis']} km {weather_info['vis_icon']}")
+            wcol[3].metric(label='降雨预测', value=f"{weather_info['pf']}")
             st.markdown(f"{qweather_icon}数据更新时间: {weather_info['obstime'][5:-6].replace('T', ' ')} 数据源: NMC/ECMWF", unsafe_allow_html=True)
             style_metric_cards(border_left_color="#426edd")
 
@@ -1834,6 +1837,15 @@ def get_weather_aqi(city_code):
             col_index += 1
         style_metric_cards(border_left_color=RGBColor(weather_aqi['color']['red'], weather_aqi['color']['green'], weather_aqi['color']['blue']))
         st.divider()
+
+
+@st.cache_data(ttl="20min")
+def get_weather_precip_future(city_code):
+    sql = f"SELECT Latitude, Longitude from hf_cn_city where Location_ID = {city_code}"
+    lat, lon = execute_sql(cur, sql)[0]
+    weather_pf = get_city_pf_weather(f'{str(lat)[:-2]}_{str(lon)[:-2]}')
+
+    return weather_pf
 
 
 @st.fragment

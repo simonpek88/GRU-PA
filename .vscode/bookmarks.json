@@ -119,6 +119,11 @@
 					"label": "get_weather_aqi"
 				},
 				{
+					"line": 1841,
+					"column": 41,
+					"label": "get_weather_precip_future"
+				},
+				{
 					"line": 1894,
 					"column": 30,
 					"label": "camera_capture"
@@ -207,6 +212,11 @@
 					"line": 329,
 					"column": 27,
 					"label": "get_city_aqi"
+				},
+				{
+					"line": 369,
+					"column": 35,
+					"label": "get_city_pf_weather"
 				}
 			]
 		}
