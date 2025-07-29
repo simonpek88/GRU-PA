@@ -1805,7 +1805,7 @@ def display_weather_hf_metric(city_code):
                 weather_info['pf'] = weather_info['pf'].replace('降雨', '')
                 if weather_info['pf'].find('，') != -1:
                     weather_info['pf'] = weather_info['pf'][:weather_info['pf'].find('，')]
-                wcol[3].metric(label='降雨预测', value=f"{weather_info['pf']}")
+                wcol[3].metric(label='降水预测', value=f"{weather_info['pf']}")
             else:
                 wcol[3].metric(label='能见度', value=f"{weather_info['vis']} km {weather_info['vis_icon']}")
             st.markdown(f"{qweather_icon}数据更新时间: {weather_info['obstime'][5:-6].replace('T', ' ')} 数据源: NMC/ECMWF", unsafe_allow_html=True)
