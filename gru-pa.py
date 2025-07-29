@@ -1548,10 +1548,13 @@ def public_notice():
     if not st.session_state.vehicle_restrict_info and st.session_state.vehicle_restrict:
         st.session_state.vehicle_restrict_info = get_vehicle_restrict()
     if st.session_state.vehicle_restrict_info:
-        st.subheader("车辆限行信息", divider="red")
+        st.subheader("您的车辆限行预警", divider="red")
         vehicle_restrict_info = st.session_state.vehicle_restrict_info
         for each in vehicle_restrict_info:
-            st.markdown(f'##### {each}')
+            st.markdown(f'#### {each[:each.find(" ")]}')
+            vp_file = f"./Images/license_plate/{each[each.rfind(' ') + 1:].strip()}.png"
+            if os.path.exists(vp_file):
+                st.image(vp_file)
 
 
 @st.fragment
@@ -2615,7 +2618,7 @@ def qweather_logo():
 
 
 def get_vehicle_restrict():
-    restrict_info, gen_vl = [], []
+    restrict_info, gen_vp_pack = [], []
     for i in range(2):
         query_date = cal_date(i)
         query_wor = datetime.date.fromisoformat(query_date).weekday() + 1
@@ -2630,17 +2633,17 @@ def get_vehicle_restrict():
                 sql = f"SELECT ID from vehicle_restrict where wor = {query_wor} and tail_num = {user_last_plate} and start_time <= '{query_date}' and end_time >= '{query_date}' and StationCN = '{st.session_state.StationCN}'"
                 if execute_sql(cur, sql):
                     if i > 0:
-                        restrict_info.append(f'您的车辆 {result[0]} :orange[明日限行]')
+                        restrict_info.append(f':orange[明日限行] {result[0]}')
                     else:
-                        restrict_info.append(f'您的车辆 {result[0]} 今日限行')
+                        restrict_info.append(f'今日限行 {result[0]}')
     sql = f"SELECT license_plate, userCName from vehicle_info where StationCN = '{st.session_state.StationCN}' and vehicle_type = 0"
     results = execute_sql(cur, sql)
     if results:
         for result in results:
             if not os.path.exists(f"./Images/license_plate/{result[0]}.png"):
-                gen_vl.append(result[0])
-    if gen_vl:
-        create_plate_image(gen_vl, '燃油车')
+                gen_vp_pack.append(result[0])
+    if gen_vp_pack:
+        create_plate_image(gen_vp_pack, '燃油车')
     if restrict_info:
         return restrict_info
 
