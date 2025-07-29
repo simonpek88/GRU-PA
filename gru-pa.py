@@ -13,6 +13,7 @@ import plotly.graph_objects as go
 import streamlit as st
 import streamlit.components.v1 as components
 import streamlit_antd_components as sac
+from chinese_calendar import is_workday
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
@@ -33,11 +34,11 @@ from face_login import (clean_snapshot, face_login_cv, face_login_webrtc,
                         face_recognize_webrtc, update_face_data)
 from gd_weather import get_city_weather
 from gen_badges import gen_badge
-from hf_weather import (get_city_aqi, get_city_history_weather,
-                        get_city_now_weather, get_city_warning_now, get_city_pf_weather)
-from mysql_pool import get_connection
 from gen_license_plate import create_plate_image
-from chinese_calendar import is_workday
+from hf_weather import (get_city_aqi, get_city_history_weather,
+                        get_city_now_weather, get_city_pf_weather,
+                        get_city_warning_now)
+from mysql_pool import get_connection
 
 # cSpell:ignoreRegExp /[^\s]{16,}/
 # cSpell:ignoreRegExp /\b[A-Z]{3,15}\b/g

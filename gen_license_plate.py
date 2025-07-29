@@ -1,10 +1,9 @@
 # coding utf-8
 import os
-from PIL import ImageFont
-from PIL import Image
-from PIL import ImageDraw
-import numpy as np
+
 import cv2
+import numpy as np
+from PIL import Image, ImageDraw, ImageFont
 
 # cSpell:ignoreRegExp /[^\s]{16,}/
 # cSpell:ignoreRegExp /\b[A-Z]{3,15}\b/g
@@ -280,7 +279,7 @@ class LicensePlateGenerator(object):
             i += 1
 
 
-def create_plate_image(vehicle_num_pack, vehicle_type):
+def create_plate_image(vehicle_num_pack, vehicle_type='燃油车'):
     save_path = f"./Images/license_plate"
     if vehicle_type == '燃油车':
         ground_type = 'single_blue'
