@@ -1775,6 +1775,7 @@ def display_weather_hf_metric(city_code):
         weather_info = hf_weather_now_cache(city_code)
         city_name = st.session_state.cityname
         if weather_info:
+            qweather_icon = qweather_logo()
             if st.session_state.weather_warning:
                 get_weather_warning(city_code)
             if st.session_state.weather_aqi:
@@ -1789,10 +1790,6 @@ def display_weather_hf_metric(city_code):
             else:
                 precip = '🌂'
             weather_info['pf'] = get_weather_precip_future(city_code)
-            weather_info['pf'] = weather_info['pf'].replace('降雨', '')
-            if weather_info['pf'].find('，') != -1:
-                weather_info['pf'] = weather_info['pf'][:weather_info['pf'].find('，')]
-            qweather_icon = qweather_logo()
             wcol = st.columns(4)
             wcol[0].metric(label='天气', value=f"{weather_info['weather']} {weather_info['weather_icon']}")
             #wcol[1].metric(label='🌡️温度', value=f"{weather_info['temp']}°C {weather_info['temp_icon']}")
@@ -1804,8 +1801,13 @@ def display_weather_hf_metric(city_code):
             wcol[0].metric(label='风向', value=weather_info['winddir'])
             wcol[1].metric(label='风力', value=f"{weather_info['windspeed']} km/h {weather_info['wind_icon']}")
             wcol[2].metric(label='湿度', value=f"{weather_info['humidity']}% {weather_info['humidity_icon']}")
-            #wcol[3].metric(label='能见度', value=f"{weather_info['vis']} km {weather_info['vis_icon']}")
-            wcol[3].metric(label='降雨预测', value=f"{weather_info['pf']}")
+            if weather_info['pf']:
+                weather_info['pf'] = weather_info['pf'].replace('降雨', '')
+                if weather_info['pf'].find('，') != -1:
+                    weather_info['pf'] = weather_info['pf'][:weather_info['pf'].find('，')]
+                wcol[3].metric(label='降雨预测', value=f"{weather_info['pf']}")
+            else:
+                wcol[3].metric(label='能见度', value=f"{weather_info['vis']} km {weather_info['vis_icon']}")
             st.markdown(f"{qweather_icon}数据更新时间: {weather_info['obstime'][5:-6].replace('T', ' ')} 数据源: NMC/ECMWF", unsafe_allow_html=True)
             style_metric_cards(border_left_color="#426edd")
 

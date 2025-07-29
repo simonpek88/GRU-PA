@@ -99,19 +99,14 @@
 					"label": "auto_get_history_weather"
 				},
 				{
-					"line": 1741,
-					"column": 64,
-					"label": "display_weather_hf_metric"
-				},
-				{
 					"line": 1761,
 					"column": 35,
 					"label": "get_weather_warning"
 				},
 				{
 					"line": 1771,
-					"column": 26,
-					"label": "refresh_users_setup"
+					"column": 41,
+					"label": "display_weather_hf_metric"
 				},
 				{
 					"line": 1781,
