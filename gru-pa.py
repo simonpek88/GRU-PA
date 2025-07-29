@@ -1553,7 +1553,7 @@ def aboutLicense():
 def display_weather_gd(city_code):
     weather_area = st.empty()
     with weather_area.container():
-        weather_info = get_city_weather(city_code)
+        weather_info = gd_weather_now_cache(city_code)
         if weather_info:
             st.markdown(f"#### {weather_info['city']} - 实时天气")
             #st.markdown(f"<div style='text-align:center; font-family:微软雅黑; color:#008080; font-size:18px;'>地区: {weather_info['city']} 天气: {weather_info['weather_icon']} 温度: {weather_info['temperature']} °C {weather_info['temp_icon']}</div>", unsafe_allow_html=True)
@@ -1565,9 +1565,16 @@ def display_weather_gd(city_code):
             wcol[2].metric(label='湿度', value=f"{weather_info['humidity']}% {weather_info['humidity_icon']}")
             wcol[0].metric(label='风向', value=f"{weather_info['winddirection']}风")
             wcol[1].metric(label='风力', value=f"{weather_info['windpower']} km/s {weather_info['wind_icon']}")
-            wcol[2].metric(label='数据更新时间', value=f"{weather_info['reporttime'][5:]} 来源: NMC")
+            wcol[2].metric(label='数据更新时间', value=f"{weather_info['reporttime'][5:]} 数据源: NMC")
             # 设置度量卡片的样式
             style_metric_cards(border_left_color="#8581d9")
+
+
+@st.cache_data(ttl="10min")
+def gd_weather_now_cache(city_code):
+    weather_info = get_city_weather(city_code)
+
+    return weather_info
 
 
 def display_history_weather():
@@ -1698,7 +1705,7 @@ def plot_data_curve(hourly_data):
 def display_weather_hf(city_code):
     weather_area = st.empty()
     with weather_area.container():
-        weather_info = get_city_now_weather(city_code)
+        weather_info = hf_weather_now_cache(city_code)
         city_name = st.session_state.cityname
         if weather_info:
             get_weather_warning(city_code)
@@ -1735,13 +1742,13 @@ def display_weather_hf(city_code):
             wcol[1].markdown(f"<font style='font-size:24px; font-weight:bold;'>风力: {weather_info['windspeed']} km/h {weather_info['wind_icon']}</font>", unsafe_allow_html=True)
             wcol[2].markdown(f"<font style='font-size:24px; font-weight:bold;'>湿度: {weather_info['humidity']}% {weather_info['humidity_icon']}</font>", unsafe_allow_html=True)
             wcol[3].markdown(f"<font style='font-size:24px; font-weight:bold;'>能见度: {weather_info['vis']} km {weather_info['vis_icon']}</font>", unsafe_allow_html=True)
-            st.markdown(f"{qweather_icon}数据更新时间: {weather_info['obstime'][5:-6].replace('T', ' ')} 来源: NMC/ECMWF", unsafe_allow_html=True)
+            st.markdown(f"{qweather_icon}数据更新时间: {weather_info['obstime'][5:-6].replace('T', ' ')} 数据源: NMC/ECMWF", unsafe_allow_html=True)
 
 
 def display_weather_hf_metric(city_code):
     weather_area = st.empty()
     with weather_area.container():
-        weather_info = get_city_now_weather(city_code)
+        weather_info = hf_weather_now_cache(city_code)
         city_name = st.session_state.cityname
         if weather_info:
             if st.session_state.weather_warning:
@@ -1770,10 +1777,18 @@ def display_weather_hf_metric(city_code):
             wcol[1].metric(label='风力', value=f"{weather_info['windspeed']} km/h {weather_info['wind_icon']}")
             wcol[2].metric(label='湿度', value=f"{weather_info['humidity']}% {weather_info['humidity_icon']}")
             wcol[3].metric(label='能见度', value=f"{weather_info['vis']} km {weather_info['vis_icon']}")
-            st.markdown(f"{qweather_icon}数据更新时间: {weather_info['obstime'][5:-6].replace('T', ' ')} 来源: NMC/ECMWF", unsafe_allow_html=True)
+            st.markdown(f"{qweather_icon}数据更新时间: {weather_info['obstime'][5:-6].replace('T', ' ')} 数据源: NMC/ECMWF", unsafe_allow_html=True)
             style_metric_cards(border_left_color="#426edd")
 
 
+@st.cache_data(ttl="10min")
+def hf_weather_now_cache(city_code):
+    weather_info = get_city_now_weather(city_code)
+
+    return weather_info
+
+
+@st.cache_data(ttl="10min")
 def get_weather_warning(city_code):
     weather_warning = get_city_warning_now(city_code)
     if weather_warning:
@@ -1787,7 +1802,7 @@ def get_weather_warning(city_code):
                     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/qweather-icons@1.7.0/font/qweather-icons.css">
                 </head>
                 <body>
-                    <i class="qi-{warning['type']}" style="font-size: 1.5em;"></i>
+                    <i class="qi-{warning['type']}" style="font-size: 1.4em;"></i>
                 </body>
                 </html>
             """
@@ -1797,6 +1812,7 @@ def get_weather_warning(city_code):
         st.divider()
 
 
+@st.cache_data(ttl="30min")
 def get_weather_aqi(city_code):
     sql = f"SELECT Latitude, Longitude from hf_cn_city where Location_ID = {city_code}"
     lat, lon = execute_sql(cur, sql)[0]
