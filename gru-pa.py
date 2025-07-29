@@ -1546,17 +1546,18 @@ def public_notice():
             st.markdown(f'##### 第{index}条. {row[0]}')
     else:
         st.info("暂无系统公告")
-    # 刷新限行信息
-    if not st.session_state.vehicle_restrict_info and st.session_state.vehicle_restrict:
-        st.session_state.vehicle_restrict_info = get_vehicle_restrict()
-    if st.session_state.vehicle_restrict_info:
-        st.subheader("您的车辆限行预警", divider="red")
-        vehicle_restrict_info = st.session_state.vehicle_restrict_info
-        for each in vehicle_restrict_info:
-            st.markdown(f'#### {each[:each.find(" ")]}')
-            vp_file = f"./Images/license_plate/{each[each.rfind(' ') + 1:].strip()}.png"
-            if os.path.exists(vp_file):
-                st.image(vp_file)
+    if st.session_state.vehicle_restrict:
+        # 刷新限行信息
+        if not st.session_state.vehicle_restrict_info:
+            st.session_state.vehicle_restrict_info = get_vehicle_restrict()
+        if st.session_state.vehicle_restrict_info:
+            st.subheader("您的车辆限行预警", divider="red")
+            vehicle_restrict_info = st.session_state.vehicle_restrict_info
+            for each in vehicle_restrict_info:
+                st.markdown(f'#### {each[:each.find(" ")]}')
+                vp_file = f"./Images/license_plate/{each[each.rfind(' ') + 1:].strip()}.png"
+                if os.path.exists(vp_file):
+                    st.image(vp_file)
 
 
 @st.fragment
