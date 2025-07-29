@@ -156,7 +156,12 @@ def login_init(result):
     valid_time = now.strftime("%Y-%m-%d")
     sql = f"SELECT notice from notices where StationCN = '{st.session_state.StationCN}' and start_time >= '{valid_time}' and '{valid_time}' <= end_time"
     result = execute_sql(cur, sql)
-    if result:
+    # 获取限行信息
+    if st.session_state.vehicle_restrict:
+        st.session_state.vehicle_restrict_info = get_vehicle_restrict()
+    else:
+        st.session_state.vehicle_restrict_info = None
+    if result or st.session_state.vehicle_restrict_info:
         st.session_state.menu_index = 0
     else:
         st.session_state.menu_index = 1
@@ -1537,7 +1542,15 @@ def public_notice():
         for index, row in enumerate(result, start=1):
             st.markdown(f'##### 第{index}条. {row[0]}')
     else:
-        st.info("暂无公告")
+        st.info("暂无系统公告")
+    # 刷新限行信息
+    if not st.session_state.vehicle_restrict_info and st.session_state.vehicle_restrict:
+        st.session_state.vehicle_restrict_info = get_vehicle_restrict()
+    if st.session_state.vehicle_restrict_info:
+        st.subheader("车辆限行信息", divider="red")
+        vehicle_restrict_info = st.session_state.vehicle_restrict_info
+        for each in vehicle_restrict_info:
+            st.markdown(f'##### {each}')
 
 
 @st.fragment
@@ -1766,6 +1779,8 @@ def display_weather_hf_metric(city_code):
                 precip = '🌂'
             weather_info['pf'] = get_weather_precip_future(city_code)
             weather_info['pf'] = weather_info['pf'].replace('降雨', '')
+            if weather_info['pf'].find('，') != -1:
+                weather_info['pf'] = weather_info['pf'][:weather_info['pf'].find('，')]
             qweather_icon = qweather_logo()
             wcol = st.columns(4)
             wcol[0].metric(label='天气', value=f"{weather_info['weather']} {weather_info['weather_icon']}")
@@ -2598,6 +2613,43 @@ def qweather_logo():
     return qweather_icon
 
 
+def get_vehicle_restrict():
+    restrict_info = []
+    for i in range(2):
+        query_date = cal_date(i)
+        query_wor = datetime.date.fromisoformat(query_date).weekday() + 1
+        sql = f"SELECT license_plate, userCName from vehicle_info where userID = {st.session_state.userID} and StationCN = '{st.session_state.StationCN}'"
+        results = execute_sql(cur, sql)
+        if results:
+            for result in results:
+                if result[0][-1].lower() == 'x':
+                    user_last_plate = 0
+                else:
+                    user_last_plate = result[0][-1]
+                sql = f"SELECT ID from vehicle_restrict where wor = {query_wor} and tail_num = {user_last_plate} and start_time <= '{query_date}' and end_time >= '{query_date}' and StationCN = '{st.session_state.StationCN}' and vehicle_type = 0"
+                if execute_sql(cur, sql):
+                    if i > 0:
+                        restrict_info.append(f'您的车辆 {result[0]} :orange[明日限行]')
+                    else:
+                        restrict_info.append(f'您的车辆 {result[0]} 今日限行')
+
+    if restrict_info:
+        return restrict_info
+
+    return None
+
+
+def update_vehicle_restrict(d1, d2, diff_days):
+    sql = f"SELECT tail_num, wor, StationCN from vehicle_restrict where ID < 11 and StationCN = '{st.session_state.StationCN}' order by ID"
+    rows = execute_sql(cur, sql)
+    for row in rows:
+        wor = row[1] + diff_days
+        if wor > 5:
+            wor = wor - 5
+        sql = f"INSERT INTO vehicle_restrict (tail_num, start_time, end_time, wor, StationCN) VALUES ({row[0]}, '{d1}', '{d2}', {wor}, '{row[2]}')"
+        #execute_sql_and_commit(conn, cur, sql)
+
+
 global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME
 APPNAME_CN = "站室绩效考核系统GRU-PA"
 APPNAME_EN = "GRU-PA"
@@ -2708,6 +2760,8 @@ elif st.session_state.logged_in:
         st.image(f'./Images/badges/{APPNAME_EN}-badge.svg')
         st.image(f'./Images/badges/{APPNAME_EN}-lm-badge.svg')
     if selected == "公告":
+        # 更新限行条件
+        #update_vehicle_restrict('2025-09-29', '2025-12-28', 1)
         public_notice()
     elif selected == "主页":
         # 刷新个人设置

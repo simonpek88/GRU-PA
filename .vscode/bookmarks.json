@@ -89,6 +89,11 @@
 					"label": "display_history_weather"
 				},
 				{
+					"line": 1529,
+					"column": 20,
+					"label": "public_notice"
+				},
+				{
 					"line": 1657,
 					"column": 31,
 					"label": "auto_get_history_weather"
@@ -157,6 +162,11 @@
 					"line": 2326,
 					"column": 24,
 					"label": "edit_task_content"
+				},
+				{
+					"line": 2613,
+					"column": 27,
+					"label": "get_vehicle_restrict"
 				},
 				{
 					"line": 2656,
