@@ -37,6 +37,7 @@ from hf_weather import (get_city_aqi, get_city_history_weather,
                         get_city_now_weather, get_city_warning_now, get_city_pf_weather)
 from mysql_pool import get_connection
 from gen_license_plate import create_plate_image
+from chinese_calendar import is_workday
 
 # cSpell:ignoreRegExp /[^\s]{16,}/
 # cSpell:ignoreRegExp /\b[A-Z]{3,15}\b/g
@@ -2621,21 +2622,22 @@ def get_vehicle_restrict():
     restrict_info, gen_vp_pack = [], []
     for i in range(2):
         query_date = cal_date(i)
-        query_wor = datetime.date.fromisoformat(query_date).weekday() + 1
-        sql = f"SELECT license_plate, userCName from vehicle_info where userID = {st.session_state.userID} and StationCN = '{st.session_state.StationCN}' and vehicle_type = 0"
-        results = execute_sql(cur, sql)
-        if results:
-            for result in results:
-                if result[0][-1].lower() == 'x':
-                    user_last_plate = 0
-                else:
-                    user_last_plate = result[0][-1]
-                sql = f"SELECT ID from vehicle_restrict where wor = {query_wor} and tail_num = {user_last_plate} and start_time <= '{query_date}' and end_time >= '{query_date}' and StationCN = '{st.session_state.StationCN}'"
-                if execute_sql(cur, sql):
-                    if i > 0:
-                        restrict_info.append(f':orange[明日限行] {result[0]}')
+        if is_workday(datetime.date.fromisoformat(query_date)):
+            query_wor = datetime.date.fromisoformat(query_date).weekday() + 1
+            sql = f"SELECT license_plate, userCName from vehicle_info where userID = {st.session_state.userID} and StationCN = '{st.session_state.StationCN}' and vehicle_type = 0"
+            results = execute_sql(cur, sql)
+            if results:
+                for result in results:
+                    if result[0][-1].lower() == 'x':
+                        user_last_plate = 0
                     else:
-                        restrict_info.append(f'今日限行 {result[0]}')
+                        user_last_plate = result[0][-1]
+                    sql = f"SELECT ID from vehicle_restrict where wor = {query_wor} and tail_num = {user_last_plate} and start_time <= '{query_date}' and end_time >= '{query_date}' and StationCN = '{st.session_state.StationCN}'"
+                    if execute_sql(cur, sql):
+                        if i > 0:
+                            restrict_info.append(f':orange[明日限行] {result[0]}')
+                        else:
+                            restrict_info.append(f'今日限行 {result[0]}')
     sql = f"SELECT license_plate, userCName from vehicle_info where StationCN = '{st.session_state.StationCN}' and vehicle_type = 0"
     results = execute_sql(cur, sql)
     if results:
