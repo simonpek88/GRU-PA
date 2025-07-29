@@ -99,6 +99,8 @@ oxml
 pems
 phantomjs
 pickable
+platech
+platechar
 precip
 pybadges
 pycryptodome
@@ -124,6 +126,7 @@ root
 rowid
 scol
 selectbox
+simhei
 SimonX
 startrow
 STMTVTAB
