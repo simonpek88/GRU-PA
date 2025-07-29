@@ -36,7 +36,7 @@ from gen_badges import gen_badge
 from hf_weather import (get_city_aqi, get_city_history_weather,
                         get_city_now_weather, get_city_warning_now, get_city_pf_weather)
 from mysql_pool import get_connection
-#from gen_license_plate import create_plate_image
+from gen_license_plate import create_plate_image
 
 # cSpell:ignoreRegExp /[^\s]{16,}/
 # cSpell:ignoreRegExp /\b[A-Z]{3,15}\b/g
@@ -1545,7 +1545,6 @@ def public_notice():
     else:
         st.info("暂无系统公告")
     # 刷新限行信息
-    st.session_state.vehicle_restrict_info = get_vehicle_restrict()
     if not st.session_state.vehicle_restrict_info and st.session_state.vehicle_restrict:
         st.session_state.vehicle_restrict_info = get_vehicle_restrict()
     if st.session_state.vehicle_restrict_info:
@@ -2616,7 +2615,7 @@ def qweather_logo():
 
 
 def get_vehicle_restrict():
-    restrict_info = []
+    restrict_info, gen_vl = [], []
     for i in range(2):
         query_date = cal_date(i)
         query_wor = datetime.date.fromisoformat(query_date).weekday() + 1
@@ -2630,13 +2629,18 @@ def get_vehicle_restrict():
                     user_last_plate = result[0][-1]
                 sql = f"SELECT ID from vehicle_restrict where wor = {query_wor} and tail_num = {user_last_plate} and start_time <= '{query_date}' and end_time >= '{query_date}' and StationCN = '{st.session_state.StationCN}'"
                 if execute_sql(cur, sql):
-                    if not os.path.exists(f"./Images/license_plate/{result[0]}.png"):
-                        create_plate_image(result[0])
                     if i > 0:
                         restrict_info.append(f'您的车辆 {result[0]} :orange[明日限行]')
                     else:
                         restrict_info.append(f'您的车辆 {result[0]} 今日限行')
-
+    sql = f"SELECT license_plate, userCName from vehicle_info where StationCN = '{st.session_state.StationCN}' and vehicle_type = 0"
+    results = execute_sql(cur, sql)
+    if results:
+        for result in results:
+            if not os.path.exists(f"./Images/license_plate/{result[0]}.png"):
+                gen_vl.append(result[0])
+    if gen_vl:
+        create_plate_image(gen_vl, '燃油车')
     if restrict_info:
         return restrict_info
 
