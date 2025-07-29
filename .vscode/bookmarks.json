@@ -114,14 +114,9 @@
 					"label": "combine_query"
 				},
 				{
-					"line": 1792,
-					"column": 30,
+					"line": 1846,
+					"column": 31,
 					"label": "get_weather_aqi"
-				},
-				{
-					"line": 1841,
-					"column": 41,
-					"label": "get_weather_precip_future"
 				},
 				{
 					"line": 1894,
