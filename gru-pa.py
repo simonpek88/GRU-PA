@@ -2708,7 +2708,7 @@ elif st.session_state.logged_in:
             selected = sac.menu([
                 sac.MenuItem('公告', icon='megaphone'),
                 sac.MenuItem('主页', icon='house'),
-                sac.MenuItem('功能', icon='grid-3x3-gap', children=[
+                sac.MenuItem('功能', icon='columns-gap', children=[
                     sac.MenuItem('工作量批量录入', icon='list-task'),
                     sac.MenuItem('工作量手工录入', icon='journal-plus'),
                     sac.MenuItem('工作减分项录入', icon='journal-minus'),
@@ -2744,7 +2744,7 @@ elif st.session_state.logged_in:
                     sac.MenuItem('密码重置', icon='person-gear'),
                     sac.MenuItem('登出', icon='box-arrow-right'),
                 ]),
-                sac.MenuItem('关于', icon='layout-wtf', children=[
+                sac.MenuItem('关于', icon='info-circle', children=[
                     sac.MenuItem('Changelog', icon='h-square'),
                     sac.MenuItem('Readme', icon='clipboard'),
                     sac.MenuItem('About', icon='book'),
@@ -2755,7 +2755,7 @@ elif st.session_state.logged_in:
             selected = sac.menu([
                 sac.MenuItem('公告', icon='megaphone'),
                 sac.MenuItem('主页', icon='house'),
-                sac.MenuItem('功能', icon='grid-3x3-gap', children=[
+                sac.MenuItem('功能', icon='columns-gap', children=[
                     sac.MenuItem('工作量批量录入', icon='list-task'),
                     sac.MenuItem('工作量手工录入', icon='journal-plus'),
                     sac.MenuItem('记录修改', icon='journal-medical'),
@@ -2771,7 +2771,7 @@ elif st.session_state.logged_in:
                     sac.MenuItem('密码修改', icon='key'),
                     sac.MenuItem('登出', icon='box-arrow-right'),
                 ]),
-                sac.MenuItem('关于', icon='layout-wtf', children=[
+                sac.MenuItem('关于', icon='info-circle', children=[
                     sac.MenuItem('Changelog', icon='h-square'),
                     sac.MenuItem('Readme', icon='clipboard'),
                     sac.MenuItem('About', icon='book'),
