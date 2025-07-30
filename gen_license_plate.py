@@ -279,10 +279,12 @@ class LicensePlateGenerator(object):
             i += 1
 
 
-def create_plate_image(vehicle_num_pack, brand_logo_pack, vehicle_type='燃油车'):
+def create_plate_image(vehicle_num_pack, brand_logo_pack, vehicle_type='燃油蓝牌'):
     save_path = f"./Images/license_plate"
-    if vehicle_type == '燃油车':
+    if vehicle_type == '燃油蓝牌':
         ground_type = 'single_blue'
+    elif vehicle_type == '燃油黄牌':
+        ground_type = 'single_yellow'
     elif vehicle_type == '新能源车':
         ground_type = 'small_new_energy'
     else:
@@ -309,3 +311,6 @@ def create_plate_image(vehicle_num_pack, brand_logo_pack, vehicle_type='燃油�
                 stitch_img.save(vp_brand_file)
                 img1.close()
                 img2.close()
+
+
+#create_plate_image(['京AA62616'], ['tesla'], '新能源车')
