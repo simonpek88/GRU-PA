@@ -2700,7 +2700,6 @@ elif st.session_state.logged_in:
         #st.markdown(f'### :green[当前用户:] :orange[{st.session_state.userCName}]')
         #displaySmallTime()
         #displaySmallClock()
-        #st.session_state.menu_index = 0
         if st.session_state.menu_index == 0:
             notice_icon = 'megaphone-fill'
         else:
