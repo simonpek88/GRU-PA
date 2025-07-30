@@ -313,4 +313,4 @@ def create_plate_image(vehicle_num_pack, brand_logo_pack, vehicle_type='燃油�
                 img2.close()
 
 
-create_plate_image(['京AA18226'], ['byd'], '新能源车')
+#create_plate_image(['京AA18226'], ['byd'], '新能源车')
