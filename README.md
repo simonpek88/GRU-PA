@@ -2,10 +2,10 @@
 
 Grass-roots unit performance appraisal system (GRU-PA).
 
-- 程序信息
+- Application Information
 
-    ![GRU-PA ver](https://img.shields.io/badge/ver-0.7.780-blue.svg)
-    ![GRU-PA updated](https://img.shields.io/badge/updated-25/07/27%2014:24-orange.svg)
+    ![GRU-PA ver](https://img.shields.io/badge/ver-0.10.1021-blue.svg)
+    ![GRU-PA updated](https://img.shields.io/badge/updated-25/07/30%2017:18-orange.svg)
     ![GRU-PA build](https://img.shields.io/badge/build-passing-green.svg)
 
 ## 站室绩效考核系统GRU-PA 是一个前端基于 Streamlit 框架，后端基于Python数据处理的web应用，旨在简化站室工作量录入、统计及考核
@@ -48,8 +48,8 @@ Grass-roots unit performance appraisal system (GRU-PA).
       ![MySQL](https://img.shields.io/badge/MySQL-8.4.5-blue.svg)
       ![Streamlit](https://img.shields.io/badge/Streamlit-1.47.0-blue.svg)
       ![Streamlit-antd-components](https://img.shields.io/badge/Streamlit_antd_components-0.3.2-blue.svg)
-      ![NumPY](https://img.shields.io/badge/NumPY-1.26.4-blue.svg)
-      ![Pandas](https://img.shields.io/badge/Pandas-2.3.0-blue.svg)
+      ![NumPY](https://img.shields.io/badge/NumPY-2.2.6-blue.svg)
+      ![Pandas](https://img.shields.io/badge/Pandas-2.3.1-blue.svg)
       ![Plotly](https://img.shields.io/badge/Plotly-6.2.0-blue.svg)
       ![Python-docx](https://img.shields.io/badge/Python_docx-1.2.0-blue.svg)
       ![Openpyxl](https://img.shields.io/badge/Openpyxl-3.1.5-blue.svg)
@@ -57,7 +57,7 @@ Grass-roots unit performance appraisal system (GRU-PA).
       ![PyJWT](https://img.shields.io/badge/PyJWT-2.10.1-blue.svg)
       ![Dlib](https://img.shields.io/badge/Dlib-20.0.0-blue.svg)
       ![Face-recognition](https://img.shields.io/badge/Face_recognition-1.3.0-blue.svg)
-      ![Opencv-python](https://img.shields.io/badge/Opencv_python-4.11.0.86-blue.svg)
+      ![Opencv-python](https://img.shields.io/badge/Opencv_python-4.12.0.88-blue.svg)
       ![Streamlit-webrtc](https://img.shields.io/badge/Streamlit_webrtc-0.63.3-blue.svg)
 
     - 或使用提供的requirements.txt文件自动安装
@@ -82,16 +82,21 @@ Grass-roots unit performance appraisal system (GRU-PA).
 - face_login.py # 人脸登录模块
 - hf_weather.py # 和风天气API模块
 - gd_weather.py # 高德天气API模块
+- gen_license_plate.py # 车牌生成模块
 - dlib # dlib人脸识别库whl文件、编译说明及68个点模型文件
 - documents # 文档文件(不同步)
+- fonts # 字体文件
 - ID_Photos # 用户人脸图像, 用于生成识别数据
 - Images # 图片文件
   - badges # 徽章文件
   - Clock-Images # 时钟图片
-  - logos # logo文件
+  - license_plate # 车牌图片
+    - background # 车牌生成背景图片
+    - vehicle_logo # 汽车品牌logo
+  - logos # 依赖库logo文件
 - MyComponentsScript # 自定义组件脚本, txt格式, 系统自动转换
 - MySQL_Backup # MySQL备份文件
-- user_pa # 用户导出文档
+- user_pa # 用户导出文档 (不同步)
 - README.md # 项目说明文件(本文件, Markdown格式)
 - CHANGELOG.md # 项目更新日志
 - requirements.txt # 自动安装依赖文件
