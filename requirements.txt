@@ -3,10 +3,10 @@ dbutils==3.1.1
 dill==0.3.8
 fsspec==2025.3.0
 multiprocess==0.70.16
-NumPy==2.3.1
+NumPy==2.3.2
 openpyxl==3.1.5
 python-docx==1.2.0
-pandas==2.3.0
+pandas==2.3.1
 plotly==6.2.0
 pycryptodome==3.23.0
 PyMySQL==1.1.1
