@@ -2696,17 +2696,22 @@ elif st.session_state.login_webrtc:
         st.rerun()
 elif st.session_state.logged_in:
     with st.sidebar:
-        st.markdown(f"<font face='微软雅黑' color=green size=4><center>**当前用户:{st.session_state.userCName}**</center></font>", unsafe_allow_html=True)
+        st.markdown(f"<font face='微软雅黑' color=green size=4><center>**当前用户: {st.session_state.userCName}**</center></font>", unsafe_allow_html=True)
         #st.markdown(f'### :green[当前用户:] :orange[{st.session_state.userCName}]')
         #displaySmallTime()
         #displaySmallClock()
+        #st.session_state.menu_index = 0
+        if st.session_state.menu_index == 0:
+            notice_icon = 'megaphone-fill'
+        else:
+            notice_icon = 'megaphone'
         if st.session_state.userType == "admin":
             if st.session_state.userID == 1 and st.session_state.StationCN == "北京站":
                 system_da = True
             else:
                 system_da = False
             selected = sac.menu([
-                sac.MenuItem('公告', icon='megaphone'),
+                sac.MenuItem('公告', icon=notice_icon),
                 sac.MenuItem('主页', icon='house'),
                 sac.MenuItem('功能', icon='columns-gap', children=[
                     sac.MenuItem('工作量批量录入', icon='list-task'),
@@ -2753,7 +2758,7 @@ elif st.session_state.logged_in:
             ], open_index=[1, 2], index=st.session_state.menu_index)
         elif st.session_state.userType == "user":
             selected = sac.menu([
-                sac.MenuItem('公告', icon='megaphone'),
+                sac.MenuItem('公告', icon=notice_icon),
                 sac.MenuItem('主页', icon='house'),
                 sac.MenuItem('功能', icon='columns-gap', children=[
                     sac.MenuItem('工作量批量录入', icon='list-task'),
