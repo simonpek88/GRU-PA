@@ -46,7 +46,7 @@ class CharsImageGenerator(object):
             self.plate_width = 880  # 车牌的宽度
             self.char_interval = 24  # 字符间的间隔
             self.point_size = 20  # 第2个字符与第三个字符间有一个点, 该点的尺寸
-        elif plate_type == 'small_new_energy':
+        elif plate_type in ['small_new_energy', 'small_yellow_new_energy']:
             self.char_num = 8
             self.first_char_width = 90  # 第一个字符校正后的宽度
             self.char_width = 86  # 其余字符校正后宽度
@@ -59,7 +59,7 @@ class CharsImageGenerator(object):
     def generate_images(self, plate_num_str_list):
         if self.plate_type in ['single_blue', 'single_yellow', ]:
             plate_images = self.generate_440_140_plate(plate_num_str_list)
-        elif self.plate_type == 'small_new_energy':
+        elif self.plate_type in ['small_new_energy', 'small_yellow_new_energy']:
             plate_images = self.generate_440_140_plate(plate_num_str_list)
         else:
             raise ValueError('该类型车牌目前功能尚未完成！')
@@ -132,15 +132,21 @@ class CharsImageGenerator(object):
 class LicensePlateImageGenerator(object):
     """根据车牌类型生成底牌图片"""
     single_blue_plate_bg = './Images/license_plate/background/single_blue1.bmp'
+    single_yellow_plate_bg = './Images/license_plate/background/single_yellow1.bmp'
     small_new_energy_plate_bg = './Images/license_plate/background/small_new_energy.jpg'
+    small_new_energy_yellow_plate_bg = './Images/license_plate/background/big_new_energy.jpg'
 
     def __init__(self, plate_type):
         self.plate_type = plate_type
 
         if plate_type == 'single_blue':
             plate_image = imread_chinese(LicensePlateImageGenerator.single_blue_plate_bg)
+        elif plate_type == 'single_yellow':
+            plate_image = imread_chinese(LicensePlateImageGenerator.single_yellow_plate_bg)
         elif plate_type == 'small_new_energy':
             plate_image = imread_chinese(LicensePlateImageGenerator.small_new_energy_plate_bg)
+        elif plate_type == 'small_yellow_new_energy':
+            plate_image = imread_chinese(LicensePlateImageGenerator.small_new_energy_yellow_plate_bg)
         else:
             raise ValueError('该类型车牌目前功能尚未完成！')
 
@@ -160,7 +166,7 @@ class ImageAugmentation(object):
         if plate_type == 'single_blue':
             # 字符为白色
             self.is_black_char = False
-        elif plate_type in ['single_yellow', 'small_new_energy']:
+        elif plate_type in ['single_yellow', 'small_new_energy', 'small_yellow_new_energy']:
             # 字符为黑字
             self.is_black_char = True
         else:
@@ -285,8 +291,10 @@ def create_plate_image(vehicle_num_pack, brand_logo_pack, vehicle_type='燃油�
         ground_type = 'single_blue'
     elif vehicle_type == '燃油黄牌':
         ground_type = 'single_yellow'
-    elif vehicle_type == '新能源车':
+    elif vehicle_type == '新能源绿牌':
         ground_type = 'small_new_energy'
+    elif vehicle_type == '新能源黄牌':
+        ground_type = 'small_yellow_new_energy'
     else:
         ground_type = None
 
@@ -313,4 +321,5 @@ def create_plate_image(vehicle_num_pack, brand_logo_pack, vehicle_type='燃油�
                 img2.close()
 
 
-#create_plate_image(['京AA18226'], ['byd'], '新能源车')
+if __name__ == "__main__":
+    create_plate_image(['京K65158'], ['toyota'], '燃油蓝牌')
