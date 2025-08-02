@@ -2684,13 +2684,22 @@ def bonus_scene():
     vlp_folder = './Images/license_plate/user_vlp'
     col = st.columns(4)
     col_index = 0
-    sql = "SELECT userID, vehicle_model FROM vehicle_info order by userID"
+    sql = "SELECT userID, license_plate, vehicle_brand, vehicle_model FROM vehicle_info order by userID"
     rows = execute_sql(cur, sql)
     for row in rows:
-        vlp_file = f"{vlp_folder}/{row[0]}_{row[1]}.png"
+        vlp_vehicle_file = f"{vlp_folder}/{row[0]}_{row[1]}_{row[2]}_{row[3]}.png"
+        vlp_file = f"{vlp_folder}/{row[2]}_{row[1]}.png"
+        if os.path.exists(vlp_vehicle_file):
+            col[col_index % 4].image(vlp_vehicle_file)
         if os.path.exists(vlp_file):
             col[col_index % 4].image(vlp_file)
+        if os.path.exists(vlp_file) or os.path.exists(vlp_vehicle_file):
+            col[col_index % 4].divider()
             col_index += 1
+
+
+def temp_func():
+    pass
 
 
 global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME
