@@ -1,5 +1,10 @@
 # coding utf-8
 import os
+
+os.environ['CV_IO_DISABLE_PNG_CRC'] = '1'
+os.environ['PNG_WARNINGS'] = '0'
+os.environ['PNG_DISABLE_CHECKSUM'] = '1'
+
 import warnings
 
 import cv2
@@ -11,7 +16,8 @@ from PIL import Image, ImageDraw, ImageFont
 # cSpell:ignoreRegExp /\b[A-Z]\b/g
 
 # 忽略PNG警告
-warnings.filterwarnings("ignore", "(?s).*iCCP.*")
+warnings.filterwarnings("ignore", ".*iCCP.*")
+warnings.filterwarnings("ignore", ".*PNG.*")
 
 def imread_chinese(path):
     with open(path, 'rb') as f:
