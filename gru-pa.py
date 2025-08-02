@@ -1513,6 +1513,7 @@ def gen_chart():
 def input_public_notice():
     #st.markdown("### <font face='微软雅黑' color=green><center>公告发布</center></font>", unsafe_allow_html=True)
     st.subheader("公告发布", divider="red")
+
     col1, col2 = st.columns(2)
     query_date_start = col1.date_input('公告开始时间', value=datetime.date.today(), min_value="today")
     query_date_end = col2.date_input('公告结束时间', value=query_date_start + datetime.timedelta(days=15), min_value=query_date_start, max_value=query_date_start + datetime.timedelta(days=90))
@@ -1537,6 +1538,7 @@ def input_public_notice():
 def public_notice():
     #st.markdown("### <font face='微软雅黑' color=red><center>站内公告</center></font>", unsafe_allow_html=True)
     st.subheader("站内公告", divider="red")
+
     vlp_folder = './Images/license_plate/user_vlp'
     now = datetime.datetime.now()
     valid_time = now.strftime("%Y-%m-%d")
@@ -2634,7 +2636,7 @@ def qweather_logo():
 
 
 def get_vehicle_restrict():
-    restrict_info, gen_vp_pack, brand_logo_pack = [], [], []
+    restrict_info, gen_vp_pack, brand_logo_pack, vehicle_model_pack, userID_pack = [], [], [], [], []
     for i in range(2):
         query_date = cal_date(i)
         if is_workday(datetime.date.fromisoformat(query_date)):
@@ -2653,15 +2655,17 @@ def get_vehicle_restrict():
                             restrict_info.append(f':orange[明日限行] <{result[2]}> <{result[3]}> {result[0]}')
                         else:
                             restrict_info.append(f'今日限行 <{result[2]}> <{result[3]}> {result[0]}')
-    sql = f"SELECT license_plate, userCName, vehicle_brand from vehicle_info where StationCN = '{st.session_state.StationCN}' and vehicle_type = 0"
+    sql = f"SELECT license_plate, userCName, vehicle_brand, vehicle_model, userID from vehicle_info where StationCN = '{st.session_state.StationCN}' and vehicle_type = 0"
     results = execute_sql(cur, sql)
     if results:
         for result in results:
             if not os.path.exists(f"./Images/license_plate/{result[0]}.png"):
                 gen_vp_pack.append(result[0])
                 brand_logo_pack.append(result[2])
+                vehicle_model_pack.append(result[3])
+                userID_pack.append(result[4])
     if gen_vp_pack:
-        create_plate_image(gen_vp_pack, brand_logo_pack)
+        create_plate_image(gen_vp_pack, brand_logo_pack, vehicle_model_pack, userID_pack)
     if restrict_info:
         return restrict_info
 
@@ -2684,7 +2688,7 @@ def bonus_scene():
     vlp_folder = './Images/license_plate/user_vlp'
     col = st.columns(4)
     col_index = 0
-    sql = "SELECT userID, license_plate, vehicle_brand, vehicle_model FROM vehicle_info order by userID"
+    sql = f"SELECT userID, license_plate, vehicle_brand, vehicle_model FROM vehicle_info where StationCN = '{st.session_state.StationCN}' order by userID"
     rows = execute_sql(cur, sql)
     for row in rows:
         vlp_vehicle_file = f"{vlp_folder}/{row[0]}_{row[1]}_{row[2]}_{row[3]}.png"

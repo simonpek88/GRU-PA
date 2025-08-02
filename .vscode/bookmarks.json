@@ -162,6 +162,11 @@
 					"line": 2656,
 					"column": 58,
 					"label": "weather test"
+				},
+				{
+					"line": 2702,
+					"column": 16,
+					"label": "temp func"
 				}
 			]
 		},

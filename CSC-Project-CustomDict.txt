@@ -75,6 +75,7 @@ jscode
 JXQW
 keyactionlog
 keyup
+lavida
 levelname
 linecap
 linestyle
@@ -97,6 +98,7 @@ Objs
 obstime
 openpyxl
 oxml
+Passat
 pems
 phantomjs
 pickable

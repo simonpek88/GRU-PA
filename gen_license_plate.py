@@ -1,5 +1,6 @@
 # coding utf-8
 import os
+import warnings
 
 import cv2
 import numpy as np
@@ -8,6 +9,9 @@ from PIL import Image, ImageDraw, ImageFont
 # cSpell:ignoreRegExp /[^\s]{16,}/
 # cSpell:ignoreRegExp /\b[A-Z]{3,15}\b/g
 # cSpell:ignoreRegExp /\b[A-Z]\b/g
+
+# 忽略PNG警告
+warnings.filterwarnings("ignore", "(?s).*iCCP.*")
 
 def imread_chinese(path):
     with open(path, 'rb') as f:
@@ -285,8 +289,116 @@ class LicensePlateGenerator(object):
             i += 1
 
 
-def create_plate_image(vehicle_num_pack, brand_logo_pack, vehicle_type='燃油蓝牌'):
+def overlay_image_preserve_transparency(main_image_path, template_path, overlay_path, output_path=None, threshold=0.8):
+    try:
+        main_image_pil = Image.open(main_image_path)
+        # 确保是RGBA模式
+        if main_image_pil.mode != 'RGBA':
+            main_image_pil = main_image_pil.convert('RGBA')
+    except:
+        # 如果PIL无法读取，使用OpenCV读取并转换
+        main_image_bgr = imread_chinese(main_image_path)
+        main_image_rgb = cv2.cvtColor(main_image_bgr, cv2.COLOR_BGR2RGB)
+        main_image_pil = Image.fromarray(main_image_rgb).convert('RGBA')
+
+    # 读取OpenCV格式的主图用于模板匹配
+    main_image_cv = imread_chinese(main_image_path)
+    template_image = imread_chinese(template_path)
+
+    # 模板匹配
+    result = cv2.matchTemplate(main_image_cv, template_image, cv2.TM_CCOEFF_NORMED)
+    locations = np.where(result >= threshold)
+
+    # 获取模板尺寸
+    template_h, template_w = template_image.shape[:2]
+
+    # 读取需要覆盖的图片
+    try:
+        overlay_image = Image.open(overlay_path)
+        if overlay_image.mode != 'RGBA':
+            overlay_image = overlay_image.convert('RGBA')
+    except:
+        overlay_image_bgr = imread_chinese(overlay_path)
+        overlay_image_bgr = cv2.resize(overlay_image_bgr, (template_w, template_h))
+        overlay_image_rgb = cv2.cvtColor(overlay_image_bgr, cv2.COLOR_BGR2RGB)
+        overlay_image = Image.fromarray(overlay_image_rgb).convert('RGBA')
+
+    # 调整覆盖图片大小以匹配模板尺寸
+    overlay_image = overlay_image.resize((template_w, template_h), Image.Resampling.LANCZOS)
+
+    # 在找到的位置进行覆盖
+    match_found = False
+    for (x, y) in zip(*locations[::-1]):
+        # 确保坐标在合理范围内且x<70（根据你原来的条件）
+        if x < main_image_pil.width and y < main_image_pil.height and x < 70:
+            # 在主图上粘贴覆盖图片，保持透明度
+            main_image_pil.paste(overlay_image, (x, y), overlay_image)
+            match_found = True
+            break  # 只处理第一个匹配位置
+
+    # 保存结果
+    if match_found:
+        # 保存为PNG格式以保留透明度
+        main_image_pil.save(output_path, 'PNG')
+
+    return match_found
+
+
+def overlay_image_on_transparent_background(main_image_path, template_path, overlay_path, output_path=None, threshold=0.8):
+    main_image = Image.open(main_image_path)
+    if main_image.mode != 'RGBA':
+        main_image = main_image.convert('RGBA')
+
+    # 获取主图尺寸
+    main_w, main_h = main_image.size
+
+    # 创建透明背景，尺寸与主图相同
+    result_image = Image.new('RGBA', (main_w, main_h), (0, 0, 0, 0))
+
+    # 先粘贴主图
+    result_image.paste(main_image, (0, 0))
+
+    # 读取OpenCV格式的图片用于模板匹配
+    main_image_cv = imread_chinese(main_image_path)
+    template_image = imread_chinese(template_path)
+
+    # 模板匹配
+    result_cv = cv2.matchTemplate(main_image_cv, template_image, cv2.TM_CCOEFF_NORMED)
+    locations = np.where(result_cv >= threshold)
+
+    # 获取模板尺寸
+    template_h, template_w = template_image.shape[:2]
+
+    # 读取需要覆盖的图片
+    overlay_image = Image.open(overlay_path)
+    if overlay_image.mode != 'RGBA':
+        overlay_image = overlay_image.convert('RGBA')
+
+    # 调整覆盖图片大小以匹配模板尺寸
+    overlay_image = overlay_image.resize((template_w, template_h), Image.Resampling.LANCZOS)
+
+    # 在找到的位置进行覆盖
+    match_found = False
+    for (x, y) in zip(*locations[::-1]):
+        # 确保坐标在合理范围内且x<70
+        if x < main_w and y < main_h and x < 80 and x > 47 and y > 120 and y < 180:
+            # 在结果图上粘贴覆盖图片
+            result_image.paste(overlay_image, (x, y), overlay_image)
+            match_found = True
+            break  # 只处理第一个匹配位置
+
+    # 保存结果
+    if match_found:
+        result_image.save(output_path, 'PNG')
+
+    return match_found
+
+
+# 使用示例
+def create_plate_image(vehicle_num_pack, brand_logo_pack, vehicle_model_pack, userID_pack, vehicle_type='燃油蓝牌'):
     save_path = f"./Images/license_plate/user_vlp"
+    img_folder = './Images/license_plate/vehicle_model'
+    spec_model = ['passat', 'lavida', 'song_plus']
     if vehicle_type == '燃油蓝牌':
         ground_type = 'single_blue'
     elif vehicle_type == '燃油黄牌':
@@ -304,6 +416,8 @@ def create_plate_image(vehicle_num_pack, brand_logo_pack, vehicle_type='燃油�
             vlp_file = f"{save_path}/{value}.png"
             brand_logo_file = f"./Images/license_plate/vehicle_logo/{brand_logo_pack[index]}.png"
             vlp_brand_file = f"{save_path}/{brand_logo_pack[index]}_{value}.png"
+            vlp_model_template_file = f"{img_folder}/{vehicle_model_pack[index]}.png"
+            vlp_model_file = f"{save_path}/{userID_pack[index]}_{value}_{brand_logo_pack[index]}_{vehicle_model_pack[index]}.png"
             if not os.path.exists(vlp_brand_file) and os.path.exists(vlp_file) and os.path.exists(brand_logo_file):
                 img1 = Image.open(vlp_file)
                 img2 = Image.open(brand_logo_file)
@@ -319,7 +433,32 @@ def create_plate_image(vehicle_num_pack, brand_logo_pack, vehicle_type='燃油�
                 stitch_img.save(vlp_brand_file)
                 img1.close()
                 img2.close()
+            if not os.path.exists(vlp_model_file) and os.path.exists(vlp_file) and os.path.exists(vlp_model_template_file):
+                if vehicle_model_pack[index].lower() in spec_model:
+                    lp_template_file = f'{img_folder}/lp_template_{vehicle_model_pack[index].lower()}.png'
+                else:
+                    lp_template_file = f'{img_folder}/lp_template.png'
+                overlay_image_on_transparent_background(
+                    main_image_path=vlp_model_template_file,
+                    template_path=lp_template_file,
+                    overlay_path=vlp_file,
+                    output_path=vlp_model_file,
+                    threshold=0.4
+                )
 
 
-if __name__ == "__main__":
-    create_plate_image(['京HFR720'], ['dffx'], '燃油蓝牌')
+# 使用示例
+if __name__ == '__main__':
+    # 使用示例
+    #create_plate_image(['京HFR720'], ['dffx'], '燃油蓝牌')
+
+    img_folder = './Images/license_plate/vehicle_model'
+    # 在透明背景上合成主图和覆盖图
+    result = overlay_image_on_transparent_background(
+        main_image_path=f'{img_folder}/GLB220.png',
+        template_path=f'{img_folder}/lp_template.png',
+        overlay_path='./Images/license_plate/user_vlp/京K65158.png',
+        output_path=f'./Images/license_plate/user_vlp/test_vlp.png',
+        threshold=0.4
+    )
+    print(result)
