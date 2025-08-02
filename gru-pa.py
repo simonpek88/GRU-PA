@@ -1537,6 +1537,7 @@ def input_public_notice():
 def public_notice():
     #st.markdown("### <font face='微软雅黑' color=red><center>站内公告</center></font>", unsafe_allow_html=True)
     st.subheader("站内公告", divider="red")
+    vlp_folder = './Images/license_plate/user_vlp'
     now = datetime.datetime.now()
     valid_time = now.strftime("%Y-%m-%d")
     sql = f"SELECT notice from notices where StationCN = '{st.session_state.StationCN}' and start_time >= '{valid_time}' and '{valid_time}' <= end_time"
@@ -1556,12 +1557,12 @@ def public_notice():
             for each in vehicle_restrict_info:
                 st.markdown(f'#### {each[:each.find(" <")]}')
                 brand_logo = each[each.find(" <") + 2:each.rfind("> ")]
-                vp_brand_file = f"./Images/license_plate/{brand_logo}_{each[each.rfind('> ') + 2:].strip()}.png"
-                vp_file = f"./Images/license_plate/{each[each.rfind('> ') + 2:].strip()}.png"
-                if os.path.exists(vp_brand_file):
-                    st.image(vp_brand_file)
-                elif os.path.exists(vp_file):
-                    st.image(vp_file)
+                vlp_brand_file = f"{vlp_folder}/{brand_logo}_{each[each.rfind('> ') + 2:].strip()}.png"
+                vlp_file = f"{vlp_folder}/{each[each.rfind('> ') + 2:].strip()}.png"
+                if os.path.exists(vlp_brand_file):
+                    st.image(vlp_brand_file)
+                elif os.path.exists(vlp_file):
+                    st.image(vlp_file)
 
 
 @st.fragment

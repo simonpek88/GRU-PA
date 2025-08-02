@@ -286,7 +286,7 @@ class LicensePlateGenerator(object):
 
 
 def create_plate_image(vehicle_num_pack, brand_logo_pack, vehicle_type='燃油蓝牌'):
-    save_path = f"./Images/license_plate"
+    save_path = f"./Images/license_plate/user_vlp"
     if vehicle_type == '燃油蓝牌':
         ground_type = 'single_blue'
     elif vehicle_type == '燃油黄牌':
@@ -301,9 +301,9 @@ def create_plate_image(vehicle_num_pack, brand_logo_pack, vehicle_type='燃油�
     if ground_type:
         LicensePlateGenerator.generate_license_plate_images(ground_type, vehicle_num_pack, save_path)
         for index, value in enumerate(vehicle_num_pack):
-            vp_file = f"./Images/license_plate/{value}.png"
+            vp_file = f"{save_path}/{value}.png"
             brand_logo_file = f"./Images/license_plate/vehicle_logo/{brand_logo_pack[index]}.png"
-            vp_brand_file = f"./Images/license_plate/{brand_logo_pack[index]}_{value}.png"
+            vp_brand_file = f"{save_path}/{brand_logo_pack[index]}_{value}.png"
             if not os.path.exists(vp_brand_file) and os.path.exists(vp_file) and os.path.exists(brand_logo_file):
                 img1 = Image.open(vp_file)
                 img2 = Image.open(brand_logo_file)

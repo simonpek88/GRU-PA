@@ -106,6 +106,7 @@ pybadges
 pycryptodome
 pydeck
 pyecharts
+pyguetzli
 pylint
 pythoncom
 qcol
