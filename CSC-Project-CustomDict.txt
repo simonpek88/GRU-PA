@@ -41,6 +41,7 @@ dcol
 deepseek
 delUserFiles_
 dets
+dffx
 dmysql
 docxtopdf
 dyna

@@ -301,11 +301,11 @@ def create_plate_image(vehicle_num_pack, brand_logo_pack, vehicle_type='燃油�
     if ground_type:
         LicensePlateGenerator.generate_license_plate_images(ground_type, vehicle_num_pack, save_path)
         for index, value in enumerate(vehicle_num_pack):
-            vp_file = f"{save_path}/{value}.png"
+            vlp_file = f"{save_path}/{value}.png"
             brand_logo_file = f"./Images/license_plate/vehicle_logo/{brand_logo_pack[index]}.png"
-            vp_brand_file = f"{save_path}/{brand_logo_pack[index]}_{value}.png"
-            if not os.path.exists(vp_brand_file) and os.path.exists(vp_file) and os.path.exists(brand_logo_file):
-                img1 = Image.open(vp_file)
+            vlp_brand_file = f"{save_path}/{brand_logo_pack[index]}_{value}.png"
+            if not os.path.exists(vlp_brand_file) and os.path.exists(vlp_file) and os.path.exists(brand_logo_file):
+                img1 = Image.open(vlp_file)
                 img2 = Image.open(brand_logo_file)
                 # 确保两张图片都是RGBA模式以支持透明度
                 if img1.mode != 'RGBA':
@@ -316,10 +316,10 @@ def create_plate_image(vehicle_num_pack, brand_logo_pack, vehicle_type='燃油�
                 stitch_img = Image.new("RGBA", (img1.width + img2.width + 10, 72), (0, 0, 0, 0))
                 stitch_img.paste(img2, (0, 0))
                 stitch_img.paste(img1, (img2.width + 10, 0))
-                stitch_img.save(vp_brand_file)
+                stitch_img.save(vlp_brand_file)
                 img1.close()
                 img2.close()
 
 
 if __name__ == "__main__":
-    create_plate_image(['京K65158'], ['toyota'], '燃油蓝牌')
+    create_plate_image(['京HFR720'], ['dffx'], '燃油蓝牌')

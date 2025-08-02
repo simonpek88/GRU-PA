@@ -154,9 +154,9 @@
 					"label": "edit_task_content"
 				},
 				{
-					"line": 2613,
+					"line": 2635,
 					"column": 27,
-					"label": "get_vehicle_restrict"
+					"label": "vehicle_restrict"
 				},
 				{
 					"line": 2656,

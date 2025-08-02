@@ -1556,9 +1556,15 @@ def public_notice():
             vehicle_restrict_info = st.session_state.vehicle_restrict_info
             for each in vehicle_restrict_info:
                 st.markdown(f'#### {each[:each.find(" <")]}')
-                brand_logo = each[each.find(" <") + 2:each.rfind("> ")]
-                vlp_brand_file = f"{vlp_folder}/{brand_logo}_{each[each.rfind('> ') + 2:].strip()}.png"
-                vlp_file = f"{vlp_folder}/{each[each.rfind('> ') + 2:].strip()}.png"
+                brand_logo = each[each.find(" <") + 2:each.find("> ")]
+                vehicle_num = each[each.rfind('> ') + 2:]
+                temp = each.replace(f" <{brand_logo}> ", '')
+                model_name = temp[temp.find('<') + 1:temp.find('> ')]
+                vlp_model_file = f"{vlp_folder}/{st.session_state.userID}_{model_name}.png"
+                vlp_brand_file = f"{vlp_folder}/{brand_logo}_{vehicle_num}.png"
+                vlp_file = f"{vlp_folder}/{vehicle_num}.png"
+                if os.path.exists(vlp_model_file):
+                    st.image(vlp_model_file)
                 if os.path.exists(vlp_brand_file):
                     st.image(vlp_brand_file)
                 elif os.path.exists(vlp_file):
@@ -2633,7 +2639,7 @@ def get_vehicle_restrict():
         query_date = cal_date(i)
         if is_workday(datetime.date.fromisoformat(query_date)):
             query_wor = datetime.date.fromisoformat(query_date).weekday() + 1
-            sql = f"SELECT license_plate, userCName, vehicle_brand from vehicle_info where userID = {st.session_state.userID} and StationCN = '{st.session_state.StationCN}' and vehicle_type = 0"
+            sql = f"SELECT license_plate, userCName, vehicle_brand, vehicle_model from vehicle_info where userID = {st.session_state.userID} and StationCN = '{st.session_state.StationCN}' and vehicle_type = 0"
             results = execute_sql(cur, sql)
             if results:
                 for result in results:
@@ -2644,9 +2650,9 @@ def get_vehicle_restrict():
                     sql = f"SELECT ID from vehicle_restrict where wor = {query_wor} and tail_num = {user_last_plate} and start_time <= '{query_date}' and end_time >= '{query_date}' and StationCN = '{st.session_state.StationCN}'"
                     if execute_sql(cur, sql):
                         if i > 0:
-                            restrict_info.append(f':orange[明日限行] <{result[2]}> {result[0]}')
+                            restrict_info.append(f':orange[明日限行] <{result[2]}> <{result[3]}> {result[0]}')
                         else:
-                            restrict_info.append(f'今日限行 <{result[2]}> {result[0]}')
+                            restrict_info.append(f'今日限行 <{result[2]}> <{result[3]}> {result[0]}')
     sql = f"SELECT license_plate, userCName, vehicle_brand from vehicle_info where StationCN = '{st.session_state.StationCN}' and vehicle_type = 0"
     results = execute_sql(cur, sql)
     if results:
@@ -2671,6 +2677,20 @@ def update_vehicle_restrict(d1, d2, diff_days):
             wor = wor - 5
         sql = f"INSERT INTO vehicle_restrict (tail_num, start_time, end_time, wor, StationCN) VALUES ({row[0]}, '{d1}', '{d2}', {wor}, '{row[2]}')"
         #execute_sql_and_commit(conn, cur, sql)
+
+
+def bonus_scene():
+    st.subheader(":orange[站内车库]", divider="rainbow")
+    vlp_folder = './Images/license_plate/user_vlp'
+    col = st.columns(4)
+    col_index = 0
+    sql = "SELECT userID, vehicle_model FROM vehicle_info order by userID"
+    rows = execute_sql(cur, sql)
+    for row in rows:
+        vlp_file = f"{vlp_folder}/{row[0]}_{row[1]}.png"
+        if os.path.exists(vlp_file):
+            col[col_index % 4].image(vlp_file)
+            col_index += 1
 
 
 global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME
@@ -2753,6 +2773,7 @@ elif st.session_state.logged_in:
                     sac.MenuItem('Changelog', icon='h-square'),
                     sac.MenuItem('Readme', icon='clipboard'),
                     sac.MenuItem('About', icon='book'),
+                    sac.MenuItem('Bonus', icon='bootstrap'),
                     sac.MenuItem('LICENSE', icon='card-text'),
                 ]),
             ], open_index=[1, 2], index=st.session_state.menu_index)
@@ -2780,6 +2801,7 @@ elif st.session_state.logged_in:
                     sac.MenuItem('Changelog', icon='h-square'),
                     sac.MenuItem('Readme', icon='clipboard'),
                     sac.MenuItem('About', icon='book'),
+                    sac.MenuItem('Bonus', icon='bootstrap'),
                     sac.MenuItem('LICENSE', icon='card-text'),
                 ]),
             ], open_index=[1, 2], index=st.session_state.menu_index)
@@ -2865,5 +2887,7 @@ elif st.session_state.logged_in:
         aboutReadme()
     elif selected == "About":
         aboutInfo()
+    elif selected == "Bonus":
+        bonus_scene()
     elif selected == "LICENSE":
         aboutLicense()
