@@ -2659,7 +2659,7 @@ def get_vehicle_restrict():
     results = execute_sql(cur, sql)
     if results:
         for result in results:
-            if not os.path.exists(f"./Images/license_plate/{result[0]}.png"):
+            if not os.path.exists(f"./Images/license_plate/user_vlp/{result[0]}.png"):
                 gen_vp_pack.append(result[0])
                 brand_logo_pack.append(result[2])
                 vehicle_model_pack.append(result[3])
@@ -2783,11 +2783,11 @@ elif st.session_state.logged_in:
                     sac.MenuItem('登出', icon='box-arrow-right'),
                 ]),
                 sac.MenuItem('关于', icon='info-circle', children=[
-                    sac.MenuItem('Changelog', icon='h-square'),
-                    sac.MenuItem('Readme', icon='clipboard'),
-                    sac.MenuItem('About', icon='book'),
-                    sac.MenuItem('Bonus', icon='bootstrap'),
-                    sac.MenuItem('LICENSE', icon='card-text'),
+                    sac.MenuItem('更新历史', icon='h-square'),
+                    sac.MenuItem('自述', icon='clipboard'),
+                    sac.MenuItem('彩蛋', icon='bootstrap'),
+                    sac.MenuItem('关于', icon='book'),
+                    sac.MenuItem('许可证', icon='card-text'),
                 ]),
             ], open_index=[1, 2], index=st.session_state.menu_index)
         elif st.session_state.userType == "user":
@@ -2811,11 +2811,11 @@ elif st.session_state.logged_in:
                     sac.MenuItem('登出', icon='box-arrow-right'),
                 ]),
                 sac.MenuItem('关于', icon='info-circle', children=[
-                    sac.MenuItem('Changelog', icon='h-square'),
-                    sac.MenuItem('Readme', icon='clipboard'),
-                    sac.MenuItem('About', icon='book'),
-                    sac.MenuItem('Bonus', icon='bootstrap'),
-                    sac.MenuItem('LICENSE', icon='card-text'),
+                    sac.MenuItem('更新历史', icon='h-square'),
+                    sac.MenuItem('自述', icon='clipboard'),
+                    sac.MenuItem('彩蛋', icon='bootstrap'),
+                    sac.MenuItem('关于', icon='book'),
+                    sac.MenuItem('许可证', icon='card-text'),
                 ]),
             ], open_index=[1, 2], index=st.session_state.menu_index)
         st.divider()
@@ -2894,13 +2894,13 @@ elif st.session_state.logged_in:
         resetPassword()
     elif selected == "登出":
         logout()
-    elif selected == "Changelog":
+    elif selected == "更新历史":
         changelog()
-    elif selected == "Readme":
+    elif selected == "自述":
         aboutReadme()
-    elif selected == "About":
+    elif selected == "关于":
         aboutInfo()
-    elif selected == "Bonus":
+    elif selected == "彩蛋":
         bonus_scene()
-    elif selected == "LICENSE":
+    elif selected == "许可证":
         aboutLicense()
