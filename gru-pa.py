@@ -410,7 +410,7 @@ def task_input():
     expander_col = st.columns(2)
     # 常用任务
     with expander_col[0].expander(f"# :green[常用]", icon=':material/bookmark_star:', expanded=True):
-        sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task, pa_share, task_type from gru_pa where StationCN = '{st.session_state.StationCN}' and comm_task = {task_clerk_type} order by ID"
+        sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task, pa_share, task_type from gru_pa where task_valid = 1 and StationCN = '{st.session_state.StationCN}' and comm_task = {task_clerk_type} order by ID"
         rows2 = execute_sql(cur, sql)
         for row2 in rows2:
             show_task_list(row2, task_date, flag_auto_task, task_clerk_type)
@@ -432,7 +432,7 @@ def task_input():
     rows = execute_sql(cur, sql)
     expander_col_index = 1
     for row in rows:
-        sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task, pa_share, task_type from gru_pa where StationCN = '{st.session_state.StationCN}' and task_group = '{row[0]}' and comm_task <> {task_clerk_type} order by ID"
+        sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task, pa_share, task_type from gru_pa where task_valid = 1 and StationCN = '{st.session_state.StationCN}' and task_group = '{row[0]}' and comm_task <> {task_clerk_type} order by ID"
         rows2 = execute_sql(cur, sql)
         if rows2:
             if row[0] in task_group_icon:
