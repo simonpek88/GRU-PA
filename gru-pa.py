@@ -2716,6 +2716,13 @@ st.logo(image="./Images/logos/GRU-PA-logo.png", icon_image="./Images/logos/GRU-P
 selected = None
 
 if "logged_in" not in st.session_state:
+    if 'Windows' in st.context.headers['User-Agent']:
+        st.session_state.is_moble = False
+    else:
+        st.session_state.is_moble = True
+    if st.session_state.is_moble:
+        with open("./MyComponentsScript/mobile-style.css", "r", encoding="utf-8") as f:
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
     update_face_data()
     clean_snapshot()
     st.session_state.client_local = True if st.context.headers['host'].startswith('localhost') else False
