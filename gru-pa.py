@@ -63,8 +63,15 @@ def login():
             userID.append(row[0])
             userCName.append(row[1])
         query_userCName = st.selectbox("请选择用户", userCName, index=None)
+        st.session_state.password_login, login_index = True, 0
         if query_userCName is not None:
             userID = userID[userCName.index(query_userCName)]
+            sql = f"SELECT param_value from users_setup where param_name = 'password_login' and userID = {userID}"
+            row = execute_sql(cur, sql)
+            if row:
+                st.session_state.password_login = bool(row[0][0])
+                if not st.session_state.password_login:
+                    login_index = 1
         else:
             userID = None
         sql = f"SELECT Count(ID) from users_face_data where StationCN = '{station_type}'"
@@ -74,9 +81,9 @@ def login():
         userPassword = st.text_input("请输入密码", max_chars=8, placeholder="用户初始密码为1234", type="password", autocomplete="off")
         login_type = sac.segmented(
             items=[
-                sac.SegmentedItem(label="密码登录"),
+                sac.SegmentedItem(label="密码登录", disabled=not st.session_state.password_login),
                 sac.SegmentedItem(label="人脸识别登录", disabled=not face_login_available),
-            ], align="start", color='green'
+            ], align="start", color='green', index=login_index
         )
         # 登录按钮
         buttonLogin = st.button("登录")
