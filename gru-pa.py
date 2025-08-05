@@ -935,7 +935,8 @@ def reset_table_num(flag_force=False):
 def task_modify():
     #st.markdown("### <font face='微软雅黑' color=red><center>记录修改</center></font>", unsafe_allow_html=True)
     st.subheader("记录修改", divider="red")
-    sac.alert("已核定的记录无法修改和删除, 如若修改请联系管理员", icon="warning", banner=sac.Banner(play=True, direction='left', speed=150, pauseOnHover=True), closable=True)
+    if st.session_state.userType != 'admin':
+        sac.alert("已核定的记录无法修改和删除, 如若修改请联系管理员", icon="warning", banner=sac.Banner(play=True, direction='left', speed=150, pauseOnHover=True), closable=True)
     col1, col2, col3, col4 = st.columns(4)
     if st.session_state.userType == 'admin':
         userID, userCName = [], []
