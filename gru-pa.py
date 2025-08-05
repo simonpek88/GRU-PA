@@ -1087,10 +1087,15 @@ def check_data():
         userCName.append(row[1])
     query_date_start = col1.date_input('查询开始时间', value=datetime.date.today(), max_value="today")
     query_date_end = col2.date_input('查询结束时间', value=query_date_start, min_value=query_date_start, max_value="today")
+    col = st.columns(4)
     dur_time = query_date_end - query_date_start
     st.markdown(f'##### 统计周期: {dur_time.days + 1}天')
-    confirm_btn_check = col1.button("检查")
-    confirm_btn_approv = col2.button("核定")
+    confirm_btn_check = col[2].button("检查")
+    confirm_btn_approv = col[3].button("核定")
+    cert_userCName = col[0].selectbox("请选择核定用户", userCName)
+    cert_userID = userID[userCName.index(cert_userCName)]
+    with col[1]:
+        flag_all = sac.switch("全选", True)
     if confirm_btn_check:
         for index, value in enumerate(userID):
             sql = f"SELECT pa_content, min_days from gru_pa where StationCN = '{st.session_state.StationCN}' and min_days > 0 order by min_days DESC"
@@ -1102,7 +1107,10 @@ def check_data():
                     st.warning(f"用户: {userCName[index]} 工作: [{row[0]}] 应该 1次/{row[1]}天, 实际: {task_count}次 已超量, 请检查记录！")
     else:
         task_pack = []
-        sql = f"SELECT ID, clerk_cname, task_date, clerk_work, task_score, task_group from clerk_work where StationCN = '{st.session_state.StationCN}' and task_approved = 0 and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' order by task_date, task_group, clerk_work, clerk_cname, task_score"
+        if flag_all:
+            sql = f"SELECT ID, clerk_cname, task_date, clerk_work, task_score, task_group from clerk_work where StationCN = '{st.session_state.StationCN}' and task_approved = 0 and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' order by task_date, task_group, clerk_work, clerk_cname, task_score"
+        else:
+            sql = f"SELECT ID, clerk_cname, task_date, clerk_work, task_score, task_group from clerk_work where StationCN = '{st.session_state.StationCN}' and clerk_id = {cert_userID} and task_approved = 0 and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' order by task_date, task_group, clerk_work, clerk_cname, task_score"
         result = execute_sql(cur, sql)
         if result:
             for row in result:
@@ -1619,7 +1627,7 @@ def gd_weather_now_cache(city_code):
 
 def display_history_weather():
     #st.markdown("### <font face='微软雅黑' color=green><center>历史天气</center></font>", unsafe_allow_html=True)
-    st.subheader("历史天气", divider="rainbow")
+    st.subheader("历史天气查询", divider="rainbow")
     city_code = st.session_state.hf_city_code
     city_name = st.session_state.cityname
     sql = f"SELECT MIN(weather_date) from weather_history where city_code = '{city_code}'"
@@ -1629,10 +1637,12 @@ def display_history_weather():
     else:
         query_min_date = datetime.datetime.now() - datetime.timedelta(days=10)
         query_min_date = query_min_date.strftime('%Y-%m-%d')
-    query_date = st.date_input('查询时间', value=datetime.date.today() - datetime.timedelta(days=1), min_value=query_min_date, max_value=datetime.date.today() - datetime.timedelta(days=1))
-    query_date_convert = str(query_date).replace('-', '')
-    display_area = st.empty()
-    sql = f"SELECT sunrise, sunset, moonrise, moonset, moonPhase, tempMax, tempMin, humidity, pressure, moon_icon, temp_icon, humidity_icon, temp_hourly, windspeed_hourly, humidity_hourly, weather_icon_hourly, precip_hourly, windscale_hourly FROM weather_history WHERE city_code = '{city_code}' and weather_date = '{query_date}'"
+    col = st.columns(3)
+    query_date_start = col[0].date_input('查询开始时间', value=datetime.date.today() - datetime.timedelta(days=1), min_value=query_min_date, max_value=datetime.date.today() - datetime.timedelta(days=1))
+    query_date_end = col[1].date_input('查询结束时间', value=query_date_start, min_value=query_date_start, max_value="today")
+    query_temp_max = col[2].number_input('最高温度(°C)', value=35, min_value=25, max_value=50, step=1)
+    query_date_convert = str(query_date_start).replace('-', '')
+    sql = f"SELECT sunrise, sunset, moonrise, moonset, moonPhase, tempMax, tempMin, humidity, pressure, moon_icon, temp_icon, humidity_icon, temp_hourly, windspeed_hourly, humidity_hourly, weather_icon_hourly, precip_hourly, windscale_hourly FROM weather_history WHERE city_code = '{city_code}' and weather_date = '{query_date_start}'"
     cur.execute(sql)
     result = cur.fetchone()
     if result:
@@ -1658,28 +1668,34 @@ def display_history_weather():
             }
     else:
         weather_info = get_city_history_weather(city_code, query_date_convert)
-        sql = f"INSERT INTO weather_history (weather_date, city_code, city_name, sunrise, sunset, moonrise, moonset, moonPhase, tempMax, tempMin, humidity, pressure, moon_icon, temp_icon, humidity_icon, temp_hourly, weather_hourly, precip_hourly, windir_hourly, windscale_hourly, windspeed_hourly, humidity_hourly, pressure_hourly, weather_icon_hourly) VALUES ('{query_date}', '{city_code}', '{city_name}', '{weather_info['sunrise']}', '{weather_info['sunset']}', '{weather_info['moonrise']}', '{weather_info['moonset']}', '{weather_info['moonPhase']}', '{weather_info['tempMax']}', '{weather_info['tempMin']}', '{weather_info['humidity']}', '{weather_info['pressure']}', '{weather_info['moon_icon']}', '{weather_info['temp_icon']}', '{weather_info['humidity_icon']}', '{weather_info['temp_hourly']}', '{weather_info['weather_hourly']}', '{weather_info['precip_hourly']}', '{weather_info['windir_hourly']}', '{weather_info['windscale_hourly']}', '{weather_info['windspeed_hourly']}', '{weather_info['humidity_hourly']}', '{weather_info['pressure_hourly']}', '{weather_info['weather_icon_hourly']}')"
+        sql = f"INSERT INTO weather_history (weather_date, city_code, city_name, sunrise, sunset, moonrise, moonset, moonPhase, tempMax, tempMin, humidity, pressure, moon_icon, temp_icon, humidity_icon, temp_hourly, weather_hourly, precip_hourly, windir_hourly, windscale_hourly, windspeed_hourly, humidity_hourly, pressure_hourly, weather_icon_hourly) VALUES ('{query_date_start}', '{city_code}', '{city_name}', '{weather_info['sunrise']}', '{weather_info['sunset']}', '{weather_info['moonrise']}', '{weather_info['moonset']}', '{weather_info['moonPhase']}', '{weather_info['tempMax']}', '{weather_info['tempMin']}', '{weather_info['humidity']}', '{weather_info['pressure']}', '{weather_info['moon_icon']}', '{weather_info['temp_icon']}', '{weather_info['humidity_icon']}', '{weather_info['temp_hourly']}', '{weather_info['weather_hourly']}', '{weather_info['precip_hourly']}', '{weather_info['windir_hourly']}', '{weather_info['windscale_hourly']}', '{weather_info['windspeed_hourly']}', '{weather_info['humidity_hourly']}', '{weather_info['pressure_hourly']}', '{weather_info['weather_icon_hourly']}')"
         execute_sql_and_commit(conn, cur, sql)
+    data_col = st.columns(2)
     if weather_info:
-        with display_area.container(border=True):
-            weather_icon_pack, pre_weather_icon, weather_text = weather_info['weather_icon_hourly'].split('/'), '', ''
-            precip_pack = [float(value) for value in weather_info['precip_hourly'].split('/')]
-            windscale_pack = [int(value) for value in weather_info['windscale_hourly'].split('/')]
-            humidity_pack = [int(value) for value in weather_info['humidity_hourly'].split('/')]
-            windspeed_pack = [int(value) for value in weather_info['windspeed_hourly'].split('/')]
-            for index, value in enumerate(weather_icon_pack):
-                if value != pre_weather_icon:
-                    weather_text = weather_text + str(index) + '点 ' + value + ' '
-                    pre_weather_icon = value
-            windscale_pack.sort(reverse=True)
-            windspeed_pack.sort(reverse=True)
-            humidity_pack.sort(reverse=True)
-            st.markdown(f"##### 地区: {city_name} 温度: {weather_info['tempMax']} - {weather_info['tempMin']} °C {weather_info['temp_icon']}")
-            st.markdown(f"##### 天气: {weather_text.strip()}")
-            st.markdown(f"##### 降水: {int(sum(precip_pack))} mm 最大风力: {windscale_pack[0]} kts/ {windspeed_pack[0]} km/h")
-            st.markdown(f"##### 湿度: {humidity_pack[0]} - {humidity_pack[-1]}% {weather_info['humidity_icon']} 气压: {weather_info['pressure']} hPa")
-            st.markdown(f"##### 日升: {weather_info['sunrise']} 日落: {weather_info['sunset']}")
-            st.markdown(f"##### 月升: {weather_info['moonrise']} 月落: {weather_info['moonset']} 月相: {weather_info['moonPhase']} {weather_info['moon_icon']}")
+        with data_col[0]:
+            display_area = st.empty()
+            with display_area.container(border=False):
+                weather_icon_pack, pre_weather_icon, weather_text = weather_info['weather_icon_hourly'].split('/'), '', ''
+                precip_pack = [float(value) for value in weather_info['precip_hourly'].split('/')]
+                windscale_pack = [int(value) for value in weather_info['windscale_hourly'].split('/')]
+                humidity_pack = [int(value) for value in weather_info['humidity_hourly'].split('/')]
+                windspeed_pack = [int(value) for value in weather_info['windspeed_hourly'].split('/')]
+                for index, value in enumerate(weather_icon_pack):
+                    if value != pre_weather_icon:
+                        weather_text = weather_text + str(index) + '点 ' + value + ' '
+                        pre_weather_icon = value
+                windscale_pack.sort(reverse=True)
+                windspeed_pack.sort(reverse=True)
+                humidity_pack.sort(reverse=True)
+                st.markdown(f"#### :green[{query_date_start} 天气记录]")
+                st.markdown(f"##### 地区: {city_name} 温度: {weather_info['tempMax']} - {weather_info['tempMin']} °C {weather_info['temp_icon']}")
+                st.markdown(f"##### 天气: {weather_text.strip()}")
+                st.markdown(f"##### 降水: {int(sum(precip_pack))} mm 最大风力: {windscale_pack[0]} kts/ {windspeed_pack[0]} km/h")
+                st.markdown(f"##### 湿度: {humidity_pack[0]} - {humidity_pack[-1]}% {weather_info['humidity_icon']} 气压: {weather_info['pressure']} hPa")
+                st.markdown(f"##### 日升: {weather_info['sunrise']} 日落: {weather_info['sunset']}")
+                st.markdown(f"##### 月升: {weather_info['moonrise']} 月落: {weather_info['moonset']} 月相: {weather_info['moonPhase']} {weather_info['moon_icon']}")
+        st.subheader('')
+        st.markdown(f"##### :blue[{query_date_start} 天气曲线]")
         chart_col = st.columns(2)
         with chart_col[0]:
             plot_wind_speed_curve(weather_info['temp_hourly'].split('/'), weather_info['windspeed_hourly'].split('/'))
@@ -1687,6 +1703,19 @@ def display_history_weather():
             plot_data_curve(weather_info['humidity_hourly'].split('/'))
     else:
         st.info("未查询到历史天气记录")
+    sql = f"SELECT weather_date, tempMax, tempMin, humidity from weather_history WHERE tempMax >= {query_temp_max} and city_code = '{city_code}' and weather_date >= '{query_date_start}' and weather_date <= '{query_date_end}'"
+    results = execute_sql(cur, sql)
+    with data_col[1]:
+        display_area2 = st.empty()
+        with display_area2.container(border=False):
+            if results:
+                st.markdown(f"#### :red[{query_date_start} - {query_date_end} 高温天气记录]")
+                st.markdown(f"##### 共计{len(results)}天 分别是:")
+                for result in results:
+                    st.markdown(f"##### {result[0]} 温度: {result[1]} - {result[2]} °C 湿度: {result[3]}%")
+                st.markdown(":gray[数据源: NMC]")
+            else:
+                st.info("未查询到高温天气记录")
 
 
 def plot_wind_speed_curve(hourly_data1, hourly_data2):
@@ -2769,7 +2798,7 @@ elif st.session_state.logged_in:
                     sac.MenuItem('趋势图', icon='bar-chart-line'),
                     sac.MenuItem('数据检查与核定', icon='check2-all'),
                     sac.MenuItem('高级查询', icon='search'),
-                    sac.MenuItem('历史天气', icon='cloud-sun'),
+                    sac.MenuItem('历史天气查询', icon='cloud-sun'),
                     sac.MenuItem('公告发布', icon='journal-arrow-up'),
                 ]),
                 sac.MenuItem('数据库操作', icon='database-check', children=[
@@ -2814,7 +2843,7 @@ elif st.session_state.logged_in:
                     sac.MenuItem('记录修改', icon='journal-medical'),
                     sac.MenuItem('统计查询及导出', icon='clipboard-data'),
                     sac.MenuItem('趋势图', icon='bar-chart-line'),
-                    sac.MenuItem('历史天气', icon='cloud-sun'),
+                    sac.MenuItem('历史天气查询', icon='cloud-sun'),
                 ]),
                 sac.MenuItem('设置', icon='gear', children=[
                     sac.MenuItem('个人设置', icon='sliders2'),
@@ -2890,7 +2919,7 @@ elif st.session_state.logged_in:
         combine_query()
     elif selected == "公告发布":
         input_public_notice()
-    elif selected == "历史天气":
+    elif selected == "历史天气查询":
         display_history_weather()
     elif selected == "重置PA-Number" or selected == "重置工作组别" or selected == "更新ID初始值" or selected == "更新PA-Share" or selected == "更新固定分值" or selected == "组别名称修改" or selected == "分组内容调整" or selected == "工作内容修改" or selected == "数据库备份":
         modify_db(selected)
