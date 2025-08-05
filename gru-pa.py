@@ -1090,8 +1090,8 @@ def check_data():
     col = st.columns(4)
     dur_time = query_date_end - query_date_start
     st.markdown(f'##### 统计周期: {dur_time.days + 1}天')
-    confirm_btn_check = col[2].button("检查")
-    confirm_btn_approv = col[3].button("核定")
+    confirm_btn_approv = col[2].button("核定")
+    confirm_btn_check = col[3].button("检查")
     cert_userCName = col[0].selectbox("请选择核定用户", userCName)
     cert_userID = userID[userCName.index(cert_userCName)]
     with col[1]:
@@ -1121,7 +1121,11 @@ def check_data():
                     approve_id = each[each.rfind('ID:') + 3:].strip()
                     sql = f"UPDATE clerk_work SET task_approved = 1 where ID = {approve_id}"
                     execute_sql_and_commit(conn, cur, sql)
-                    st.success(f"{each} 工作量已核定")
+                st.markdown(f"##### {len(approve_pack)} 个工作量已核定")
+                sql = f"SELECT Count(ID) from clerk_work where task_approved = 1 and StationCN = '{st.session_state.StationCN}'"
+                result = execute_sql(cur, sql)[0][0]
+                sql = f"UPDATE verinfo set pyLM = {result} where pyFile = 'task_approved_counter'"
+                execute_sql_and_commit(conn, cur, sql)
         else:
             st.markdown(f'###### :red[无任何记录]')
 
@@ -1561,7 +1565,7 @@ def public_notice():
     result = execute_sql(cur, sql)
     if result:
         for index, row in enumerate(result, start=1):
-            st.markdown(f'##### 第{index}条. {row[0]}')
+            st.markdown(f'##### :orange[第{index}条. {row[0]}]')
     else:
         st.info("暂无系统公告")
     if st.session_state.vehicle_restrict:
