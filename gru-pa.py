@@ -1618,7 +1618,7 @@ def display_weather_gd(city_code):
             wcol[2].metric(label='湿度', value=f"{weather_info['humidity']}% {weather_info['humidity_icon']}")
             wcol[0].metric(label='风向', value=f"{weather_info['winddirection']}风")
             wcol[1].metric(label='风力', value=f"{weather_info['windpower']} km/s {weather_info['wind_icon']}")
-            wcol[2].metric(label='数据更新时间', value=f"{weather_info['reporttime'][5:]} 数据源: NMC")
+            wcol[2].metric(label='数据更新时间', value=f"{weather_info['reporttime'][5:]} 数据源: 国家气象中心")
             # 设置度量卡片的样式
             style_metric_cards(border_left_color="#8581d9")
 
@@ -1718,7 +1718,7 @@ def display_history_weather():
                 st.markdown(f"##### 共计{len(results)}天 分别是:")
                 for result in results:
                     st.markdown(f"##### {result[0]} 温度: {result[1]} - {result[2]} °C 湿度: {result[3]}%")
-                st.markdown(":gray[数据源: NMC]")
+                st.markdown(":gray[数据源: 国家气象中心]")
             else:
                 st.info("未查询到高温天气记录")
 
