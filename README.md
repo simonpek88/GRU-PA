@@ -4,8 +4,8 @@ Grass-roots unit performance appraisal system (GRU-PA).
 
 - Application Information
 
-    ![GRU-PA ver](https://img.shields.io/badge/ver-0.11.1162-blue.svg)
-    ![GRU-PA updated](https://img.shields.io/badge/updated-25/08/05%2016:55-orange.svg)
+    ![GRU-PA ver](https://img.shields.io/badge/ver-0.12.1214-blue.svg)
+    ![GRU-PA updated](https://img.shields.io/badge/updated-25/08/05%2022:02-orange.svg)
     ![GRU-PA build](https://img.shields.io/badge/build-passing-green.svg)
 
 ## 站室绩效考核系统GRU-PA 是一个前端基于 Streamlit 框架，后端基于Python数据处理的web应用，旨在简化站室工作量录入、统计及考核
@@ -94,9 +94,9 @@ Grass-roots unit performance appraisal system (GRU-PA).
     - background # 车牌生成背景图片
     - vehicle_logo # 汽车品牌logo
   - logos # 依赖库logo文件
-- MyComponentsScript # 自定义组件脚本, txt格式, 系统自动转换
+- MyComponentsScript # 自定义组件脚本, txt格式
 - MySQL_Backup # MySQL备份文件
-- user_pa # 用户导出文档 (不同步)
+- user_pa # 用户统计数据导出文档 (不同步)
 - README.md # 项目说明文件(本文件, Markdown格式)
 - CHANGELOG.md # 项目更新日志
 - requirements.txt # 自动安装依赖文件
@@ -111,17 +111,17 @@ Grass-roots unit performance appraisal system (GRU-PA).
 - 工作减分项录入
 - 记录修改
 - 统计查询及导出
-- 趋势图
+- 趋势图 (九种统计图表)
 - 数据检查与审核
-- 高级查询
+- 高级查询 (条件树SQL语句生成)
 - 人脸图片提交及验证
-- 历史天气
+- 历史天气及高温天气查询
 - 公告发布
 - 数据库操作及备份
 
 ## Features
 
-- 采用多种技术简化用户工作量
+- 采用多种技术简化用户工作量输入
 - 人脸识别登录
 
 ## Git Repository

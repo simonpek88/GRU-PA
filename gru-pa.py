@@ -1880,7 +1880,7 @@ def display_weather_hf_metric(city_code):
                             background-color: rgb(255, 255, 255);
                             box-shadow: rgba(0, 0, 0, 0.05) 0px 2px 4px;
                             text-align: left;
-                            height: 116px;
+                            height: 113px;
                             border-left: 8px solid rgb(66, 110, 221);
                             margin-bottom: 16px;
                             border-top: 1px solid lightgray;    /* 仅顶部边框 */
@@ -2883,7 +2883,7 @@ elif st.session_state.logged_in:
                     sac.MenuItem('登出', icon='box-arrow-right'),
                 ]),
                 sac.MenuItem('关于', icon='info-circle', children=[
-                    sac.MenuItem('更新历史', icon='h-square'),
+                    sac.MenuItem('更新日志', icon='h-square'),
                     sac.MenuItem('自述', icon='clipboard'),
                     sac.MenuItem('彩蛋', icon='bootstrap'),
                     sac.MenuItem('关于', icon='book'),
@@ -2911,7 +2911,7 @@ elif st.session_state.logged_in:
                     sac.MenuItem('登出', icon='box-arrow-right'),
                 ]),
                 sac.MenuItem('关于', icon='info-circle', children=[
-                    sac.MenuItem('更新历史', icon='h-square'),
+                    sac.MenuItem('更新日志', icon='h-square'),
                     sac.MenuItem('自述', icon='clipboard'),
                     sac.MenuItem('彩蛋', icon='bootstrap'),
                     sac.MenuItem('关于', icon='book'),
@@ -2994,7 +2994,7 @@ elif st.session_state.logged_in:
         resetPassword()
     elif selected == "登出":
         logout()
-    elif selected == "更新历史":
+    elif selected == "更新日志":
         changelog()
     elif selected == "自述":
         aboutReadme()
