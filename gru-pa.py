@@ -336,7 +336,7 @@ def aboutInfo():
     cols_limit = 5
     st.subheader("关于本软件", divider="rainbow")
     st.subheader(":blue[Powered by Python and Streamlit]")
-    module_pack = ['Python', 'MySQL', 'Streamlit', 'SAC', 'Pandas', 'NumPy', 'Plotly', 'Dlib', 'Openpyxl', 'Python-Docx']
+    module_pack = ['Python', 'MySQL', 'Streamlit', 'SAC', 'Pandas', 'NumPY', 'Plotly', 'Dlib', 'Openpyxl', 'Python-Docx']
     module_img = st.columns(cols_limit)
     for index, value in enumerate(module_pack):
         module_img[index % cols_limit].caption(value)
