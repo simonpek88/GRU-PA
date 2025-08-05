@@ -59,9 +59,9 @@
 					"label": "deduction_input"
 				},
 				{
-					"line": 815,
+					"line": 831,
 					"column": 19,
-					"label": "manual_input"
+					"label": "manual input"
 				},
 				{
 					"line": 893,
@@ -107,6 +107,11 @@
 					"line": 1781,
 					"column": 20,
 					"label": "combine_query"
+				},
+				{
+					"line": 1821,
+					"column": 41,
+					"label": "display_weather_hf_metric"
 				},
 				{
 					"line": 1846,

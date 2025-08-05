@@ -77,6 +77,7 @@ keyactionlog
 keyup
 lavida
 levelname
+lightgray
 linecap
 linestyle
 listinsheet

@@ -1854,8 +1854,60 @@ def display_weather_hf_metric(city_code):
             if weather_info['pf']:
                 weather_info['pf'] = weather_info['pf'].replace('降雨', '')
                 if weather_info['pf'].find('，') != -1:
-                    weather_info['pf'] = weather_info['pf'][:weather_info['pf'].find('，')]
-                wcol[3].metric(label='降水预测', value=f"{weather_info['pf']}")
+                    pass
+                    #weather_info['pf'] = weather_info['pf'][:weather_info['pf'].find('，')]
+                #wcol[3].metric(label='降水预测', value=f"{weather_info['pf']}")
+
+                # 精确匹配 st.metric 样式但缩小 value 字体
+                pf_length = len(weather_info['pf'])
+                # 根据长度确定字体大小
+                if pf_length <= 4:
+                    value_font_size = "24px"
+                elif pf_length <= 8:
+                    value_font_size = "22px"
+                elif pf_length <= 12:
+                    value_font_size = "20px"
+                else:
+                    value_font_size = "18px"
+                wcol[3].markdown(f"""
+                    <style>
+                        .custom-metric-container {{
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+                            padding: 16px;
+                            border-radius: 4px;
+                            background-color: rgb(255, 255, 255);
+                            box-shadow: rgba(0, 0, 0, 0.05) 0px 2px 4px;
+                            text-align: left;
+                            height: 116px;
+                            border-left: 8px solid rgb(66, 110, 221);
+                            margin-bottom: 16px;
+                            border-top: 1px solid lightgray;    /* 仅顶部边框 */
+                            border-right: 1px solid lightgray;  /* 仅右侧边框 */
+                            border-bottom: 1px solid lightgray; /* 仅底部边框 */
+                        }}
+                        .custom-metric-label {{
+                            font-size: 14px;
+                            color: rgba(0, 0, 0, 1.0);
+                            margin-bottom: 4px;
+                            font-weight: normal;
+                            margin-left: 18px; /* 向右移动 */
+                            margin-bottom: 9px; /* 向上移动 */
+                        }}
+                        .custom-metric-value {{
+                            font-size: {value_font_size}; /* 根据内容长度动态调整字体大小 */
+                            font-weight: 500;
+                            color: rgb(49, 51, 63);
+                            margin-left: 18px; /* 向右移动 */
+                            margin-bottom: 9px; /* 向上移动 */
+                        }}
+                    </style>
+                    <div class="custom-metric-container">
+                        <div class="custom-metric-label">降水预测</div>
+                        <div class="custom-metric-value">{weather_info['pf']}</div>
+                    </div>
+                """, unsafe_allow_html=True)                #wcol[3].metric(label='降水预测', value=f"{weather_info['pf']}")
             else:
                 wcol[3].metric(label='能见度', value=f"{weather_info['vis']} km {weather_info['vis_icon']}")
             st.markdown(f"{qweather_icon}数据更新时间: {weather_info['obstime'][5:-6].replace('T', ' ')} 数据源: NMC/ECMWF", unsafe_allow_html=True)
