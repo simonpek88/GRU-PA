@@ -1695,7 +1695,7 @@ def display_history_weather():
                 st.markdown(f"#### :green[{query_date_start} 天气记录]")
                 st.markdown(f"##### 地区: {city_name} 温度: {weather_info['tempMax']} - {weather_info['tempMin']} °C {weather_info['temp_icon']}")
                 st.markdown(f"##### 天气: {weather_text.strip()}")
-                st.markdown(f"##### 降水: {int(sum(precip_pack))} mm 最大风力: {windscale_pack[0]} kts/ {windspeed_pack[0]} km/h")
+                st.markdown(f"##### 降水: {int(sum(precip_pack))} mm 最大风力: {windscale_pack[0]} 级 - {windspeed_pack[0]} km/h")
                 st.markdown(f"##### 湿度: {humidity_pack[0]} - {humidity_pack[-1]}% {weather_info['humidity_icon']} 气压: {weather_info['pressure']} hPa")
                 st.markdown(f"##### 日升: {weather_info['sunrise']} 日落: {weather_info['sunset']}")
                 st.markdown(f"##### 月升: {weather_info['moonrise']} 月落: {weather_info['moonset']} 月相: {weather_info['moonPhase']} {weather_info['moon_icon']}")
@@ -1752,7 +1752,7 @@ def plot_wind_speed_curve(hourly_data1, hourly_data2):
     fig.update_layout(title_text='温度/风力曲线')
     fig.update_xaxes(title_text='小时')
     fig.update_yaxes(title_text='温度 (°C)', secondary_y=False)
-    fig.update_yaxes(title_text='风力 (m/s)', secondary_y=True)
+    fig.update_yaxes(title_text='风力 (km/h)', secondary_y=True)
 
     # 显示图表
     chart = st.empty()
