@@ -39,9 +39,9 @@
 					"label": "display_pypi"
 				},
 				{
-					"line": 364,
+					"line": 386,
 					"column": 17,
-					"label": "task input"
+					"label": "task_input"
 				},
 				{
 					"line": 515,
@@ -54,14 +54,14 @@
 					"label": "query_task"
 				},
 				{
-					"line": 610,
-					"column": 18,
-					"label": "task_modify"
-				},
-				{
 					"line": 831,
 					"column": 19,
 					"label": "manual input"
+				},
+				{
+					"line": 1033,
+					"column": 18,
+					"label": "task_modify"
 				},
 				{
 					"line": 1077,
@@ -74,14 +74,14 @@
 					"label": "gen_cal_chart"
 				},
 				{
-					"line": 1536,
-					"column": 20,
-					"label": "public_notice"
-				},
-				{
 					"line": 1657,
 					"column": 31,
 					"label": "auto_get_history_weather"
+				},
+				{
+					"line": 1661,
+					"column": 20,
+					"label": "public_notice"
 				},
 				{
 					"line": 1761,

@@ -491,6 +491,9 @@ def show_task_list(row2, task_date, flag_auto_task, task_clerk_type):
     if row2[5] > 0 and display_md_task:
         st.checkbox(f":red[{row2[1]} {title_score_info}:{row2[2]}]", value=auto_task, key=f"task_work_{row2[0]}")
     elif display_md_task:
+        if row2[1] == '每日记录检查':
+            if st.session_state.userID in [1, 7, 11]:
+                auto_task = True
         st.checkbox(f"{row2[1]} {title_score_info}:{row2[2]}", value=auto_task, key=f"task_work_{row2[0]}")
     task_col = st.columns(2)
     if row2[4] == 1:
@@ -510,6 +513,8 @@ def show_task_list(row2, task_date, flag_auto_task, task_clerk_type):
         sql = f"SELECT share_score from pa_share WHERE pa_id = {row2[0]} and share_date = '{task_date}'"
         cur.execute(sql)
         share_score = cur.fetchone()[0]
+        if share_score < 0:
+            share_score = 0
         if bool(row2[8]) and share_user_cname:
             share_score_value = share_score
         else:
@@ -1151,6 +1156,8 @@ def get_rem_share_score(task_modify_id, query_userID):
         rem_pa_share_result = execute_sql(cur, sql)
         if rem_pa_share_result:
             rem_share_score = rem_pa_share_result[0][0]
+            if rem_share_score < 0:
+                rem_share_score = 0
             return True, rem_share_score, org_score, org_date, pa_share_id, max_score
         else:
             return False, None, None, None, None, None
@@ -1628,9 +1635,7 @@ def gen_chart():
 
 
 def input_public_notice():
-    #st.markdown("### <font face='微软雅黑' color=green><center>公告发布</center></font>", unsafe_allow_html=True)
     st.subheader("公告发布", divider="red")
-
     col1, col2 = st.columns(2)
     query_date_start = col1.date_input('公告开始时间', value=datetime.date.today(), min_value="today")
     query_date_end = col2.date_input('公告结束时间', value=query_date_start + datetime.timedelta(days=15), min_value=query_date_start, max_value=query_date_start + datetime.timedelta(days=90))
@@ -1638,11 +1643,32 @@ def input_public_notice():
     display_area = st.empty()
     with display_area.container():
         public_text = st.text_area('请输入公告内容')
+
+    st.subheader("公告修改", divider="green")
+    col = st.columns(3)
+    notice_pack = []
+    now = datetime.datetime.now()
+    valid_time = now.strftime("%Y-%m-%d")
+    sql = f"SELECT notice, start_time, end_time, ID from notices where StationCN = '{st.session_state.StationCN}' and '{valid_time}' >= start_time and '{valid_time}' <= end_time"
+    result = execute_sql(cur, sql)
+    if result:
+        for row in result:
+            notice_pack.append(row[0])
+        select_notice = col[0].selectbox("请选择公告", notice_pack, index=0)
+        select_notice_index = notice_pack.index(select_notice)
+        modify_start_time = col[1].date_input("开始时间", value=result[select_notice_index][1])
+        modify_end_time = col[2].date_input("结束时间", value=result[select_notice_index][2])
+        st.markdown('##### :red[如果删除, 请在修改内容中键入大写的DELETE]')
+        modify_public_text = st.text_area(label='修改公告内容', value=select_notice)
+        confirm_btn_modify = st.button('修改')
+    else:
+        confirm_btn_modify = False
+
     if confirm_btn_public:
         now = datetime.datetime.now()
         pub_time = now.strftime("%Y-%m-%d %H:%M:%S")
         if public_text:
-            sql = f"SELECT ID from notices where StationCN = '{st.session_state.StationCN}' and notice = '{public_text}' and start_time <= '{query_date_start}' and end_time >= '{query_date_end}'"
+            sql = f"SELECT ID from notices where StationCN = '{st.session_state.StationCN}' and notice = '{public_text}'"
             if not execute_sql(cur, sql):
                 sql = f"INSERT INTO notices (notice, start_time, end_time, publisher, pub_time, StationCN) VALUES ('{public_text}', '{query_date_start}', '{query_date_end}', '{st.session_state.userCName}', '{pub_time}', '{st.session_state.StationCN}')"
                 execute_sql_and_commit(conn, cur, sql)
@@ -1650,6 +1676,15 @@ def input_public_notice():
                 st.success('公告添加成功')
         else:
             st.warning('请输入公告内容')
+    elif confirm_btn_modify:
+        if modify_public_text != 'DELETE':
+            sql = f"UPDATE notices set notice = '{modify_public_text}', start_time = '{modify_start_time}', end_time = '{modify_end_time}' where ID = {result[select_notice_index][3]} and StationCN = '{st.session_state.StationCN}'"
+            execute_sql_and_commit(conn, cur, sql)
+            st.success("修改成功")
+        else:
+            sql = f"DELETE FROM notices where ID = {result[select_notice_index][3]} and StationCN = '{st.session_state.StationCN}'"
+            execute_sql_and_commit(conn, cur, sql)
+            st.success("删除成功")
 
 
 def public_notice():
@@ -1659,7 +1694,7 @@ def public_notice():
     vlp_folder = './Images/license_plate/user_vlp'
     now = datetime.datetime.now()
     valid_time = now.strftime("%Y-%m-%d")
-    sql = f"SELECT notice from notices where StationCN = '{st.session_state.StationCN}' and start_time >= '{valid_time}' and '{valid_time}' <= end_time"
+    sql = f"SELECT notice from notices where StationCN = '{st.session_state.StationCN}' and '{valid_time}' >= start_time and '{valid_time}' <= end_time"
     result = execute_sql(cur, sql)
     if result:
         for index, row in enumerate(result, start=1):
