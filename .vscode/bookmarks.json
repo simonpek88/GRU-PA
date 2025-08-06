@@ -49,29 +49,19 @@
 					"label": "query_task"
 				},
 				{
+					"line": 537,
+					"column": 17,
+					"label": "query_task"
+				},
+				{
 					"line": 610,
 					"column": 18,
 					"label": "task_modify"
 				},
 				{
-					"line": 743,
-					"column": 22,
-					"label": "deduction_input"
-				},
-				{
 					"line": 831,
 					"column": 19,
 					"label": "manual input"
-				},
-				{
-					"line": 893,
-					"column": 18,
-					"label": "task_modify"
-				},
-				{
-					"line": 976,
-					"column": 54,
-					"label": "chart_type"
 				},
 				{
 					"line": 1077,
@@ -87,11 +77,6 @@
 					"line": 1536,
 					"column": 20,
 					"label": "public_notice"
-				},
-				{
-					"line": 1627,
-					"column": 30,
-					"label": "display_history_weather"
 				},
 				{
 					"line": 1657,

@@ -739,7 +739,8 @@ def query_task():
                 bottom=Side(style='thin')
             )
             special_columns = {
-                "A": 15
+                "A": 15,
+                "F": 22
             }
             for col in ws.columns:
                 max_width = 0
@@ -766,6 +767,102 @@ def query_task():
                         cell.alignment = alignment
                     else:
                         cell.alignment = Alignment(horizontal='left', vertical='center')
+
+            # 创建只包含小计行的简报sheet
+            df_brief = df_with_subtotals[df_with_subtotals['姓名'].str.startswith('小计')].copy()
+            # 去掉姓名中的"小计: "前缀
+            df_brief['姓名'] = df_brief['姓名'].str.replace('小计: ', '')
+            # 重命名列以匹配要求：ID，姓名，工作项数，分值合计和备注
+            df_brief.rename(columns={
+                '姓名': '姓名',
+                '项数': '工作项数',
+                '单项合计': '分值合计'
+            }, inplace=True)
+            # 添加ID列和备注列
+            df_brief.insert(0, 'ID', range(1, len(df_brief) + 1))
+            df_brief['备注'] = ''
+            # 只保留需要的列
+            df_brief = df_brief[['ID', '姓名', '工作项数', '分值合计', '备注']]
+
+            # 计算工作项数和分值合计的平均值
+            avg_work_count = df_brief['工作项数'].mean()
+            avg_score_total = df_brief['分值合计'].mean()
+
+            # 添加平均值行
+            avg_row = pd.DataFrame({
+                'ID': [''],
+                '姓名': ['平均值'],
+                '工作项数': [avg_work_count],
+                '分值合计': [avg_score_total],
+                '备注': ['']
+            })
+
+            # 将平均值行添加到DataFrame
+            df_brief = pd.concat([df_brief, avg_row], ignore_index=True)
+            df_brief.to_excel(writer, sheet_name='简报', index=False, startrow=1)
+            # 插入统计时间行
+            report_date_range2 = f"工作量统计简报 {query_date_start} 至 {query_date_end}"
+            # 对简报sheet进行格式化，使用与统计表相同的样式
+            ws2 = writer.sheets['简报']
+            # 合并 A1:F1，并设置样式
+            ws2.merge_cells("A1:E1")
+            cell = ws2["A1"]
+            cell.value = report_date_range2
+            # 设置页面为横向
+            ws2.page_setup.orientation = 'landscape'
+            # 添加页眉/页脚（页脚居中显示页码）
+            ws2.oddFooter.center.text = "&P / &N"
+            # 冻结第一行为标题行
+            ws2.print_title_rows = '1:1'
+            # 创建一个通用的对齐设置
+            alignment = Alignment(horizontal='center', vertical='center')
+            # 设置标题行样式
+            for cell in ws2[1]:
+                cell.font = Font(name="微软雅黑", size=14, bold=True)
+            # 设置正文其他行字体
+            for row in ws2.iter_rows(min_row=2):
+                for cell in row:
+                    cell.font = Font(name="微软雅黑", size=14)
+            # 定义边框样式（使用与统计表相同的边框样式）
+            thin_border = Border(
+                left=Side(style='thin'),
+                right=Side(style='thin'),
+                top=Side(style='thin'),
+                bottom=Side(style='thin')
+            )
+            special_columns = {
+                "A": 5,
+                "B": 15,
+                "C": 15,
+                "D": 15,
+                "E": 20
+            }
+            for col in ws2.columns:
+                max_width = 0
+                column = None
+                for cell in col:
+                    if isinstance(cell, MergedCell):
+                        continue
+                    column = cell.column_letter
+                    value = str(cell.value) if cell.value else ""
+                    # 使用 wcswidth 精确计算显示宽度
+                    width = wcswidth(value)
+                    if width > max_width:
+                        max_width = width
+                if column:
+                    if column in special_columns:
+                        ws2.column_dimensions[column].width = special_columns[column]
+                    else:
+                        ws2.column_dimensions[column].width = max_width + 2
+            # 添加边框到所有单元格
+            for row in ws2.iter_rows():
+                for cell in row:
+                    cell.border = thin_border
+                    if row[0].row == 1:
+                        cell.alignment = alignment
+                    else:
+                        cell.alignment = Alignment(horizontal='center', vertical='center')
+
         if os.path.exists(outputFile):
             with open(outputFile, "rb") as file:
                 content = file.read()
@@ -1886,6 +1983,27 @@ def display_weather_hf_metric(city_code):
                             border-top: 1px solid lightgray;    /* 仅顶部边框 */
                             border-right: 1px solid lightgray;  /* 仅右侧边框 */
                             border-bottom: 1px solid lightgray; /* 仅底部边框 */
+                        }}
+                        /* 针对小屏幕设备的响应式调整 */
+                        @media screen and (max-width: 768px) {{
+                            .custom-metric-container {{
+                                height: 90px;
+                            }}
+                        }}
+                        @media screen and (max-width: 480px) {{
+                            .custom-metric-container {{
+                                height: 80px;
+                            }}
+                        }}
+                        @media screen and (min-width: 1000px) {{
+                            .custom-metric-container {{
+                                height: 113px;
+                            }}
+                        }}
+                        @media screen and (min-width: 1200px) {{
+                            .custom-metric-container {{
+                                height: 127px;
+                            }}
                         }}
                         .custom-metric-label {{
                             font-size: 14px;
