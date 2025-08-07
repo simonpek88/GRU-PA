@@ -398,7 +398,7 @@ def task_input():
     with col1:
         flag_auto_task = sac.switch("自动选择日常工作", value=st.session_state.auto_task_check, align="start", on_label="On")
         flag_clerk_type = sac.switch("岗位工作类型", value=st.session_state.task_clerk_type, align="start", on_label="值班", off_label="白班")
-    task_date = col2.date_input('工作时间', value=datetime.date.today(), max_value="today")
+    task_date = col2.date_input('工作时间', value=datetime.date.today() - datetime.timedelta(days=1), max_value="today")
     confirm_btn_input = st.button("确认添加")
     ttl_score = 0
     sql = f"SELECT clerk_work, task_score, task_group from clerk_work where clerk_id = {st.session_state.userID} and task_date = '{task_date}'"
@@ -2507,6 +2507,12 @@ def modify_db(sub_func):
             if os.path.exists(backup_file):
                 backup_file_size = round(os.path.getsize(backup_file) / 1024, 1)
                 st.success(f"{backup_file[backup_file.rfind('/') + 1:-4]} 文件大小: {backup_file_size}KB 数据库备份完成")
+                with open(backup_file, "rb") as file:
+                    content = file.read()
+                file.close()
+                buttonDL = st.download_button("点击下载", content, file_name=backup_file[backup_file.rfind("/") + 1:], icon=":material/download:", type="secondary")
+                if buttonDL:
+                    st.toast("文件已下载至你的默认目录")
             else:
                 st.error("数据库备份失败")
 
