@@ -25,6 +25,7 @@ from plotly.subplots import make_subplots
 from pybadges import badge
 from streamlit_condition_tree import condition_tree
 from streamlit_extras.metric_cards import style_metric_cards
+from streamlit_vertical_slider import vertical_slider
 from streamlit_webrtc import WebRtcMode, webrtc_streamer
 from wcwidth import wcswidth
 
@@ -802,9 +803,11 @@ def query_task():
             df_brief = df_brief[['ID', '姓名', '工作项数', '分值合计', '备注']]
 
             # 计算工作项数和分值合计的平均值
-            avg_work_count = df_brief['工作项数'].mean()
-            avg_score_total = df_brief['分值合计'].mean()
-
+            avg_work_count = round(df_brief['工作项数'].mean(), 1)
+            avg_score_total = round(df_brief['分值合计'].mean(), 1)
+            # 计算工作项数和分值合计的中位数
+            median_work_count = round(df_brief['工作项数'].median(), 1)
+            median_score_total = round(df_brief['分值合计'].median(), 1)
             # 添加平均值行
             avg_row = pd.DataFrame({
                 'ID': [''],
@@ -813,9 +816,19 @@ def query_task():
                 '分值合计': [avg_score_total],
                 '备注': ['']
             })
+            # 添加中位数行
+            median_row = pd.DataFrame({
+                'ID': [''],
+                '姓名': ['中位数'],
+                '工作项数': [median_work_count],
+                '分值合计': [median_score_total],
+                '备注': ['']
+            })
 
             # 将平均值行添加到DataFrame
             df_brief = pd.concat([df_brief, avg_row], ignore_index=True)
+            # 将中位数行添加到DataFrame
+            df_brief = pd.concat([df_brief, median_row], ignore_index=True)
             df_brief.to_excel(writer, sheet_name='简报', index=False, startrow=1)
             # 插入统计时间行
             report_date_range2 = f"工作量统计简报 {query_date_start} 至 {query_date_end}"
@@ -2747,11 +2760,14 @@ def system_setup():
     #st.markdown("### <font face='微软雅黑' color=blue><center>系统设置</center></font>", unsafe_allow_html=True)
     st.subheader("系统设置", divider="red")
     btn_system_setup_update = st.button("更新系统设置")
-    col_limit = 3
-    col = st.columns(col_limit)
-    col_index = 0
     sql = f"SELECT param_value, param_name, userCName from users_setup where userID = -1 order by ID"
     results = execute_sql(cur, sql)
+    if len(results) <= 8:
+        col_limit = len(results)
+    else:
+        col_limit = 8
+    col = st.columns(col_limit)
+    col_index = 0
     for each in results:
         affix_info = ''
         if each[1] == 'max_deduct_score':
@@ -2759,12 +2775,28 @@ def system_setup():
         elif each[1] == 'chart_font_size':
             min_value, max_value, step_value = 10, 20, 1
         elif each[1] == 'md_task_days':
-            min_value, max_value, step_value = 28, 31, 1
+            min_value, max_value, step_value = 27, 31, 1
         elif each[1] == 'max_rev_days':
             min_value, max_value, step_value = 14, 60, 2
         elif each[1] == 'min_distance':
             min_value, max_value, step_value, affix_info = 50, 90, 2, '%'
-        st.session_state[each[1]] = col[col_index % col_limit].number_input(label=f'{each[2]}{affix_info}', value=each[0], min_value=min_value, max_value=max_value, step=step_value)
+        else:
+            min_value, max_value, step_value = 0, 100, 1
+        with col[col_index % col_limit]:
+            st.session_state[each[1]] = vertical_slider(
+                label = f"{each[2]}{affix_info}",  #Optional
+                #key = each[1],
+                height = 200, #Optional - Defaults to 300
+                thumb_shape = "square", #Optional - Defaults to "circle"
+                step = step_value, #Optional - Defaults to 1
+                default_value=each[0] ,#Optional - Defaults to 0
+                min_value= min_value, # Defaults to 0
+                max_value= max_value, # Defaults to 10
+                track_color = "#376DD7", #Optional - Defaults to Streamlit Red
+                #slider_color = ('red','blue'), #Optional
+                thumb_color= "orange", #Optional - Defaults to Streamlit Red
+                #value_always_visible = True ,#Optional - Defaults to False
+            )
         col_index += 1
     if btn_system_setup_update:
         for each in results:
