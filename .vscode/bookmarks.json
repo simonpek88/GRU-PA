@@ -39,7 +39,7 @@
 					"label": "display_pypi"
 				},
 				{
-					"line": 386,
+					"line": 419,
 					"column": 17,
 					"label": "task_input"
 				},
@@ -54,9 +54,9 @@
 					"label": "query_task"
 				},
 				{
-					"line": 831,
+					"line": 945,
 					"column": 19,
-					"label": "manual input"
+					"label": "manual_input"
 				},
 				{
 					"line": 1033,

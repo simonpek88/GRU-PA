@@ -383,6 +383,39 @@ def get_md_task_status(task_date, userID, task_content):
     return False
 
 
+@st.dialog("确认添加")
+def confirm_add_task(task_date):
+    st.markdown(f"### :red[请确认添加日期为: {task_date}]")
+    btn_col = st.columns(2)
+    btn_confirm = btn_col[0].button("确认", key="confirm_add_task", icon=":material/add_task:", use_container_width=True)
+    btn_cancel = btn_col[1].button("取消", key="cancel_add_task", icon=":material/cancel:", use_container_width=True)
+    if btn_confirm or btn_cancel:
+        if btn_confirm:
+            for key in st.session_state.keys():
+                if key.startswith("task_work_") and st.session_state[key]:
+                    #st.write(key, st.session_state[key])
+                    temp_task_multi = 1
+                    task_id = key[key.rfind("_") + 1:]
+                    sql = f"SELECT pa_content, pa_score, task_group from gru_pa where ID = {task_id}"
+                    task_result = execute_sql(cur, sql)
+                    task_content, task_score, task_group = task_result[0]
+                    if f'task_score_{task_id}' in st.session_state.keys():
+                        task_score = st.session_state[f'task_score_{task_id}']
+                    if f'task_multi_{task_id}' in st.session_state.keys():
+                        task_score *= st.session_state[f'task_multi_{task_id}']
+                        temp_task_multi = st.session_state[f'task_multi_{task_id}']
+                    sql = f"SELECT ID from clerk_work where task_date = '{task_date}' and clerk_id = {st.session_state.userID} and clerk_work = '{task_content}' and task_group = '{task_group}'"
+                    if not execute_sql(cur, sql):
+                        sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group, StationCN, task_multi) VALUES ('{task_date}', {st.session_state.userID}, '{st.session_state.userCName}', '{task_content}', {task_score}, '{task_group}', '{st.session_state.StationCN}', {temp_task_multi})"
+                        execute_sql_and_commit(conn, cur, sql)
+                        st.toast(f"工作量: [{task_content}] 分值: [{task_score}] 添加成功！")
+                        sql = f"UPDATE pa_share set share_score = share_score - {task_score} where pa_ID = {task_id} and StationCN = '{st.session_state.StationCN}' and share_date = '{task_date}'"
+                        execute_sql_and_commit(conn, cur, sql)
+                    else:
+                        st.toast(f"工作量: [{task_content}] 已存在！")
+        st.rerun()
+
+
 @st.fragment
 def task_input():
     #st.markdown("### <font face='微软雅黑' color=red><center>工作量录入</center></font>", unsafe_allow_html=True)
@@ -451,28 +484,7 @@ def task_input():
                     show_task_list(row2, task_date, flag_auto_task, task_clerk_type)
             expander_col_index += 1
     if confirm_btn_input:
-        for key in st.session_state.keys():
-            if key.startswith("task_work_") and st.session_state[key]:
-                #st.write(key, st.session_state[key])
-                temp_task_multi = 1
-                task_id = key[key.rfind("_") + 1:]
-                sql = f"SELECT pa_content, pa_score, task_group from gru_pa where ID = {task_id}"
-                task_result = execute_sql(cur, sql)
-                task_content, task_score, task_group = task_result[0]
-                if f'task_score_{task_id}' in st.session_state.keys():
-                    task_score = st.session_state[f'task_score_{task_id}']
-                if f'task_multi_{task_id}' in st.session_state.keys():
-                    task_score *= st.session_state[f'task_multi_{task_id}']
-                    temp_task_multi = st.session_state[f'task_multi_{task_id}']
-                sql = f"SELECT ID from clerk_work where task_date = '{task_date}' and clerk_id = {st.session_state.userID} and clerk_work = '{task_content}' and task_group = '{task_group}'"
-                if not execute_sql(cur, sql):
-                    sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group, StationCN, task_multi) VALUES ('{task_date}', {st.session_state.userID}, '{st.session_state.userCName}', '{task_content}', {task_score}, '{task_group}', '{st.session_state.StationCN}', {temp_task_multi})"
-                    execute_sql_and_commit(conn, cur, sql)
-                    st.toast(f"工作量: [{task_content}] 分值: [{task_score}] 添加成功！")
-                    sql = f"UPDATE pa_share set share_score = share_score - {task_score} where pa_ID = {task_id} and StationCN = '{st.session_state.StationCN}' and share_date = '{task_date}'"
-                    execute_sql_and_commit(conn, cur, sql)
-                else:
-                    st.warning(f"工作量: [{task_content}] 已存在！")
+        confirm_add_task(task_date)
 
 
 def show_task_list(row2, task_date, flag_auto_task, task_clerk_type):
@@ -557,7 +569,7 @@ def query_task():
         col1.markdown(f"##### 当前用户: :blue[{st.session_state.userCName}]")
         query_userCName = st.session_state.userCName
         query_userID = st.session_state.userID
-    query_date_start = col2.date_input('查询开始时间', value=datetime.date.today(), max_value="today")
+    query_date_start = col2.date_input('查询开始时间', value=datetime.date.today() - datetime.timedelta(days=1), max_value="today")
     query_date_end = col3.date_input('查询结束时间', value=query_date_start, min_value=query_date_start, max_value="today")
     col4, col5, col6, col7 = st.columns(4)
     confirm_btn_output = col4.button("导出为Word文件")
@@ -953,7 +965,7 @@ def manual_input():
     rows = execute_sql(cur, sql)
     for row in rows:
         items.append(row[0])
-    task_date = col2.date_input('工作时间', value=datetime.date.today(), max_value="today")
+    task_date = col2.date_input('工作时间', value=datetime.date.today() - datetime.timedelta(days=1), max_value="today")
     task_group = col3.selectbox('工作组别', items, index=None, accept_new_options=True)
     task_score = col4.number_input("单项分值", min_value=1, max_value=300, value=10, step=1)
     if st.session_state.userType == 'admin':
@@ -1053,7 +1065,7 @@ def task_modify():
         col1.markdown(f"##### 当前用户: :blue[{st.session_state.userCName}]")
         query_userID = st.session_state.userID
         query_userCName = st.session_state.userCName
-    query_date_start = col2.date_input('查询开始时间', value=datetime.date.today(), max_value="today")
+    query_date_start = col2.date_input('查询开始时间', value=datetime.date.today() - datetime.timedelta(days=1), max_value="today")
     query_date_end = col3.date_input('查询结束时间', value=query_date_start, min_value=query_date_start, max_value="today")
     user_task_id_pack = []
     ttl_score = 0
@@ -1190,7 +1202,7 @@ def check_data():
     for row in rows:
         userID.append(row[0])
         userCName.append(row[1])
-    query_date_start = col1.date_input('查询开始时间', value=datetime.date.today(), max_value="today")
+    query_date_start = col1.date_input('查询开始时间', value=datetime.date.today() - datetime.timedelta(days=1), max_value="today")
     query_date_end = col2.date_input('查询结束时间', value=query_date_start, min_value=query_date_start, max_value="today")
     col = st.columns(4)
     dur_time = query_date_end - query_date_start
@@ -1298,7 +1310,7 @@ def deduction_input():
         userCName.append(row[1])
     deduct_userCName = col1.selectbox("请选择用户", userCName)
     deduct_userID = userID[userCName.index(deduct_userCName)]
-    deduct_date = col2.date_input("请选择日期", datetime.date.today(), max_value="today")
+    deduct_date = col2.date_input("请选择日期", datetime.date.today() - datetime.timedelta(days=1), max_value="today")
     sql = f"SELECT pa_content, pa_score from gru_pa_deduct where StationCN = '{st.session_state.StationCN}' order by pa_score, pa_content"
     rows = execute_sql(cur, sql)
     for row in rows:
@@ -1353,7 +1365,7 @@ def gen_chart():
         col1.markdown(f"##### 当前用户: :blue[{st.session_state.userCName}]")
         query_userCName = st.session_state.userCName
         query_userID = st.session_state.userID
-    query_date_start = col2.date_input('查询开始时间', value=datetime.date.today(), max_value="today")
+    query_date_start = col2.date_input('查询开始时间', value=datetime.date.today() - datetime.timedelta(days=1), max_value="today")
     query_date_end = col3.date_input('查询结束时间', value=query_date_start, min_value=query_date_start, max_value="today")
     if st.session_state.userType == 'admin':
         with col1:
