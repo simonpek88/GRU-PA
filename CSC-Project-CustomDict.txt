@@ -104,6 +104,7 @@ Passat
 pems
 phantomjs
 pickable
+pixi
 platech
 platechar
 precip

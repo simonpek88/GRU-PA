@@ -14,6 +14,7 @@ codestral
 codz
 Connor
 coverfile
+cpython
 cursorignore
 cursorindexingignore
 Cython
@@ -32,6 +33,7 @@ dlib
 dmypy
 dyna
 edidx
+envrc
 filesin
 forecolor
 fromarray
@@ -50,6 +52,7 @@ isort
 jieba
 LIGHTMAGENTA
 linalg
+Marimo
 maxcached
 maxconnections
 Meslo

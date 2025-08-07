@@ -6,10 +6,10 @@ import time
 import cv2
 import face_recognition
 import numpy as np
+from mysql_pool_cpython import get_connection  # type: ignore
 
 import dlib
 from commFunc import execute_sql, execute_sql_and_commit
-from mysql_pool import get_connection
 
 # cSpell:ignoreRegExp /[^\s]{16,}/
 # cSpell:ignoreRegExp /\b[A-Z]{3,15}\b/g

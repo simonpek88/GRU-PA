@@ -76,7 +76,7 @@ Grass-roots unit performance appraisal system (GRU-PA).
 - .streamlit/config.toml # Streamlit配置文件, 默认端口8510([修改前请查阅相关文档](https://docs.streamlit.io/develop/api-reference/configuration/config.toml))
 - .mysql.cnf # MySQL配置文件
 - gru-pa.py # 入口文件及主程序 All in one
-- mysql_pool.py # MySQL连接池模块(不同步)
+- mysql_pool_cpython.pyc # MySQL连接池模块(不同步)
 - commFunc.py # 公共函数模块
 - gen_badges.py # 徽章生成模块
 - face_login.py # 人脸登录模块

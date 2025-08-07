@@ -1,6 +1,6 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
-*.py
+*.py[codz]
 *$py.class
 
 # C extensions
@@ -17,6 +17,7 @@ ID_Photos/snapshot_*.jpg
 Images/license_plate/user_vlp/test_*
 FaceCompare.py
 *.pem
+*.backup
 mysql_pool.py
 test*.py
 ~$*

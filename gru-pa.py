@@ -19,6 +19,7 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Pt, RGBColor
+from mysql_pool_cpython import get_connection  # type: ignore
 from openpyxl.cell import MergedCell
 from openpyxl.styles import Alignment, Border, Font, Side
 from plotly.subplots import make_subplots
@@ -40,7 +41,6 @@ from gen_license_plate import create_plate_image
 from hf_weather import (get_city_aqi, get_city_history_weather,
                         get_city_now_weather, get_city_pf_weather,
                         get_city_warning_now)
-from mysql_pool import get_connection
 
 # cSpell:ignoreRegExp /[^\s]{16,}/
 # cSpell:ignoreRegExp /\b[A-Z]{3,15}\b/g

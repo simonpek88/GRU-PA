@@ -8,8 +8,7 @@ from hashlib import md5
 import jwt
 from Crypto import Random
 from Crypto.Cipher import AES
-
-from mysql_pool import get_connection
+from mysql_pool_cpython import get_connection  # type: ignore
 
 # cSpell:ignoreRegExp /[^\s]{16,}/
 # cSpell:ignoreRegExp /\b[A-Z]{3,15}\b/g
