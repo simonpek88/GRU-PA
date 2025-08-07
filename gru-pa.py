@@ -999,24 +999,24 @@ def manual_input():
     task_content = st.text_area("工作内容", height=100)
     confirm_btn_manual = st.button("确认添加")
     if task_group and task_content and confirm_btn_manual:
-        sql = f"SELECT ID from clerk_work where task_date = '{task_date}' and clerk_id = {add_userID} and clerk_work = '{task_content}' and task_group = '{task_group}'"
+        sql = f"SELECT ID from clerk_work where task_date = '{task_date}' and clerk_id = {add_userID} and clerk_work = '{task_content}'"
         if not execute_sql(cur, sql):
             sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group, StationCN) VALUES ('{task_date}', {add_userID}, '{add_userCName}', '{task_content}', {task_score}, '{task_group}', '{st.session_state.StationCN}')"
             execute_sql_and_commit(conn, cur, sql)
             st.toast(f"用户: :green[{add_userCName}] 工作量: :blue[{task_content}] 添加成功！")
+            if flag_add_pa:
+                sql = f"SELECT ID from gru_pa where StationCN = '{st.session_state.StationCN}' and pa_content = '{task_content}' and pa_score = {task_score}"
+                if not execute_sql(cur, sql):
+                    sql = f"INSERT INTO gru_pa (pa_content, pa_score, pa_group, task_group, multi_score, default_task, comm_task, StationCN, pa_share, task_type) VALUES ('{task_content}', {task_score}, '全员', '{task_group}', {int(flag_multi_score)}, {int(flag_default_task)}, {int(flag_comm_task)}, '{st.session_state.StationCN}', {int(flag_share_score)}, {int(flag_task_type)})"
+                    execute_sql_and_commit(conn, cur, sql)
+                    reset_table_num(True)
+                    st.toast(f"工作量: :blue[{task_content}] 添加至列表成功！")
+                else:
+                    st.warning(f"工作量: :blue[{task_content}] 在列表中已存在！")
+            if flag_share_score:
+                update_pa_share(task_date)
         else:
             st.warning(f"工作量: :blue[{task_content}] 已存在！")
-        if flag_add_pa:
-            sql = f"SELECT ID from gru_pa where StationCN = '{st.session_state.StationCN}' and pa_content = '{task_content}' and task_group = '{task_group}' and pa_score = {task_score}"
-            if not execute_sql(cur, sql):
-                sql = f"INSERT INTO gru_pa (pa_content, pa_score, pa_group, task_group, multi_score, default_task, comm_task, StationCN, pa_share, task_type) VALUES ('{task_content}', {task_score}, '全员', '{task_group}', {int(flag_multi_score)}, {int(flag_default_task)}, {int(flag_comm_task)}, '{st.session_state.StationCN}', {int(flag_share_score)}, {int(flag_task_type)})"
-                execute_sql_and_commit(conn, cur, sql)
-                reset_table_num(True)
-                st.toast(f"工作量: :blue[{task_content}] 添加至列表成功！")
-            else:
-                st.warning(f"工作量: :blue[{task_content}] 在列表中已存在！")
-        if flag_share_score:
-            update_pa_share(task_date)
     elif not task_group:
         st.warning(f"请选择工作组！")
     elif not task_content:
