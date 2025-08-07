@@ -16,10 +16,12 @@ Images/badges/GRU-PA-lm-badge.svg
 ID_Photos/snapshot_*.jpg
 Images/license_plate/user_vlp/test_*
 FaceCompare.py
+.mysql.cnf
 *.pem
 *.backup
 mysql_pool.py
 test*.py
+*.pyc
 ~$*
 Images/badges/Python-badge.svg
 # Distribution / packaging
