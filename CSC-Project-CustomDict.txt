@@ -25,6 +25,7 @@ clocktype
 Cmder
 cnaf
 commquestions
+compileall
 createtextfile
 crsetup
 dasetup

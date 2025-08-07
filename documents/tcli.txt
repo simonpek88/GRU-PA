@@ -1,2 +1,4 @@
 git rm --cached .\Images\badges\GRU-PA-badge.svg
 git rm --cached .\Images\badges\GRU-PA-lm-badge.svg
+
+python -m compileall

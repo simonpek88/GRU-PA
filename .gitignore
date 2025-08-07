@@ -1,6 +1,6 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[codz]
+*.py
 *$py.class
 
 # C extensions
@@ -18,16 +18,9 @@ Images/license_plate/user_vlp/test_*
 FaceCompare.py
 *.pem
 mysql_pool.py
-thw_gauge.png
-README2.md
-MyComponentsScript/thw.html
 test*.py
-temp_humidity_windspeed_gauge.html
 ~$*
 Images/badges/Python-badge.svg
-etest.py
-LLMonitor.py
-hot-cap.py
 # Distribution / packaging
 .Python
 build/
