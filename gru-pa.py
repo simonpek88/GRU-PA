@@ -25,6 +25,7 @@ from plotly.subplots import make_subplots
 from pybadges import badge
 from streamlit_condition_tree import condition_tree
 from streamlit_extras.metric_cards import style_metric_cards
+from streamlit_searchbox import st_searchbox
 from streamlit_vertical_slider import vertical_slider
 from streamlit_webrtc import WebRtcMode, webrtc_streamer
 from wcwidth import wcswidth
@@ -445,6 +446,47 @@ def task_input():
         st.markdown(f':red[总分:] {ttl_score}')
     else:
         st.markdown(f'###### :red[无任何记录]')
+    st.divider()
+    clerk_work_pack = []
+    sql = f"SELECT pa_content, pa_score, task_group, multi_score, pa_share, default_task, min_days from gru_pa where task_valid = 1 and StationCN = '{st.session_state.StationCN}'"
+    result = execute_sql(cur, sql)
+    for row in result:
+        temp_info_all = ''
+        if bool(row[3]):
+            temp_info = '可多倍'
+        else:
+            temp_info = '单倍'
+        temp_info_all = temp_info_all + f"分值倍数:{temp_info} "
+        if bool(row[4]):
+            temp_info = '共享'
+        else:
+            temp_info = '独占'
+        temp_info_all = temp_info_all + f"分值类型:{temp_info} "
+        if row[5] == 0:
+            temp_info = '非默认'
+        else:
+            temp_info = '默认'
+        temp_info_all = temp_info_all + f"默认工作:{temp_info} "
+        if row[6] > 0:
+            temp_info = '非常规'
+        else:
+            temp_info = '常规'
+        temp_info_all = temp_info_all + f"工作类别:{temp_info} "
+        clerk_work_pack.append(f"工作:{row[0]} 分值:{row[1]} {temp_info_all}")
+
+    # 定义搜索函数，接受 clerk_work_pack 作为参数
+    def search_clerk_work(searchterm: str, clerk_work_pack=clerk_work_pack) -> list:
+        if not searchterm:
+            return []
+        return [item for item in clerk_work_pack if searchterm.lower() in item.lower()]
+
+    st_searchbox(
+        search_clerk_work,
+        label="工作内容搜索",
+        placeholder="请输入查询内容, 仅限工作内容",
+        key="search_clerk_work",
+    )
+
     # 更新共享分
     update_pa_share(task_date)
     task_clerk_type = 1 if flag_clerk_type else 2

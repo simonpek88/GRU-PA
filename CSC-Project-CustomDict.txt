@@ -130,6 +130,7 @@ rgba
 root
 rowid
 scol
+searchterm
 selectbox
 simhei
 SimonX

@@ -44,16 +44,6 @@
 					"label": "task_input"
 				},
 				{
-					"line": 515,
-					"column": 17,
-					"label": "query_task"
-				},
-				{
-					"line": 537,
-					"column": 17,
-					"label": "query_task"
-				},
-				{
 					"line": 945,
 					"column": 19,
 					"label": "manual_input"
