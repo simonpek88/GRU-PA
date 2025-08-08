@@ -107,5 +107,4 @@ def gen_github_commit_badge():
                 file.write(svg_content)
 
     except requests.exceptions.RequestException as e:
-        # 记录请求相关的错误，便于调试
-        print(f"请求失败: {e}")
+        pass
