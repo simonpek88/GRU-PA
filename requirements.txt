@@ -18,5 +18,6 @@ streamlit-antd-components==0.3.2
 streamlit-condition-tree==0.3.0
 streamlit-extras==0.7.5
 streamlit-nivo==0.1.8
+streamlit_searchbox==0.1.22
 streamlit-vertical-slider==2.5.5
 streamlit-webrtc==0.63.3

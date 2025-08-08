@@ -2113,7 +2113,7 @@ def pf_markdown_str(pf):
                     height: 113px;
                 }}
             }}
-            @media screen and (min-width: 1200px) {{
+            @media screen and (min-width: 1800px) {{
                 .custom-metric-container {{
                     height: 127px;
                 }}
