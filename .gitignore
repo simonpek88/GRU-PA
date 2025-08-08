@@ -13,7 +13,7 @@ user_pa/
 .vscode/settings.json
 Images/badges/GRU-PA-badge.svg
 Images/badges/GRU-PA-lm-badge.svg
-Images\badges\github-commit-activity.svg
+Images/badges/github-commit-activity.svg
 ID_Photos/snapshot_*.jpg
 Images/license_plate/user_vlp/test_*
 FaceCompare.py
