@@ -84,3 +84,10 @@ def gen_badge(conn, cur, badge_text_pack, db_type='MySQL', app_name='app_name', 
                 if package == 'streamlit-antd-components':
                     package = 'SAC'
                 f.write(badge(left_text=package, right_text=package_version))
+
+    #gen_support_Ukraine()
+
+
+def gen_support_Ukraine():
+    with open(f'./Images/badges/Support-Ukraine-badge.svg', 'w') as f:
+        f.write(badge(left_text='Support', right_text='Ukraine', left_color='#005bbb', right_color="#debc12"))

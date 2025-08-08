@@ -365,9 +365,10 @@ def display_pypi():
     for index, value in enumerate(badge_pack):
         pypi[index % cols_limit].image(f'./Images/badges/{value}-badge.svg')
     app_info_col = st.columns(cols_limit)
-    app_info_col[0].image(f'./Images/badges/{APPNAME_EN}-badge.svg')
-    app_info_col[1].image(f'./Images/badges/{APPNAME_EN}-lm-badge.svg')
-    app_info_col[2].image('./Images/badges/build-badge.svg')
+    app_info_col[0].image(f'./Images/badges/Support-Ukraine-badge.svg')
+    app_info_col[1].image(f'./Images/badges/{APPNAME_EN}-badge.svg')
+    app_info_col[2].image(f'./Images/badges/{APPNAME_EN}-lm-badge.svg')
+    app_info_col[3].image('./Images/badges/build-badge.svg')
 
 
 def get_md_task_status(task_date, userID, task_content):
