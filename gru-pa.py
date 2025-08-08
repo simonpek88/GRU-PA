@@ -369,6 +369,7 @@ def display_pypi():
     app_info_col[1].image(f'./Images/badges/{APPNAME_EN}-badge.svg')
     app_info_col[2].image(f'./Images/badges/{APPNAME_EN}-lm-badge.svg')
     app_info_col[3].image('./Images/badges/build-badge.svg')
+    app_info_col[4].image('./Images/badges/github-commit-activity.svg')
 
 
 def get_md_task_status(task_date, userID, task_content):
