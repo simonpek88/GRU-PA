@@ -4,9 +4,11 @@ Grass-roots unit performance appraisal system (GRU-PA).
 
 -
     ![Support Ukraine](https://img.shields.io/badge/support-Ukraine-yellow?labelColor=005bbb&color=ffd500&style=flat.svg)
-    ![GRU-PA ver](https://img.shields.io/badge/ver-0.13.1313-blue.svg)
-    ![GRU-PA updated](https://img.shields.io/badge/updated-25/08/08%2018:04-orange.svg)
+    ![GRU-PA ver](https://img.shields.io/badge/ver-0.13.1316-blue.svg)
+    ![GRU-PA updated](https://img.shields.io/badge/updated-25/08/08%2021:15-orange.svg)
     ![GRU-PA build](https://img.shields.io/badge/build-passing-deepgreen.svg)
+    ![GRU-PA top-languages](https://img.shields.io/github/languages/top/simonpek88/GRU-PA.svg)
+    ![GRU-PA commits](https://img.shields.io/github/commit-activity/t/simonpek88/GRU-PA.svg)
 
 ## 站室绩效考核系统GRU-PA 是一个前端基于 Streamlit 框架，后端基于Python数据处理的web应用，旨在简化站室工作量录入、统计及考核
 
