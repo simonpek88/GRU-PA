@@ -3053,6 +3053,89 @@ def temp_func():
     pass
 
 
+def get_current_month_range():
+    """
+    获取当月第一天和最后一天
+
+    Returns:
+        tuple: (当月第一天, 当月最后一天)
+    """
+    today = datetime.date.today()
+    first_day = today.replace(day=1)
+    last_day = today.replace(day=calendar.monthrange(today.year, today.month)[1])
+
+    return first_day, last_day
+
+def get_previous_month_range():
+    """
+    获取上个月第一天和最后一天
+
+    Returns:
+        tuple: (上月第一天, 上月最后一天)
+    """
+    today = datetime.date.today()
+    # 获取当月第一天
+    first_day_current_month = today.replace(day=1)
+    # 上个月最后一天是当月第一天的前一天
+    last_day_previous_month = first_day_current_month - datetime.timedelta(days=1)
+    # 上个月第一天
+    first_day_previous_month = last_day_previous_month.replace(day=1)
+
+    return first_day_previous_month, last_day_previous_month
+
+
+def gen_statist_metric():
+    st.subheader("卡片图 - 月环比", divider="blue")
+    query_userID, query_userCName = [], []
+    current_first, current_last = get_current_month_range()
+    previous_first, previous_last = get_previous_month_range()
+    if st.session_state.userType == 'admin':
+        sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa <> 0 order by login_counter DESC, userCName"
+        rows = execute_sql(cur, sql)
+        for row in rows:
+            query_userID.append(row[0])
+            query_userCName.append(row[1])
+    else:
+        st.markdown(f"##### 当前用户: :blue[{st.session_state.userCName}]")
+        query_userID.append(st.session_state.userID)
+        query_userCName.append(st.session_state.userCName)
+    for index, value in enumerate(query_userID):
+        cur_sum_score, cur_avg_score, cur_task_count, cur_avg_task_count = 0, 0.0, 0, 0.0
+        last_sum_score, last_avg_score, last_task_count, last_avg_task_count = 0, 0.0, 0, 0.0
+        sql = f"SELECT SUM(task_score), AVG(task_score), Count(ID) FROM clerk_work WHERE clerk_id = {value} and StationCN = '{st.session_state.StationCN}' and task_date >= '{current_first}' and task_date <= '{current_last}'"
+        result = execute_sql(cur, sql)[0]
+        if result[0]:
+            cur_sum_score = int(result[0])
+            cur_avg_score = float(result[1])
+            cur_task_count = int(result[2])
+            sql = f"SELECT Count(task_date) FROM clerk_work where clerk_id = {value} and task_date >= '{current_first}' and task_date <= '{current_last}' and StationCN = '{st.session_state.StationCN}' GROUP BY task_date"
+            result = execute_sql(cur, sql)
+            if result:
+                cur_avg_task_count = round(cur_task_count / len(result), 1)
+        sql = f"SELECT SUM(task_score), AVG(task_score), Count(ID) FROM clerk_work WHERE clerk_id = {value} and StationCN = '{st.session_state.StationCN}' and task_date >= '{previous_first}' and task_date <= '{previous_last}'"
+        result2 = execute_sql(cur, sql)[0]
+        if result2[0]:
+            last_sum_score = int(result2[0])
+            last_avg_score = float(result2[1])
+            last_task_count = int(result2[2])
+            sql = f"SELECT Count(task_date) FROM clerk_work where clerk_id = {value} and task_date >= '{previous_first}' and task_date <= '{previous_last}' and StationCN = '{st.session_state.StationCN}' GROUP BY task_date"
+            result2 = execute_sql(cur, sql)
+            if result2:
+                last_avg_task_count = round(last_task_count / len(result2), 1)
+        if result[0] and result2[0]:
+            st.markdown(f"##### {query_userCName[index]}")
+            col = st.columns(4)
+            col[0].metric(label="总分", value=cur_sum_score, delta=f"{round((cur_sum_score - last_sum_score) / last_sum_score * 100, 1)}%", delta_color="inverse")
+            col[1].metric(label="平均分", value=round(cur_avg_score, 1), delta=f"{round((cur_avg_score - last_avg_score) / last_avg_score * 100, 1)}%", delta_color="inverse")
+            col[2].metric(label="工作项", value=cur_task_count, delta=f"{round((cur_task_count - last_task_count) / last_task_count * 100, 1)}%", delta_color="inverse")
+            col[3].metric(label="每班工作项", value=cur_avg_task_count, delta=f"{round((cur_avg_task_count - last_avg_task_count) / last_avg_task_count * 100, 1)}%", delta_color="inverse")
+            # 设置度量卡片的样式
+            style_metric_cards(border_left_color="#da3d3d")
+            #style_metric_cards(border_left_color="#5952d6")
+        elif st.session_state.userType == "user":
+            st.info("未查询到记录")
+
+
 global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME
 APPNAME_CN = "站室绩效考核系统GRU-PA"
 APPNAME_EN = "GRU-PA"
@@ -3105,12 +3188,15 @@ elif st.session_state.logged_in:
                     sac.MenuItem('工作量手工录入', icon='journal-plus'),
                     sac.MenuItem('工作减分项录入', icon='journal-minus'),
                     sac.MenuItem('记录修改', icon='journal-medical'),
-                    sac.MenuItem('统计查询及导出', icon='clipboard-data'),
-                    sac.MenuItem('趋势图', icon='bar-chart-line'),
                     sac.MenuItem('数据检查与核定', icon='check2-all'),
+                    sac.MenuItem('统计查询及导出', icon='clipboard-data'),
                     sac.MenuItem('高级查询', icon='search'),
                     sac.MenuItem('历史天气查询', icon='cloud-sun'),
                     sac.MenuItem('公告发布', icon='journal-arrow-up'),
+                ]),
+                sac.MenuItem('趋势与图表', icon='bar-chart-line', children=[
+                    sac.MenuItem('趋势图', icon='clipboard-data'),
+                    sac.MenuItem('卡片图', icon='card-list'),
                 ]),
                 sac.MenuItem('数据库操作', icon='database-check', children=[
                     sac.MenuItem('重置PA-Number', icon='bootstrap-reboot'),
@@ -3153,8 +3239,11 @@ elif st.session_state.logged_in:
                     sac.MenuItem('工作量手工录入', icon='journal-plus'),
                     sac.MenuItem('记录修改', icon='journal-medical'),
                     sac.MenuItem('统计查询及导出', icon='clipboard-data'),
-                    sac.MenuItem('趋势图', icon='bar-chart-line'),
                     sac.MenuItem('历史天气查询', icon='cloud-sun'),
+                ]),
+                sac.MenuItem('趋势与图表', icon='bar-chart-line', children=[
+                    sac.MenuItem('趋势图', icon='clipboard-data'),
+                    sac.MenuItem('卡片图', icon='card-list'),
                 ]),
                 sac.MenuItem('设置', icon='gear', children=[
                     sac.MenuItem('个人设置', icon='sliders2'),
@@ -3224,6 +3313,8 @@ elif st.session_state.logged_in:
         query_task()
     elif selected == "趋势图":
         gen_chart()
+    elif selected == "卡片图":
+        gen_statist_metric()
     elif selected == "数据检查与核定":
         check_data()
     elif selected == "高级查询":
