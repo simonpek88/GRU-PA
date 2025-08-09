@@ -3138,6 +3138,10 @@ def gen_statist_metric():
             st.info("未查询到记录")
 
 
+def operation_manual():
+    st.markdown(open("./operation_manual.md", "r", encoding="utf-8").read(), unsafe_allow_html=True)
+
+
 global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME
 APPNAME_CN = "站室绩效考核系统GRU-PA"
 APPNAME_EN = "GRU-PA"
@@ -3225,6 +3229,7 @@ elif st.session_state.logged_in:
                     sac.MenuItem('登出', icon='box-arrow-right'),
                 ]),
                 sac.MenuItem('关于', icon='info-circle', children=[
+                    sac.MenuItem('操作手册', icon='journal-bookmark'),
                     sac.MenuItem('更新日志', icon='h-square'),
                     sac.MenuItem('自述', icon='clipboard'),
                     sac.MenuItem('彩蛋', icon='bootstrap'),
@@ -3256,6 +3261,7 @@ elif st.session_state.logged_in:
                     sac.MenuItem('登出', icon='box-arrow-right'),
                 ]),
                 sac.MenuItem('关于', icon='info-circle', children=[
+                    sac.MenuItem('操作手册', icon='journal-bookmark'),
                     sac.MenuItem('更新日志', icon='h-square'),
                     sac.MenuItem('自述', icon='clipboard'),
                     sac.MenuItem('彩蛋', icon='bootstrap'),
@@ -3341,6 +3347,8 @@ elif st.session_state.logged_in:
         resetPassword()
     elif selected == "登出":
         logout()
+    elif selected == "操作手册":
+        operation_manual()
     elif selected == "更新日志":
         changelog()
     elif selected == "自述":
