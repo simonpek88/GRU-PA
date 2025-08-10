@@ -166,7 +166,7 @@ def login_init(result):
     execute_sql_and_commit(conn, cur, sql)
     now = datetime.datetime.now()
     valid_time = now.strftime("%Y-%m-%d")
-    sql = f"SELECT notice from notices where StationCN = '{st.session_state.StationCN}' and start_time >= '{valid_time}' and '{valid_time}' <= end_time"
+    sql = f"SELECT notice from notices where StationCN = '{st.session_state.StationCN}' and start_time <= '{valid_time}' and '{valid_time}' <= end_time"
     result = execute_sql(cur, sql)
     # 获取限行信息
     if st.session_state.vehicle_restrict:
@@ -474,7 +474,7 @@ def task_input():
         else:
             temp_info = '常规'
         temp_info_all = temp_info_all + f"工作类别:{temp_info} "
-        clerk_work_pack.append(f"工作:{row[0]} 分值:{row[1]} {temp_info_all}")
+        clerk_work_pack.append(f"工作:{row[0]} 分值:{row[1]} 工作组别:{row[2]} {temp_info_all}")
 
     # 定义搜索函数，接受 clerk_work_pack 作为参数
     def search_clerk_work(searchterm: str, clerk_work_pack=clerk_work_pack) -> list:
@@ -1843,10 +1843,12 @@ def display_history_weather():
     else:
         query_min_date = datetime.datetime.now() - datetime.timedelta(days=10)
         query_min_date = query_min_date.strftime('%Y-%m-%d')
-    col = st.columns(3)
+    col = st.columns(4)
     query_date_start = col[0].date_input('查询开始时间', value=datetime.date.today() - datetime.timedelta(days=1), min_value=query_min_date, max_value=datetime.date.today() - datetime.timedelta(days=1))
     query_date_end = col[1].date_input('查询结束时间', value=query_date_start, min_value=query_date_start, max_value="today")
     query_temp_max = col[2].number_input('最高温度(°C)', value=35, min_value=25, max_value=50, step=1)
+    with col[3]:
+        flag_display_chart = sac.switch(label='显示图表', value=False, align='start')
     query_date_convert = str(query_date_start).replace('-', '')
     sql = f"SELECT sunrise, sunset, moonrise, moonset, moonPhase, tempMax, tempMin, humidity, pressure, moon_icon, temp_icon, humidity_icon, temp_hourly, windspeed_hourly, humidity_hourly, weather_icon_hourly, precip_hourly, windscale_hourly FROM weather_history WHERE city_code = '{city_code}' and weather_date = '{query_date_start}'"
     cur.execute(sql)
@@ -1900,13 +1902,14 @@ def display_history_weather():
                 st.markdown(f"##### 湿度: {humidity_pack[0]} - {humidity_pack[-1]}% {weather_info['humidity_icon']} 气压: {weather_info['pressure']} hPa")
                 st.markdown(f"##### 日升: {weather_info['sunrise']} 日落: {weather_info['sunset']}")
                 st.markdown(f"##### 月升: {weather_info['moonrise']} 月落: {weather_info['moonset']} 月相: {weather_info['moonPhase']} {weather_info['moon_icon']}")
-        st.subheader('')
-        st.markdown(f"##### :blue[{query_date_start} 天气曲线]")
-        chart_col = st.columns(2)
-        with chart_col[0]:
-            plot_wind_speed_curve(weather_info['temp_hourly'].split('/'), weather_info['windspeed_hourly'].split('/'))
-        with chart_col[1]:
-            plot_data_curve(weather_info['humidity_hourly'].split('/'))
+        if flag_display_chart:
+            st.subheader('')
+            st.markdown(f"##### :blue[{query_date_start} 天气曲线]")
+            chart_col = st.columns(2)
+            with chart_col[0]:
+                plot_wind_speed_curve(weather_info['temp_hourly'].split('/'), weather_info['windspeed_hourly'].split('/'))
+            with chart_col[1]:
+                plot_data_curve(weather_info['humidity_hourly'].split('/'))
     else:
         st.info("未查询到历史天气记录")
     sql = f"SELECT weather_date, tempMax, tempMin, humidity from weather_history WHERE tempMax >= {query_temp_max} and city_code = '{city_code}' and weather_date >= '{query_date_start}' and weather_date <= '{query_date_end}'"

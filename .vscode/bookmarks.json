@@ -14,9 +14,9 @@
 					"label": "login"
 				},
 				{
-					"line": 117,
+					"line": 137,
 					"column": 23,
-					"label": "login_init"
+					"label": "login init"
 				},
 				{
 					"line": 159,
@@ -152,6 +152,11 @@
 					"line": 3086,
 					"column": 25,
 					"label": "gen_statist_metric"
+				},
+				{
+					"line": 3148,
+					"column": 23,
+					"label": "main"
 				}
 			]
 		},
