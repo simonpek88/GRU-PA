@@ -306,7 +306,7 @@ def changelog():
 
 
 def aboutReadme():
-    new_content = ''
+    new_content_with_badge = ''
     package_pack = ['Streamlit', 'Streamlit-antd-components', 'NumPY', 'Pandas', 'Plotly', 'Python-docx', 'Openpyxl', 'XlsxWriter', 'PyJWT', 'Dlib', 'Face-recognition', 'Opencv-python', 'Streamlit-webrtc']
     with open('./README.md', 'r', encoding='utf-8') as file:
         lines = file.readlines()
@@ -325,12 +325,9 @@ def aboutReadme():
                     package_ver = importlib.metadata.version(each)
                     line = f"      ![{each}](https://img.shields.io/badge/{each.replace('-', '_')}-{package_ver}-blue.svg)"
                     break
-        new_content = new_content + line + "\n"
-    new_content = new_content.replace('\n\n', '\n')
-    with open("./README.md", "w", encoding='utf-8') as f:
-        f.write(new_content)
-
-    st.markdown(open("./README.md", "r", encoding="utf-8").read(), unsafe_allow_html=True)
+        new_content_with_badge = new_content_with_badge + line + "\n"
+    new_content_with_badge = new_content_with_badge.replace('\n\n', '\n')
+    st.markdown(new_content_with_badge, unsafe_allow_html=True)
 
 
 def aboutInfo():
@@ -3163,7 +3160,7 @@ def gen_statist_metric():
 
 
 def operation_manual():
-    new_content = ''
+    new_content_with_badge = ''
     with open('./operation_manual.md', 'r', encoding='utf-8') as file:
         lines = file.readlines()
 
@@ -3175,12 +3172,9 @@ def operation_manual():
             line = f"    ![GRU-PA ver](https://img.shields.io/badge/ver-{app_version}-blue.svg)"
         elif line.startswith("    ![GRU-PA updated]"):
             line = f"    ![GRU-PA updated](https://img.shields.io/badge/updated-{app_lm.replace('-', '/')[2:10]}%20{app_lm[-5:]}-orange.svg)"
-        new_content = new_content + line + "\n"
-    new_content = new_content.replace('\n\n', '\n')
-    with open("./operation_manual.md", "w", encoding='utf-8') as f:
-        f.write(new_content)
-
-    st.markdown(open("./operation_manual.md", "r", encoding="utf-8").read(), unsafe_allow_html=True)
+        new_content_with_badge = new_content_with_badge + line + "\n"
+    new_content_with_badge = new_content_with_badge.replace('\n\n', '\n')
+    st.markdown(new_content_with_badge, unsafe_allow_html=True)
 
 
 global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME
