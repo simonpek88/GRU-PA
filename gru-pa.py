@@ -545,7 +545,7 @@ def show_task_list(row2, task_date, flag_auto_task, task_clerk_type):
     if row2[5] > 0 and display_md_task:
         st.checkbox(f":red[{row2[1]} {title_score_info}:{row2[2]}]", value=auto_task, key=f"task_work_{row2[0]}")
     elif display_md_task:
-        if row2[1] == '每日记录检查':
+        if row2[1] == '每日记录检查(仅限主班勾选)':
             if st.session_state.userID in [1, 7, 11]:
                 auto_task = True
         elif row2[1] == '办公室卫生清洁':
@@ -2574,6 +2574,7 @@ def modify_db(sub_func):
     elif sub_func == "更新PA-Share":
         btn_reset_pa_share = st.button(label="确认更新PA-Share")
         if btn_reset_pa_share:
+            st.spinner(text="正在更新PA-Share...")
             sql = "SELECT DISTINCT(share_date) from pa_share order by share_date"
             date_results = execute_sql(cur, sql)
             sql = "TRUNCATE TABLE pa_share"
