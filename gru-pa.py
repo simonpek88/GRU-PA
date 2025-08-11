@@ -3163,6 +3163,23 @@ def gen_statist_metric():
 
 
 def operation_manual():
+    new_content = ''
+    with open('./operation_manual.md', 'r', encoding='utf-8') as file:
+        lines = file.readlines()
+
+    verinfo, verLM = getVerInfo()
+    app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{verinfo}'
+    app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
+    for line in lines:
+        if line.startswith("    ![GRU-PA ver]"):
+            line = f"    ![GRU-PA ver](https://img.shields.io/badge/ver-{app_version}-blue.svg)"
+        elif line.startswith("    ![GRU-PA updated]"):
+            line = f"    ![GRU-PA updated](https://img.shields.io/badge/updated-{app_lm.replace('-', '/')[2:10]}%20{app_lm[-5:]}-orange.svg)"
+        new_content = new_content + line + "\n"
+    new_content = new_content.replace('\n\n', '\n')
+    with open("./operation_manual.md", "w", encoding='utf-8') as f:
+        f.write(new_content)
+
     st.markdown(open("./operation_manual.md", "r", encoding="utf-8").read(), unsafe_allow_html=True)
 
 
