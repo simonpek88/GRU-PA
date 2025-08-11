@@ -551,6 +551,9 @@ def show_task_list(row2, task_date, flag_auto_task, task_clerk_type):
         if row2[1] == '每日记录检查':
             if st.session_state.userID in [1, 7, 11]:
                 auto_task = True
+        elif row2[1] == '办公室卫生清洁':
+            if st.session_state.userID in [1, 5, 12]:
+                auto_task = True
         st.checkbox(f"{row2[1]} {title_score_info}:{row2[2]}", value=auto_task, key=f"task_work_{row2[0]}")
     task_col = st.columns(2)
     if row2[4] == 1:
@@ -1860,7 +1863,7 @@ def display_history_weather():
     query_date_end = col[1].date_input('查询结束时间', value=query_date_start, min_value=query_date_start, max_value="today")
     query_temp_max = col[2].number_input('最高温度(°C)', value=35, min_value=25, max_value=50, step=1)
     with col[3]:
-        flag_display_chart = sac.switch(label='显示图表', value=False, align='start')
+        flag_display_chart = sac.switch(label='显示天气曲线图', value=False, align='start')
     query_date_convert = str(query_date_start).replace('-', '')
     sql = f"SELECT sunrise, sunset, moonrise, moonset, moonPhase, tempMax, tempMin, humidity, pressure, moon_icon, temp_icon, humidity_icon, temp_hourly, windspeed_hourly, humidity_hourly, weather_icon_hourly, precip_hourly, windscale_hourly FROM weather_history WHERE city_code = '{city_code}' and weather_date = '{query_date_start}'"
     cur.execute(sql)
@@ -2819,7 +2822,10 @@ def system_setup():
     #st.markdown("### <font face='微软雅黑' color=blue><center>系统设置</center></font>", unsafe_allow_html=True)
     st.subheader("系统设置", divider="red")
     btn_system_setup_update = st.button("更新系统设置")
-    sql = f"SELECT param_value, param_name, userCName from users_setup where userID = -1 order by ID"
+    sql = f"SELECT param_value, param_name, param_cname from system_setup where StationCN = '{st.session_state.StationCN}' order by ID"
+    if not execute_sql(cur, sql):
+        insert_sql = f"INSERT INTO system_setup(StationCN, param_name, param_value, param_cname) SELECT '{st.session_state.StationCN}', param_name, param_value, param_cname from system_setup where StationCN = '北京站'"
+        execute_sql_and_commit(conn, cur, insert_sql)
     results = execute_sql(cur, sql)
     if len(results) <= 8:
         col_limit = len(results)
@@ -2830,7 +2836,7 @@ def system_setup():
     for each in results:
         affix_info = ''
         if each[1] == 'max_deduct_score':
-            min_value, max_value, step_value = -400, -10, 10
+            min_value, max_value, step_value = -600, -30, 10
         elif each[1] == 'chart_font_size':
             min_value, max_value, step_value = 10, 20, 1
         elif each[1] == 'md_task_days':
@@ -2860,13 +2866,16 @@ def system_setup():
     if btn_system_setup_update:
         for each in results:
             if each[0] != st.session_state[each[1]]:
-                sql = f"UPDATE users_setup set param_value = {st.session_state[each[1]]} where param_name = '{each[1]}' and userID = -1"
+                sql = f"UPDATE system_setup set param_value = {st.session_state[each[1]]} where param_name = '{each[1]}' and StationCN = '{st.session_state.StationCN}'"
                 execute_sql_and_commit(conn, cur, sql)
                 st.success(f'{each[2]} 更新成功')
 
 
 def get_system_setup():
-    sql = f"SELECT param_value, param_name from users_setup where userID = -1 order by ID"
+    sql = f"SELECT param_value, param_name, param_cname from system_setup where StationCN = '{st.session_state.StationCN}' order by ID"
+    if not execute_sql(cur, sql):
+        insert_sql = f"INSERT INTO system_setup(StationCN, param_name, param_value, param_cname) SELECT '{st.session_state.StationCN}', param_name, param_value, param_cname from system_setup where StationCN = '北京站'"
+        execute_sql_and_commit(conn, cur, insert_sql)
     results = execute_sql(cur, sql)
     for each in results:
         st.session_state[each[1]] = each[0]
