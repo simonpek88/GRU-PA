@@ -2,8 +2,8 @@
 
 -
     ![Support Ukraine](https://img.shields.io/badge/support-Ukraine-yellow?labelColor=005bbb&color=ffd500&style=flat.svg)
-    ![GRU-PA ver](https://img.shields.io/badge/ver-0.13.1349-blue.svg)
-    ![GRU-PA updated](https://img.shields.io/badge/updated-25/08/11%2016:54-orange.svg)
+    ![GRU-PA ver](https://img.shields.io/badge/ver-0.13.1352-blue.svg)
+    ![GRU-PA updated](https://img.shields.io/badge/updated-25/08/11%2016:59-orange.svg)
     ![GRU-PA build](https://img.shields.io/badge/build-passing-deepgreen.svg)
     ![GRU-PA top-languages](https://img.shields.io/github/languages/top/simonpek88/GRU-PA.svg)
     ![GRU-PA commits](https://img.shields.io/github/commit-activity/t/simonpek88/GRU-PA.svg)
