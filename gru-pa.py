@@ -1024,7 +1024,7 @@ def manual_input():
         items.append(row[0])
     task_date = col2.date_input('工作时间', value=datetime.date.today() - datetime.timedelta(days=1), max_value="today")
     task_group = col3.selectbox('工作组别', items, index=None, accept_new_options=True)
-    task_score = col4.number_input("单项分值", min_value=1, max_value=300, value=10, step=1)
+    task_score = col4.number_input("单项分值", min_value=5, max_value=600, value=10, step=1)
     if st.session_state.userType == 'admin':
         with col1:
             flag_add_pa = sac.switch("加入固定列表", value=False, align="start", on_label="On")
@@ -1712,27 +1712,6 @@ def input_public_notice():
     display_area = st.empty()
     with display_area.container():
         public_text = st.text_area('请输入公告内容')
-
-    st.subheader("公告修改", divider="green")
-    col = st.columns(3)
-    notice_pack = []
-    now = datetime.datetime.now()
-    valid_time = now.strftime("%Y-%m-%d")
-    sql = f"SELECT notice, start_time, end_time, ID from notices where StationCN = '{st.session_state.StationCN}' and '{valid_time}' >= start_time and '{valid_time}' <= end_time"
-    result = execute_sql(cur, sql)
-    if result:
-        for row in result:
-            notice_pack.append(row[0])
-        select_notice = col[0].selectbox("请选择公告", notice_pack, index=0)
-        select_notice_index = notice_pack.index(select_notice)
-        modify_start_time = col[1].date_input("开始时间", value=result[select_notice_index][1])
-        modify_end_time = col[2].date_input("结束时间", value=result[select_notice_index][2])
-        st.markdown('##### :red[如果删除, 请在修改内容中键入大写的DELETE]')
-        modify_public_text = st.text_area(label='修改公告内容', value=select_notice)
-        confirm_btn_modify = st.button('修改')
-    else:
-        confirm_btn_modify = False
-
     if confirm_btn_public:
         now = datetime.datetime.now()
         pub_time = now.strftime("%Y-%m-%d %H:%M:%S")
@@ -1745,15 +1724,35 @@ def input_public_notice():
                 st.success('公告添加成功')
         else:
             st.warning('请输入公告内容')
-    elif confirm_btn_modify:
-        if modify_public_text != 'DELETE':
-            sql = f"UPDATE notices set notice = '{modify_public_text}', start_time = '{modify_start_time}', end_time = '{modify_end_time}' where ID = {result[select_notice_index][3]} and StationCN = '{st.session_state.StationCN}'"
-            execute_sql_and_commit(conn, cur, sql)
-            st.success("修改成功")
-        else:
-            sql = f"DELETE FROM notices where ID = {result[select_notice_index][3]} and StationCN = '{st.session_state.StationCN}'"
-            execute_sql_and_commit(conn, cur, sql)
-            st.success("删除成功")
+
+
+def modify_notice():
+    st.subheader("公告修改", divider="green")
+    notice_pack = []
+    now = datetime.datetime.now()
+    valid_time = now.strftime("%Y-%m-%d")
+    sql = f"SELECT notice, start_time, end_time, ID from notices where StationCN = '{st.session_state.StationCN}' and '{valid_time}' >= start_time and '{valid_time}' <= end_time"
+    result = execute_sql(cur, sql)
+    if result:
+        for row in result:
+            notice_pack.append(row[0])
+        select_notice = st.selectbox("请选择公告", notice_pack, index=0)
+        select_notice_index = notice_pack.index(select_notice)
+        col = st.columns(2)
+        modify_start_time = col[0].date_input("开始时间", value=result[select_notice_index][1])
+        modify_end_time = col[1].date_input("结束时间", value=result[select_notice_index][2])
+        st.markdown('##### :red[如果删除, 请在修改内容中键入大写的DELETE]')
+        modify_public_text = st.text_area(label='修改公告内容', value=select_notice)
+        confirm_btn_modify = st.button('修改')
+        if confirm_btn_modify:
+            if modify_public_text != 'DELETE':
+                sql = f"UPDATE notices set notice = '{modify_public_text}', start_time = '{modify_start_time}', end_time = '{modify_end_time}' where ID = {result[select_notice_index][3]} and StationCN = '{st.session_state.StationCN}'"
+                execute_sql_and_commit(conn, cur, sql)
+                st.success("公告修改成功")
+            else:
+                sql = f"DELETE FROM notices where ID = {result[select_notice_index][3]} and StationCN = '{st.session_state.StationCN}'"
+                execute_sql_and_commit(conn, cur, sql)
+                st.success("公告删除成功")
 
 
 def public_notice():
@@ -1792,6 +1791,19 @@ def public_notice():
                     st.image(vlp_brand_file)
                 elif os.path.exists(vlp_file):
                     st.image(vlp_file)
+
+
+def notices_manage():
+    notice_selected = sac.segmented(
+        items=[
+            sac.SegmentedItem(label='公告发布'),
+            sac.SegmentedItem(label='公告修改'),
+        ], align='center', color='red'
+    )
+    if notice_selected == '公告发布':
+        input_public_notice()
+    elif notice_selected == '公告修改':
+        modify_notice()
 
 
 @st.fragment
@@ -2451,7 +2463,7 @@ def combine_query():
 
 def update_users_setup(param_name, param_value, action_type):
     if action_type == 'update':
-        sql = f"UPDATE users_setup SET param_value = {int(param_value)} where param_name = '{param_name}'"
+        sql = f"UPDATE users_setup SET param_value = {int(param_value)} where userID = {st.session_state.userID} and param_name = '{param_name}'"
         execute_sql_and_commit(conn, cur, sql)
     elif action_type == 'insert':
         sql = f"INSERT INTO users_setup (userID, userCName, param_name, param_value) VALUES ({st.session_state.userID}, '{st.session_state.userCName}', '{param_name}', {int(param_value)})"
@@ -3201,7 +3213,7 @@ elif st.session_state.logged_in:
                     sac.MenuItem('统计查询及导出', icon='clipboard-data'),
                     sac.MenuItem('高级查询', icon='search'),
                     sac.MenuItem('历史天气查询', icon='cloud-sun'),
-                    sac.MenuItem('公告发布', icon='journal-arrow-up'),
+                    sac.MenuItem('公告发布及修改', icon='journal-arrow-up'),
                 ]),
                 sac.MenuItem('趋势与图表', icon='bar-chart-line', children=[
                     sac.MenuItem('趋势图', icon='clipboard-data'),
@@ -3330,8 +3342,8 @@ elif st.session_state.logged_in:
         check_data()
     elif selected == "高级查询":
         combine_query()
-    elif selected == "公告发布":
-        input_public_notice()
+    elif selected == "公告发布及修改":
+        notices_manage()
     elif selected == "历史天气查询":
         display_history_weather()
     elif selected == "重置PA-Number" or selected == "重置工作组别" or selected == "更新ID初始值" or selected == "更新PA-Share" or selected == "更新固定分值" or selected == "组别名称修改" or selected == "分组内容调整" or selected == "工作内容修改" or selected == "数据库备份":

@@ -44,7 +44,7 @@
 					"label": "task_input"
 				},
 				{
-					"line": 945,
+					"line": 1002,
 					"column": 19,
 					"label": "manual_input"
 				},
@@ -82,6 +82,11 @@
 					"line": 1781,
 					"column": 20,
 					"label": "combine_query"
+				},
+				{
+					"line": 1794,
+					"column": 21,
+					"label": "notices_manage"
 				},
 				{
 					"line": 1821,
