@@ -1,5 +1,13 @@
 # GRU-PA 站室绩效考核系统完整操作手册
 
+-
+    ![Support Ukraine](https://img.shields.io/badge/support-Ukraine-yellow?labelColor=005bbb&color=ffd500&style=flat.svg)
+    ![GRU-PA ver](https://img.shields.io/badge/ver-0.13.1352-blue.svg)
+    ![GRU-PA updated](https://img.shields.io/badge/updated-25/08/11%2016:59-orange.svg)
+    ![GRU-PA build](https://img.shields.io/badge/build-passing-deepgreen.svg)
+    ![GRU-PA top-languages](https://img.shields.io/github/languages/top/simonpek88/GRU-PA.svg)
+    ![GRU-PA commits](https://img.shields.io/github/commit-activity/t/simonpek88/GRU-PA.svg)
+
 ## 📋 目录
 
 1.系统概述
@@ -96,16 +104,17 @@ Visual Studio Build Tools 2019+ (Windows编译dlib用)
     pip install -r requirements.txt
 
     # 安装Dlib (Windows)
-    pip install dlib/dlib-20.0.
-    0-cp312-cp312-win_amd64.whl
+    pip install dlib/dlib-20.0.0-cp312-cp312-win_amd64.whl
 
-    # 安装Dlib (Linux/Mac编译)
+    # 安装Dlib (Windows/Linux/Mac编译)
     cd dlib
-    mkdir build && cd build
-    cmake .. -DDLIB_USE_CUDA=1 
-    -DUSE_AVX_INSTRUCTIONS=1
+    mkdir build 
+    cd build
+    cmake .. -DDLIB_USE_CUDA=1(GPU加速) 
+    -DUSE_AVX_INSTRUCTIONS=1(GPU加速)
     cmake --build .
-    cd .. && python setup.py install
+    cd .. 
+    python setup.py install
     ```
 
 4. 数据库配置
@@ -129,9 +138,7 @@ Visual Studio Build Tools 2019+ (Windows编译dlib用)
     FLUSH PRIVILEGES;
 
     -- 导入初始数据
-    mysql -u gru_pa_user -p gru_pa < 
-    MySQL_Backup/GRU-PA-MySQL_Backup_*.
-    sql
+    mysql -u gru_pa_user -p gru_pa < MySQL_Backup/GRU-PA-MySQL_Backup_(备份编号).sql
     ```
 
 5. 配置文件设置
@@ -140,7 +147,7 @@ Visual Studio Build Tools 2019+ (Windows编译dlib用)
     # .streamlit/config.toml
     [server]
     port = 8510
-    address = "0.0.0.0"
+    address = "localhost"
     enableCORS = false
 
     [browser]
@@ -218,10 +225,9 @@ gru-pa.log 2>&1
 
 - 修改密码 : 账户 → 密码修改
 - 找回密码 : 联系管理员重置
-- 密码策略 : 8-20位，包含大小写+数字+特殊字符
-- 定期更新 : 建议90天更换一次密码 个人信息维护
-- 基本信息 : 姓名、部门、职位
-- 联系方式 : 电话、邮箱、微信
+- 密码策略 : 4-20位，包含大小写+数字+特殊字符(建议)
+- 定期更新 : 建议90天更换一次密码 个人信息维护(建议)
+- 基本信息 : 姓名、部门
 - 工作信息 : 工号、入职时间、岗位
 - 个人设置 : 主题偏好、默认设置
 
@@ -235,20 +241,19 @@ gru-pa.log 2>&1
 
 1. **日期选择**
    - 默认: 昨日日期
-   - 范围: 支持7天内批量选择
-   - 快捷: 今天、昨天、本周、本月
+   - 范围: 当日日期之前
 
 2. **工作内容选择**
    - 搜索框: 支持模糊搜索
    - 分类显示: 按工作类型分组
    - 收藏夹: 常用工作快速选择
-   - 历史记录: 最近使用的工作
+   - 默认工作: 默认工作自动勾选
 
 3. **分值设置**
    - 自动匹配: 根据工作内容自动加载分值
    - 手动调整: 可修改系统建议分值
    - 批量设置: 统一设置相同分值
-   - 范围限制: 1-100分，步长0.5
+   - 范围限制: 1-100分，步长1
 
 4. **智能推荐**
    - 基于历史: 推荐相似日期的工作
@@ -262,17 +267,14 @@ gru-pa.log 2>&1
 操作路径: 功能 → 工作减分项录入
 
 减分项类型:
-- 迟到: -2分/次 (15分钟内)
-- 早退: -2分/次 (15分钟内)
-- 请假: -10分/天 (事假)
-- 缺勤: -20分/天 (无故)
-- 工作失误: -5至-50分 (按程度)
+- 工作失误: -100至-50分 (按程度)
+- 多次同类型失误: -300至-100分 (按次数)
 
 录入要求:
 - 必须选择减分项类型
 - 填写具体原因
 - 上传证明材料(可选)
-- 管理员审核后生效
+- 管理员录入后直接生效
 
 ### 📈 数据审核流程 审核状态
 
@@ -281,7 +283,6 @@ gru-pa.log 2>&1
 - 已退回 : 审核不通过，需修改
 - 已修改 : 修改后重新提交 审核权限
 - 本人 : 只能查看，不能审核
-- 班长 : 可审核班组成员
 - 站长 : 可审核全站人员
 - 管理员 : 可审核所有记录
 
@@ -377,13 +378,13 @@ AND '2025-08-31'
 
 ### 📸 人脸录入指南 录入步骤
 
-1. 进入设置 : 设置 → 录入人脸数据
-2. 权限检查 : 确保摄像头权限已开启
-3. 位置调整 : 面部居中，占画面1/3
+1. 进入设置 :   设置 → 录入人脸数据
+2. 权限检查 :   确保摄像头权限已开启
+3. 位置调整 :   面部居中，占画面1/3
 4. 多角度采集 : 系统自动采集5个角度
-5. 质量检查 : 自动检测照片质量
-6. 特征提取 : 生成128维特征向量
-7. 保存完成 : 显示录入成功提示 录入要求
+5. 质量检查 :   自动检测照片质量
+6. 特征提取 :   生成128维特征向量
+7. 保存完成 :   显示录入成功提示 录入要求
 
 要求项目 具体标准 不合格示例 光线 均匀自然光 逆光、强光阴影 角度 正面朝向 侧脸、低头、仰头 表情 自然中性 夸张表情、闭眼 遮挡 无遮挡 眼镜反光、口罩、帽子 清晰度 面部清晰 模糊、运动模糊
 
@@ -413,13 +414,13 @@ AND '2025-08-31'
 
 ### 📅 历史天气查询 查询功能
 
-- 日期范围 : 支持365天内查询
-- 地点选择 : 支持全国3000+城市
-- 数据维度 : 温度、湿度、天气、风力
-- 图表展示 : 温度变化曲线图 应用场景
+- 日期范围 :   支持365天内查询
+- 地点选择 :   支持全国3000+城市
+- 数据维度 :   温度、湿度、天气、风力
+- 图表展示 :   温度变化曲线图 应用场景
 - 工作量关联 : 分析天气对工作效率影响
-- 计划制定 : 根据历史天气制定工作计划
-- 异常分析 : 识别天气导致的异常数据
+- 计划制定 :   根据历史天气制定工作计划
+- 异常分析 :   识别天气导致的异常数据
 
 ## 数据导出
 
@@ -438,11 +439,10 @@ AND '2025-08-31'
    - 排名对比数据
    - 领导签字区域 格式规范
 
-- 文件命名 : GRU-PA_站点_日期_类型.xlsx
+- 文件命名 : 站点_日期_类型.xlsx
 - 工作表 :
   - Sheet1: 数据明细
-  - Sheet2: 统计汇总
-  - Sheet3: 图表数据
+  - Sheet2: 简报
 - 格式设置 :
   - 字体: 微软雅黑 11号
   - 边框: 细线边框
@@ -556,7 +556,6 @@ AND '2025-08-31'
 2. 重启服务
 
    ```bash
-
    # 停止服务
    pkill -f streamlit
 
@@ -586,7 +585,6 @@ AND '2025-08-31'
 2. 测试连接
 
    ```bash
-
    mysql -u gru_pa_user -p -h
    localhost gru_pa
    ```
@@ -594,7 +592,6 @@ AND '2025-08-31'
 3. 修复权限
 
    ```bash
-
    GRANT ALL PRIVILEGES ON gru_pa.*
    TO 'gru_pa_user'@'localhost';
    FLUSH PRIVILEGES;
@@ -637,14 +634,12 @@ AND '2025-08-31'
 
 ### 📈 版本更新
 
-- 检查更新 : 系统右上角"检查更新"按钮
 - 更新通知 : 系统内消息推送
 - 手动更新 :
 
   ```bash
   git pull origin main
-  pip install -r requirements.txt
-  --upgrade
+  pip install -r requirements.txt --upgrade
   ```
 
 - 版本兼容 : 向下兼容，平滑升级
@@ -654,7 +649,6 @@ AND '2025-08-31'
 ### 📄 文件清单
 
 ```bash
-
 GRU-PA/
 ├── gru-pa.py                # 主程序文件
 ├── commFunc.py              # 公共函数库
@@ -724,7 +718,7 @@ git pull origin main
 pip install -r requirements.txt --upgrade
 ```
 
-GRU-PA站室绩效考核系统 让管理更简单，让考核更公平
+### GRU-PA站室绩效考核系统 让管理更简单，让考核更公平
 
 📖 文档 | 🐛 反馈 | ⭐ 点赞
 
