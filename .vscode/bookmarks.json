@@ -167,6 +167,11 @@
 					"line": 3148,
 					"column": 23,
 					"label": "main"
+				},
+				{
+					"line": 3182,
+					"column": 26,
+					"label": "get_resolution_data"
 				}
 			]
 		},
