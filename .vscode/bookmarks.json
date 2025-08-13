@@ -224,6 +224,16 @@
 					"label": "get_city_pf_weather"
 				}
 			]
+		},
+		{
+			"path": "operation_manual.md",
+			"bookmarks": [
+				{
+					"line": 31,
+					"column": 12,
+					"label": "todo"
+				}
+			]
 		}
 	]
 }
