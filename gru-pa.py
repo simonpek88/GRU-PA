@@ -724,7 +724,7 @@ def query_task():
             footer = quesDOC.sections[0].footer
             paragraph = footer.paragraphs[0] if footer.paragraphs else footer.add_paragraph()
             add_page_number(paragraph)
-            outputFile = f"./user_pa/{query_userCName}_{query_date_start}至{query_date_end}_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.docx"
+            outputFile = f"./user_pa/{st.session_state.StationCN}_{query_userCName}_{query_date_start}至{query_date_end}_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.docx"
             if os.path.exists(outputFile):
                 os.remove(outputFile)
             quesDOC.save(outputFile)
@@ -758,7 +758,7 @@ def query_task():
         # 显示带有小计行的 DataFrame
         st.dataframe(df_with_subtotals)
         # 导出为 Excel
-        outputFile = f"./user_pa/工作量统计表_{query_date_start}至{query_date_end}_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.xlsx"
+        outputFile = f"./user_pa/{st.session_state.StationCN}_全站工作量统计_{query_date_start}至{query_date_end}_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.xlsx"
         if os.path.exists(outputFile):
             os.remove(outputFile)
         with pd.ExcelWriter(outputFile, engine='openpyxl') as writer:
@@ -3267,7 +3267,7 @@ elif st.session_state.logged_in:
                 sac.MenuItem('关于', icon='info-circle', children=[
                     sac.MenuItem('操作手册', icon='journal-bookmark'),
                     sac.MenuItem('更新日志', icon='h-square'),
-                    sac.MenuItem('自述', icon='clipboard'),
+                    sac.MenuItem('项目说明', icon='clipboard'),
                     sac.MenuItem('彩蛋', icon='bootstrap'),
                     sac.MenuItem('关于', icon='book'),
                     sac.MenuItem('许可证', icon='card-text'),
@@ -3299,7 +3299,7 @@ elif st.session_state.logged_in:
                 sac.MenuItem('关于', icon='info-circle', children=[
                     sac.MenuItem('操作手册', icon='journal-bookmark'),
                     sac.MenuItem('更新日志', icon='h-square'),
-                    sac.MenuItem('自述', icon='clipboard'),
+                    sac.MenuItem('项目说明', icon='clipboard'),
                     sac.MenuItem('彩蛋', icon='bootstrap'),
                     sac.MenuItem('关于', icon='book'),
                     sac.MenuItem('许可证', icon='card-text'),
@@ -3387,7 +3387,7 @@ elif st.session_state.logged_in:
         operation_manual()
     elif selected == "更新日志":
         changelog()
-    elif selected == "自述":
+    elif selected == "项目说明":
         aboutReadme()
     elif selected == "关于":
         aboutInfo()
