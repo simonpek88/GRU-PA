@@ -164,14 +164,9 @@
 					"label": "gen_statist_metric"
 				},
 				{
-					"line": 3148,
-					"column": 23,
+					"line": 3180,
+					"column": 60,
 					"label": "main"
-				},
-				{
-					"line": 3182,
-					"column": 26,
-					"label": "get_resolution_data"
 				}
 			]
 		},

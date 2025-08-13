@@ -724,7 +724,7 @@ def query_task():
             footer = quesDOC.sections[0].footer
             paragraph = footer.paragraphs[0] if footer.paragraphs else footer.add_paragraph()
             add_page_number(paragraph)
-            outputFile = f"./user_pa/{st.session_state.StationCN}_{query_userCName}_{query_date_start}至{query_date_end}_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.docx"
+            outputFile = f"./user_pa/{st.session_state.StationCN}_{query_userCName}_{query_date_start}至{query_date_end}_{int(time.time())}.docx"
             if os.path.exists(outputFile):
                 os.remove(outputFile)
             quesDOC.save(outputFile)
@@ -758,7 +758,7 @@ def query_task():
         # 显示带有小计行的 DataFrame
         st.dataframe(df_with_subtotals)
         # 导出为 Excel
-        outputFile = f"./user_pa/{st.session_state.StationCN}_全站工作量统计_{query_date_start}至{query_date_end}_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.xlsx"
+        outputFile = f"./user_pa/{st.session_state.StationCN}_全站工作量统计_{query_date_start}至{query_date_end}_{int(time.time())}.xlsx"
         if os.path.exists(outputFile):
             os.remove(outputFile)
         with pd.ExcelWriter(outputFile, engine='openpyxl') as writer:
@@ -2595,7 +2595,7 @@ def modify_db(sub_func):
     elif sub_func == "数据库备份":
         btn_backup = st.button(label="开始备份")
         if btn_backup:
-            backup_file = f"./MySQL_Backup/GRU-PA-MySQL_Backup_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.sql"
+            backup_file = f"./MySQL_Backup/GRU-PA-MySQL_Backup_{int(time.time())}.sql"
             cmd = f'mysqldump --defaults-file=.mysql.cnf gru-pa > {backup_file}'
             os.system(cmd)
             if os.path.exists(backup_file):
@@ -2681,7 +2681,7 @@ def get_users_portrait():
         # Check the type of bytes_data:
         # Should output: <class 'bytes'>
         btn_save_picture = st.button("生成人脸数据")
-        pic_file = f"./ID_Photos/{img_userID}_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.jpg"
+        pic_file = f"./ID_Photos/{img_userID}_{int(time.time())}.jpg"
         if btn_save_picture:
             with open(pic_file, "wb") as f:
                 f.write(bytes_data)
@@ -2702,7 +2702,7 @@ def camera_capture(stationCN):
         bytes_data = img_file_buffer.getvalue()
         # Check the type of bytes_data:
         # Should output: <class 'bytes'>
-        cap_file = f"./ID_Photos/snapshot_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.jpg"
+        cap_file = f"./ID_Photos/snapshot_{int(time.time())}.jpg"
         with open(cap_file, "wb") as f:
             f.write(bytes_data)
         if os.path.exists(cap_file):
@@ -2777,7 +2777,7 @@ def face_recognize_verify(stationCN):
         bytes_data = img_file_buffer.getvalue()
         # Check the type of bytes_data:
         # Should output: <class 'bytes'>
-        cap_file = f"./ID_Photos/snapshot_{time.strftime('%Y%m%d%H%M%S', time.localtime(int(time.time())))}.jpg"
+        cap_file = f"./ID_Photos/snapshot_{int(time.time())}.jpg"
         with open(cap_file, "wb") as f:
             f.write(bytes_data)
         if os.path.exists(cap_file):
@@ -3232,9 +3232,9 @@ elif st.session_state.logged_in:
                     sac.MenuItem('记录修改', icon='journal-medical'),
                     sac.MenuItem('数据检查与核定', icon='check2-all'),
                     sac.MenuItem('统计查询及导出', icon='clipboard-data'),
+                    sac.MenuItem('公告发布及修改', icon='journal-arrow-up'),
                     sac.MenuItem('高级查询', icon='search'),
                     sac.MenuItem('历史天气查询', icon='cloud-sun'),
-                    sac.MenuItem('公告发布及修改', icon='journal-arrow-up'),
                 ]),
                 sac.MenuItem('趋势与图表', icon='bar-chart-line', children=[
                     sac.MenuItem('趋势图', icon='clipboard-data'),
