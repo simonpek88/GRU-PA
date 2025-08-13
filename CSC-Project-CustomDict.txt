@@ -18,6 +18,7 @@ backcolor
 backface
 backpng
 barmode
+bdist
 breakline
 CITYNAME
 clearex
