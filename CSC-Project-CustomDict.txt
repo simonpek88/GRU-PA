@@ -68,6 +68,7 @@ Flytek
 fontsize
 fontweight
 forecolor
+Gbps
 gener
 glowintext
 hhiiss

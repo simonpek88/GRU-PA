@@ -66,15 +66,16 @@ GRU-PA (Grass-roots unit Performance Appraisal system) 是一款专为基层站�
 
 ### 📋 系统要求
 
-#### 硬件要求
+#### 服务器硬件要求
 
 | 组件 | 最低配置 | 推荐配置 |
 |------|----------|----------|
-| CPU | Intel i5 4代 | Intel i7 10代或AMD Ryzen 5 |
-| 内存 | 8GB DDR3 | 16GB DDR4 |
-| 存储 | 30GB HDD | 50GB SSD |
+| CPU | Intel i5 4代 | Intel i7 12代或AMD Ryzen7 7代|
+| 显卡 | 集成显卡 | GeForce GTX 2080 Ti |
+| 内存 | 8GB DDR3 | 16GB DDR5 |
+| 存储 | 64GB HDD | 128GB SSD |
 | 网络 | 100Mbps | 1000Mbps |
-| 摄像头 | 1080p (人脸识别专用) | 1080p |
+| 摄像头 | 1080p (人脸识别专用) | 4K |
 
 #### 软件环境
 
@@ -993,7 +994,7 @@ graph TD
 - 项目说明 : README.md
 - 许可证 : LICENSE
 
-### 🐛 问题反馈
+### 🐞 问题反馈
 
 提交Issue时请包含：
 
@@ -1091,7 +1092,7 @@ pip install -r requirements.txt --upgrade
 
 ### GRU-PA站室绩效考核系统 让管理更简单，让考核更公平
 
-📖 文档 | 🐛 反馈 | ⭐ 点赞
+📖 文档 | 🐞 反馈 | ⭐ 点赞
 
 手册版本: v1.0.0 | 更新时间: 2025-08-12 | 作者: Simon Lau
 
