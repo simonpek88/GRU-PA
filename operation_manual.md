@@ -198,7 +198,7 @@ GRU-PA (Grass-roots unit Performance Appraisal system) 是一款专为基层站�
 streamlit run gru-pa.py
 
 # 指定参数启动
-streamlit run gru-pa.py --server.port {空闲端口} --server.address localhost或{实际地址}
+streamlit run gru-pa.py --server.port {空闲端口} --server.address localhost或服务器IP地址
 ```
 
 #### 生产环境
@@ -206,7 +206,7 @@ streamlit run gru-pa.py --server.port {空闲端口} --server.address localhost�
 ```bash
 # 使用screen保持后台运行 (Linux)
 screen -S gru-pa
-streamlit run gru-pa.py --server.port {空闲端口} --server.address localhost或{实际地址} --server.headless true
+streamlit run gru-pa.py --server.port {空闲端口} --server.address localhost或服务器IP地址 --server.headless true
 # 按Ctrl+A+D退出screen
 
 # 使用systemd服务 (Linux)
@@ -1094,7 +1094,7 @@ pip install -r requirements.txt --upgrade
 
 📖 文档 | 🐞 反馈 | ⭐ 点赞
 
-手册版本: v1.0.0 | 更新时间: 2025-08-12 | 作者: Simon Lau
+手册版本: v1.0.5 | 更新时间: 2025-08-12 | 作者: Simon Lau
 
 版权说明 : 本手册版权归GRU-PA项目所有，遵循MIT开源协议。欢迎转载、修改和再发布，但请注明出处。
 

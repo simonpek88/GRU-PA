@@ -3218,7 +3218,7 @@ elif st.session_state.logged_in:
         else:
             notice_icon = 'megaphone'
         if st.session_state.userType == "admin":
-            if st.session_state.userID == 1 and st.session_state.StationCN == "北京站":
+            if st.session_state.userID in [1]:
                 system_da = True
             else:
                 system_da = False
