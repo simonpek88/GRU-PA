@@ -299,37 +299,6 @@ def changePassword():
         st.warning("原密码不能为空")
 
 
-@st.fragment
-def changelog():
-    changelogInfo = open("./CHANGELOG.md", "r", encoding="utf-8").read()
-    st.markdown(changelogInfo)
-
-
-def aboutReadme():
-    new_content_with_badge = ''
-    package_pack = ['Streamlit', 'Streamlit-antd-components', 'NumPY', 'Pandas', 'Plotly', 'Python-docx', 'Openpyxl', 'XlsxWriter', 'PyJWT', 'Dlib', 'Face-recognition', 'Opencv-python', 'Streamlit-webrtc']
-    with open('./README.md', 'r', encoding='utf-8') as file:
-        lines = file.readlines()
-
-    verinfo, verLM = getVerInfo()
-    app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{verinfo}'
-    app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
-    for line in lines:
-        if line.startswith("    ![GRU-PA ver]"):
-            line = f"    ![GRU-PA ver](https://img.shields.io/badge/ver-{app_version}-blue.svg)"
-        elif line.startswith("    ![GRU-PA updated]"):
-            line = f"    ![GRU-PA updated](https://img.shields.io/badge/updated-{app_lm.replace('-', '/')[2:10]}%20{app_lm[-5:]}-orange.svg)"
-        elif line.startswith("      !["):
-            for each in package_pack:
-                if line.startswith(f"      ![{each}]"):
-                    package_ver = importlib.metadata.version(each)
-                    line = f"      ![{each}](https://img.shields.io/badge/{each.replace('-', '_')}-{package_ver}-blue.svg)"
-                    break
-        new_content_with_badge = new_content_with_badge + line + "\n"
-    new_content_with_badge = new_content_with_badge.replace('\n\n', '\n')
-    st.markdown(new_content_with_badge, unsafe_allow_html=True)
-
-
 def aboutInfo():
     updatePyFileinfo()
     cols_limit = 5
@@ -3160,9 +3129,10 @@ def gen_statist_metric():
             st.info("未查询到记录")
 
 
-def operation_manual():
+def dyna_display_note(note_file):
+    package_pack = ['Streamlit', 'Streamlit-antd-components', 'NumPY', 'Pandas', 'Plotly', 'Python-docx', 'Openpyxl', 'XlsxWriter', 'PyJWT', 'Dlib', 'Face-recognition', 'Opencv-python', 'Streamlit-webrtc']
     new_content_with_badge = ''
-    with open('./operation_manual.md', 'r', encoding='utf-8') as file:
+    with open(f'./{note_file}', 'r', encoding='utf-8') as file:
         lines = file.readlines()
 
     verinfo, verLM = getVerInfo()
@@ -3173,6 +3143,12 @@ def operation_manual():
             line = f"    ![GRU-PA ver](https://img.shields.io/badge/ver-{app_version}-blue.svg)"
         elif line.startswith("    ![GRU-PA updated]"):
             line = f"    ![GRU-PA updated](https://img.shields.io/badge/updated-{app_lm.replace('-', '/')[2:10]}%20{app_lm[-5:]}-orange.svg)"
+        elif line.startswith("      !["):
+            for each in package_pack:
+                if line.startswith(f"      ![{each}]"):
+                    package_ver = importlib.metadata.version(each)
+                    line = f"      ![{each}](https://img.shields.io/badge/{each.replace('-', '_')}-{package_ver}-blue.svg)"
+                    break
         new_content_with_badge = new_content_with_badge + line + "\n"
     new_content_with_badge = new_content_with_badge.replace('\n\n', '\n')
     st.markdown(new_content_with_badge, unsafe_allow_html=True)
@@ -3384,11 +3360,12 @@ elif st.session_state.logged_in:
     elif selected == "登出":
         logout()
     elif selected == "操作手册":
-        operation_manual()
+        dyna_display_note('operation_manual.md')
     elif selected == "更新日志":
-        changelog()
+        changelogInfo = open("./CHANGELOG.md", "r", encoding="utf-8").read()
+        st.markdown(changelogInfo)
     elif selected == "项目说明":
-        aboutReadme()
+        dyna_display_note('README.md')
     elif selected == "关于":
         aboutInfo()
     elif selected == "彩蛋":

@@ -5,7 +5,7 @@
     ![GRU-PA ver](https://img.shields.io/badge/ver-0.13.1352-blue.svg)
     ![GRU-PA updated](https://img.shields.io/badge/updated-25/08/11%2016:59-orange.svg)
     ![GRU-PA build](https://img.shields.io/badge/build-passing-deepgreen.svg)
-    ![GRU-PA top-languages](https://img.shields.io/github/languages/top/simonpek88/GRU-PA.svg)
+    ![GRU-PA languages-count](https://img.shields.io/github/languages/count/simonpek88/GRU-PA.svg)
     ![GRU-PA commits](https://img.shields.io/github/commit-activity/t/simonpek88/GRU-PA.svg)
 
 ## 目录
@@ -112,6 +112,37 @@ GRU-PA (Grass-roots unit Performance Appraisal system) 是一款专为基层站�
     ```
 
 3. 安装依赖
+    - 主要依赖
+      - Streamlit # 前端框架
+      - Streamlit-antd-components/extras/keyup # 前端组件库
+      - Streamlit_condition_tree # 条件树SQL语句生成
+      - Pycryptodome # 数据加密模块
+      - NumPY # 数学计算
+      - Plotly # 数据可视化
+      - Python-docx # Word文档操作
+      - Openpyxl/XlsxWriter # Excel文档操作
+      - PyJWT # JSON Web Token认证(和风天气API需要使用)
+      - Dlib # 人脸识别库(可选)
+      - Face-recognition # 人脸识别(可选)
+      - Opencv-python # 图像处理(可选)
+      - streamlit-webrtc # 浏览器webrtc模块(可选)
+      - ...
+
+      ![Python](https://img.shields.io/badge/Python-3.12.6-blue.svg)
+      ![MySQL](https://img.shields.io/badge/MySQL-8.4.5-blue.svg)
+      ![Streamlit](https://img.shields.io/badge/Streamlit-1.47.1-blue.svg)
+      ![Streamlit-antd-components](https://img.shields.io/badge/Streamlit_antd_components-0.3.2-blue.svg)
+      ![NumPY](https://img.shields.io/badge/NumPY-2.3.2-blue.svg)
+      ![Pandas](https://img.shields.io/badge/Pandas-2.3.1-blue.svg)
+      ![Plotly](https://img.shields.io/badge/Plotly-6.2.0-blue.svg)
+      ![Python-docx](https://img.shields.io/badge/Python_docx-1.2.0-blue.svg)
+      ![Openpyxl](https://img.shields.io/badge/Openpyxl-3.1.5-blue.svg)
+      ![XlsxWriter](https://img.shields.io/badge/XlsxWriter-3.2.5-blue.svg)
+      ![PyJWT](https://img.shields.io/badge/PyJWT-2.10.1-blue.svg)
+      ![Dlib](https://img.shields.io/badge/Dlib-20.0.0-blue.svg)
+      ![Face-recognition](https://img.shields.io/badge/Face_recognition-1.3.0-blue.svg)
+      ![Opencv-python](https://img.shields.io/badge/Opencv_python-4.12.0.88-blue.svg)
+      ![Streamlit-webrtc](https://img.shields.io/badge/Streamlit_webrtc-0.63.3-blue.svg)
 
     ```bash
     # 创建虚拟环境 (推荐)
@@ -123,8 +154,8 @@ GRU-PA (Grass-roots unit Performance Appraisal system) 是一款专为基层站�
     # 安装Python包
     pip install -r requirements.txt
 
-    # 安装Dlib (Windows)
-    pip install dlib/dlib-20.0.0-cp{python环境版本}-cp{python环境版本}-win_amd64.whl
+    # 安装Dlib (Windows 请对应python版本选择对应的whl文件)
+    pip install dlib/dlib-20.0.0-cp{python版本}-cp{python版本}-win_amd64.whl
 
     # 安装Dlib (Windows/Linux/Mac编译)
     cd dlib
@@ -137,12 +168,10 @@ GRU-PA (Grass-roots unit Performance Appraisal system) 是一款专为基层站�
     cd ..
     # setup.py 安装
     python setup.py install
-    ```
-
-    ```bash
-    # wheel文件安装 (推荐)
+    # 或者
+    # 编译成wheel文件安装 (推荐)
     python setup.py bdist_wheel # 生成wheel文件
-    pip install dist/dlib-20.0.0-cp{python环境版本}-cp{python环境版本}-win_amd64.whl
+    pip install dist/dlib-20.0.0-cp{python版本}-cp{python版本}-win_amd64.whl
     ```
 
     ```bash
@@ -177,6 +206,8 @@ GRU-PA (Grass-roots unit Performance Appraisal system) 是一款专为基层站�
     ```
 
 5. 配置文件设置
+
+    默认端口8510 [修改前请查阅相关文档](https://docs.streamlit.io/develop/api-reference/configuration/config.toml)
 
     ```bash
     # .streamlit/config.toml
@@ -215,7 +246,9 @@ sudo systemctl enable gru-pa
 sudo systemctl start gru-pa
 
 # Windows后台运行
-streamlit run gru-pa.py --server.port 8510 > gru-pa.log 2>&1
+streamlit run gru-pa.py (默认配置)
+# 或
+streamlit run gru-pa.py --server.port {空闲端口} --server.address localhost或服务器IP地址 --server.headless true
 ```
 
 ## 快速入门
@@ -394,14 +427,27 @@ streamlit run gru-pa.py --server.port 8510 > gru-pa.log 2>&1
 
 ### 🔍 高级查询 条件查询构建器
 
+#### 条件树SQL语句生成
+
+- 可查询表:
+  - 工作量内容固定列表
+  - 员工工作量表
+  - 城市代码表 (天气功能)
+
 ```sql
 -- 示例查询条件
-WHERE 工作日期 BETWEEN '2025-08-01' AND '2025-08-31'
-  AND 用户 IN ('张三', '李四')
-  AND 工作内容 LIKE '%巡检%'
-  AND 分值 >= 10
-  AND 审核状态 = '已核定'
+...
+FROM 员工工作量表
+WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
+  AND 姓名 = '张三'
+  AND 任务内容 LIKE '%巡检%'
+  AND 单项分值 >= 10
+  AND 核定 is true
 ```
+
+##### 高级查询示例截图
+
+![高级查询示例截图](https://i.postimg.cc/qv5vybLS/user-def-query.png)
 
 ## 公告发布和修改
 
@@ -613,7 +659,7 @@ graph TD
 
 ##### 个人设置截图
 
-![个人设置截图](https://i.postimg.cc/1XGswzFm/users-setup.png)
+![个人设置截图](https://i.postimg.cc/QMKxbQYt/users-setup.png)
 
 #### 设置操作说明
 
@@ -846,7 +892,7 @@ graph TD
 
 ##### 系统设置截图
 
-![系统设置截图](https://i.postimg.cc/sDgNpX7T/system-setup.png)
+![系统设置截图](https://i.postimg.cc/htjGJW9V/system-setup.png)
 
 #### 数据维护
 
@@ -925,7 +971,7 @@ graph TD
    pkill -f streamlit
 
    # 重新启动
-   nohup streamlit run gru-pa.py > gru-pa.log 2>&1 &
+   nohup streamlit run gru-pa.py
    ```
 
 3. 检查端口占用
@@ -1020,34 +1066,38 @@ graph TD
 
 ### 📄 文件清单
 
-```bash
-GRU-PA/
-├── gru-pa.py                # 主程序文件
-├── commFunc.py              # 公共函数库
-├── face_login.py            # 人脸识别模块
-├── hf_weather.py            # 和风天气API
-├── gd_weather.py            # 高德天气API
-├── gen_badges.py            # 徽章生成器
-├── gen_license_plate.py     # 车牌生成器
-├── requirements.txt         # 依赖包列表
-├── README.md                # 项目说明
-├── CHANGELOG.md             # 更新日志
-├── operation_manual.md      # 操作手册
-├── manual.md                # 本完整手册
-├── LICENSE                  # 开源协议
-├── .streamlit/config.toml   # Streamlit配置
-├── .gitignore               # Git忽略文件
-├── DBBackup.ps1             # 数据库备份脚本
-├── restoredb.bat            # 数据库恢复脚本
-├── dlib/                    # Dlib相关文件
-├── documents/               # 文档目录
-├── fonts/                   # 字体文件
-├── ID_Photos/               # 人脸照片
-├── Images/                  # 图片资源
-├── MyComponentsScript/      # 自定义组件
-├── MySQL_Backup/            # 数据库备份
-└── .vscode/                 # VSCode配置
-```
+- .streamlit/config.toml # Streamlit配置文件
+- .mysql.cnf # MySQL配置文件
+- gru-pa.py # 入口文件及主程序 All in one
+- mysql_pool_cpython.pyc # MySQL连接池模块(不同步)
+- commFunc.py # 公共函数模块
+- gen_badges.py # 徽章生成模块
+- face_login.py # 人脸登录模块
+- hf_weather.py # 和风天气API模块
+- gd_weather.py # 高德天气API模块
+- gen_license_plate.py # 车牌生成模块
+- dlib # dlib人脸识别库whl文件、编译说明及68个点模型文件
+- documents # 文档文件(不同步)
+- fonts # 字体文件
+- ID_Photos # 用户人脸图像, 用于生成识别数据
+- Images # 图片文件
+  - badges # 徽章文件
+  - Clock-Images # 时钟图片
+  - license_plate # 车牌图片
+    - background # 车牌生成背景图片
+    - vehicle_logo # 汽车品牌logo
+  - logos # 依赖库logo文件
+- MyComponentsScript # 自定义组件脚本, txt格式
+- MySQL_Backup # MySQL备份文件
+- user_pa # 用户统计数据导出文档 (不同步)
+- operation_manual.md # 操作手册文件
+- README.md # 项目说明文件
+- CHANGELOG.md # 项目更新日志
+- requirements.txt # 自动安装依赖文件
+- CSC-Common-CustomDict.txt # CSpell自定义通用字典文件
+- CSC-Project-CustomDict.txt # CSpell自定义字典文件
+- DBBackup.ps1 # 数据库备份PS脚本
+- restoredb.bat # 数据库恢复bat脚本
 
 ### 🎯 快速命令参考
 
@@ -1060,7 +1110,7 @@ streamlit run gru-pa.py
 #### 后台启动
 
 ```bash
-nohup streamlit run gru-pa.py > gru-pa.log 2>&1 &
+nohup streamlit run gru-pa.py
 ```
 
 #### 数据库备份 (需配置.mysql.cnf文件)
@@ -1075,12 +1125,6 @@ nohup streamlit run gru-pa.py > gru-pa.log 2>&1 &
 ```bash
 ./restoredb.bat        # Windows
 ./restoredb.sh         # Linux
-```
-
-#### 查看日志
-
-```bash
-tail -f gru-pa.log
 ```
 
 #### 更新系统

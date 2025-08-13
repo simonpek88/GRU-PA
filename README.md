@@ -7,7 +7,7 @@ Grass-roots unit performance appraisal system (GRU-PA).
     ![GRU-PA ver](https://img.shields.io/badge/ver-0.13.1352-blue.svg)
     ![GRU-PA updated](https://img.shields.io/badge/updated-25/08/11%2016:59-orange.svg)
     ![GRU-PA build](https://img.shields.io/badge/build-passing-deepgreen.svg)
-    ![GRU-PA top-languages](https://img.shields.io/github/languages/top/simonpek88/GRU-PA.svg)
+    ![GRU-PA languages-count](https://img.shields.io/github/languages/count/simonpek88/GRU-PA.svg)
     ![GRU-PA commits](https://img.shields.io/github/commit-activity/t/simonpek88/GRU-PA.svg)
 
 ## 站室绩效考核系统GRU-PA 是一个前端基于 Streamlit 框架，后端基于Python数据处理的web应用，旨在简化站室工作量录入、统计及考核
@@ -99,7 +99,8 @@ Grass-roots unit performance appraisal system (GRU-PA).
 - MyComponentsScript # 自定义组件脚本, txt格式
 - MySQL_Backup # MySQL备份文件
 - user_pa # 用户统计数据导出文档 (不同步)
-- README.md # 项目说明文件(本文件, Markdown格式)
+- operation_manual.md # 项目操作手册
+- README.md # 项目说明文件
 - CHANGELOG.md # 项目更新日志
 - requirements.txt # 自动安装依赖文件
 - CSC-Common-CustomDict.txt # CSpell自定义通用字典文件
