@@ -3274,8 +3274,6 @@ elif st.session_state.logged_in:
                 ]),
                 sac.MenuItem('关于', icon='info-circle', children=[
                     sac.MenuItem('操作手册', icon='journal-bookmark'),
-                    sac.MenuItem('更新日志', icon='h-square'),
-                    sac.MenuItem('项目说明', icon='clipboard'),
                     sac.MenuItem('彩蛋', icon='bootstrap'),
                     sac.MenuItem('关于', icon='book'),
                     sac.MenuItem('许可证', icon='card-text'),
