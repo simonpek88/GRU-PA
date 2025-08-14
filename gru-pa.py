@@ -144,11 +144,11 @@ def login_init(result):
     st.session_state.userType = result[0][2]
     st.session_state.StationCN = result[0][3]
     st.session_state.userPwRechecked = False
-    if st.session_state.userType == 'demo':
-        st.session_state.demo = True
+    if st.session_state.userType == 'readonly':
+        st.session_state.readonly = True
     else:
-        st.session_state.demo = False
-    if st.session_state.userType == 'admin' and st.session_state.userID in [1] or st.session_state.demo:
+        st.session_state.readonly = False
+    if st.session_state.userType == 'admin' and st.session_state.userID in [1] or st.session_state.readonly:
         st.session_state.dba = True
     else:
         st.session_state.dba = False
@@ -3201,7 +3201,7 @@ elif st.session_state.logged_in:
             notice_icon = 'megaphone-fill'
         else:
             notice_icon = 'megaphone'
-        if st.session_state.userType in ["admin", "demo"]:
+        if st.session_state.userType in ["admin", "readonly"]:
             selected = sac.menu([
                 sac.MenuItem('公告', icon=notice_icon),
                 sac.MenuItem('主页', icon='house'),
