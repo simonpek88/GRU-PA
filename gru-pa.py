@@ -1036,6 +1036,7 @@ def manual_input():
         flag_add_pa, flag_multi_score, flag_comm_task, flag_default_task, flag_share_score, flag_task_type = False, False, False, False, False, False
     task_content = st.text_area("工作内容", height=100)
     confirm_btn_manual = st.button("确认添加", disabled=st.session_state.readonly)
+    task_content = task_content.strip()
     if task_group and task_content and confirm_btn_manual:
         sql = f"SELECT ID from clerk_work where task_date = '{task_date}' and clerk_id = {add_userID} and clerk_work = '{task_content}'"
         if not execute_sql(cur, sql):
