@@ -56,9 +56,9 @@ GRU-PA (Grass-roots unit Performance Appraisal system) 是一款专为基层站�
 ### ✨ 核心特性
 
 - 双因子认证 : 密码 + 人脸识别双重验证
-- 智能录入 : 支持批量录入、模板导入、语音输入
+- 智能录入 : 支持批量录入、手工录入, 智能推荐工作内容
 - 多维分析 : 9种图表类型，支持时间序列分析
-- 实时天气 : 集成和风天气API，支持历史天气查询
+- 实时天气 : 集成和风天气和高德天气API，支持历史天气和高温记录查询
 - 一键导出 : Excel/Word双格式，支持自定义模板
 - 权限管控 : 基于RBAC的精细化权限管理
 
@@ -121,11 +121,11 @@ GRU-PA (Grass-roots unit Performance Appraisal system) 是一款专为基层站�
       - Plotly # 数据可视化
       - Python-docx # Word文档操作
       - Openpyxl/XlsxWriter # Excel文档操作
-      - PyJWT # JSON Web Token认证(和风天气API需要使用)
-      - Dlib # 人脸识别库(可选)
-      - Face-recognition # 人脸识别(可选)
-      - Opencv-python # 图像处理(可选)
-      - streamlit-webrtc # 浏览器webrtc模块(可选)
+      - PyJWT # JSON Web Token认证 (和风天气API使用)
+      - Dlib # 人脸识别库 (可选)
+      - Face-recognition # 人脸识别 (可选)
+      - Opencv-python # 图像处理 (可选)
+      - streamlit-webrtc # 浏览器webrtc模块 (可选)
       - ...
 
       ![Python](https://img.shields.io/badge/Python-3.12.6-blue.svg)

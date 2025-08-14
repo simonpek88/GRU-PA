@@ -79,6 +79,9 @@ def login():
         sql = f"SELECT Count(ID) from users_face_data where StationCN = '{station_type}'"
         cur.execute(sql)
         face_login_available = True if cur.fetchone()[0] > 0 else False
+        if query_userCName is not None:
+            if query_userCName == 'Visitor':
+                face_login_available = False
         # 用户密码输入框
         userPassword = st.text_input("请输入密码", max_chars=8, placeholder="用户初始密码为1234", type="password", autocomplete="off")
         login_type = sac.segmented(
