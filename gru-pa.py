@@ -144,6 +144,14 @@ def login_init(result):
     st.session_state.userType = result[0][2]
     st.session_state.StationCN = result[0][3]
     st.session_state.userPwRechecked = False
+    if st.session_state.userType == 'demo':
+        st.session_state.demo = True
+    else:
+        st.session_state.demo = False
+    if st.session_state.userType == 'admin' and st.session_state.userID in [1] or st.session_state.demo:
+        st.session_state.dba = True
+    else:
+        st.session_state.dba = False
     # 获取系统设置
     get_system_setup()
     # 获取城市编码
@@ -518,7 +526,7 @@ def show_task_list(row2, task_date, flag_auto_task, task_clerk_type):
             if st.session_state.userID in [1, 7, 11]:
                 auto_task = True
         elif row2[1] == '办公室卫生清洁':
-            if st.session_state.userID in [1, 5, 12]:
+            if st.session_state.userID in []:
                 auto_task = True
         st.checkbox(f"{row2[1]} {title_score_info}:{row2[2]}", value=auto_task, key=f"task_work_{row2[0]}")
     task_col = st.columns(2)
@@ -3193,11 +3201,7 @@ elif st.session_state.logged_in:
             notice_icon = 'megaphone-fill'
         else:
             notice_icon = 'megaphone'
-        if st.session_state.userType == "admin":
-            if st.session_state.userID in [1]:
-                system_da = True
-            else:
-                system_da = False
+        if st.session_state.userType in ["admin", "demo"]:
             selected = sac.menu([
                 sac.MenuItem('公告', icon=notice_icon),
                 sac.MenuItem('主页', icon='house'),
@@ -3228,10 +3232,10 @@ elif st.session_state.logged_in:
                         sac.MenuItem('工作内容修改', icon='card-text'),
                     ]),
                     sac.MenuItem('数据库备份', icon='backpack4'),
-                ], disabled=not system_da),
+                ], disabled=not st.session_state.dba),
                 sac.MenuItem('设置', icon='gear', children=[
                     sac.MenuItem('个人设置', icon='sliders2'),
-                    sac.MenuItem('系统设置', icon='sliders2-vertical', disabled=not system_da),
+                    sac.MenuItem('系统设置', icon='sliders2-vertical', disabled=not st.session_state.dba),
                     sac.MenuItem('录入人脸数据', icon='person-bounding-box'),
                     sac.MenuItem('人脸识别测试', icon='person-video3'),
                 ]),
@@ -3249,7 +3253,7 @@ elif st.session_state.logged_in:
                     sac.MenuItem('许可证', icon='card-text'),
                 ]),
             ], open_index=[1, 2], index=st.session_state.menu_index)
-        elif st.session_state.userType == "user":
+        elif st.session_state.userType in ["user"]:
             selected = sac.menu([
                 sac.MenuItem('公告', icon=notice_icon),
                 sac.MenuItem('主页', icon='house'),
