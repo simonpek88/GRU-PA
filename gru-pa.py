@@ -402,6 +402,7 @@ def confirm_add_task(task_date):
 def task_input():
     #st.markdown("### <font face='微软雅黑' color=red><center>工作量录入</center></font>", unsafe_allow_html=True)
     st.subheader("任务批量录入", divider="green")
+    comm_tasks_id = []
     # 初始化任务组别图标
     task_group_icon = init_task_group_icon()
     # 刷新用户设置
@@ -420,12 +421,13 @@ def task_input():
     result = execute_sql(cur, sql)
     if result:
         st.markdown("##### 已输入工作量:\n\n")
-        for row in result:
-            st.write(f':violet[工作类型:] {row[2]} :orange[内容:] {row[0]} :green[分值:] {row[1]}')
-            ttl_score += row[1]
-        st.markdown(f':red[总分:] {ttl_score}')
+        with st.expander(f"# :green[工作量列表]", icon=':material/assignment:', expanded=False):
+            for row in result:
+                st.write(f':violet[工作类型:] {row[2]} :orange[内容:] {row[0]} :green[分值:] {row[1]}')
+                ttl_score += row[1]
+        st.markdown(f'##### :red[总分:] {ttl_score}')
     else:
-        st.markdown(f'###### :red[无任何记录]')
+        st.markdown(f'##### :red[无任何记录]')
     st.divider()
     clerk_work_pack = []
     sql = f"SELECT pa_content, pa_score, task_group, multi_score, pa_share, default_task, min_days from gru_pa where task_valid = 1 and StationCN = '{st.session_state.StationCN}'"
@@ -473,10 +475,30 @@ def task_input():
     expander_col = st.columns(2)
     # 常用任务
     with expander_col[0].expander(f"# :green[常用]", icon=':material/bookmark_star:', expanded=True):
-        sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task, pa_share, task_type from gru_pa where task_valid = 1 and StationCN = '{st.session_state.StationCN}' and comm_task = {task_clerk_type} order by ID"
+        his_comm_tasks_sql = f"""
+            SELECT * FROM (
+                SELECT clerk_work
+                FROM clerk_work
+                WHERE clerk_id = {st.session_state.userID}
+                    AND clerk_work IN (
+                        SELECT pa_content
+                        FROM gru_pa
+                        WHERE comm_task = 0
+                            AND pa_content NOT LIKE '启输%'
+                            AND pa_content NOT LIKE '停输%'
+                            AND min_days = 0
+                    )
+                GROUP BY clerk_work
+                HAVING COUNT(clerk_work) > {st.session_state.min_comm_task}
+                ORDER BY COUNT(clerk_work) DESC
+                LIMIT 5
+            ) AS temp_table
+        """
+        sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task, pa_share, task_type from gru_pa where task_valid = 1 and StationCN = '{st.session_state.StationCN}' and comm_task = {task_clerk_type} or pa_content in ({his_comm_tasks_sql}) order by ID"
         rows2 = execute_sql(cur, sql)
         for row2 in rows2:
             show_task_list(row2, task_date, flag_auto_task, task_clerk_type)
+            comm_tasks_id.append(row2[0])
     # 所有任务组别
     if st.session_state.task_group_sort:
         sql = f"""
@@ -504,7 +526,8 @@ def task_input():
                 expand_icon = 'dashboard_customize'
             with expander_col[expander_col_index % 2].expander(f"# :green[{row[0]}]", icon=f':material/{expand_icon}:', expanded=False):
                 for row2 in rows2:
-                    show_task_list(row2, task_date, flag_auto_task, task_clerk_type)
+                    if row2[0] not in comm_tasks_id:
+                        show_task_list(row2, task_date, flag_auto_task, task_clerk_type)
             expander_col_index += 1
     if confirm_btn_input:
         confirm_add_task(task_date)
@@ -2825,6 +2848,8 @@ def system_setup():
             min_value, max_value, step_value = 14, 60, 2
         elif each[1] == 'min_distance':
             min_value, max_value, step_value, affix_info = 50, 90, 2, '%'
+        elif each[1] == 'min_comm_task':
+            min_value, max_value, step_value = 3, 20, 1
         else:
             min_value, max_value, step_value = 0, 100, 1
         with col[col_index % col_limit]:
@@ -3164,7 +3189,7 @@ def dyna_display_note(note_file):
                     break
         new_content_with_badge = new_content_with_badge + line + "\n"
     new_content_with_badge = new_content_with_badge.replace('\n\n', '\n')
-    st.markdown(new_content_with_badge, unsafe_allow_html=True)
+    st.markdown(new_content_with_badge)
 
 
 global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME
