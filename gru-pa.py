@@ -145,6 +145,7 @@ def login_init(result):
     st.session_state.StationCN = result[0][3]
     st.session_state.userPwRechecked = False
     if st.session_state.userType == 'readonly':
+        st.session_state.userType = 'admin'
         st.session_state.readonly = True
     else:
         st.session_state.readonly = False
@@ -410,7 +411,7 @@ def task_input():
         flag_auto_task = sac.switch("自动选择日常工作", value=st.session_state.auto_task_check, align="start", on_label="On")
         flag_clerk_type = sac.switch("岗位工作类型", value=st.session_state.task_clerk_type, align="start", on_label="值班", off_label="白班")
     task_date = col2.date_input('工作时间', value=datetime.date.today() - datetime.timedelta(days=1), max_value="today")
-    confirm_btn_input = st.button("确认添加")
+    confirm_btn_input = st.button("确认添加", disabled=st.session_state.readonly)
     ttl_score = 0
     sql = f"SELECT clerk_work, task_score, task_group from clerk_work where clerk_id = {st.session_state.userID} and task_date = '{task_date}'"
     result = execute_sql(cur, sql)
@@ -1031,7 +1032,7 @@ def manual_input():
     else:
         flag_add_pa, flag_multi_score, flag_comm_task, flag_default_task, flag_share_score, flag_task_type = False, False, False, False, False, False
     task_content = st.text_area("工作内容", height=100)
-    confirm_btn_manual = st.button("确认添加")
+    confirm_btn_manual = st.button("确认添加", disabled=st.session_state.readonly)
     if task_group and task_content and confirm_btn_manual:
         sql = f"SELECT ID from clerk_work where task_date = '{task_date}' and clerk_id = {add_userID} and clerk_work = '{task_content}'"
         if not execute_sql(cur, sql):
@@ -1059,7 +1060,7 @@ def manual_input():
 
 def reset_table_num(flag_force=False):
     if not flag_force:
-        confirm_btn_reset = st.button("确认重置PA-Number")
+        confirm_btn_reset = st.button("确认重置PA-Number", disabled=st.session_state.readonly)
     else:
         confirm_btn_reset = True
     if confirm_btn_reset:
@@ -1135,8 +1136,8 @@ def task_modify():
     st.markdown(f':red[总分:] {ttl_score}')
     task_modify_id = col4.selectbox("请选择任务ID", user_task_id_pack, index=None)
     if task_modify_id:
-        confirm_btn_delete = col1.button("删除", type="primary")
-        btn_modify = col3.button("修改", type="primary")
+        confirm_btn_delete = col1.button("删除", type="primary", disabled=st.session_state.readonly)
+        btn_modify = col3.button("修改", type="primary", disabled=st.session_state.readonly)
         sql = f"SELECT task_approved FROM clerk_work where ID = {task_modify_id} and clerk_id = {query_userID}"
         approved_result = bool(execute_sql(cur, sql)[0][0])
         if not approved_result or st.session_state.userType == 'admin':
@@ -1241,8 +1242,8 @@ def check_data():
     col = st.columns(4)
     dur_time = query_date_end - query_date_start
     st.markdown(f'##### 统计周期: {dur_time.days + 1}天')
-    confirm_btn_approv = col[2].button("核定")
-    confirm_btn_check = col[3].button("检查")
+    confirm_btn_approv = col[2].button("核定", disabled=st.session_state.readonly)
+    confirm_btn_check = col[3].button("检查", disabled=st.session_state.readonly)
     cert_userCName = col[0].selectbox("请选择核定用户", userCName)
     cert_userID = userID[userCName.index(cert_userCName)]
     with col[1]:
@@ -1299,7 +1300,7 @@ def resetPassword():
             rUserName = userID[userCName.index(query_userCName)]
         if query_userCName is not None:
             # 创建重置按钮
-            btnResetUserPW = st.button("重置", type="primary")
+            btnResetUserPW = st.button("重置", type="primary", disabled=st.session_state.readonly)
             if btnResetUserPW:
                 st.button("确认重置", type="secondary", on_click=actionResetUserPW, args=(rUserName,))
                 st.session_state.userPwRechecked = False
@@ -1357,7 +1358,7 @@ def deduction_input():
         task_score = -50
     deduct_score = col2.number_input("扣分", min_value=st.session_state.max_deduct_score, max_value=-10, value=task_score, step=10)
     deduct_content = col1.text_area("自定义扣分项内容", value=task_deduct, placeholder="可选择固定扣分项后修改", height=100)
-    confirm_btn_add = st.button("确认添加")
+    confirm_btn_add = st.button("确认添加", disabled=st.session_state.readonly)
     if confirm_btn_add:
         #st.write(deduct_content, deduct_score, deduct_userID, deduct_userCName, deduct_date)
         if deduct_content:
@@ -1685,7 +1686,7 @@ def input_public_notice():
     col1, col2 = st.columns(2)
     query_date_start = col1.date_input('公告开始时间', value=datetime.date.today(), min_value="today")
     query_date_end = col2.date_input('公告结束时间', value=query_date_start + datetime.timedelta(days=15), min_value=query_date_start, max_value=query_date_start + datetime.timedelta(days=90))
-    confirm_btn_public = st.button('发布')
+    confirm_btn_public = st.button('发布', disabled=st.session_state.readonly)
     display_area = st.empty()
     with display_area.container():
         public_text = st.text_area('请输入公告内容')
@@ -1720,7 +1721,7 @@ def modify_notice():
         modify_end_time = col[1].date_input("结束时间", value=result[select_notice_index][2])
         st.markdown('##### :red[如果删除, 请在修改内容中键入大写的DELETE]')
         modify_public_text = st.text_area(label='修改公告内容', value=select_notice)
-        confirm_btn_modify = st.button('修改')
+        confirm_btn_modify = st.button('修改', disabled=st.session_state.readonly)
         if confirm_btn_modify:
             if modify_public_text != 'DELETE':
                 sql = f"UPDATE notices set notice = '{modify_public_text}', start_time = '{modify_start_time}', end_time = '{modify_end_time}' where ID = {result[select_notice_index][3]} and StationCN = '{st.session_state.StationCN}'"
@@ -2530,14 +2531,14 @@ def modify_db(sub_func):
     if sub_func == "重置PA-Number":
         reset_table_num()
     elif sub_func == "重置工作组别":
-        btn_reset_task_group = st.button(label="确认重置工作组别热度")
+        btn_reset_task_group = st.button(label="确认重置工作组别热度", disabled=st.session_state.readonly)
         if btn_reset_task_group:
             sql = "TRUNCATE TABLE users_task_group_freq"
             execute_sql_and_commit(conn, cur, sql)
             update_users_group_frequency()
             st.success("工作组别热度重置完成")
     elif sub_func == "更新ID初始值":
-        btn_reset_table_id = st.button(label="确认更新ID初始值")
+        btn_reset_table_id = st.button(label="确认更新ID初始值", disabled=st.session_state.readonly)
         if btn_reset_table_id:
             sql = """
                 SELECT table_name
@@ -2549,7 +2550,7 @@ def modify_db(sub_func):
                 for table_name in result:
                     reset_auto_increment(table_name[0])
     elif sub_func == "更新PA-Share":
-        btn_reset_pa_share = st.button(label="确认更新PA-Share")
+        btn_reset_pa_share = st.button(label="确认更新PA-Share", disabled=st.session_state.readonly)
         if btn_reset_pa_share:
             st.spinner(text="正在更新PA-Share...")
             sql = "SELECT DISTINCT(share_date) from pa_share order by share_date"
@@ -2560,7 +2561,7 @@ def modify_db(sub_func):
                 update_pa_share(date_result[0])
             st.success("PA-Share更新完成")
     elif sub_func == "更新固定分值":
-        btn_update_fixed_score = st.button(label="更新固定分值", type='primary')
+        btn_update_fixed_score = st.button(label="更新固定分值", type='primary', disabled=st.session_state.readonly)
         if btn_update_fixed_score:
             st.button(label="确认更新", type='secondary', on_click=update_fixed_score)
     elif sub_func == "组别名称修改":
@@ -2570,7 +2571,7 @@ def modify_db(sub_func):
     elif sub_func == "工作内容修改":
         edit_task_content()
     elif sub_func == "数据库备份":
-        btn_backup = st.button(label="开始备份")
+        btn_backup = st.button(label="开始备份", disabled=st.session_state.readonly)
         if btn_backup:
             backup_file = f"./MySQL_Backup/GRU-PA-MySQL_Backup_{int(time.time())}.sql"
             cmd = f'mysqldump --defaults-file=.mysql.cnf gru-pa > {backup_file}'
@@ -2657,7 +2658,7 @@ def get_users_portrait():
         bytes_data = img_file_buffer.getvalue()
         # Check the type of bytes_data:
         # Should output: <class 'bytes'>
-        btn_save_picture = st.button("生成人脸数据")
+        btn_save_picture = st.button("生成人脸数据", disabled=st.session_state.readonly)
         pic_file = f"./ID_Photos/{img_userID}_{int(time.time())}.jpg"
         if btn_save_picture:
             with open(pic_file, "wb") as f:
@@ -2796,7 +2797,7 @@ def face_recognize_verify(stationCN):
 def system_setup():
     #st.markdown("### <font face='微软雅黑' color=blue><center>系统设置</center></font>", unsafe_allow_html=True)
     st.subheader("系统设置", divider="red")
-    btn_system_setup_update = st.button("更新系统设置")
+    btn_system_setup_update = st.button("更新系统设置", disabled=st.session_state.readonly)
     sql = f"SELECT param_value, param_name, param_cname from system_setup where StationCN = '{st.session_state.StationCN}' order by ID"
     if not execute_sql(cur, sql):
         insert_sql = f"INSERT INTO system_setup(StationCN, param_name, param_value, param_cname) SELECT '{st.session_state.StationCN}', param_name, param_value, param_cname from system_setup where StationCN = '北京站'"
@@ -2888,7 +2889,7 @@ def modify_task_group():
     col1, col2 = st.columns(2)
     org_selected = col1.selectbox('原工作组别', org_task_group, index=0)
     target_selected = col2.selectbox('目标工作组别', org_task_group, index=0)
-    btn_modify = col1.button('调整组别')
+    btn_modify = col1.button('调整组别', disabled=st.session_state.readonly)
     if org_selected != target_selected:
         sql = f"SELECT pa_content, ID from gru_pa where task_group = '{org_selected}' and StationCN = '{st.session_state.StationCN}'"
         rows = execute_sql(cur, sql)
@@ -2917,7 +2918,7 @@ def edit_group_name():
     group_selected = col1.selectbox('工作组别', org_task_group, index=0)
     change_txt = col2.text_input('修改为', group_selected)
     if group_selected != change_txt:
-        btn_change = col1.button('确认修改')
+        btn_change = col1.button('确认修改', disabled=st.session_state.readonly)
         if btn_change:
             sql = f"UPDATE gru_pa set task_group = '{change_txt}' where task_group = '{group_selected}' and StationCN = '{st.session_state.StationCN}'"
             execute_sql_and_commit(conn, cur, sql)
@@ -2947,7 +2948,7 @@ def edit_task_content():
     st.markdown(f"#### :red[修改内容为DELETE表示删除该项工作]")
     change_txt = st.text_input('修改为', change_selected)
     if change_selected != change_txt:
-        btn_change = st.button('确认修改')
+        btn_change = st.button('确认修改', disabled=st.session_state.readonly)
         if btn_change:
             if change_txt.upper() != 'DELETE':
                 sql = f"UPDATE gru_pa set pa_content = '{change_txt}' where task_group = '{group_selected}' and pa_content = '{change_selected}' and StationCN = '{st.session_state.StationCN}'"
