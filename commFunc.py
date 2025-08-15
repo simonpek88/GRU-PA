@@ -6,6 +6,7 @@ import time
 from hashlib import md5
 
 import jwt
+import requests
 from Crypto import Random
 from Crypto.Cipher import AES
 from mysql_pool_cpython import get_connection  # type: ignore
@@ -267,6 +268,30 @@ def gen_jwt():
     return encoded_jwt
 
 
+def get_deepseek_balance():
+    aikey = getEncryptKeys("deepseek")
+    url = "https://api.deepseek.com/user/balance"
+
+    payload={}
+    headers = {
+    'Accept': 'application/json',
+    'Authorization': f'Bearer {aikey}'
+    }
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    info = response.json()
+    if info['is_available']:
+        print("账户: 有效")
+    else:
+        print("账户: 无效")
+    temp = info['balance_infos'][0]
+    print(f"余额: {temp['total_balance']} {temp['currency']}")
+
+
 conn2 = get_connection()
 cur2 = conn2.cursor()
 logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
+
+if __name__ == '__main__':
+    get_deepseek_balance()
