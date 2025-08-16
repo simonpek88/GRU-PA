@@ -20,7 +20,7 @@
 - [7.值班数据统计及导出](#值班数据统计及导出)
 - [8.公告发布和修改](#公告发布和修改)
 - [9.人脸识别系统](#人脸识别系统)
-- [10.天气功能](#weather-function)
+- [10.天气功能](#天气功能)
 - [11.数据导出](#数据导出)
 - [12.系统管理](#系统管理)
 - [13.数据库操作](#数据库操作)
@@ -575,7 +575,7 @@ graph TD
 - 光线变化 : 开启自适应
 - 多人场景 : 开启活体检测
 
-<a id="weather-function"></a>
+<a id="天气功能"></a>
 
 ### 天气功能
 
@@ -927,21 +927,128 @@ graph TD
 
 #### 用户权限管理
 
-```bash
 权限层级:
-├── 超级管理员 (系统级)
-│   ├── 创建站点
-│   ├── 管理所有用户
-│   └── 系统配置
-├── 站点管理员 (站点级)
-│   ├── 本站用户管理
-│   ├── 本站数据管理
-│   └── 本站配置
-└── 普通用户 (个人级)
-    ├── 个人数据录入
-    ├── 个人数据查询
-    └── 个人设置
-```
+
+<style>
+.permission-tree {
+  display: flex;
+  flex-direction: column;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  max-width: 600px;
+  margin: 20px 0;
+}
+
+.permission-level {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  margin: 8px 0;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.permission-level:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.permission-level.main {
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  color: white;
+  font-weight: bold;
+  font-size: 1.1em;
+  border-left: 4px solid #ffd700;
+}
+
+.permission-level.secondary {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: white;
+  border-left: 4px solid #0066cc;
+}
+
+.permission-level.tertiary {
+  background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+  color: #333;
+  border-left: 4px solid #ff6600;
+}
+
+.permission-icon {
+  margin-right: 12px;
+  font-size: 1.2em;
+}
+
+.permission-content {
+  flex: 1;
+}
+
+.permission-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+  padding-left: 30px;
+}
+
+.permission-item {
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  text-align: center;
+  font-size: 0.9em;
+}
+
+.permission-level.main .permission-item {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.permission-level.secondary .permission-item {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.permission-level.tertiary .permission-item {
+  background: rgba(255, 255, 255, 0.3);
+}
+</style>
+
+<div class="permission-tree">
+  <div class="permission-level main">
+    <div class="permission-icon">👑</div>
+    <div class="permission-content">
+      <div>超级管理员 (系统级Root&DA)</div>
+      <div class="permission-items">
+        <div class="permission-item">创建站点</div>
+        <div class="permission-item">管理所有用户</div>
+        <div class="permission-item">系统配置</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="permission-level secondary">
+    <div class="permission-icon">🏢</div>
+    <div class="permission-content">
+      <div>站点管理员 (站点级Admin)</div>
+      <div class="permission-items">
+        <div class="permission-item">本站用户管理</div>
+        <div class="permission-item">本站数据管理</div>
+        <div class="permission-item">本站配置</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="permission-level tertiary">
+    <div class="permission-icon">👤</div>
+    <div class="permission-content">
+      <div>普通用户 (个人级User)</div>
+      <div class="permission-items">
+        <div class="permission-item">个人数据录入</div>
+        <div class="permission-item">个人数据查询</div>
+        <div class="permission-item">个人设置</div>
+      </div>
+    </div>
+  </div>
+</div>
 
 #### 系统设置
 

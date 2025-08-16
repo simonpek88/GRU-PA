@@ -93,6 +93,7 @@ maxcol
 maxid
 Mbps
 mcol
+minmax
 mktime
 mmcq
 modelcontextprotocol
@@ -143,6 +144,7 @@ rowid
 Ryzen
 scol
 searchterm
+Segoe
 selectbox
 sequentialthinking
 simhei
@@ -151,6 +153,7 @@ startrow
 STMTVTAB
 streamlit
 studyinfo
+Tahoma
 tasklist
 trae
 treemap
@@ -161,6 +164,7 @@ tywx
 unixepoch
 unpad
 utgf
+Verdana
 verinfo
 visitcount
 visitcounter

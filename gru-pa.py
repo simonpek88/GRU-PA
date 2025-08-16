@@ -50,49 +50,137 @@ from hf_weather import (get_city_aqi, get_city_history_weather,
 @st.fragment
 def login():
     st.set_page_config(layout="centered")
+    
+    # 添加登录界面的自定义CSS样式
+    st.markdown("""
+    <style>
+    .login-container {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+    }
+    
+    .app-title {
+        text-align: center;
+        font-size: 2.5em;
+        font-weight: bold;
+        margin-bottom: 30px;
+        background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .login-form {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .stSelectbox, .stTextInput {
+        margin-bottom: 20px;
+    }
+    
+    .login-button {
+        width: 100%;
+        padding: 15px;
+        border-radius: 10px;
+        font-size: 1.1em;
+        font-weight: bold;
+        background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+    }
+    
+    .login-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(37, 117, 252, 0.4);
+    }
+    
+    .segmented-control {
+        margin: 20px 0;
+    }
+    
+    .login-footer {
+        text-align: center;
+        margin-top: 20px;
+        color: #666;
+        font-size: 0.9em;
+    }
+    
+    @media screen and (max-width: 768px) {
+        .login-container {
+            margin: 10px;
+            padding: 10px;
+        }
+        
+        .app-title {
+            font-size: 2em;
+        }
+        
+        .login-form {
+            padding: 20px;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
     face_type = None
     # 显示应用名称
-    st.markdown(f"<font face='微软雅黑' color=purple size=20><center>**{APPNAME_CN}**</center></font>", unsafe_allow_html=True)
+    st.markdown("<div class='app-title'>**GRU-PA绩效考核系统**</div>", unsafe_allow_html=True)
+    
     # 登录表单容器
-    login = st.empty()
-    with login.container(border=True):
-        userID, userCName = [], []
-        sql = "SELECT DISTINCT(StationCN) from users order by StationCN"
-        rows = execute_sql(cur, sql)
-        station_type = st.selectbox(label="请选择站点", options=[row[0] for row in rows], index=0)
-        sql = f"SELECT userID, userCName, StationCN from users where StationCN = '{station_type}' order by login_counter DESC, userCName"
-        rows = execute_sql(cur, sql)
-        for row in rows:
-            userID.append(row[0])
-            userCName.append(row[1])
-        query_userCName = st.selectbox("请选择用户", userCName, index=None)
-        st.session_state.password_login, login_index = True, 0
-        if query_userCName is not None:
-            userID = userID[userCName.index(query_userCName)]
-            sql = f"SELECT param_value from users_setup where param_name = 'password_login' and userID = {userID}"
-            row = execute_sql(cur, sql)
-            if row:
-                st.session_state.password_login = bool(row[0][0])
-                if not st.session_state.password_login:
-                    login_index = 1
-        else:
-            userID = None
-        sql = f"SELECT Count(ID) from users_face_data where StationCN = '{station_type}'"
-        cur.execute(sql)
-        face_login_available = True if cur.fetchone()[0] > 0 else False
-        if query_userCName is not None:
-            if query_userCName == 'Visitor':
-                face_login_available = False
-        # 用户密码输入框
-        userPassword = st.text_input("请输入密码", max_chars=8, placeholder="用户初始密码为1234", type="password", autocomplete="off")
-        login_type = sac.segmented(
-            items=[
-                sac.SegmentedItem(label="密码登录", disabled=not st.session_state.password_login),
-                sac.SegmentedItem(label="人脸识别登录", disabled=not face_login_available),
-            ], align="start", color='green', index=login_index
-        )
-        # 登录按钮
-        buttonLogin = st.button("登录")
+    login_container = st.container()
+    with login_container:
+        with st.container(border=False):
+            st.markdown("<div class='login-container'>", unsafe_allow_html=True)
+            with st.container(border=False):
+                st.markdown("<div class='login-form'>", unsafe_allow_html=True)
+                userID, userCName = [], []
+                sql = "SELECT DISTINCT(StationCN) from users order by StationCN"
+                rows = execute_sql(cur, sql)
+                station_type = st.selectbox(label="请选择站点", options=[row[0] for row in rows], index=0)
+                sql = f"SELECT userID, userCName, StationCN from users where StationCN = '{station_type}' order by login_counter DESC, userCName"
+                rows = execute_sql(cur, sql)
+                for row in rows:
+                    userID.append(row[0])
+                    userCName.append(row[1])
+                query_userCName = st.selectbox("请选择用户", userCName, index=None)
+                st.session_state.password_login, login_index = True, 0
+                if query_userCName is not None:
+                    userID = userID[userCName.index(query_userCName)]
+                    sql = f"SELECT param_value from users_setup where param_name = 'password_login' and userID = {userID}"
+                    row = execute_sql(cur, sql)
+                    if row:
+                        st.session_state.password_login = bool(row[0][0])
+                        if not st.session_state.password_login:
+                            login_index = 1
+                else:
+                    userID = None
+                sql = f"SELECT Count(ID) from users_face_data where StationCN = '{station_type}'"
+                cur.execute(sql)
+                face_login_available = True if cur.fetchone()[0] > 0 else False
+                if query_userCName is not None:
+                    if query_userCName == 'Visitor':
+                        face_login_available = False
+                # 用户密码输入框
+                userPassword = st.text_input("请输入密码", max_chars=8, placeholder="用户初始密码为1234", type="password", autocomplete="off")
+                login_type = sac.segmented(
+                    items=[
+                        sac.SegmentedItem(label="密码登录", disabled=not st.session_state.password_login),
+                        sac.SegmentedItem(label="人脸识别登录", disabled=not face_login_available),
+                    ], align="start", color='green', index=login_index
+                )
+                st.markdown("</div>", unsafe_allow_html=True)
+            
+            # 登录按钮
+            buttonLogin = st.button("登录", key="login_button", use_container_width=True)
+            st.markdown("</div>", unsafe_allow_html=True)
 
     # 如果点击了登录按钮
     result = None
@@ -120,7 +208,7 @@ def login():
                 face_type = 'web-cam'
                 if face_type == 'web-cam':
                     st.info("正在启动人脸识别(web-cam), 请稍等...")
-                    login.empty()
+                    login_container.empty()
                     camera_capture(station_type)
                 elif face_type == 'webrtc':
                     st.info("正在启动人脸识别(webrtc), 请稍等...")
@@ -133,11 +221,13 @@ def login():
                     st.error("人脸识别失败, 请使用密码登录")
     if result:
         login_init(result)
-        login.empty()
+        login_container.empty()
         st.rerun()
     elif login_type == "人脸识别登录" and buttonLogin and face_type == 'cv':
         st.error("人脸识别失败, 请使用密码登录")
-
+        
+    # 添加页脚信息
+    st.markdown("<div class='login-footer'>GRU-PA绩效考核系统 © 2025</div>", unsafe_allow_html=True)
 
 def login_init(result):
     st.empty()
