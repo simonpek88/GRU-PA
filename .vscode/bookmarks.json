@@ -192,6 +192,11 @@
 					"line": 3166,
 					"column": 19,
 					"label": "main"
+				},
+				{
+					"line": 3255,
+					"column": 21,
+					"label": "get_extra_oto2"
 				}
 			]
 		},

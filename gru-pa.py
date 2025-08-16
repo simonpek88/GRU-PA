@@ -148,6 +148,7 @@ def login_init(result):
     st.session_state.StationCN = result[0][3]
     st.session_state.userPwRechecked = False
     st.session_state.get_extra_oto = True
+    st.session_state.get_extra_oto2 = True
     if st.session_state.userType == 'readonly':
         st.session_state.userType = 'admin'
         st.session_state.readonly = True
@@ -216,7 +217,7 @@ def logout():
 
 def get_extra_oto():
     st.session_state.get_extra_oto = False
-    # 检查已确定的22点后无输油记录
+    # 检查已确定的晚10点后无输油记录
     sql = f"SELECT task_date from clerk_work where clerk_work = '值班（无输油作业，包括设备巡检、安防巡检、记录、卫生）' and StationCN = '{st.session_state.StationCN}' and clerk_id = {st.session_state.userID} order by ID"
     result = execute_sql(cur, sql)
     for row in result:
@@ -239,7 +240,7 @@ def get_extra_oto():
 
 @st.dialog("输油作业额外补贴")
 def add_extra_oto(task_date):
-    st.markdown(f"### :blue[{task_date}] :red[22点后是否输油]")
+    st.markdown(f"### :blue[{task_date}] :red[晚10点后是否输油]")
     btn_col = st.columns(3)
     btn_confirm = btn_col[0].button("是", key="confirm_add_extra_oto", icon=":material/add_task:", use_container_width=True)
     btn_cancel = btn_col[1].button("不是", key="cancel_add_extra_oto", icon=":material/cancel:", use_container_width=True)
@@ -3252,6 +3253,42 @@ def dyna_display_note(note_file):
     st.markdown(new_content_with_badge)
 
 
+
+def get_extra_oto2():
+    oto_date_pack = []
+    start_date = get_current_month_range()[0]
+    end_date = datetime.date.today()
+    sql = f"SELECT task_date from clerk_work where task_date >= '{start_date}' and task_date <= '{end_date}' and clerk_work = '值班（输油作业，包括安防巡检、记录、卫生）' and StationCN = '{st.session_state.StationCN}' and clerk_id = {st.session_state.userID} order by task_date"
+    result = execute_sql(cur, sql)
+    for row in result:
+        sql = f"SELECT ID from oto where oto_date = '{row[0]}' and clerk_id = {st.session_state.userID} and StationCN = '{st.session_state.StationCN}'"
+        if not execute_sql(cur, sql):
+            oto_date_pack.append(row[0])
+    if oto_date_pack:
+        add_extra_oto2(oto_date_pack)
+
+
+@st.dialog("输油作业额外补贴")
+def add_extra_oto2(task_date_pack):
+    st.markdown(f"### :blue[以下日期] :red[晚10点后是否输油]")
+    for index, value in enumerate(task_date_pack):
+        st.radio(f'{value}: ', ['是', '否'], key=f"add_extra_oto_{index}")
+    btn_col = st.columns(2)
+    btn_confirm = btn_col[0].button("确定", key="confirm_add_extra_oto_all", icon=":material/add_task:", use_container_width=True)
+    btn_cancel = btn_col[1].button("取消", key="cancel_add_extra_oto_all", icon=":material/cancel:", use_container_width=True)
+    if btn_confirm or btn_cancel:
+        for key in st.session_state.keys():
+            if key.startswith("add_extra_oto_"):
+                oto_index = int(key[key.rfind("_") + 1:])
+                if st.session_state[key] == "是":
+                    flag_extra_oto = 1
+                else:
+                    flag_extra_oto = 0
+                sql = f"INSERT INTO oto(oto_date, clerk_id, clerk_cname, StationCN, extra_oto) VALUES ('{task_date_pack[oto_index]}', {st.session_state.userID}, '{st.session_state.userCName}', '{st.session_state.StationCN}', {flag_extra_oto})"
+                execute_sql_and_commit(conn, cur, sql)
+        st.rerun()
+
+
 global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME
 APPNAME_CN = "站室绩效考核系统GRU-PA"
 APPNAME_EN = "GRU-PA"
@@ -3284,6 +3321,9 @@ elif st.session_state.login_webrtc:
         st.session_state.login_webrtc = False
         st.rerun()
 elif st.session_state.logged_in:
+    if bool(st.session_state.extra_oto) and st.session_state.task_clerk_type == 1 and st.session_state.get_extra_oto2:
+        get_extra_oto2()
+        st.session_state.get_extra_oto2 = False
     with st.sidebar:
         st.markdown(f"<font face='微软雅黑' color=green size=4><center>**当前用户: {st.session_state.userCName}**</center></font>", unsafe_allow_html=True)
         #st.markdown(f'### :green[当前用户:] :orange[{st.session_state.userCName}]')
