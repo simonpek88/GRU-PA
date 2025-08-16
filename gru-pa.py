@@ -3326,7 +3326,7 @@ def duty_statistics():
                 # 设置标题行样式
                 for cell in ws[1]:
                     cell.font = Font(name="微软雅黑", size=12, bold=True)
-                # 将“小计”行设为粗体，并设置字体大小
+                # 将"小计"行设为粗体，并设置字体大小
                 for row in ws.iter_rows(min_row=2):  # 跳过标题行
                     if isinstance(row[0].value, str) and row[0].value.startswith('小计'):
                         for cell in row:
@@ -3344,7 +3344,7 @@ def duty_statistics():
                     bottom=Side(style='thin')
                 )
                 special_columns = {
-                    "A": 15,
+                    "A": 20,
                     "B": 12,
                     "C": 20
                 }
@@ -3373,6 +3373,92 @@ def duty_statistics():
                             cell.alignment = alignment
                         else:
                             cell.alignment = Alignment(horizontal='left', vertical='center')
+                sql = f"""
+                    SELECT clerk_cname,
+                            SUM(CASE WHEN extra_oto = 0 THEN 1 ELSE 0 END) as base_duty,
+                            SUM(CASE WHEN extra_oto = 1 THEN 1 ELSE 0 END) as extra_duty,
+                            COUNT(*) as total_duty
+                        FROM oto
+                        WHERE oto_date BETWEEN '{query_date_start}' AND '{query_date_end}'
+                        AND StationCN = '{st.session_state.StationCN}'
+                        GROUP BY clerk_cname
+                        ORDER BY clerk_cname
+                """
+                result = execute_sql(cur, sql)
+                df_statist = pd.DataFrame(result)
+                df_statist.columns = ["姓名", "普通输油", "晚10点后输油", "值班总计"]
+
+                # 将普通输油、晚10点后输油及值班总计这3列内容转为整型
+                df_statist["普通输油"] = df_statist["普通输油"].astype(int)
+                df_statist["晚10点后输油"] = df_statist["晚10点后输油"].astype(int)
+                df_statist["值班总计"] = df_statist["值班总计"].astype(int)
+
+                # 计算合计行
+                total_row = df_statist[["普通输油", "晚10点后输油", "值班总计"]].sum()
+                total_row_df = pd.DataFrame([["合计", total_row["普通输油"], total_row["晚10点后输油"], total_row["值班总计"]]], 
+                                          columns=["姓名", "普通输油", "晚10点后输油", "值班总计"])
+                df_statist = pd.concat([df_statist, total_row_df], ignore_index=True)
+
+                df_statist.to_excel(writer, sheet_name='值班分类统计', index=False, startrow=1)
+                # 插入统计时间行
+                report_date_range2 = f"值班分类统计 {query_date_start} 至 {query_date_end}"
+                # 对简报sheet进行格式化，使用与统计表相同的样式
+                ws2 = writer.sheets['值班分类统计']
+                # 合并 A1:F1，并设置样式
+                ws2.merge_cells("A1:D1")
+                cell = ws2["A1"]
+                cell.value = report_date_range2
+                # 设置页面为横向
+                ws2.page_setup.orientation = 'portrait'
+                # 添加页眉/页脚（页脚居中显示页码）
+                ws2.oddFooter.center.text = "&P / &N"
+                # 创建一个通用的对齐设置
+                alignment = Alignment(horizontal='center', vertical='center')
+                # 设置标题行样式
+                for cell in ws2[1]:
+                    cell.font = Font(name="微软雅黑", size=14, bold=True)
+                # 设置正文其他行字体
+                for row in ws2.iter_rows(min_row=2):
+                    for cell in row:
+                        cell.font = Font(name="微软雅黑", size=14)
+                # 定义边框样式（使用与统计表相同的边框样式）
+                thin_border = Border(
+                    left=Side(style='thin'),
+                    right=Side(style='thin'),
+                    top=Side(style='thin'),
+                    bottom=Side(style='thin')
+                )
+                special_columns = {
+                    "A": 20,
+                    "B": 15,
+                    "C": 25,
+                    "D": 15,
+                }
+                for col in ws2.columns:
+                    max_width = 0
+                    column = None
+                    for cell in col:
+                        if isinstance(cell, MergedCell):
+                            continue
+                        column = cell.column_letter
+                        value = str(cell.value) if cell.value else ""
+                        # 使用 wcswidth 精确计算显示宽度
+                        width = wcswidth(value)
+                        if width > max_width:
+                            max_width = width
+                    if column:
+                        if column in special_columns:
+                            ws2.column_dimensions[column].width = special_columns[column]
+                        else:
+                            ws2.column_dimensions[column].width = max_width + 2
+                # 添加边框到所有单元格
+                for row in ws2.iter_rows():
+                    for cell in row:
+                        cell.border = thin_border
+                        if row[0].row == 1:
+                            cell.alignment = alignment
+                        else:
+                            cell.alignment = Alignment(horizontal='center', vertical='center')
             if os.path.exists(outputFile):
                 with open(outputFile, "rb") as file:
                     content = file.read()
