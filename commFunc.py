@@ -281,12 +281,10 @@ def get_deepseek_balance():
     response = requests.request("GET", url, headers=headers, data=payload)
 
     info = response.json()
-    if info['is_available']:
-        print("账户: 有效")
-    else:
-        print("账户: 无效")
     temp = info['balance_infos'][0]
-    print(f"余额: {temp['total_balance']} {temp['currency']}")
+    #print(f"余额: {temp['total_balance']} {temp['currency']}")
+
+    return info['is_available'], temp['total_balance'], temp['currency']
 
 
 conn2 = get_connection()
@@ -294,4 +292,8 @@ cur2 = conn2.cursor()
 logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 if __name__ == '__main__':
-    get_deepseek_balance()
+    ds_balance = get_deepseek_balance()
+    if ds_balance[0]:
+        print(f"余额: {ds_balance[1]} {ds_balance[2]}")
+    else:
+        print("账户: 无效")
