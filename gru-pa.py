@@ -713,8 +713,8 @@ def query_task():
     else:
         approved_info = "包含未审核"
     if confirm_btn_output:
-        headerFS = 14
-        contentFS = 12
+        headerFS = st.session_state.chart_font_size
+        contentFS = st.session_state.chart_font_size - 2
         quesDOC = Document()
         quesDOC.styles["Normal"].font.name = "Microsoft YaHei"
         quesDOC.styles["Normal"]._element.rPr.rFonts.set(qn("w:eastAsia"), "Microsoft YaHei")
@@ -828,22 +828,22 @@ def query_task():
             ws.merge_cells("A1:F1")
             cell = ws["A1"]
             cell.value = report_date_range
-            cell.font = Font(name="微软雅黑", size=14, bold=True)
+            cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size, bold=True)
             # 创建一个通用的对齐设置
             alignment = Alignment(horizontal='center', vertical='center')
             # 设置标题行样式
             for cell in ws[1]:
-                cell.font = Font(name="微软雅黑", size=12, bold=True)
+                cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size - 2, bold=True)
             # 将“小计”行设为粗体，并设置字体大小
             for row in ws.iter_rows(min_row=2):  # 跳过标题行
                 if isinstance(row[0].value, str) and row[0].value.startswith('小计'):
                     for cell in row:
-                        cell.font = Font(name="微软雅黑", size=12, bold=True)
+                        cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size - 2, bold=True)
             # 设置正文其他行字体
             for row in ws.iter_rows(min_row=2):
                 if not (isinstance(row[0].value, str) and row[0].value.startswith('小计')):
                     for cell in row:
-                        cell.font = Font(name="微软雅黑", size=12)
+                        cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size - 2)
             # 定义边框样式
             thin_border = Border(
                 left=Side(style='thin'),
@@ -943,11 +943,11 @@ def query_task():
             alignment = Alignment(horizontal='center', vertical='center')
             # 设置标题行样式
             for cell in ws2[1]:
-                cell.font = Font(name="微软雅黑", size=14, bold=True)
+                cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size, bold=True)
             # 设置正文其他行字体
             for row in ws2.iter_rows(min_row=2):
                 for cell in row:
-                    cell.font = Font(name="微软雅黑", size=14)
+                    cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size)
             # 定义边框样式（使用与统计表相同的边框样式）
             thin_border = Border(
                 left=Side(style='thin'),
@@ -1671,7 +1671,7 @@ def gen_chart():
                 color_discrete_sequence=px.colors.qualitative.Prism
             )
             fig.update_traces(textposition='outside', textinfo='percent+label')
-            fig.update_layout(showlegend=False, font=dict(size=12))
+            fig.update_layout(showlegend=False, font=dict(size=st.session_state.chart_font_size - 2))
     elif chart_type == "旭日图":
         for index, value in enumerate(userID):
             # 查询每个用户的任务分值按工作组别汇总
@@ -3307,11 +3307,11 @@ def duty_statistics():
             if os.path.exists(outputFile):
                 os.remove(outputFile)
             with pd.ExcelWriter(outputFile, engine='openpyxl') as writer:
-                df.to_excel(writer, sheet_name='值班统计', index=False, startrow=1)
+                df.to_excel(writer, sheet_name='值班数据', index=False, startrow=1)
                 # 插入统计时间行
-                report_date_range = f"值班统计 时间：{query_date_start} 至 {query_date_end}"
+                report_date_range = f"值班数据 时间：{query_date_start} 至 {query_date_end}"
                 # 对excel文件进行格式化
-                ws = writer.sheets['值班统计']
+                ws = writer.sheets['值班数据']
                 # 设置页面为横向
                 ws.page_setup.orientation = 'portrait'
                 # 添加页眉/页脚（页脚居中显示页码）
@@ -3320,22 +3320,22 @@ def duty_statistics():
                 ws.merge_cells("A1:C1")
                 cell = ws["A1"]
                 cell.value = report_date_range
-                cell.font = Font(name="微软雅黑", size=14, bold=True)
+                cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size - 2, bold=True)
                 # 创建一个通用的对齐设置
                 alignment = Alignment(horizontal='center', vertical='center')
                 # 设置标题行样式
-                for cell in ws[1]:
-                    cell.font = Font(name="微软雅黑", size=12, bold=True)
+                for cell in ws[2]:
+                    cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size - 2, bold=True)
                 # 将"小计"行设为粗体，并设置字体大小
                 for row in ws.iter_rows(min_row=2):  # 跳过标题行
                     if isinstance(row[0].value, str) and row[0].value.startswith('小计'):
                         for cell in row:
-                            cell.font = Font(name="微软雅黑", size=12, bold=True)
+                            cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size - 2, bold=True)
                 # 设置正文其他行字体
                 for row in ws.iter_rows(min_row=2):
                     if not (isinstance(row[0].value, str) and row[0].value.startswith('小计')):
                         for cell in row:
-                            cell.font = Font(name="微软雅黑", size=12)
+                            cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size - 2)
                 # 定义边框样式
                 thin_border = Border(
                     left=Side(style='thin'),
@@ -3345,7 +3345,7 @@ def duty_statistics():
                 )
                 special_columns = {
                     "A": 20,
-                    "B": 12,
+                    "B": 16,
                     "C": 20
                 }
                 for col in ws.columns:
@@ -3395,9 +3395,19 @@ def duty_statistics():
 
                 # 计算合计行
                 total_row = df_statist[["普通输油", "晚10点后输油", "值班总计"]].sum()
-                total_row_df = pd.DataFrame([["合计", total_row["普通输油"], total_row["晚10点后输油"], total_row["值班总计"]]], 
+                total_row_df = pd.DataFrame([["合计", total_row["普通输油"], total_row["晚10点后输油"], total_row["值班总计"]]],
                                           columns=["姓名", "普通输油", "晚10点后输油", "值班总计"])
                 df_statist = pd.concat([df_statist, total_row_df], ignore_index=True)
+
+                # 检查总计行中的普通输油、晚10点后输油、值班总计是否为偶数
+                last_row = df_statist.iloc[-1]
+                ordinary_oil_is_even = (last_row["普通输油"] % 2 == 0)
+                late_oil_is_even = (last_row["晚10点后输油"] % 2 == 0)
+                duty_total_is_even = (last_row["值班总计"] % 2 == 0)
+
+                # 输出检查结果
+                if not ordinary_oil_is_even or not late_oil_is_even or not duty_total_is_even:
+                    st.error(":red[值班人数与值班合计不匹配，请检查数据!]")
 
                 df_statist.to_excel(writer, sheet_name='值班分类统计', index=False, startrow=1)
                 # 插入统计时间行
@@ -3408,19 +3418,20 @@ def duty_statistics():
                 ws2.merge_cells("A1:D1")
                 cell = ws2["A1"]
                 cell.value = report_date_range2
+                cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size, bold=True)
                 # 设置页面为横向
-                ws2.page_setup.orientation = 'portrait'
+                ws2.page_setup.orientation = 'landscape'
                 # 添加页眉/页脚（页脚居中显示页码）
                 ws2.oddFooter.center.text = "&P / &N"
                 # 创建一个通用的对齐设置
                 alignment = Alignment(horizontal='center', vertical='center')
                 # 设置标题行样式
-                for cell in ws2[1]:
-                    cell.font = Font(name="微软雅黑", size=14, bold=True)
+                for cell in ws2[2]:
+                    cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size, bold=True)
                 # 设置正文其他行字体
                 for row in ws2.iter_rows(min_row=2):
                     for cell in row:
-                        cell.font = Font(name="微软雅黑", size=14)
+                        cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size)
                 # 定义边框样式（使用与统计表相同的边框样式）
                 thin_border = Border(
                     left=Side(style='thin'),
