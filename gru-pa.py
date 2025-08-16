@@ -52,7 +52,7 @@ def login():
     st.set_page_config(layout="centered")
     face_type = None
     # 显示应用名称
-    st.markdown(f"<font face='微软雅黑' color=purple size=12><center>**{APPNAME_CN}**</center></font>", unsafe_allow_html=True)
+    st.markdown(f"<font face='微软雅黑' color=purple size=14><center>**{APPNAME_CN}**</center></font>", unsafe_allow_html=True)
     # 登录表单容器
     login_area = st.empty()
     with login_area.container(border=True):
