@@ -3254,7 +3254,7 @@ def dyna_display_note(note_file):
                     break
         new_content_with_badge = new_content_with_badge + line + "\n"
     new_content_with_badge = new_content_with_badge.replace('\n\n', '\n')
-    st.markdown(new_content_with_badge)
+    st.markdown(new_content_with_badge, unsafe_allow_html=True)
 
 
 
