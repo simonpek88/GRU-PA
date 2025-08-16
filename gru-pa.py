@@ -3299,10 +3299,11 @@ def duty_statistics():
         sql = f"SELECT oto_date, clerk_cname, extra_oto from oto where oto_date >= '{query_date_start}' and oto_date <= '{query_date_end}' and StationCN = '{st.session_state.StationCN}'"
         result = execute_sql(cur, sql)
         if result:
+            tab1, tab2 = st.tabs(["值班数据", "值班分类统计"])
             df = pd.DataFrame(result)
             df.columns = ["日期", "姓名", "晚10点后输油"]
-            for index, value in enumerate(result):
-                df.loc[index, "晚10点后输油"] = "是" if int(df["晚10点后输油"][index]) == 1 else "否"
+            # 使用map函数将0/1值映射为"否"/"是"，避免数据类型不兼容问题
+            df["晚10点后输油"] = df["晚10点后输油"].map({1: "是", 0: "否"})
             outputFile = f"./user_pa/{st.session_state.StationCN}_值班和输油额外补贴统计_{query_date_start}至{query_date_end}_{int(time.time())}.xlsx"
             if os.path.exists(outputFile):
                 os.remove(outputFile)
@@ -3312,6 +3313,7 @@ def duty_statistics():
                 report_date_range = f"值班数据 时间：{query_date_start} 至 {query_date_end}"
                 # 对excel文件进行格式化
                 ws = writer.sheets['值班数据']
+
                 # 设置页面为横向
                 ws.page_setup.orientation = 'portrait'
                 # 添加页眉/页脚（页脚居中显示页码）
@@ -3373,6 +3375,7 @@ def duty_statistics():
                             cell.alignment = alignment
                         else:
                             cell.alignment = Alignment(horizontal='left', vertical='center')
+                tab1.dataframe(df)
                 sql = f"""
                     SELECT clerk_cname,
                             SUM(CASE WHEN extra_oto = 0 THEN 1 ELSE 0 END) as base_duty,
@@ -3470,6 +3473,7 @@ def duty_statistics():
                             cell.alignment = alignment
                         else:
                             cell.alignment = Alignment(horizontal='center', vertical='center')
+            tab2.dataframe(df_statist)
             if os.path.exists(outputFile):
                 with open(outputFile, "rb") as file:
                     content = file.read()
