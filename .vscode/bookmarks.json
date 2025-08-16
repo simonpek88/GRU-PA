@@ -54,6 +54,11 @@
 					"label": "task_input"
 				},
 				{
+					"line": 799,
+					"column": 63,
+					"label": "temp"
+				},
+				{
 					"line": 1002,
 					"column": 19,
 					"label": "manual_input"
@@ -124,11 +129,6 @@
 					"label": "fr_web_rtc"
 				},
 				{
-					"line": 1931,
-					"column": 35,
-					"label": "adm2"
-				},
-				{
 					"line": 1935,
 					"column": 18,
 					"label": "数据库操作"
@@ -197,6 +197,11 @@
 					"line": 3255,
 					"column": 21,
 					"label": "get_extra_oto2"
+				},
+				{
+					"line": 3291,
+					"column": 22,
+					"label": "duty_statistics"
 				}
 			]
 		},

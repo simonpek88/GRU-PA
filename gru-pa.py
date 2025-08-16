@@ -3289,6 +3289,102 @@ def add_extra_oto2(task_date_pack):
         st.rerun()
 
 
+def duty_statistics():
+    st.subheader("值班和输油额外补贴统计", divider="green")
+    col1, col2 = st.columns(2)
+    query_date_start = col1.date_input('查询开始时间', value=datetime.date.today() - datetime.timedelta(days=1), max_value="today")
+    query_date_end = col2.date_input('查询结束时间', value=query_date_start, min_value=query_date_start, max_value="today")
+    confirm_btn_output_excel = st.button("导出统计表")
+    if confirm_btn_output_excel:
+        sql = f"SELECT oto_date, clerk_cname, extra_oto from oto where oto_date >= '{query_date_start}' and oto_date <= '{query_date_end}' and StationCN = '{st.session_state.StationCN}'"
+        result = execute_sql(cur, sql)
+        if result:
+            df = pd.DataFrame(result)
+            df.columns = ["日期", "姓名", "晚10点后输油"]
+            for index, value in enumerate(result):
+                df.loc[index, "晚10点后输油"] = "是" if int(df["晚10点后输油"][index]) == 1 else "否"
+            outputFile = f"./user_pa/{st.session_state.StationCN}_值班和输油额外补贴统计_{query_date_start}至{query_date_end}_{int(time.time())}.xlsx"
+            if os.path.exists(outputFile):
+                os.remove(outputFile)
+            with pd.ExcelWriter(outputFile, engine='openpyxl') as writer:
+                df.to_excel(writer, sheet_name='值班统计', index=False, startrow=1)
+                # 插入统计时间行
+                report_date_range = f"值班统计 时间：{query_date_start} 至 {query_date_end}"
+                # 对excel文件进行格式化
+                ws = writer.sheets['值班统计']
+                # 设置页面为横向
+                ws.page_setup.orientation = 'portrait'
+                # 添加页眉/页脚（页脚居中显示页码）
+                ws.oddFooter.center.text = "&P / &N"
+                # 合并 A1:F1，并设置样式
+                ws.merge_cells("A1:C1")
+                cell = ws["A1"]
+                cell.value = report_date_range
+                cell.font = Font(name="微软雅黑", size=14, bold=True)
+                # 创建一个通用的对齐设置
+                alignment = Alignment(horizontal='center', vertical='center')
+                # 设置标题行样式
+                for cell in ws[1]:
+                    cell.font = Font(name="微软雅黑", size=12, bold=True)
+                # 将“小计”行设为粗体，并设置字体大小
+                for row in ws.iter_rows(min_row=2):  # 跳过标题行
+                    if isinstance(row[0].value, str) and row[0].value.startswith('小计'):
+                        for cell in row:
+                            cell.font = Font(name="微软雅黑", size=12, bold=True)
+                # 设置正文其他行字体
+                for row in ws.iter_rows(min_row=2):
+                    if not (isinstance(row[0].value, str) and row[0].value.startswith('小计')):
+                        for cell in row:
+                            cell.font = Font(name="微软雅黑", size=12)
+                # 定义边框样式
+                thin_border = Border(
+                    left=Side(style='thin'),
+                    right=Side(style='thin'),
+                    top=Side(style='thin'),
+                    bottom=Side(style='thin')
+                )
+                special_columns = {
+                    "A": 15,
+                    "B": 12,
+                    "C": 20
+                }
+                for col in ws.columns:
+                    max_width = 0
+                    column = None
+                    for cell in col:
+                        if isinstance(cell, MergedCell):
+                            continue
+                        column = cell.column_letter
+                        value = str(cell.value) if cell.value else ""
+                        # 使用 wcswidth 精确计算显示宽度
+                        width = wcswidth(value)
+                        if width > max_width:
+                            max_width = width
+                    if column:
+                        if column in special_columns:
+                            ws.column_dimensions[column].width = special_columns[column]
+                        else:
+                            ws.column_dimensions[column].width = max_width + 2
+                # 添加边框到所有单元格
+                for row in ws.iter_rows():
+                    for cell in row:
+                        cell.border = thin_border
+                        if row[0].row == 1:
+                            cell.alignment = alignment
+                        else:
+                            cell.alignment = Alignment(horizontal='left', vertical='center')
+            if os.path.exists(outputFile):
+                with open(outputFile, "rb") as file:
+                    content = file.read()
+                file.close()
+                buttonDL = st.download_button("点击下载", content, file_name=outputFile[outputFile.rfind("/") + 1:], icon=":material/download:", type="secondary")
+                st.success(f":green[成功导出至程序目录user_pa下 {outputFile[outputFile.rfind('/') + 1:]}]")
+                if buttonDL:
+                    st.toast("文件已下载至你的默认目录")
+            else:
+                st.error(f":red[文件导出失败]")
+
+
 global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME
 APPNAME_CN = "站室绩效考核系统GRU-PA"
 APPNAME_EN = "GRU-PA"
@@ -3344,6 +3440,7 @@ elif st.session_state.logged_in:
                     sac.MenuItem('记录修改', icon='journal-medical'),
                     sac.MenuItem('数据检查与核定', icon='check2-all'),
                     sac.MenuItem('统计查询及导出', icon='clipboard-data'),
+                    sac.MenuItem('值班统计和输油补贴', icon='cash-stack'),
                     sac.MenuItem('公告发布及修改', icon='journal-arrow-up'),
                     sac.MenuItem('高级查询', icon='search'),
                     sac.MenuItem('历史天气查询', icon='cloud-sun'),
@@ -3394,6 +3491,7 @@ elif st.session_state.logged_in:
                     sac.MenuItem('工作量手工录入', icon='journal-plus'),
                     sac.MenuItem('记录修改', icon='journal-medical'),
                     sac.MenuItem('统计查询及导出', icon='clipboard-data'),
+                    sac.MenuItem('值班统计和输油补贴', icon='cash-stack'),
                     sac.MenuItem('历史天气查询', icon='cloud-sun'),
                 ]),
                 sac.MenuItem('趋势与图表', icon='bar-chart-line', children=[
@@ -3465,6 +3563,8 @@ elif st.session_state.logged_in:
         task_modify()
     elif selected == "统计查询及导出":
         query_task()
+    elif selected == "值班统计和输油补贴":
+        duty_statistics()
     elif selected == "趋势图":
         gen_chart()
     elif selected == "卡片图":
