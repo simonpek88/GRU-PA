@@ -1087,6 +1087,7 @@ graph TD
     - background # 车牌生成背景图片
     - vehicle_logo # 汽车品牌logo
   - logos # 依赖库logo文件
+  - snapshot # 截图保存
 - MyComponentsScript # 自定义组件脚本, txt格式
 - MySQL_Backup # MySQL备份文件
 - user_pa # 用户统计数据导出文档 (不同步)
