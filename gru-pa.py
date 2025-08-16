@@ -31,8 +31,9 @@ from streamlit_vertical_slider import vertical_slider
 from streamlit_webrtc import WebRtcMode, webrtc_streamer
 from wcwidth import wcswidth
 
-from commFunc import (execute_sql, execute_sql_and_commit, get_update_content,
-                      getUserEDKeys, getVerInfo, updatePyFileinfo)
+from commFunc import (execute_sql, execute_sql_and_commit,
+                      get_deepseek_balance, get_update_content, getUserEDKeys,
+                      getVerInfo, updatePyFileinfo)
 from face_login import (clean_snapshot, face_login_cv, face_login_webrtc,
                         face_recognize_webrtc, update_face_data)
 from gd_weather import get_city_weather
@@ -371,7 +372,10 @@ def aboutInfo():
     display_pypi()
     if st.context.theme.type == 'dark':
         st.write("###### :violet[为了获得更好的使用体验, 请使用浅色主题]")
-    sac.divider(align="center", color="gray")
+    ds_balance = get_deepseek_balance()
+    if ds_balance[0]:
+        ds_balance_info = ds_balance[1]
+    sac.divider(align="center", label=ds_balance_info, icon="piggy-bank", color="gray")
     st.image("./Images/badges/license-badge.svg")
     st.caption(":violet[Copyright © 2025 Simon. All rights reserved.]")
     st.image("./Images/logos/simon-logo.png", width=50)
@@ -3299,7 +3303,6 @@ def duty_statistics():
         sql = f"SELECT oto_date, clerk_cname, extra_oto from oto where oto_date >= '{query_date_start}' and oto_date <= '{query_date_end}' and StationCN = '{st.session_state.StationCN}'"
         result = execute_sql(cur, sql)
         if result:
-            tab1, tab2 = st.tabs(["值班数据", "值班分类统计"])
             df = pd.DataFrame(result)
             df.columns = ["日期", "姓名", "晚10点后输油"]
             # 使用map函数将0/1值映射为"否"/"是"，避免数据类型不兼容问题
@@ -3375,7 +3378,6 @@ def duty_statistics():
                             cell.alignment = alignment
                         else:
                             cell.alignment = Alignment(horizontal='left', vertical='center')
-                tab1.dataframe(df)
                 sql = f"""
                     SELECT clerk_cname,
                             SUM(CASE WHEN extra_oto = 0 THEN 1 ELSE 0 END) as base_duty,
@@ -3402,15 +3404,16 @@ def duty_statistics():
                                           columns=["姓名", "普通输油", "晚10点后输油", "值班总计"])
                 df_statist = pd.concat([df_statist, total_row_df], ignore_index=True)
 
-                # 检查总计行中的普通输油、晚10点后输油、值班总计是否为偶数
+                # 总计行中的普通输油、晚10点后输油、值班总计数据校验
+                dur_time = query_date_end - query_date_start
                 last_row = df_statist.iloc[-1]
                 ordinary_oil_is_even = (last_row["普通输油"] % 2 == 0)
                 late_oil_is_even = (last_row["晚10点后输油"] % 2 == 0)
                 duty_total_is_even = (last_row["值班总计"] % 2 == 0)
 
                 # 输出检查结果
-                if not ordinary_oil_is_even or not late_oil_is_even or not duty_total_is_even:
-                    st.error(":red[值班人数与值班合计不匹配，请检查数据!]")
+                if not ordinary_oil_is_even or not late_oil_is_even or not duty_total_is_even or last_row["值班总计"] > (dur_time.days + 1) * 2:
+                    st.error(":red[值班人数与值班合计数据不匹配，请检查!]")
 
                 df_statist.to_excel(writer, sheet_name='值班分类统计', index=False, startrow=1)
                 # 插入统计时间行
@@ -3473,7 +3476,6 @@ def duty_statistics():
                             cell.alignment = alignment
                         else:
                             cell.alignment = Alignment(horizontal='center', vertical='center')
-            tab2.dataframe(df_statist)
             if os.path.exists(outputFile):
                 with open(outputFile, "rb") as file:
                     content = file.read()
@@ -3484,6 +3486,13 @@ def duty_statistics():
                     st.toast("文件已下载至你的默认目录")
             else:
                 st.error(f":red[文件导出失败]")
+            date_col = st.columns(2)
+            with date_col[0]:
+                st.markdown('值班数据')
+                st.dataframe(df)
+            with date_col[1]:
+                st.markdown('值班分类统计')
+                st.dataframe(df_statist)
 
 
 global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME
