@@ -147,6 +147,7 @@ def login_init(result):
     st.session_state.userType = result[0][2]
     st.session_state.StationCN = result[0][3]
     st.session_state.userPwRechecked = False
+    st.session_state.get_extra_oto = True
     if st.session_state.userType == 'readonly':
         st.session_state.userType = 'admin'
         st.session_state.readonly = True
@@ -197,17 +198,62 @@ def login_init(result):
 
 
 def logout():
-    # 关闭游标
-    cur.close()
-    # 关闭数据库连接
-    conn.close()
+    if bool(st.session_state.extra_oto) and st.session_state.task_clerk_type == 1 and st.session_state.get_extra_oto:
+        get_extra_oto()
+    else:
+        # 关闭游标
+        cur.close()
+        # 关闭数据库连接
+        conn.close()
 
-    # 清除会话状态中的所有键值对
-    for key in st.session_state.keys():
-        del st.session_state[key]
+        # 清除会话状态中的所有键值对
+        for key in st.session_state.keys():
+            del st.session_state[key]
 
-    # 重新运行当前脚本
-    st.rerun()
+        # 重新运行当前脚本
+        st.rerun()
+
+
+def get_extra_oto():
+    st.session_state.get_extra_oto = False
+    # 检查已确定的22点后无输油记录
+    sql = f"SELECT task_date from clerk_work where clerk_work = '值班（无输油作业，包括设备巡检、安防巡检、记录、卫生）' and StationCN = '{st.session_state.StationCN}' and clerk_id = {st.session_state.userID} order by ID"
+    result = execute_sql(cur, sql)
+    for row in result:
+        sql = f"SELECT ID from oto where oto_date = '{row[0]}' and clerk_id = {st.session_state.userID} and StationCN = '{st.session_state.StationCN}'"
+        if not execute_sql(cur, sql):
+            sql = f"INSERT INTO oto(oto_date, clerk_id, clerk_cname, StationCN, extra_oto) VALUES ('{row[0]}', {st.session_state.userID}, '{st.session_state.userCName}', '{st.session_state.StationCN}', 0)"
+            execute_sql_and_commit(conn, cur, sql)
+
+    sql = f"SELECT task_date from clerk_work where clerk_work = '值班（输油作业，包括安防巡检、记录、卫生）' and StationCN = '{st.session_state.StationCN}' and clerk_id = {st.session_state.userID} order by ID DESC limit 1"
+    result = execute_sql(cur, sql)
+    if result:
+        sql = f"SELECT ID from oto where oto_date = '{result[0][0]}' and clerk_id = {st.session_state.userID} and StationCN = '{st.session_state.StationCN}'"
+        if not execute_sql(cur, sql):
+            add_extra_oto(result[0][0])
+        else:
+            logout()
+    else:
+        logout()
+
+
+@st.dialog("输油作业额外补贴")
+def add_extra_oto(task_date):
+    st.markdown(f"### :blue[{task_date}] :red[22点后是否输油]")
+    btn_col = st.columns(3)
+    btn_confirm = btn_col[0].button("是", key="confirm_add_extra_oto", icon=":material/add_task:", use_container_width=True)
+    btn_cancel = btn_col[1].button("不是", key="cancel_add_extra_oto", icon=":material/cancel:", use_container_width=True)
+    btn_unknown = btn_col[2].button("未知", key="unknown_add_extra_oto", icon=":material/psychology_alt:", use_container_width=True)
+    if btn_confirm or btn_cancel or btn_unknown:
+        if btn_confirm:
+            sql = f"INSERT INTO oto(oto_date, clerk_id, clerk_cname, StationCN, extra_oto) VALUES ('{task_date}', {st.session_state.userID}, '{st.session_state.userCName}', '{st.session_state.StationCN}', 1)"
+        elif btn_cancel:
+            sql = f"INSERT INTO oto(oto_date, clerk_id, clerk_cname, StationCN, extra_oto) VALUES ('{task_date}', {st.session_state.userID}, '{st.session_state.userCName}', '{st.session_state.StationCN}', 0)"
+        else:
+            sql = None
+        if sql:
+            execute_sql_and_commit(conn, cur, sql)
+        logout()
 
 
 def verifyUserPW(vUserName, vUserPW):
@@ -1710,9 +1756,15 @@ def gen_chart():
 
 def input_public_notice():
     st.subheader("公告发布", divider="red")
+    level_color = {'普通':'blue', '重要': 'violet', '关键': 'red'}
     col1, col2 = st.columns(2)
     query_date_start = col1.date_input('公告开始时间', value=datetime.date.today(), min_value="today")
     query_date_end = col2.date_input('公告结束时间', value=query_date_start + datetime.timedelta(days=15), min_value=query_date_start, max_value=query_date_start + datetime.timedelta(days=90))
+    n_level = st.radio(
+        "选择公告等级",
+        [":blue[普通]", ":violet[重要]", ":red[关键]"],
+        index=1, horizontal =True
+    )
     confirm_btn_public = st.button('发布', disabled=st.session_state.readonly)
     display_area = st.empty()
     with display_area.container():
@@ -1723,7 +1775,8 @@ def input_public_notice():
         if public_text:
             sql = f"SELECT ID from notices where StationCN = '{st.session_state.StationCN}' and notice = '{public_text}'"
             if not execute_sql(cur, sql):
-                sql = f"INSERT INTO notices (notice, start_time, end_time, publisher, pub_time, StationCN) VALUES ('{public_text}', '{query_date_start}', '{query_date_end}', '{st.session_state.userCName}', '{pub_time}', '{st.session_state.StationCN}')"
+                notice_level = level_color[n_level[n_level.find('[') + 1:-1]]
+                sql = f"INSERT INTO notices (notice, start_time, end_time, publisher, pub_time, StationCN, notice_level) VALUES ('{public_text}', '{query_date_start}', '{query_date_end}', '{st.session_state.userCName}', '{pub_time}', '{st.session_state.StationCN}', '{notice_level}')"
                 execute_sql_and_commit(conn, cur, sql)
                 display_area.empty()
                 st.success('公告添加成功')
@@ -1767,11 +1820,11 @@ def public_notice():
     vlp_folder = './Images/license_plate/user_vlp'
     now = datetime.datetime.now()
     valid_time = now.strftime("%Y-%m-%d")
-    sql = f"SELECT notice from notices where StationCN = '{st.session_state.StationCN}' and '{valid_time}' >= start_time and '{valid_time}' <= end_time"
+    sql = f"SELECT notice, notice_level from notices where StationCN = '{st.session_state.StationCN}' and '{valid_time}' >= start_time and '{valid_time}' <= end_time"
     result = execute_sql(cur, sql)
     if result:
         for index, row in enumerate(result, start=1):
-            st.markdown(f'##### :orange[第{index}条. {row[0]}]')
+            st.markdown(f'##### :{row[1]}[第{index}条. {row[0]}]')
     else:
         st.info("暂无系统公告")
     if st.session_state.vehicle_restrict:
@@ -2850,6 +2903,8 @@ def system_setup():
             min_value, max_value, step_value, affix_info = 50, 90, 2, '%'
         elif each[1] == 'min_comm_task':
             min_value, max_value, step_value = 3, 20, 1
+        elif each[1] == 'extra_oto':
+            min_value, max_value, step_value, affix_info = 0, 1, 1, ' 1为允许 0为不允许'
         else:
             min_value, max_value, step_value = 0, 100, 1
         with col[col_index % col_limit]:
@@ -3081,6 +3136,11 @@ def bonus_scene():
 
 
 def temp_func():
+    sql = "SELECT task_date, clerk_id, clerk_cname from clerk_work where task_score = 150 order by task_date, clerk_cname"
+    result = execute_sql(cur, sql)
+    for row in result:
+        sql = f"INSERT INTO oto(oto_date, clerk_id, clerk_cname, StationCN, extra_oto) VALUES ('{row[0]}', {row[1]}, '{row[2]}', '北京站', 1)"
+        execute_sql_and_commit(conn, cur, sql)
     pass
 
 
@@ -3200,6 +3260,8 @@ conn = get_connection()
 cur = conn.cursor()
 st.logo(image="./Images/logos/GRU-PA-logo.png", icon_image="./Images/logos/GRU-PA-logo.png", size="large")
 selected = None
+
+#temp_func()
 
 if "logged_in" not in st.session_state:
     if 'Windows' in st.context.headers['User-Agent']:

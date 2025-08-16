@@ -24,6 +24,16 @@
 					"label": "displayAppInfo"
 				},
 				{
+					"line": 198,
+					"column": 13,
+					"label": "logout"
+				},
+				{
+					"line": 214,
+					"column": 20,
+					"label": "get_extra_oto"
+				},
+				{
 					"line": 232,
 					"column": 16,
 					"label": "aboutInfo"
@@ -72,6 +82,11 @@
 					"line": 1661,
 					"column": 20,
 					"label": "public_notice"
+				},
+				{
+					"line": 1710,
+					"column": 26,
+					"label": "input_public_notice"
 				},
 				{
 					"line": 1761,
@@ -149,11 +164,6 @@
 					"label": "weather test"
 				},
 				{
-					"line": 2702,
-					"column": 16,
-					"label": "temp func"
-				},
-				{
 					"line": 2820,
 					"column": 19,
 					"label": "system_setup"
@@ -167,6 +177,11 @@
 					"line": 3131,
 					"column": 33,
 					"label": "dyna_display_note"
+				},
+				{
+					"line": 3138,
+					"column": 16,
+					"label": "temp_func"
 				},
 				{
 					"line": 3145,
