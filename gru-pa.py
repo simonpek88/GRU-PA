@@ -42,6 +42,7 @@ from gen_license_plate import create_plate_image
 from hf_weather import (get_city_aqi, get_city_history_weather,
                         get_city_now_weather, get_city_pf_weather,
                         get_city_warning_now)
+from online_counter import get_online_count
 
 # cSpell:ignoreRegExp /[^\s]{16,}/
 # cSpell:ignoreRegExp /\b[A-Z]{3,15}\b/g
@@ -2294,9 +2295,11 @@ def displayVisitCounter_static():
     visitcount = execute_sql(cur, sql)[0][0]
 
     # 生成徽章样式的访问计数器
-    badge_svg = badge(left_text='访  问  次  数', right_text=f'{visitcount}', right_color='brightgreen')
+    badge_svg = badge(left_text='访  问  量', right_text=f'{visitcount}', right_color='brightgreen')
+    online_count = get_online_count()
+    badge_online_svg = badge(left_text='在  线  人  数', right_text=f'{online_count}', right_color='blue')
     # 将badge_svg包裹在具有居中和缩放样式的<div>标签中
-    centered_and_scaled_badge = f"<div style='display: flex; justify-content: center; transform: scale(1.3);'>{badge_svg}</div>"
+    centered_and_scaled_badge = f"<div style='display: flex; justify-content: center; align-items: center; transform: scale(1.3);'>{badge_svg}<span style='margin: 0 10px;'></span>{badge_online_svg}</div>"
     st.markdown(centered_and_scaled_badge, unsafe_allow_html=True)
 
 

@@ -18,6 +18,7 @@ ID_Photos/snapshot_*.jpg
 Images/license_plate/user_vlp/test_*
 FaceCompare.py
 .mysql.cnf
+online_users.json
 *.pem
 *.backup
 mysql_pool.py
