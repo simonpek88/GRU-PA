@@ -27,6 +27,7 @@ Cmder
 cnaf
 commquestions
 compileall
+Consolas
 createtextfile
 crsetup
 CUDA
