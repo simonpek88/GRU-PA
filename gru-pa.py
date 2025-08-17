@@ -3033,7 +3033,7 @@ def edit_task_content():
     for row in rows:
         org_task_group.append(row[0])
     group_selected = st.selectbox('工作组别', org_task_group, index=0)
-    sql = f"SELECT pa_content from gru_pa where task_group = '{group_selected}' and StationCN = '{st.session_state.StationCN}'"
+    sql = f"SELECT pa_content from gru_pa where task_group = '{group_selected}' and StationCN = '{st.session_state.StationCN}' and fixed = 0"
     rows = execute_sql(cur, sql)
     for row in rows:
         org_task_content.append(row[0])
