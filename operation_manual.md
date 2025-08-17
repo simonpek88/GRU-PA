@@ -69,27 +69,47 @@ GRU-PA (Grass-roots unit Performance Appraisal system) 是一款专为基层站�
 
 ## 系统安装与配置
 
-### 📋 系统要求
+### 🖥️ 系统要求
 
 #### 服务器硬件要求
 
+<div style="overflow-x: auto;">
+
 | 组件 | 最低配置 | 推荐配置 |
-|------|----------|----------|
-| CPU | Intel i5 4代 | Intel i7 12代或AMD Ryzen7 7代|
-| 显卡 | 集成显卡 | GeForce GTX 2080 Ti |
-| 内存 | 8GB DDR3 | 16GB DDR5 |
-| 存储 | 64GB HDD | 128GB SSD |
-| 网络 | 100Mbps | 1000Mbps |
-| 摄像头 | 1080p (人脸识别专用) | 4K |
+|:-----|:---------|:---------|
+| **CPU** | <span style="color: #e74c3c;">Intel i5 4代</span> | <span style="color: #27ae60;">Intel i7 12代或AMD Ryzen7 7代</span> |
+| **显卡** | <span style="color: #e74c3c;">集成显卡</span> | <span style="color: #27ae60;">GeForce GTX 2080 Ti</span> |
+| **内存** | <span style="color: #e74c3c;">8GB DDR3</span> | <span style="color: #27ae60;">16GB DDR5</span> |
+| **存储** | <span style="color: #e74c3c;">64GB HDD</span> | <span style="color: #27ae60;">128GB SSD</span> |
+| **网络** | <span style="color: #e74c3c;">100Mbps</span> | <span style="color: #27ae60;">1000Mbps</span> |
+| **摄像头** | <span style="color: #e74c3c;">1080p</span> | <span style="color: #27ae60;">1080p</span> |
+
+</div>
+
+> 💡 **配置建议**:
+
+- 最低配置可满足基本运行需求
+- 推荐配置可获得更流畅的用户体验，特别是人脸识别功能
+- 人脸识别功能对摄像头和CPU要求较高，建议采用推荐配置
 
 #### 软件环境
 
+<div style="overflow-x: auto;">
+
 | 软件 | 版本要求 | 下载地址 |
-|------|----------|----------|
-| Python | 3.9-3.12.6 | [Python官网](https://www.python.org) |
-| MySQL | 8.4.5 LTS | [MySQL官网](https://dev.mysql.com) |
-| Git | 2.30+ | [Git官网](https://git-scm.com) |
-| Visual Studio Build Tools | 2019+ (Windows编译dlib用) | [Microsoft VS官网](https://visualstudio.microsoft.com/zh-hans/downloads/) |
+|:-----|:---------|:---------|
+| **Python** | `3.9-3.12.6` | [Python官网](https://www.python.org) <span style="font-size: 0.85em;">🔗</span> |
+| **MySQL** | `8.4.5 LTS` | [MySQL官网](https://dev.mysql.com) <span style="font-size: 0.85em;">🔗</span> |
+| **Git** | `2.30+` | [Git官网](https://git-scm.com) <span style="font-size: 0.85em;">🔗</span> |
+| **Visual Studio Build Tools** | `2019+` <br>_(Windows编译dlib用)_ | [Microsoft VS官网](https://visualstudio.microsoft.com/zh-hans/downloads/) <span style="font-size: 0.85em;">🔗</span> |
+
+</div>
+
+> 💡 **安装提示**:
+
+- Python安装时请勾选"Add Python to PATH"选项
+- Windows系统需要安装Visual Studio Build Tools以编译Dlib库
+- 建议使用LTS版本以确保系统稳定性
 
 ### 🚀 安装步骤
 
@@ -117,21 +137,113 @@ GRU-PA (Grass-roots unit Performance Appraisal system) 是一款专为基层站�
     ```
 
 3. 安装依赖
+
     - 主要依赖
-      - Streamlit # 前端框架
-      - Streamlit-antd-components/extras/keyup # 前端组件库
-      - Streamlit_condition_tree # 条件树SQL语句生成
-      - Pycryptodome # 数据加密模块
-      - NumPY # 数学计算
-      - Plotly # 数据可视化
-      - Python-docx # Word文档操作
-      - Openpyxl/XlsxWriter # Excel文档操作
-      - PyJWT # JSON Web Token认证 (和风天气API使用)
-      - Dlib # 人脸识别库 (可选)
-      - Face-recognition # 人脸识别 (可选)
-      - Opencv-python # 图像处理 (可选)
-      - streamlit-webrtc # 浏览器webrtc模块 (可选)
-      - ...
+    <style>
+    .dependency-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 15px;
+        margin-top: 10px;
+    }
+    .dependency-item {
+        background: #f8f9fa;
+        border-left: 4px solid #3498db;
+        padding: 12px 15px;
+        border-radius: 0 8px 8px 0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    .dependency-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        background: #e9f7fe;
+    }
+    .dependency-name {
+        font-weight: 600;
+        color: #2c3e50;
+        font-family: 'Courier New', monospace;
+    }
+    .dependency-desc {
+        color: #6c757d;
+        font-size: 1em;
+        margin-top: 5px;
+    }
+    .optional {
+        border-left-color: #23d5e1ff;
+    }
+    .optional .dependency-name {
+        color: #2c3e50;
+    }
+    /* 清除浮动影响 */
+    .dependency-clear {
+        clear: both;
+        height: 1px;
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
+    }
+    </style>
+
+    <div class="dependency-list">
+        <div class="dependency-item">
+        <div class="dependency-name">Streamlit</div>
+        <div class="dependency-desc">前端框架</div>
+        </div>
+        <div class="dependency-item">
+        <div class="dependency-name">Streamlit-antd-components/extras/search</div>
+        <div class="dependency-desc">前端组件库</div>
+        </div>
+        <div class="dependency-item">
+        <div class="dependency-name">Streamlit_condition_tree</div>
+        <div class="dependency-desc">条件树SQL语句生成</div>
+        </div>
+        <div class="dependency-item">
+        <div class="dependency-name">Pycryptodome</div>
+        <div class="dependency-desc">数据加密模块</div>
+        </div>
+        <div class="dependency-item">
+        <div class="dependency-name">NumPY</div>
+        <div class="dependency-desc">数学计算</div>
+        </div>
+        <div class="dependency-item">
+        <div class="dependency-name">Plotly</div>
+        <div class="dependency-desc">数据可视化</div>
+        </div>
+        <div class="dependency-item">
+        <div class="dependency-name">Nivo</div>
+        <div class="dependency-desc">数据可视化</div>
+        </div>
+        <div class="dependency-item">
+        <div class="dependency-name">Python-docx</div>
+        <div class="dependency-desc">Word文档操作</div>
+        </div>
+        <div class="dependency-item">
+        <div class="dependency-name">Openpyxl/XlsxWriter</div>
+        <div class="dependency-desc">Excel文档操作</div>
+        </div>
+        <div class="dependency-item">
+        <div class="dependency-name">PyJWT</div>
+        <div class="dependency-desc">JSON Web Token认证 (和风天气API使用)</div>
+        </div>
+        <div class="dependency-item optional">
+        <div class="dependency-name">Dlib</div>
+        <div class="dependency-desc">人脸识别库 (可选)</div>
+        </div>
+        <div class="dependency-item optional">
+        <div class="dependency-name">Face-recognition</div>
+        <div class="dependency-desc">人脸识别 (可选)</div>
+        </div>
+        <div class="dependency-item optional">
+        <div class="dependency-name">Opencv-python</div>
+        <div class="dependency-desc">图像处理 (可选)</div>
+        </div>
+        <div class="dependency-item optional">
+        <div class="dependency-name">streamlit-webrtc</div>
+        <div class="dependency-desc">浏览器webrtc模块 (可选)</div>
+        </div>
+    </div>
+    <div class="dependency-clear"></div>
 
       ![Python](https://img.shields.io/badge/Python-3.12.6-blue.svg)
       ![MySQL](https://img.shields.io/badge/MySQL-8.4.5-blue.svg)
@@ -292,12 +404,23 @@ streamlit run gru-pa.py --server.port {空闲端口} --server.address localhost�
 
 ### 👥 用户角色体系
 
+<div style="overflow-x: auto;">
+
 | 角色 | 权限范围 | 典型用户 |
-|------|----------|----------|
-| 超级管理员 | 全系统管理 | DA管理员 |
-| 站点管理员 | 站点内管理 | 站长 |
-| 普通员工 | 个人操作 | 一般员工 |
-| 访客 | 只读权限 | 临时用户 |
+|:-----|:---------|:---------|
+| **👑 超级管理员** | <span style="color: #2980b9;">全系统管理</span> | DBA管理员 |
+| **🏢 站点管理员** | <span style="color: #27ae60;">站点内管理</span> | 站长 |
+| **👤 普通员工** | <span style="color: #f39c12;">个人操作</span> | 一般员工 |
+| **🔎 访客** | <span style="color: #95a5a6;">只读权限</span> | 临时用户 |
+
+</div>
+
+> 💡 **角色说明**:
+
+- 超级管理员拥有系统最高权限，可管理所有站点和用户
+- 站点管理员负责单个站点的日常管理
+- 普通员工可进行个人工作量录入和查询
+- 访客仅可查看公开信息，无编辑权限
 
 ### 📝 用户操作指南
 
@@ -399,44 +522,187 @@ streamlit run gru-pa.py --server.port {空闲端口} --server.address localhost�
 - 效率分析 : 单位时间工作量
 - 质量评估 : 工作质量评分
 
-### 📈 图表系统 9种图表类型详解
+### 📈 图表系统 - 9种图表类型详解
 
-1. 折线图 - 时间趋势分析
-   - X轴: 时间 (日/周/月)
-   - Y轴: 工作量 (分/项)
-   - 多线对比: 支持多人对比
-2. 柱状图 - 对比分析
-   - 垂直柱状: 人员对比
-   - 水平柱状: 工作类型对比
-   - 堆叠柱状: 构成分析
-3. 饼图 - 占比分析
-   - 工作类型占比
-   - 分值区间占比
-   - 人员贡献占比
-4. 旭日图 - 层次分析
-   - 多层数据展示
-   - 交互式钻取
-   - 大小表示重要性
-5. 矩阵树图 - 矩形树图
-   - 面积表示数值
-   - 颜色表示类别
-   - 空间利用率高
-6. 日历热度图 - 时间密度
-   - 颜色深浅表示工作量
-   - 月度视图
-   - 节假日标记
-7. 中位数图 - 分布分析
-   - 显示数据分布
-   - 异常值识别
-   - 箱线图展示
-8. 漏斗图 - 转化分析
-   - 工作流程转化
-   - 效率损失识别
-   - 瓶颈分析
-9. 组合图 - 综合分析
-   - 折线+柱状组合
-   - 双Y轴展示
-   - 多维度对比
+<style>
+.chart-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+.chart-card {
+  border: 1px solid #e1e8ed;
+  border-radius: 10px;
+  padding: 15px;
+  background: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+.chart-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+.chart-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.chart-number {
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-right: 10px;
+  font-size: 1em;
+}
+.chart-title {
+  font-weight: 600;
+  font-size: 1.1em;
+  color: #2c3e50;
+}
+.chart-features {
+  font-size: 1em;
+  color: #7f8c8d;
+  margin: 8px 0;
+  padding-left: 10px;
+  border-left: 3px solid #3498db;
+}
+.chart-scenario {
+  background: #f8f9fa;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.95em;
+  color: #34495e;
+  margin-top: 10px;
+}
+</style>
+
+<div class="chart-container">
+
+<div class="chart-card">
+  <div class="chart-header">
+    <div class="chart-number">1</div>
+    <div class="chart-title">📈 折线图 - 时间趋势分析</div>
+  </div>
+  <div class="chart-features">
+    • X轴: 时间 (日/周/月)<br>
+    • Y轴: 工作量 (分/项)<br>
+    • 多线对比: 支持多人对比
+  </div>
+  <div class="chart-scenario">应用查看工作量随时间变化趋势</div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-header">
+    <div class="chart-number">2</div>
+    <div class="chart-title">📊 柱状图 - 对比分析</div>
+  </div>
+  <div class="chart-features">
+    • 垂直柱状: 人员对比<br>
+    • 水平柱状: 工作类型对比<br>
+    • 堆叠柱状: 构成分析
+  </div>
+  <div class="chart-scenario">对比不同人员或工作类型的数据</div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-header">
+    <div class="chart-number">3</div>
+    <div class="chart-title">🥧 饼图 - 占比分析</div>
+  </div>
+  <div class="chart-features">
+    • 工作类型占比<br>
+    • 分值区间占比<br>
+    • 人员贡献占比
+  </div>
+  <div class="chart-scenario">显示各类别在整体中的占比关系</div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-header">
+    <div class="chart-number">4</div>
+    <div class="chart-title">🌞 旭日图 - 层次分析</div>
+  </div>
+  <div class="chart-features">
+    • 多层数据展示<br>
+    • 交互式钻取<br>
+    • 大小表示重要性
+  </div>
+  <div class="chart-scenario">展示具有层级结构的复杂数据</div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-header">
+    <div class="chart-number">5</div>
+    <div class="chart-title">🌳 矩阵树图 - 矩形树图</div>
+  </div>
+  <div class="chart-features">
+    • 面积表示数值<br>
+    • 颜色表示类别<br>
+    • 空间利用率高
+  </div>
+  <div class="chart-scenario">高效利用空间展示层次化数据</div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-header">
+    <div class="chart-number">6</div>
+    <div class="chart-title">📅 日历热度图 - 时间密度</div>
+  </div>
+  <div class="chart-features">
+    • 颜色深浅表示工作量<br>
+    • 月度视图<br>
+    • 节假日标记
+  </div>
+  <div class="chart-scenario">按日查看工作量分布和密度</div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-header">
+    <div class="chart-number">7</div>
+    <div class="chart-title">📐 中位数图 - 分布分析</div>
+  </div>
+  <div class="chart-features">
+    • 显示数据分布<br>
+    • 异常值识别<br>
+    • 箱线图展示
+  </div>
+  <div class="chart-scenario">分析数据分布情况和识别异常值</div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-header">
+    <div class="chart-number">8</div>
+    <div class="chart-title">🕳️ 漏斗图 - 转化分析</div>
+  </div>
+  <div class="chart-features">
+    • 工作流程转化<br>
+    • 效率损失识别<br>
+    • 瓶颈分析
+  </div>
+  <div class="chart-scenario">分析工作流程效率和识别瓶颈</div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-header">
+    <div class="chart-number">9</div>
+    <div class="chart-title">📈 双轴组合图 - 综合分析</div>
+  </div>
+  <div class="chart-features">
+    • 折线+柱状组合<br>
+    • 双Y轴展示<br>
+    • 多维度对比
+  </div>
+  <div class="chart-scenario">综合展示多种类型的数据关系</div>
+</div>
+
+</div>
 
 ### 🔍 高级查询 条件查询构建器
 
@@ -494,7 +760,7 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
 
 报表末尾包含合计行，显示所有员工的值班统计总和。
 
-- 数据校验机制
+- **数据校验机制**
 
 系统会自动校验统计数据的合理性：
 
@@ -509,7 +775,7 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
 - 公告发布
   - 添加公告 : 针对本站所有成员发布公告, 可以设置有效期
 
-      用户登录后如果有新公告，则会在公告页显示并更改该页图标以示提醒
+      **用户登录后如果有新公告，则会在公告页显示并更改该页图标以示提醒**
 - 公告修改
   - 修改或删除公告 : 仅管理员可修改
 
@@ -527,9 +793,8 @@ graph TD
     D --> E[💾 数据库比对]
     E --> F[📊 相似度计算]
     F --> G[⚖️ 阈值判断]
-    G -->|✅ 通过| H[✅ 登录成功]
-    G -->|❌ 失败| I[🔑 密码登录]
-
+    G -->|✅ 通过\n相似度 ≥ 阈值| H[✅ 登录成功]
+    G -->|❌ 失败\n相似度 < 阈值| I[🔑 密码登录]
 ```
 
 #### 性能指标
@@ -542,15 +807,25 @@ graph TD
 
 ### 📸 人脸录入指南
 
-#### 录入步骤
+#### 录入流程
 
-1. 进入设置 : 设置 → 录入人脸数据
-2. 权限检查 : 确保摄像头权限已开启
-3. 位置调整 : 面部居中，占画面1/3
-4. 多角度采集 : 系统自动采集5个角度
-5. 质量检查 : 自动检测照片质量
-6. 特征提取 : 生成128维特征向量
-7. 保存至数据库 : 显示录入成功提示
+```mermaid
+graph TD
+    A[👤 进入设置] --> B[🔐 权限检查]
+    B --> C[📍 位置调整]
+    C --> D[📸 多角度采集]
+    D --> E[🔍 质量检查]
+    E --> F[🔢 特征提取]
+    F --> G[💾 保存至数据库]
+
+    A --> A1[设置 → 录入人脸数据]
+    B --> B1[确保摄像头权限已开启]
+    C --> C1[面部居中，占画面1/3]
+    D --> D1[系统自动采集5个角度]
+    E --> E1[自动检测照片质量]
+    F --> F1[生成128维特征向量]
+    G --> G1[显示录入成功提示]
+```
 
 #### 录入要求
 
@@ -695,35 +970,183 @@ graph TD
 
 普通用户可以在个人设置中配置自己的使用偏好，这些设置仅对当前用户生效。
 
-#### 界面显示设置
+<style>
+.settings-category {
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px 8px 0 0;
+  font-weight: bold;
+  margin: 20px 0 0 0;
+  display: flex;
+  align-items: center;
+}
+.settings-category i {
+  margin-right: 10px;
+  font-size: 1.2em;
+}
+.settings-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+  table-layout: fixed;
+}
+.settings-table th {
+  background-color: #f8f9fa;
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 2px solid #e9ecef;
+}
+.settings-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #e9ecef;
+  vertical-align: top;
+}
+.settings-table tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+.settings-table tr:hover {
+  background-color: #e9f7fe;
+}
+.settings-table th:nth-child(1),
+.settings-table td:nth-child(1) {
+  width: 25%;
+  font-weight: 500;
+  color: #495057;
+}
+.settings-table th:nth-child(2),
+.settings-table td:nth-child(2) {
+  width: 55%;
+  color: #6c757d;
+}
+.settings-table th:nth-child(3),
+.settings-table td:nth-child(3) {
+  width: 20%;
+  font-weight: 500;
+  color: #28a745;
+}
+</style>
 
-| 设置项 | 功能说明 | 默认值 |
-|--------|----------|--------|
-| 主页展示方式 | 选择主页显示静态文字或动态特效文字 | 静态文字 |
-| 天气展示 | 是否在主页显示天气信息 | 显示 |
-| 天气展示方式 | 选择天气信息的展示形式（卡片或文字） | 卡片 |
-| 天气API选择 | 选择使用和风天气或高德天气API | 和风天气 |
-| 天气图标 | 选择使用系统图标或和风天气图标 | 系统图标 |
-| 空气质量展示 | 是否显示空气质量信息 | 不显示 |
-| 天气预警展示 | 是否显示天气预警信息 | 显示 |
-| 车辆限行预警 | 是否显示车辆限行信息 | 显示 |
+<div class="settings-category">
+  <i>🖥️</i>
+  <div>界面显示设置</div>
+</div>
 
-#### 工作录入设置
+<table class="settings-table">
+  <thead>
+    <tr>
+      <th>设置项</th>
+      <th>功能说明</th>
+      <th>默认值</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>主页展示方式</td>
+      <td>选择主页显示静态文字或动态特效文字</td>
+      <td>静态文字</td>
+    </tr>
+    <tr>
+      <td>天气展示</td>
+      <td>是否在主页显示天气信息</td>
+      <td>显示</td>
+    </tr>
+    <tr>
+      <td>天气展示方式</td>
+      <td>选择天气信息的展示形式（卡片或文字）</td>
+      <td>卡片</td>
+    </tr>
+    <tr>
+      <td>天气API选择</td>
+      <td>选择使用和风天气或高德天气API</td>
+      <td>和风天气</td>
+    </tr>
+    <tr>
+      <td>天气图标</td>
+      <td>选择使用系统图标或和风天气图标</td>
+      <td>系统图标</td>
+    </tr>
+    <tr>
+      <td>空气质量展示</td>
+      <td>是否显示空气质量信息</td>
+      <td>不显示</td>
+    </tr>
+    <tr>
+      <td>天气预警展示</td>
+      <td>是否显示天气预警信息</td>
+      <td>显示</td>
+    </tr>
+    <tr>
+      <td>车辆限行预警</td>
+      <td>是否显示车辆限行信息</td>
+      <td>显示</td>
+    </tr>
+  </tbody>
+</table>
 
-| 设置项 | 功能说明 | 默认值 |
-|--------|----------|--------|
-| 自动选择日常工作 | 是否自动勾选常用工作项 | 自动勾选 |
-| 工作组排序方式 | 选择工作组别按个性化排序或固定排序 | 个性化排序 |
-| 岗位工作类型 | 选择岗位工作类型（值班或白班） | 值班 |
+<div class="settings-category">
+  <i>📊</i>
+  <div>工作录入设置</div>
+</div>
 
-#### 登录设置
+<table class="settings-table">
+  <thead>
+    <tr>
+      <th>设置项</th>
+      <th>功能说明</th>
+      <th>默认值</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>自动选择日常工作</td>
+      <td>是否自动勾选常用工作项</td>
+      <td>自动勾选</td>
+    </tr>
+    <tr>
+      <td>工作组排序方式</td>
+      <td>选择工作组别按个性化排序或固定排序</td>
+      <td>个性化排序</td>
+    </tr>
+    <tr>
+      <td>岗位工作类型</td>
+      <td>选择岗位工作类型（值班或白班）</td>
+      <td>值班</td>
+    </tr>
+  </tbody>
+</table>
 
-| 设置项 | 功能说明 | 默认值 |
-|--------|----------|--------|
-| 用户名密码登录 | 是否启用用户名密码登录方式 | 启用 |
-| 人脸识别登录 | 是否启用人脸识别登录方式 | 启用 |
+<div class="settings-category">
+  <i>🔐</i>
+  <div>登录设置</div>
+</div>
 
-##### 个人设置截图
+<table class="settings-table">
+  <thead>
+    <tr>
+      <th>设置项</th>
+      <th>功能说明</th>
+      <th>默认值</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>用户名密码登录</td>
+      <td>是否启用用户名密码登录方式</td>
+      <td>启用</td>
+    </tr>
+    <tr>
+      <td>人脸识别登录</td>
+      <td>是否启用人脸识别登录方式</td>
+      <td>启用</td>
+    </tr>
+  </tbody>
+</table>
+
+#### 个人设置截图
 
 ![个人设置截图](https://i.postimg.cc/QMKxbQYt/users-setup.png)
 
@@ -738,7 +1161,7 @@ graph TD
 
 - 个人设置中的选项仅对当前登录用户生效，不会影响其他用户
 - 部分设置项可能需要刷新页面或重新登录才能完全生效
-- 如果某些设置项不可见或不可修改，可能是管理员进行了相关限制
+- **如果某些设置项不可见或不可修改，可能是管理员进行了相关限制**
 
 <a id="系统管理"></a>
 
@@ -750,7 +1173,7 @@ graph TD
 
 #### 数据库操作
 
-以下数据库操作功能仅对具有数据库管理员权限(DA)的用户开放。所有数据库操作都具有潜在风险，请在执行前确保已备份重要数据。
+以下数据库操作功能仅对具有数据库管理员权限(DBA)的用户开放。所有数据库操作都具有潜在风险，请在执行前确保已备份重要数据。
 
 ##### 重置PA-Number
 
@@ -979,6 +1402,12 @@ graph TD
   border-left: 4px solid #ff6600;
 }
 
+.permission-level.fourth {
+  background: linear-gradient(135deg, #23ee52ff 0%, #ffd200 100%);
+  color: #333;
+  border-left: 4px solid #ff6600;
+}
+
 .permission-icon {
   margin-right: 12px;
   font-size: 1.2em;
@@ -1001,7 +1430,7 @@ graph TD
   background: rgba(255, 255, 255, 0.2);
   border-radius: 6px;
   text-align: center;
-  font-size: 0.9em;
+  font-size: 1em;
 }
 
 .permission-level.main .permission-item {
@@ -1021,7 +1450,7 @@ graph TD
   <div class="permission-level main">
     <div class="permission-icon">👑</div>
     <div class="permission-content">
-      <div>超级管理员 (系统级Root&DA)</div>
+      <div>超级管理员 (系统级Root&DBA)</div>
       <div class="permission-items">
         <div class="permission-item">创建站点</div>
         <div class="permission-item">管理所有用户</div>
@@ -1053,23 +1482,39 @@ graph TD
       </div>
     </div>
   </div>
+  <div class="permission-level fourth">
+    <div class="permission-icon">🔎</div>
+    <div class="permission-content">
+      <div>访客用户 (数据只读Visitor)</div>
+      <div class="permission-items">
+        <div class="permission-item">所有功能展示</div>
+        <div class="permission-item">数据只读</div>
+      </div>
+    </div>
+  </div>
 </div>
 
-#### 系统设置
+#### ⚙️ 系统配置参数
 
-| 配置类别 | 配置项 | 默认值 | 范围 |
-|----------|--------|--------|------|
-| 最大扣分项 | 最大扣分分值 | -300 | -600 至 -30 |
-| 字体大小 | 报表字体大小 | 14 | 10-20 |
-| 月天数 | 月最小天数 | 28天 | 27-31天 |
-| 共享任务分值 | PA-Share分值最大查询天数 | 60天 | 14-60天 |
-| 人脸识别 | 相似度阈值 | 70% | 50%-90% |
-| 人脸识别 | 最大尝试次数(Todo) | 3次 | 1-5次 |
-| 工作基数 | 智能推荐工作阈值 | 5次 | 3-20次 |
-| 额外输油 | 晚10点后是否输油 | True | True/False(1/0) |
-| 系统设置 | 会话超时(Todo) | 30分钟 | 10-120分钟 |
-| 数据备份 | 自动备份时间(Todo) | 02:00 | 00:00-23:59 |
-| 数据备份 | 备份保留天数(Todo) | 5天 | 7-14天 |
+<div style="overflow-x: auto;">
+
+| 配置类别 | 配置项 | 默认值 | 可调范围 |
+|----------|--------|--------|----------|
+| **最大扣分项** | 最大扣分分值 | `-300` | -600 至 -30 |
+| **字体大小** | 报表字体大小 | `14` | 10-20 |
+| **月天数** | 月最小天数 | `28天` | 27-31天 |
+| **共享任务分值** | PA-Share分值最大查询天数 | `60天` | 14-60天 |
+| **人脸识别** | 相似度阈值 | `70%` | 50%-90% |
+| **人脸识别** | 最大尝试次数 **(Todo)** | `3次` | 1-5次 |
+| **工作基数** | 智能推荐工作阈值 | `5次` | 3-20次 |
+| **额外输油** | 晚10点后是否输油 | `True` | True/False(1/0) |
+| **系统设置** | 会话超时 **(Todo)** | `30分钟` | 10-120分钟 |
+| **数据备份** | 自动备份时间 **(Todo)** | `02:00` | 00:00-23:59 |
+| **数据备份** | 备份保留天数 **(Todo)** | `5天` | 7-14天 |
+
+</div>
+
+> 💡 **说明**: 带有 **(Todo)** 标记的配置项为待实现功能，当前版本暂未生效。
 
 ##### 系统设置截图
 
@@ -1106,32 +1551,185 @@ graph TD
 
 ### 🔍 常见问题解决方案
 
-#### 登录问题
+<style>
+.faq-category {
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px 8px 0 0;
+  font-weight: bold;
+  margin: 20px 0 0 0;
+  display: flex;
+  align-items: center;
+}
+.faq-category i {
+  margin-right: 10px;
+  font-size: 1.2em;
+}
+.faq-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+}
+.faq-table th {
+  background-color: #f8f9fa;
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 2px solid #e9ecef;
+}
+.faq-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #e9ecef;
+}
+.faq-table tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+.faq-table tr:hover {
+  background-color: #e9f7fe;
+}
+.faq-table th:nth-child(1),
+.faq-table td:nth-child(1) {
+  width: 25%;
+  font-weight: 500;
+  color: #495057;
+}
+.faq-table th:nth-child(2),
+.faq-table td:nth-child(2) {
+  width: 35%;
+  color: #6c757d;
+}
+.faq-table th:nth-child(3),
+.faq-table td:nth-child(3) {
+  width: 40%;
+  font-weight: 500;
+  color: #28a745;
+}
+.problem {
+  color: #dc3545;
+  font-weight: 500;
+}
+.cause {
+  color: #ff7300ff;
+}
+.solution {
+  color: #28a745;
+  font-weight: 500;
+}
+</style>
 
-| 问题现象 | 可能原因 | 解决方案 |
-|----------|----------|----------|
-| 页面无法打开 | 服务未启动 | streamlit run gru-pa.py |
-| 密码错误 | 忘记密码 | 联系管理员重置 |
-| 人脸识别失败 | 光线不足 | 改善光线条件 |
-| 摄像头无权限 | 浏览器设置 | 允许摄像头访问 |
+<div class="faq-category">
+  <i>🔐</i>
+  <div>登录问题</div>
+</div>
 
-#### 数据问题
+<table class="faq-table">
+  <thead>
+    <tr>
+      <th>问题现象</th>
+      <th>可能原因</th>
+      <th>解决方案</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="problem">页面无法打开</span></td>
+      <td><span class="cause">服务未启动</span></td>
+      <td><span class="solution">streamlit run gru-pa.py</span></td>
+    </tr>
+    <tr>
+      <td><span class="problem">密码错误</span></td>
+      <td><span class="cause">忘记密码</span></td>
+      <td><span class="solution">联系管理员重置</span></td>
+    </tr>
+    <tr>
+      <td><span class="problem">人脸识别失败</span></td>
+      <td><span class="cause">光线不足</span></td>
+      <td><span class="solution">改善光线条件</span></td>
+    </tr>
+    <tr>
+      <td><span class="problem">摄像头无权限</span></td>
+      <td><span class="cause">浏览器设置</span></td>
+      <td><span class="solution">允许摄像头访问</span></td>
+    </tr>
+  </tbody>
+</table>
 
-| 问题现象 | 可能原因 | 解决方案 |
-|----------|----------|----------|
-| 数据不显示 | 未审核 | 管理员审核数据 |
-| 统计不准确 | 时间范围错误 | 重新选择时间范围 |
-| 无法导出 | 浏览器拦截 | 允许弹窗和下载 |
-| 图表空白 | 无数据 | 检查查询条件 |
+<div class="faq-category">
+  <i>📊</i>
+  <div>数据问题</div>
+</div>
 
-#### 性能问题
+<table class="faq-table">
+  <thead>
+    <tr>
+      <th>问题现象</th>
+      <th>可能原因</th>
+      <th>解决方案</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="problem">数据不显示</span></td>
+      <td><span class="cause">未审核</span></td>
+      <td><span class="solution">管理员审核数据</span></td>
+    </tr>
+    <tr>
+      <td><span class="problem">统计不准确</span></td>
+      <td><span class="cause">时间范围错误</span></td>
+      <td><span class="solution">重新选择时间范围</span></td>
+    </tr>
+    <tr>
+      <td><span class="problem">无法导出</span></td>
+      <td><span class="cause">浏览器拦截</span></td>
+      <td><span class="solution">允许弹窗和下载</span></td>
+    </tr>
+    <tr>
+      <td><span class="problem">图表空白</span></td>
+      <td><span class="cause">无数据</span></td>
+      <td><span class="solution">检查查询条件</span></td>
+    </tr>
+  </tbody>
+</table>
 
-| 问题现象 | 可能原因 | 解决方案 |
-|----------|----------|----------|
-| 加载缓慢 | 数据量大 | 缩小查询时间范围 |
-| 系统卡顿 | 内存不足 | 重启服务或升级硬件 |
-| 数据库慢 | 索引缺失 | 管理员重建索引 |
-| 导出超时 | 数据量过大 | 分批导出 |
+<div class="faq-category">
+  <i>⚡</i>
+  <div>性能问题</div>
+</div>
+
+<table class="faq-table">
+  <thead>
+    <tr>
+      <th>问题现象</th>
+      <th>可能原因</th>
+      <th>解决方案</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="problem">加载缓慢</span></td>
+      <td><span class="cause">数据量大</span></td>
+      <td><span class="solution">缩小查询时间范围</span></td>
+    </tr>
+    <tr>
+      <td><span class="problem">系统卡顿</span></td>
+      <td><span class="cause">内存不足</span></td>
+      <td><span class="solution">重启服务或升级硬件</span></td>
+    </tr>
+    <tr>
+      <td><span class="problem">数据库慢</span></td>
+      <td><span class="cause">索引缺失</span></td>
+      <td><span class="solution">管理员重建索引</span></td>
+    </tr>
+    <tr>
+      <td><span class="problem">导出超时</span></td>
+      <td><span class="cause">数据量过大</span></td>
+      <td><span class="solution">分批导出</span></td>
+    </tr>
+  </tbody>
+</table>
 
 ### 🚨 紧急处理
 
@@ -1196,19 +1794,19 @@ graph TD
 
 #### 密码安全
 
-- 复杂度要求 : 大小写字母+数字+特殊字符 (推荐)
-- 长度要求 : 最少8位，推荐12位以上 (推荐)
-- 更换周期 : 90天强制更换 (Todo)
-- 历史密码 : 不能重复使用最近5次密码 (Todo)
-- 登录失败 : 连续5次失败锁定30分钟 (Todo)
+- 复杂度要求 : 大小写字母+数字+特殊字符
+- 长度要求 : 最少8位，推荐12位以上
+- 更换周期 : 90天强制更换
+- 历史密码 : 不能重复使用最近5次密码
+- 登录失败 : 连续5次失败锁定30分钟
 
 #### 数据安全
 
 - 传输加密 : 使用HTTPS协议
 - 存储加密 : 敏感数据AES加密
 - 备份加密 : 备份文件加密存储
-- 访问控制 : 基于IP的白名单 (Todo)
-- 审计跟踪 : 所有操作可追踪 (Todo)
+- 访问控制 : 基于IP的白名单
+- 审计跟踪 : 所有操作可追踪
 
 #### 系统安全
 
@@ -1251,39 +1849,111 @@ graph TD
 
 ### 📄 文件清单
 
-- .streamlit/config.toml # Streamlit配置文件
-- .mysql.cnf # MySQL配置文件
-- gru-pa.py # 入口文件及主程序 All in one
-- mysql_pool_cpython.pyc # MySQL连接池模块(不同步)
-- commFunc.py # 公共函数模块
-- gen_badges.py # 徽章生成模块
-- face_login.py # 人脸登录模块
-- hf_weather.py # 和风天气API模块
-- gd_weather.py # 高德天气API模块
-- gen_license_plate.py # 车牌生成模块
-- dlib # dlib人脸识别库whl文件、编译说明及68个点模型文件
-- documents # 文档文件(不同步)
-- fonts # 字体文件
-- ID_Photos # 用户人脸图像, 用于生成识别数据
-- Images # 图片文件
-  - badges # 徽章文件
-  - Clock-Images # 时钟图片
-  - license_plate # 车牌图片
-    - background # 车牌生成背景图片
-    - vehicle_logo # 汽车品牌logo
-  - logos # 依赖库logo文件
-  - snapshot # 截图保存
-- MyComponentsScript # 自定义组件脚本, txt格式
-- MySQL_Backup # MySQL备份文件
-- user_pa # 用户统计数据导出文档 (不同步)
-- operation_manual.md # 操作手册文件
-- README.md # 项目说明文件
-- CHANGELOG.md # 项目更新日志
-- requirements.txt # 自动安装依赖文件
-- CSC-Common-CustomDict.txt # CSpell自定义通用字典文件
-- CSC-Project-CustomDict.txt # CSpell自定义字典文件
-- DBBackup.ps1 # 数据库备份PS脚本
-- restoredb.bat # 数据库恢复bat脚本
+<style>
+.file-list {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.file-item {
+  margin: 8px 0;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+.file-item:hover {
+  background: #e9f7fe;
+  transform: translateX(5px);
+}
+.file-name {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: #2c3e50;
+}
+.file-comment {
+  color: #6c757d;
+  font-size: 1em;
+  margin-left: 10px;
+}
+.folder {
+  color: #2980b9;
+  font-weight: bold;
+}
+.sub-folder {
+  color: #3498db;
+  font-weight: 500;
+}
+.file-category {
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 1em;
+  margin: 15px 0 10px 0;
+  display: inline-block;
+}
+</style>
+
+<div class="file-list">
+
+<div class="file-category">⚙️ 配置文件</div>
+<div class="file-item"><span class="file-name">.streamlit/config.toml</span> <span class="file-comment"># Streamlit配置文件</span></div>
+<div class="file-item"><span class="file-name">.mysql.cnf</span> <span class="file-comment"># MySQL配置文件</span></div>
+
+<div class="file-category">🐍 主程序文件</div>
+<div class="file-item"><span class="file-name">gru-pa.py</span> <span class="file-comment"># 入口文件及主程序 All in one</span></div>
+<div class="file-item"><span class="file-name">mysql_pool_cpython.pyc</span> <span class="file-comment"># MySQL连接池模块(不同步)</span></div>
+
+<div class="file-category">🧩 功能模块</div>
+<div class="file-item"><span class="file-name">commFunc.py</span> <span class="file-comment"># 公共函数模块</span></div>
+<div class="file-item"><span class="file-name">gen_badges.py</span> <span class="file-comment"># 徽章生成模块</span></div>
+<div class="file-item"><span class="file-name">face_login.py</span> <span class="file-comment"># 人脸登录模块</span></div>
+<div class="file-item"><span class="file-name">hf_weather.py</span> <span class="file-comment"># 和风天气API模块</span></div>
+<div class="file-item"><span class="file-name">gd_weather.py</span> <span class="file-comment"># 高德天气API模块</span></div>
+<div class="file-item"><span class="file-name">gen_license_plate.py</span> <span class="file-comment"># 车牌生成模块</span></div>
+
+<div class="file-category">📦 第三方库</div>
+<div class="file-item"><span class="file-name">dlib</span> <span class="file-comment"># dlib人脸识别库whl文件、编译说明及68个点模型文件</span></div>
+
+<div class="file-category">📚 文档资源</div>
+<div class="file-item"><span class="file-name">documents</span> <span class="file-comment"># 文档文件(不同步)</span></div>
+<div class="file-item"><span class="file-name">operation_manual.md</span> <span class="file-comment"># 操作手册文件</span></div>
+<div class="file-item"><span class="file-name">README.md</span> <span class="file-comment"># 项目说明文件</span></div>
+<div class="file-item"><span class="file-name">CHANGELOG.md</span> <span class="file-comment"># 项目更新日志</span></div>
+
+<div class="file-category">🔤 资源文件</div>
+<div class="file-item"><span class="file-name">fonts</span> <span class="file-comment"># 字体文件</span></div>
+<div class="file-item"><span class="file-name">ID_Photos</span> <span class="file-comment"># 用户人脸图像, 用于生成识别数据</span></div>
+
+<div class="file-category">🖼️ 图片资源</div>
+<div class="file-item"><span class="file-name">Images</span> <span class="file-comment"># 图片文件</span></div>
+<div class="file-item"><span class="file-name">&nbsp;&nbsp;∟ badges</span> <span class="file-comment"># 徽章文件</span></div>
+<div class="file-item"><span class="file-name">&nbsp;&nbsp;∟ Clock-Images</span> <span class="file-comment"># 时钟图片</span></div>
+<div class="file-item"><span class="file-name">&nbsp;&nbsp;∟ license_plate</span> <span class="file-comment"># 车牌图片</span></div>
+<div class="file-item"><span class="file-name">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;∟ background</span> <span class="file-comment"># 车牌生成背景图片</span></div>
+<div class="file-item"><span class="file-name">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;∟ vehicle_logo</span> <span class="file-comment"># 汽车品牌logo</span></div>
+<div class="file-item"><span class="file-name">&nbsp;&nbsp;∟ logos</span> <span class="file-comment"># 依赖库logo文件</span></div>
+<div class="file-item"><span class="file-name">&nbsp;&nbsp;∟ snapshot</span> <span class="file-comment"># 截图保存</span></div>
+
+<div class="file-category">🔧 脚本工具</div>
+<div class="file-item"><span class="file-name">MyComponentsScript</span> <span class="file-comment"># 自定义组件脚本, txt格式</span></div>
+<div class="file-item"><span class="file-name">DBBackup.ps1</span> <span class="file-comment"># 数据库备份PS脚本</span></div>
+<div class="file-item"><span class="file-name">restoredb.bat</span> <span class="file-comment"># 数据库恢复bat脚本</span></div>
+
+<div class="file-category">🗄️ 数据文件</div>
+<div class="file-item"><span class="file-name">MySQL_Backup</span> <span class="file-comment"># MySQL备份文件</span></div>
+<div class="file-item"><span class="file-name">user_pa</span> <span class="file-comment"># 用户统计数据导出文档 (不同步)</span></div>
+
+<div class="file-category">📋 依赖管理</div>
+<div class="file-item"><span class="file-name">requirements.txt</span> <span class="file-comment"># 自动安装依赖文件</span></div>
+
+<div class="file-category">🔤 拼写检查</div>
+<div class="file-item"><span class="file-name">CSC-Common-CustomDict.txt</span> <span class="file-comment"># CSpell自定义通用字典文件</span></div>
+<div class="file-item"><span class="file-name">CSC-Project-CustomDict.txt</span> <span class="file-comment"># CSpell自定义字典文件</span></div>
+
+</div>
 
 ### 🎯 快速命令参考
 
@@ -1324,7 +1994,7 @@ pip install -r requirements.txt --upgrade
 
 📖 文档 | 🐞 反馈 | ⭐ 点赞
 
-手册版本: v1.0.9 | 更新时间: 2025-08-12 | 作者: Simon Lau
+手册版本: v1.1.5 | 更新时间: 2025-08-12 | 作者: Simon Lau
 
 版权说明 : 本手册版权归GRU-PA项目所有，遵循MIT开源协议。欢迎转载、修改和再发布，但请注明出处。
 

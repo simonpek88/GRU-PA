@@ -3257,7 +3257,6 @@ def dyna_display_note(note_file):
     st.markdown(new_content_with_badge, unsafe_allow_html=True)
 
 
-
 def get_extra_oto2():
     oto_date_pack = []
     start_date = get_current_month_range()[0]
