@@ -91,6 +91,7 @@ def login():
                 sac.SegmentedItem(label="人脸识别登录", disabled=not face_login_available),
             ], align="start", color='green', index=login_index
         )
+    st.markdown('<div style="text-align: center; color: gray; font-size: 12px;">© GRU-PA Copyright 2025 Simon Lau</div>', unsafe_allow_html=True)
     # 登录按钮
     buttonLogin = st.button("登录")
 
