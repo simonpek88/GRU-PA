@@ -5,7 +5,7 @@
     ![GRU-PA ver](https://img.shields.io/badge/ver-0.13.1352-blue.svg)
     ![GRU-PA updated](https://img.shields.io/badge/updated-25/08/11%2016:59-orange.svg)
     ![GRU-PA build](https://img.shields.io/badge/build-passing-deepgreen.svg)
-    ![GRU-PA languages-count](https://img.shields.io/github/languages/count/simonpek88/GRU-PA.svg)
+    ![GRU-PA top-languages](https://img.shields.io/github/languages/top/simonpek88/GRU-PA.svg)
     ![GRU-PA commits](https://img.shields.io/github/commit-activity/t/simonpek88/GRU-PA.svg)
 
 ## 目录
@@ -49,21 +49,83 @@ GRU-PA (Grass-roots unit Performance Appraisal system) 是一款专为基层站�
 
 ### 🏗️ 技术架构
 
-- 前端框架 : Streamlit 1.48.0
-- 后端语言 : Python 3.9-3.12
-- 数据库 : MySQL 8.4.5 LTS
-- 人脸识别 : Dlib 20.0.0 + OpenCV 4.12
-- 图表可视化 : Plotly 6.2.0 + Nivo
-- 文档处理 : python-docx 1.2.0 + openpyxl 3.1.5
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 20px 0;">
+  <div style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); border-radius: 10px; padding: 20px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+    <div style="font-size: 1.8em; margin-bottom: 10px;">🎨</div>
+    <div style="font-weight: bold; font-size: 1.1em; margin-bottom: 5px;">前端框架</div>
+    <div style="font-family: monospace; font-size: 1em;">Streamlit 1.48.0</div>
+  </div>
+
+  <div style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-radius: 10px; padding: 20px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+    <div style="font-size: 1.8em; margin-bottom: 10px;">🐍</div>
+    <div style="font-weight: bold; font-size: 1.1em; margin-bottom: 5px;">后端语言</div>
+    <div style="font-family: monospace; font-size: 1em;">Python 3.9-3.12</div>
+  </div>
+
+  <div style="background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); border-radius: 10px; padding: 20px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+    <div style="font-size: 1.8em; margin-bottom: 10px;">🗄️</div>
+    <div style="font-weight: bold; font-size: 1.1em; margin-bottom: 5px;">数据库</div>
+    <div style="font-family: monospace; font-size: 1em;">MySQL 8.4.5 LTS</div>
+  </div>
+
+  <div style="background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%); border-radius: 10px; padding: 20px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+    <div style="font-size: 1.8em; margin-bottom: 10px;">😊</div>
+    <div style="font-weight: bold; font-size: 1.1em; margin-bottom: 5px;">人脸识别</div>
+    <div style="font-family: monospace; font-size: 1em;">Dlib 20.0.0 + OpenCV 4.12</div>
+  </div>
+
+  <div style="background: linear-gradient(135deg, #7F00FF 0%, #E100FF 100%); border-radius: 10px; padding: 20px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+    <div style="font-size: 1.8em; margin-bottom: 10px;">📊</div>
+    <div style="font-weight: bold; font-size: 1.1em; margin-bottom: 5px;">图表可视化</div>
+    <div style="font-family: monospace; font-size: 1em;">Plotly 6.2.0 + Nivo</div>
+  </div>
+
+  <div style="background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%); border-radius: 10px; padding: 20px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+    <div style="font-size: 1.8em; margin-bottom: 10px;">📄</div>
+    <div style="font-weight: bold; font-size: 1.1em; margin-bottom: 5px;">文档处理</div>
+    <div style="font-family: monospace; font-size: 1em;">python-docx 1.2.0 + openpyxl 3.1.5</div>
+  </div>
+</div>
 
 ### ✨ 核心特性
 
-- 双因子认证 : 密码 + 人脸识别双重验证
-- 智能录入 : 支持批量录入、手工录入, 智能推荐工作内容
-- 多维分析 : 9种图表类型，支持时间序列分析
-- 实时天气 : 集成和风天气和高德天气API，支持历史天气和高温记录查询
-- 一键导出 : Excel/Word双格式，支持自定义模板
-- 权限管控 : 基于RBAC的精细化权限管理
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 25px 0;">
+  <div style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); border-radius: 12px; padding: 25px; color: white; box-shadow: 0 6px 15px rgba(0,0,0,0.2); transition: all 0.3s ease;">
+    <div style="font-size: 2em; margin-bottom: 15px;">🔐</div>
+    <div style="font-weight: bold; font-size: 1.2em; margin-bottom: 10px;">双因子认证</div>
+    <div style="font-size: 1em; opacity: 0.9;">密码 + 人脸识别双重验证</div>
+  </div>
+
+  <div style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-radius: 12px; padding: 25px; color: white; box-shadow: 0 6px 15px rgba(0,0,0,0.2); transition: all 0.3s ease;">
+    <div style="font-size: 2em; margin-bottom: 15px;">⚡</div>
+    <div style="font-weight: bold; font-size: 1.2em; margin-bottom: 10px;">智能录入</div>
+    <div style="font-size: 1em; opacity: 0.9;">支持批量录入、手工录入，智能推荐工作内容</div>
+  </div>
+
+  <div style="background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); border-radius: 12px; padding: 25px; color: white; box-shadow: 0 6px 15px rgba(0,0,0,0.2); transition: all 0.3s ease;">
+    <div style="font-size: 2em; margin-bottom: 15px;">📊</div>
+    <div style="font-weight: bold; font-size: 1.2em; margin-bottom: 10px;">多维分析</div>
+    <div style="font-size: 1em; opacity: 0.9;">9种图表类型，支持时间序列分析</div>
+  </div>
+
+  <div style="background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%); border-radius: 12px; padding: 25px; color: white; box-shadow: 0 6px 15px rgba(0,0,0,0.2); transition: all 0.3s ease;">
+    <div style="font-size: 2em; margin-bottom: 15px;">🌤️</div>
+    <div style="font-weight: bold; font-size: 1.2em; margin-bottom: 10px;">实时天气</div>
+    <div style="font-size: 1em; opacity: 0.9;">集成和风天气和高德天气API，支持历史天气和高温记录查询</div>
+  </div>
+
+  <div style="background: linear-gradient(135deg, #7F00FF 0%, #E100FF 100%); border-radius: 12px; padding: 25px; color: white; box-shadow: 0 6px 15px rgba(0,0,0,0.2); transition: all 0.3s ease;">
+    <div style="font-size: 2em; margin-bottom: 15px;">📤</div>
+    <div style="font-weight: bold; font-size: 1.2em; margin-bottom: 10px;">一键导出</div>
+    <div style="font-size: 1em; opacity: 0.9;">Excel/Word双格式，支持自定义模板</div>
+  </div>
+
+  <div style="background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%); border-radius: 12px; padding: 25px; color: white; box-shadow: 0 6px 15px rgba(0,0,0,0.2); transition: all 0.3s ease;">
+    <div style="font-size: 2em; margin-bottom: 15px;">👮</div>
+    <div style="font-weight: bold; font-size: 1.2em; margin-bottom: 10px;">权限管控</div>
+    <div style="font-size: 1em; opacity: 0.9;">基于RBAC的精细化权限管理</div>
+  </div>
+</div>
 
 <a id="系统安装与配置"></a>
 
