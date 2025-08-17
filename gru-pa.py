@@ -59,13 +59,13 @@ def login():
         userID, userCName = [], []
         sql = "SELECT DISTINCT(StationCN) from users order by StationCN"
         rows = execute_sql(cur, sql)
-        station_type = st.selectbox(label="请选择站点", options=[row[0] for row in rows], index=0)
+        station_type = st.selectbox(label="**请选择站点**", options=[row[0] for row in rows], index=0)
         sql = f"SELECT userID, userCName, StationCN from users where StationCN = '{station_type}' order by login_counter DESC, userCName"
         rows = execute_sql(cur, sql)
         for row in rows:
             userID.append(row[0])
             userCName.append(row[1])
-        query_userCName = st.selectbox("请选择用户", userCName, index=None)
+        query_userCName = st.selectbox("**请选择用户**", userCName, index=None)
         st.session_state.password_login, login_index = True, 0
         if query_userCName is not None:
             userID = userID[userCName.index(query_userCName)]
@@ -84,7 +84,7 @@ def login():
             if query_userCName == 'Visitor':
                 face_login_available = False
         # 用户密码输入框
-        userPassword = st.text_input("请输入密码", max_chars=8, placeholder="用户初始密码为1234", type="password", autocomplete="off")
+        userPassword = st.text_input("**请输入密码**", max_chars=8, placeholder="用户初始密码为1234", type="password", autocomplete="off")
         login_type = sac.segmented(
             items=[
                 sac.SegmentedItem(label="密码登录", disabled=not st.session_state.password_login),
