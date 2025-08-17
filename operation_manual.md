@@ -1000,7 +1000,7 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
 
 <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin: 25px 0;">
   <div style="font-weight: bold; font-size: 1.1em; color: #9b59b6; margin-bottom: 15px; display: flex; align-items: center;">
-    <div style="background: #9b59b6; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9em; margin-right: 10px;">📈</div>
+    <div style="background: #9b59b6; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1em; margin-right: 10px;">📈</div>
     值班分类统计表
   </div>
   <div style="color: #6c757d; margin-left: 34px;">
@@ -1039,7 +1039,7 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
     <div style="padding-left: 48px; color: #6c757d; margin-bottom: 15px;">
       <strong>添加公告</strong>：针对本站所有成员发布公告，可以设置有效期
     </div>
-    <div style="background: #fff8e1; border-radius: 6px; padding: 10px; border-left: 3px solid #ffc107; font-size: 0.9em;">
+    <div style="background: #fff8e1; border-radius: 6px; padding: 10px; border-left: 3px solid #ffc107; font-size: 1em;">
       <strong>🔔 提醒功能</strong><br>
       用户登录后如果有新公告，则会在公告页显示并更改该页图标以示提醒
     </div>
@@ -1053,7 +1053,7 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
     <div style="padding-left: 48px; color: #6c757d;">
       <strong>修改或删除公告</strong>：仅管理员可修改
     </div>
-    <div style="margin-top: 20px; padding: 10px; background: #f8f9fa; border-radius: 6px; font-size: 0.9em;">
+    <div style="margin-top: 20px; padding: 10px; background: #f8f9fa; border-radius: 6px; font-size: 1em;">
       <strong>🔒 权限控制</strong><br>
       为确保公告内容的权威性和准确性，只有管理员具有修改和删除公告的权限
     </div>
@@ -1080,7 +1080,7 @@ graph TD
 
 <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin: 20px 0;">
   <div style="font-weight: bold; font-size: 1.1em; color: #e74c3c; margin-bottom: 15px; display: flex; align-items: center;">
-    <div style="background: #e74c3c; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9em; margin-right: 10px;">📊</div>
+    <div style="background: #e74c3c; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1em; margin-right: 10px;">📊</div>
     性能指标
   </div>
   <div style="color: #6c757d; margin-left: 34px;">
@@ -1089,35 +1089,35 @@ graph TD
         <div style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 10px; flex-shrink: 0;">✓</div>
         <div>
           <div style="font-weight: 500; color: #2c3e50;">识别准确率</div>
-          <div style="font-size: 0.9em;">≥99.5% (正常光线)</div>
+          <div style="font-size: 1em;">≥99.5% (正常光线)</div>
         </div>
       </div>
       <div style="display: flex; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 8px;">
         <div style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 10px; flex-shrink: 0;">⏱️</div>
         <div>
           <div style="font-weight: 500; color: #2c3e50;">识别速度</div>
-          <div style="font-size: 0.9em;">≤1秒</div>
+          <div style="font-size: 1em;">≤1秒</div>
         </div>
       </div>
       <div style="display: flex; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 8px;">
         <div style="background: linear-gradient(135deg, #f39c12 0%, #d35400 100%); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 10px; flex-shrink: 0;">📐</div>
         <div>
           <div style="font-weight: 500; color: #2c3e50;">支持角度</div>
-          <div style="font-size: 0.9em;">±30度</div>
+          <div style="font-size: 1em;">±30度</div>
         </div>
       </div>
       <div style="display: flex; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 8px;">
         <div style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 10px; flex-shrink: 0;">📏</div>
         <div>
           <div style="font-weight: 500; color: #2c3e50;">支持距离</div>
-          <div style="font-size: 0.9em;">0.5-2米</div>
+          <div style="font-size: 1em;">0.5-2米</div>
         </div>
       </div>
       <div style="display: flex; align-items: center; padding: 10px; background: #f8f9fa; border-radius: 8px;">
         <div style="background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 10px; flex-shrink: 0;">💡</div>
         <div>
           <div style="font-weight: 500; color: #2c3e50;">光线要求</div>
-          <div style="font-size: 0.9em;">100-10000 lux</div>
+          <div style="font-size: 1em;">100-10000 lux</div>
         </div>
       </div>
     </div>
@@ -1171,15 +1171,15 @@ graph TD
     <div style="padding-left: 48px; color: #6c757d;">
       <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px dashed #eee;">
         <span>高安全模式</span>
-        <span style="font-weight: 500; color: #2c3e50;">0.8 <span style="font-size: 0.9em; color: #7f8c8d;">(严格，误识率低)</span></span>
+        <span style="font-weight: 500; color: #2c3e50;">0.8 <span style="font-size: 1em; color: #7f8c8d;">(严格，误识率低)</span></span>
       </div>
       <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px dashed #eee;">
         <span>标准模式</span>
-        <span style="font-weight: 500; color: #2c3e50;">0.6 <span style="font-size: 0.9em; color: #7f8c8d;">(平衡，推荐)</span></span>
+        <span style="font-weight: 500; color: #2c3e50;">0.6 <span style="font-size: 1em; color: #7f8c8d;">(平衡，推荐)</span></span>
       </div>
       <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
         <span>高便利模式</span>
-        <span style="font-weight: 500; color: #2c3e50;">0.4 <span style="font-size: 0.9em; color: #7f8c8d;">(宽松，速度快)</span></span>
+        <span style="font-weight: 500; color: #2c3e50;">0.4 <span style="font-size: 1em; color: #7f8c8d;">(宽松，速度快)</span></span>
       </div>
     </div>
   </div>
@@ -1381,17 +1381,17 @@ graph TD
     <div style="padding-left: 48px; color: #6c757d;">
       <div style="margin-bottom: 12px;">
         <strong>文件命名</strong><br>
-        <span style="font-size: 0.9em; background: #f8f9fa; padding: 5px 10px; border-radius: 4px; display: inline-block; margin-top: 5px;">
+        <span style="font-size: 1em; background: #f8f9fa; padding: 5px 10px; border-radius: 4px; display: inline-block; margin-top: 5px;">
           站点_全站工作量统计_统计日期区间_时间戳.xlsx
         </span>
       </div>
       <div style="margin-bottom: 12px;">
         <strong>工作表</strong><br>
-        <span style="font-size: 0.9em;">• Sheet1: 统计表<br>• Sheet2: 简报</span>
+        <span style="font-size: 1em;">• Sheet1: 统计表<br>• Sheet2: 简报</span>
       </div>
       <div>
         <strong>格式设置</strong><br>
-        <span style="font-size: 0.9em;">
+        <span style="font-size: 1em;">
           • 字体: 微软雅黑 12号<br>
           • 边框: 细线边框<br>
           • 颜色: 隔行变色<br>
@@ -1420,7 +1420,7 @@ graph TD
         <h3 style="margin: 0; color: #2c3e50; font-size: 1.1em;">日报模板</h3>
       </div>
       <div style="padding-left: 40px;">
-        <div style="background: #ffffff; padding: 18px; border-radius: 8px; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9em; line-height: 1.6; border: 1px dashed #ddd; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);">
+        <div style="background: #ffffff; padding: 18px; border-radius: 8px; font-family: 'Consolas', 'Courier New', monospace; font-size: 1em; line-height: 1.6; border: 1px dashed #ddd; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);">
           <div style="display: flex; flex-wrap: wrap; gap: 20px;">
             <div style="flex: 1; min-width: 250px;">
               <div style="color: #2980b9; font-weight: bold; margin-bottom: 15px; font-size: 1.1em;">工作量日报</div>
@@ -1441,15 +1441,15 @@ graph TD
               <div style="color: #27ae60; font-weight: bold; margin-bottom: 15px; font-size: 1.1em;">今日概况</div>
               <div style="display: flex; flex-wrap: wrap; gap: 15px;">
                 <div style="flex: 1; min-width: 120px; background: #e3f2fd; padding: 12px; border-radius: 8px; text-align: center;">
-                  <div style="color: #7f8c8d; font-size: 0.9em;">总工作量</div>
+                  <div style="color: #7f8c8d; font-size: 1em;">总工作量</div>
                   <div style="color: #3498db; font-weight: 600; font-size: 1.3em; margin-top: 5px;">85分</div>
                 </div>
                 <div style="flex: 1; min-width: 120px; background: #e3f2fd; padding: 12px; border-radius: 8px; text-align: center;">
-                  <div style="color: #7f8c8d; font-size: 0.9em;">工作项数</div>
+                  <div style="color: #7f8c8d; font-size: 1em;">工作项数</div>
                   <div style="color: #3498db; font-weight: 600; font-size: 1.3em; margin-top: 5px;">12项</div>
                 </div>
                 <div style="flex: 1; min-width: 120px; background: #e3f2fd; padding: 12px; border-radius: 8px; text-align: center;">
-                  <div style="color: #7f8c8d; font-size: 0.9em;">参与人员</div>
+                  <div style="color: #7f8c8d; font-size: 1em;">参与人员</div>
                   <div style="color: #3498db; font-weight: 600; font-size: 1.3em; margin-top: 5px;">8人</div>
                 </div>
               </div>
@@ -1491,7 +1491,7 @@ graph TD
         </div>
         <div style="margin-top: 15px;">
           <div style="color: #7f8c8d; font-weight: 500; margin-bottom: 8px;">文件命名规范:</div>
-          <div style="background: #ffffff; padding: 12px 15px; border-radius: 6px; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9em; border: 1px solid #eee; display: inline-block; box-shadow: 0 2px 3px rgba(0,0,0,0.03);">
+          <div style="background: #ffffff; padding: 12px 15px; border-radius: 6px; font-family: 'Consolas', 'Courier New', monospace; font-size: 1em; border: 1px solid #eee; display: inline-block; box-shadow: 0 2px 3px rgba(0,0,0,0.03);">
             站点_用户姓名_统计日期区间_时间戳.docx
           </div>
         </div>
@@ -1509,28 +1509,28 @@ graph TD
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 10px;">
           <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #ffeaa7; display: flex; align-items: center;">
             <div style="background: #ffeaa7; color: #333; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7em; margin-right: 10px;">⚙️</div>
-            <div style="font-size: 0.9em;">
+            <div style="font-size: 1em;">
               <div style="font-weight: 500; color: #333;">模板管理</div>
               <div style="color: #7f8c8d; font-size: 0.85em;">管理员可创建模板</div>
             </div>
           </div>
           <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #ffeaa7; display: flex; align-items: center;">
             <div style="background: #ffeaa7; color: #333; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7em; margin-right: 10px;">🔄</div>
-            <div style="font-size: 0.9em;">
+            <div style="font-size: 1em;">
               <div style="font-weight: 500; color: #333;">变量替换</div>
               <div style="color: #7f8c8d; font-size: 0.85em;">支持动态数据替换</div>
             </div>
           </div>
           <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #ffeaa7; display: flex; align-items: center;">
             <div style="background: #ffeaa7; color: #333; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7em; margin-right: 10px;">🎨</div>
-            <div style="font-size: 0.9em;">
+            <div style="font-size: 1em;">
               <div style="font-weight: 500; color: #333;">样式统一</div>
               <div style="color: #7f8c8d; font-size: 0.85em;">企业标准格式</div>
             </div>
           </div>
           <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #ffeaa7; display: flex; align-items: center;">
             <div style="background: #ffeaa7; color: #333; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7em; margin-right: 10px;">⚡</div>
-            <div style="font-size: 0.9em;">
+            <div style="font-size: 1em;">
               <div style="font-weight: 500; color: #333;">批量生成</div>
               <div style="color: #7f8c8d; font-size: 0.85em;">一键生成多份报告</div>
             </div>
@@ -1538,7 +1538,7 @@ graph TD
         </div>
         <div style="margin-top: 15px; padding: 12px; background: #fff3cd; border-radius: 6px; border: 1px solid #ffeaa7; display: flex; align-items: center;">
           <div style="font-size: 1.2em; margin-right: 10px;">🚧</div>
-          <div style="font-size: 0.9em; color: #856404;">
+          <div style="font-size: 1em; color: #856404;">
             <strong>功能开发中:</strong> 此功能正在开发中，将在后续版本中提供
           </div>
         </div>
@@ -1731,19 +1731,51 @@ graph TD
 
 ![个人设置截图](https://i.postimg.cc/QMKxbQYt/users-setup.png)
 
-#### 设置操作说明
+<div style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); border-radius: 10px; padding: 20px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin: 25px 0;">
+  <div style="font-size: 1.3em; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center;">
+    <div style="background: rgba(255, 255, 255, 0.2); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;">⚙️</div>
+    设置操作说明
+  </div>
+  <div style="padding-left: 44px;">
+    <div style="margin-bottom: 12px; display: flex; align-items: flex-start;">
+      <div style="background: #ffffff; color: #6a11cb; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 12px; margin-top: 2px; flex-shrink: 0;">1</div>
+      <div><strong>进入设置：</strong>在系统主界面左侧导航菜单中点击"设置"，然后选择"个人设置"</div>
+    </div>
+    <div style="margin-bottom: 12px; display: flex; align-items: flex-start;">
+      <div style="background: #ffffff; color: #6a11cb; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 12px; margin-top: 2px; flex-shrink: 0;">2</div>
+      <div><strong>修改配置：</strong>在个人设置页面中，通过切换开关来启用或禁用相应的功能</div>
+    </div>
+    <div style="margin-bottom: 12px; display: flex; align-items: flex-start;">
+      <div style="background: #ffffff; color: #6a11cb; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 12px; margin-top: 2px; flex-shrink: 0;">3</div>
+      <div><strong>保存设置：</strong>系统会自动保存您的设置，刷新页面后生效</div>
+    </div>
+    <div style="display: flex; align-items: flex-start;">
+      <div style="background: #ffffff; color: #6a11cb; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 12px; margin-top: 2px; flex-shrink: 0;">4</div>
+      <div><strong>恢复默认：</strong>如需恢复默认设置，请联系管理员进行重置</div>
+    </div>
+  </div>
+</div>
 
-1. 进入设置：在系统主界面左侧导航菜单中点击"设置"，然后选择"个人设置"
-2. 修改配置：在个人设置页面中，通过切换开关来启用或禁用相应的功能
-3. 保存设置：系统会自动保存您的设置，刷新页面后生效
-4. 恢复默认：如需恢复默认设置，请联系管理员进行重置
-
-#### 注意事项
-
-- 个人设置中的选项仅对当前登录用户生效，不会影响其他用户
-- 部分设置项可能需要刷新页面或重新登录才能完全生效
-- **如果某些设置项不可见或不可修改，可能是管理员进行了相关限制**
-
+<div style="background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); border-radius: 10px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: 25px 0;">
+  <div style="font-size: 1.3em; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; color: #333;">
+    <div style="background: rgba(0, 0, 0, 0.2); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;">⚠️</div>
+    注意事项
+  </div>
+  <div style="padding-left: 44px; color: #333;">
+    <div style="margin-bottom: 12px; display: flex; align-items: flex-start;">
+      <div style="width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; margin-right: 12px; margin-top: 2px; flex-shrink: 0;">•</div>
+      <div><strong>个人设置范围：</strong>个人设置中的选项仅对当前登录用户生效，不会影响其他用户</div>
+    </div>
+    <div style="margin-bottom: 12px; display: flex; align-items: flex-start;">
+      <div style="width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; margin-right: 12px; margin-top: 2px; flex-shrink: 0;">•</div>
+      <div><strong>生效方式：</strong>部分设置项可能需要刷新页面或重新登录才能完全生效</div>
+    </div>
+    <div style="display: flex; align-items: flex-start;">
+      <div style="width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; margin-right: 12px; margin-top: 2px; flex-shrink: 0;">•</div>
+      <div><strong>权限限制：</strong>如果某些设置项不可见或不可修改，可能是管理员进行了相关限制</div>
+    </div>
+  </div>
+</div>
 <a id="系统管理"></a>
 
 ## 系统管理
@@ -2031,7 +2063,7 @@ graph TD
   <div class="permission-level main">
     <div class="permission-icon">👑</div>
     <div class="permission-content">
-      <div>超级管理员 (系统级Root&DBA)</div>
+      <div>超级管理员 (系统级Root/DBA)</div>
       <div class="permission-items">
         <div class="permission-item">创建站点</div>
         <div class="permission-item">管理所有用户</div>
@@ -2672,28 +2704,28 @@ graph TD
         <div style="margin-right: 12px; font-size: 1.2em;">📖</div>
         <div>
           <div style="font-weight: 500;">操作手册</div>
-          <div style="font-size: 0.9em; opacity: 0.9;">operation_manual.md (本文件)</div>
+          <div style="font-size: 1em; opacity: 0.9;">operation_manual.md (本文件)</div>
         </div>
       </div>
       <div style="display: flex; align-items: center; background: rgba(255, 255, 255, 0.15); padding: 12px 15px; border-radius: 8px;">
         <div style="margin-right: 12px; font-size: 1.2em;">📝</div>
         <div>
           <div style="font-weight: 500;">更新日志</div>
-          <div style="font-size: 0.9em; opacity: 0.9;">CHANGELOG.md</div>
+          <div style="font-size: 1em; opacity: 0.9;">CHANGELOG.md</div>
         </div>
       </div>
       <div style="display: flex; align-items: center; background: rgba(255, 255, 255, 0.15); padding: 12px 15px; border-radius: 8px;">
         <div style="margin-right: 12px; font-size: 1.2em;">📄</div>
         <div>
           <div style="font-weight: 500;">项目说明</div>
-          <div style="font-size: 0.9em; opacity: 0.9;">README.md</div>
+          <div style="font-size: 1em; opacity: 0.9;">README.md</div>
         </div>
       </div>
       <div style="display: flex; align-items: center; background: rgba(255, 255, 255, 0.15); padding: 12px 15px; border-radius: 8px;">
         <div style="margin-right: 12px; font-size: 1.2em;">⚖️</div>
         <div>
           <div style="font-weight: 500;">许可证</div>
-          <div style="font-size: 0.9em; opacity: 0.9;">LICENSE</div>
+          <div style="font-size: 1em; opacity: 0.9;">LICENSE</div>
         </div>
       </div>
     </div>
@@ -2778,32 +2810,100 @@ graph TD
 ### 📄 文件清单
 
 <style>
-.file-list {
+.file-container {
   background: #f8f9fa;
-  border-radius: 8px;
-  padding: 20px;
-  margin: 20px 0;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  border-radius: 12px;
+  padding: 25px;
+  margin: 25px 0;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  border: 1px solid rgba(0,0,0,0.05);
+  position: relative;
+  overflow: hidden;
+}
+.file-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #6a11cb, #2575fc, #11998e, #f7971e, #ff416c);
+  background-size: 500% 500%;
+  animation: gradientBG 3s ease infinite;
+}
+@keyframes gradientBG {
+  0% {background-position: 0% 50%;}
+  50% {background-position: 100% 50%;}
+  100% {background-position: 0% 50%;}
+}
+.file-category {
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 25px;
+  font-size: 1.1em;
+  margin: 20px 0 15px 0;
+  display: inline-block;
+  box-shadow: 0 4px 10px rgba(106, 17, 203, 0.3);
+  transform: scale(1);
+  transition: all 0.3s ease;
+}
+.file-category:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(106, 17, 203, 0.4);
+}
+.file-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 15px;
+  margin-top: 10px;
 }
 .file-item {
-  margin: 8px 0;
-  padding: 8px 12px;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+  background: white;
+  margin: 6px 0;
+  padding: 12px 16px;
+  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  border-left: 4px solid #3498db;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+.file-item::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  transition: 0.5s;
 }
 .file-item:hover {
-  background: #e9f7fe;
-  transform: translateX(5px);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  border-left-color: #6a11cb;
+}
+.file-item:hover::after {
+  left: 100%;
 }
 .file-name {
   font-family: 'Courier New', monospace;
-  font-weight: 600;
+  font-weight: 700;
   color: #2c3e50;
+  font-size: 1.05em;
+  flex: 1;
 }
 .file-comment {
-  color: #6c757d;
-  font-size: 1em;
-  margin-left: 10px;
+  color: #7f8c8d;
+  font-size: 0.95em;
+  margin-left: 15px;
+  background: #f1f8ff;
+  padding: 4px 10px;
+  border-radius: 15px;
+  white-space: nowrap;
 }
 .folder {
   color: #2980b9;
@@ -2813,74 +2913,77 @@ graph TD
   color: #3498db;
   font-weight: 500;
 }
-.file-category {
-  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 1em;
-  margin: 15px 0 10px 0;
-  display: inline-block;
-}
 </style>
 
-<div class="file-list">
-
-<div class="file-category">⚙️ 配置文件</div>
-<div class="file-item"><span class="file-name">.streamlit/config.toml</span> <span class="file-comment"># Streamlit配置文件</span></div>
-<div class="file-item"><span class="file-name">.mysql.cnf</span> <span class="file-comment"># MySQL配置文件</span></div>
-
-<div class="file-category">🐍 主程序文件</div>
-<div class="file-item"><span class="file-name">gru-pa.py</span> <span class="file-comment"># 入口文件及主程序 All in one</span></div>
-<div class="file-item"><span class="file-name">mysql_pool_cpython.pyc</span> <span class="file-comment"># MySQL连接池模块(不同步)</span></div>
-
-<div class="file-category">🧩 功能模块</div>
-<div class="file-item"><span class="file-name">commFunc.py</span> <span class="file-comment"># 公共函数模块</span></div>
-<div class="file-item"><span class="file-name">gen_badges.py</span> <span class="file-comment"># 徽章生成模块</span></div>
-<div class="file-item"><span class="file-name">face_login.py</span> <span class="file-comment"># 人脸登录模块</span></div>
-<div class="file-item"><span class="file-name">hf_weather.py</span> <span class="file-comment"># 和风天气API模块</span></div>
-<div class="file-item"><span class="file-name">gd_weather.py</span> <span class="file-comment"># 高德天气API模块</span></div>
-<div class="file-item"><span class="file-name">gen_license_plate.py</span> <span class="file-comment"># 车牌生成模块</span></div>
-
-<div class="file-category">📦 第三方库</div>
-<div class="file-item"><span class="file-name">dlib</span> <span class="file-comment"># dlib人脸识别库whl文件、编译说明及68个点模型文件</span></div>
-
-<div class="file-category">📚 文档资源</div>
-<div class="file-item"><span class="file-name">documents</span> <span class="file-comment"># 文档文件(不同步)</span></div>
-<div class="file-item"><span class="file-name">operation_manual.md</span> <span class="file-comment"># 操作手册文件</span></div>
-<div class="file-item"><span class="file-name">README.md</span> <span class="file-comment"># 项目说明文件</span></div>
-<div class="file-item"><span class="file-name">CHANGELOG.md</span> <span class="file-comment"># 项目更新日志</span></div>
-
-<div class="file-category">🔤 资源文件</div>
-<div class="file-item"><span class="file-name">fonts</span> <span class="file-comment"># 字体文件</span></div>
-<div class="file-item"><span class="file-name">ID_Photos</span> <span class="file-comment"># 用户人脸图像, 用于生成识别数据</span></div>
-
-<div class="file-category">🖼️ 图片资源</div>
-<div class="file-item"><span class="file-name">Images</span> <span class="file-comment"># 图片文件</span></div>
-<div class="file-item"><span class="file-name">&nbsp;&nbsp;∟ badges</span> <span class="file-comment"># 徽章文件</span></div>
-<div class="file-item"><span class="file-name">&nbsp;&nbsp;∟ Clock-Images</span> <span class="file-comment"># 时钟图片</span></div>
-<div class="file-item"><span class="file-name">&nbsp;&nbsp;∟ license_plate</span> <span class="file-comment"># 车牌图片</span></div>
-<div class="file-item"><span class="file-name">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;∟ background</span> <span class="file-comment"># 车牌生成背景图片</span></div>
-<div class="file-item"><span class="file-name">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;∟ vehicle_logo</span> <span class="file-comment"># 汽车品牌logo</span></div>
-<div class="file-item"><span class="file-name">&nbsp;&nbsp;∟ logos</span> <span class="file-comment"># 依赖库logo文件</span></div>
-<div class="file-item"><span class="file-name">&nbsp;&nbsp;∟ snapshot</span> <span class="file-comment"># 截图保存</span></div>
-
-<div class="file-category">🔧 脚本工具</div>
-<div class="file-item"><span class="file-name">MyComponentsScript</span> <span class="file-comment"># 自定义组件脚本, txt格式</span></div>
-<div class="file-item"><span class="file-name">DBBackup.ps1</span> <span class="file-comment"># 数据库备份PS脚本</span></div>
-<div class="file-item"><span class="file-name">restoredb.bat</span> <span class="file-comment"># 数据库恢复bat脚本</span></div>
-
-<div class="file-category">🗄️ 数据文件</div>
-<div class="file-item"><span class="file-name">MySQL_Backup</span> <span class="file-comment"># MySQL备份文件</span></div>
-<div class="file-item"><span class="file-name">user_pa</span> <span class="file-comment"># 用户统计数据导出文档 (不同步)</span></div>
-
-<div class="file-category">📋 依赖管理</div>
-<div class="file-item"><span class="file-name">requirements.txt</span> <span class="file-comment"># 自动安装依赖文件</span></div>
-
-<div class="file-category">🔤 拼写检查</div>
-<div class="file-item"><span class="file-name">CSC-Common-CustomDict.txt</span> <span class="file-comment"># CSpell自定义通用字典文件</span></div>
-<div class="file-item"><span class="file-name">CSC-Project-CustomDict.txt</span> <span class="file-comment"># CSpell自定义字典文件</span></div>
-
+<div class="file-container">
+  <div class="file-grid">
+    <div>
+      <div class="file-category">⚙️ 配置文件</div>
+      <div class="file-item"><span class="file-name">.streamlit/config.toml</span> <span class="file-comment"># Streamlit配置文件</span></div>
+      <div class="file-item"><span class="file-name">.mysql.cnf</span> <span class="file-comment"># MySQL配置文件</span></div>
+    </div>
+    <div>
+      <div class="file-category">🐍 主程序文件</div>
+      <div class="file-item"><span class="file-name">gru-pa.py</span> <span class="file-comment"># 入口文件及主程序 All in one</span></div>
+      <div class="file-item"><span class="file-name">mysql_pool_cpython.pyc</span> <span class="file-comment"># MySQL连接池模块(不同步)</span></div>
+    </div>
+    <div>
+      <div class="file-category">🧩 功能模块</div>
+      <div class="file-item"><span class="file-name">commFunc.py</span> <span class="file-comment"># 公共函数模块</span></div>
+      <div class="file-item"><span class="file-name">gen_badges.py</span> <span class="file-comment"># 徽章生成模块</span></div>
+      <div class="file-item"><span class="file-name">face_login.py</span> <span class="file-comment"># 人脸登录模块</span></div>
+      <div class="file-item"><span class="file-name">hf_weather.py</span> <span class="file-comment"># 和风天气API模块</span></div>
+      <div class="file-item"><span class="file-name">gd_weather.py</span> <span class="file-comment"># 高德天气API模块</span></div>
+      <div class="file-item"><span class="file-name">gen_license_plate.py</span> <span class="file-comment"># 车牌生成模块</span></div>
+    </div>
+    <div>
+      <div class="file-category">📦 第三方库</div>
+      <div class="file-item"><span class="file-name">dlib</span> <span class="file-comment"># dlib人脸识别库whl文件、编译说明及68个点模型文件</span></div>
+    </div>
+    <div>
+      <div class="file-category">📚 文档资源</div>
+      <div class="file-item"><span class="file-name">documents</span> <span class="file-comment"># 文档文件(不同步)</span></div>
+      <div class="file-item"><span class="file-name">operation_manual.md</span> <span class="file-comment"># 操作手册文件</span></div>
+      <div class="file-item"><span class="file-name">README.md</span> <span class="file-comment"># 项目说明文件</span></div>
+      <div class="file-item"><span class="file-name">CHANGELOG.md</span> <span class="file-comment"># 项目更新日志</span></div>
+    </div>
+    <div>
+      <div class="file-category">🔤 资源文件</div>
+      <div class="file-item"><span class="file-name">fonts</span> <span class="file-comment"># 字体文件</span></div>
+      <div class="file-item"><span class="file-name">ID_Photos</span> <span class="file-comment"># 用户人脸图像, 用于生成识别数据</span></div>
+    </div>
+    <div>
+      <div class="file-category">🖼️ 图片资源</div>
+      <div class="file-item"><span class="file-name">Images</span> <span class="file-comment"># 图片文件</span></div>
+      <div class="file-item"><span class="file-name">&nbsp;&nbsp;∟ badges</span> <span class="file-comment"># 徽章文件</span></div>
+      <div class="file-item"><span class="file-name">&nbsp;&nbsp;∟ Clock-Images</span> <span class="file-comment"># 时钟图片</span></div>
+      <div class="file-item"><span class="file-name">&nbsp;&nbsp;∟ license_plate</span> <span class="file-comment"># 车牌图片</span></div>
+      <div class="file-item"><span class="file-name">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;∟ background</span> <span class="file-comment"># 车牌生成背景图片</span></div>
+      <div class="file-item"><span class="file-name">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;∟ vehicle_logo</span> <span class="file-comment"># 汽车品牌logo</span></div>
+      <div class="file-item"><span class="file-name">&nbsp;&nbsp;∟ logos</span> <span class="file-comment"># 依赖库logo文件</span></div>
+      <div class="file-item"><span class="file-name">&nbsp;&nbsp;∟ snapshot</span> <span class="file-comment"># 截图保存</span></div>
+    </div>
+    <div>
+      <div class="file-category">🔧 脚本工具</div>
+      <div class="file-item"><span class="file-name">MyComponentsScript</span> <span class="file-comment"># 自定义组件脚本, txt格式</span></div>
+      <div class="file-item"><span class="file-name">DBBackup.ps1</span> <span class="file-comment"># 数据库备份PS脚本</span></div>
+      <div class="file-item"><span class="file-name">restoredb.bat</span> <span class="file-comment"># 数据库恢复bat脚本</span></div>
+    </div>
+    <div>
+      <div class="file-category">🗄️ 数据文件</div>
+      <div class="file-item"><span class="file-name">MySQL_Backup</span> <span class="file-comment"># MySQL备份文件</span></div>
+      <div class="file-item"><span class="file-name">user_pa</span> <span class="file-comment"># 用户统计数据导出文档 (不同步)</span></div>
+    </div>
+    <div>
+      <div class="file-category">📋 依赖管理</div>
+      <div class="file-item"><span class="file-name">requirements.txt</span> <span class="file-comment"># 自动安装依赖文件</span></div>
+    </div>
+    <div>
+      <div class="file-category">🔤 拼写检查</div>
+      <div class="file-item"><span class="file-name">CSC-Common-CustomDict.txt</span> <span class="file-comment"># CSpell自定义通用字典文件</span></div>
+      <div class="file-item"><span class="file-name">CSC-Project-CustomDict.txt</span> <span class="file-comment"># CSpell自定义字典文件</span></div>
+    </div>
+  </div>
 </div>
 
 <a id="技术支持"></a>
@@ -2912,7 +3015,7 @@ graph TD
           <div style="font-weight: bold; font-size: 1.1em;">🚀 系统启动</div>
         </div>
         <div style="padding-left: 42px;">
-          <pre style="background: #000; color: #00ff00; padding: 12px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9em; overflow-x: auto; margin: 0; border: 1px solid #3498db;">streamlit run gru-pa.py</pre>
+          <pre style="background: #000; color: #00ff00; padding: 12px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 1em; overflow-x: auto; margin: 0; border: 1px solid #3498db;">streamlit run gru-pa.py</pre>
         </div>
       </div>
       <div style="background: rgba(0, 0, 0, 0.4); border-radius: 10px; padding: 20px; backdrop-filter: blur(5px); border: 1px solid rgba(231, 76, 60, 0.5); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);">
@@ -2921,7 +3024,7 @@ graph TD
           <div style="font-weight: bold; font-size: 1.1em;">🔧 后台运行</div>
         </div>
         <div style="padding-left: 42px;">
-          <pre style="background: #000; color: #00ff00; padding: 12px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9em; overflow-x: auto; margin: 0; border: 1px solid #2ecc71;">nohup streamlit run gru-pa.py</pre>
+          <pre style="background: #000; color: #00ff00; padding: 12px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 1em; overflow-x: auto; margin: 0; border: 1px solid #2ecc71;">nohup streamlit run gru-pa.py</pre>
         </div>
       </div>
       <div style="background: rgba(0, 0, 0, 0.4); border-radius: 10px; padding: 20px; backdrop-filter: blur(5px); border: 1px solid rgba(231, 76, 60, 0.5); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);">
@@ -2933,7 +3036,7 @@ graph TD
           ⚠️ 执行前确认.mysql.cnf配置
         </div>
         <div style="padding-left: 42px;">
-          <pre style="background: #000; color: #00ff00; padding: 12px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9em; overflow-x: auto; margin: 0; border: 1px solid #f39c12;">./DBBackup.ps1         # Windows
+          <pre style="background: #000; color: #00ff00; padding: 12px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 1em; overflow-x: auto; margin: 0; border: 1px solid #f39c12;">./DBBackup.ps1         # Windows
 ./DBBackup.sh          # Linux</pre>
         </div>
       </div>
@@ -2943,7 +3046,7 @@ graph TD
           <div style="font-weight: bold; font-size: 1.1em;">🔄 数据恢复</div>
         </div>
         <div style="padding-left: 42px;">
-          <pre style="background: #000; color: #00ff00; padding: 12px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9em; overflow-x: auto; margin: 0; border: 1px solid #9b59b6;">./restoredb.bat        # Windows
+          <pre style="background: #000; color: #00ff00; padding: 12px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 1em; overflow-x: auto; margin: 0; border: 1px solid #9b59b6;">./restoredb.bat        # Windows
 ./restoredb.sh         # Linux</pre>
         </div>
       </div>
@@ -2953,7 +3056,7 @@ graph TD
           <div style="font-weight: bold; font-size: 1.1em;">⬆️ 系统更新</div>
         </div>
         <div style="padding-left: 42px;">
-          <pre style="background: #000; color: #00ff00; padding: 12px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.9em; overflow-x: auto; margin: 0; border: 1px solid #e74c3c;">git pull origin main
+          <pre style="background: #000; color: #00ff00; padding: 12px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 1em; overflow-x: auto; margin: 0; border: 1px solid #e74c3c;">git pull origin main
 pip install -r requirements.txt --upgrade</pre>
         </div>
       </div>
@@ -2981,19 +3084,19 @@ pip install -r requirements.txt --upgrade</pre>
         <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #00c3ff 0%, #0077ff 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; box-shadow: 0 0 15px rgba(0, 195, 255, 0.5);">
           <span style="font-size: 1.5em;">📖</span>
         </div>
-        <span style="font-weight: 500; font-size: 0.9em;">技术文档</span>
+        <span style="font-weight: 500; font-size: 1em;">技术文档</span>
       </a>
       <a href="#" style="display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #ff4d4d; transition: all 0.3s ease;">
         <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #ff4d4d 0%, #cc0000 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; box-shadow: 0 0 15px rgba(255, 77, 77, 0.5);">
           <span style="font-size: 1.5em;">🐞</span>
         </div>
-        <span style="font-weight: 500; font-size: 0.9em;">问题反馈</span>
+        <span style="font-weight: 500; font-size: 1em;">问题反馈</span>
       </a>
       <a href="#" style="display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #ffd700; transition: all 0.3s ease;">
         <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);">
           <span style="font-size: 1.5em;">⭐</span>
         </div>
-        <span style="font-weight: 500; font-size: 0.9em;">点赞支持</span>
+        <span style="font-weight: 500; font-size: 1em;">点赞支持</span>
       </a>
     </div>
     <!-- 版本信息 -->
@@ -3015,7 +3118,7 @@ pip install -r requirements.txt --upgrade</pre>
     </div>
     <!-- 版权信息 -->
     <div style="margin-top: 20px; padding: 15px; background: rgba(0, 0, 0, 0.3); border-radius: 10px; border-top: 2px solid #00c3ff;">
-      <div style="color: #a0d2eb; font-size: 0.9em; line-height: 1.6;">
+      <div style="color: #a0d2eb; font-size: 1em; line-height: 1.6;">
         <span style="color: #00c3ff; font-weight: 600;">©</span> 本手册版权归 <span style="color: #00c3ff; font-weight: 600;">GRU-PA项目</span> 所有，遵循
         <span style="background: linear-gradient(90deg, #00c3ff, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 600;">MIT开源协议</span>。
         <br>
