@@ -170,7 +170,7 @@ def execute_sql_and_commit(conn, cur, sql, params=None):
 
 
 def updatePyFileinfo():
-    allow_file_type = ['.py', '.md', '.ps1', '.bat', '.txt']
+    allow_file_type = ['.py', '.md', '.ps1', '.bat', '.txt', '.sh']
     for root, dirs, files in os.walk("./"):
         # 当遍历到根目录时
         if root == "./":
