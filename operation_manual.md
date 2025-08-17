@@ -29,6 +29,8 @@
     ![GRU-PA top-languages](https://img.shields.io/github/languages/top/simonpek88/GRU-PA.svg)
     ![GRU-PA commits](https://img.shields.io/github/commit-activity/t/simonpek88/GRU-PA.svg)
 
+<a id="目录"></a>
+
 ## 目录
 
 - [0.Todo](#todo)
@@ -43,10 +45,10 @@
 - [9.人脸识别系统](#人脸识别系统)
 - [10.天气功能](#天气功能)
 - [11.数据导出](#数据导出)
-- [12.系统管理](#系统管理)
-- [13.数据库操作](#数据库操作)
-- [14.故障排除](#故障排除)
-- [15.安全指南](#安全指南)
+- [12.数据库操作](#数据库操作)
+- [13.故障排除](#故障排除)
+- [14.安全指南](#安全指南)
+- [15.附录:文件清单](#附录:文件清单)
 - [16.快速命令参考](#快速命令参考)
 - [17.技术支持](#技术支持)
 
@@ -148,6 +150,8 @@ GRU-PA (Grass-roots unit Performance Appraisal system) 是一款专为基层站�
     <div style="font-size: 1em; opacity: 0.9;">基于RBAC的精细化权限管理</div>
   </div>
 </div>
+
+- [回到目录](#目录)
 
 <a id="系统安装与配置"></a>
 
@@ -452,6 +456,8 @@ streamlit run gru-pa.py (默认配置)
 streamlit run gru-pa.py --server.port {空闲端口} --server.address localhost或服务器IP地址 --server.headless true
 ```
 
+- [回到目录](#目录)
+
 <a id="快速入门"></a>
 
 ## 快速入门
@@ -549,6 +555,8 @@ streamlit run gru-pa.py --server.port {空闲端口} --server.address localhost�
   </div>
 </div>
 
+- [回到目录](#目录)
+
 <a id="用户管理"></a>
 
 ## 用户管理
@@ -597,6 +605,8 @@ streamlit run gru-pa.py --server.port {空闲端口} --server.address localhost�
     </div>
   </div>
 </div>
+
+- [回到目录](#目录)
 
 <a id="工作量管理"></a>
 
@@ -715,6 +725,8 @@ streamlit run gru-pa.py --server.port {空闲端口} --server.address localhost�
     </div>
   </div>
 </div>
+
+- [回到目录](#目录)
 
 <a id="数据统计分析"></a>
 
@@ -961,6 +973,8 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
 
 ![高级查询示例截图](https://i.postimg.cc/qv5vybLS/user-def-query.png)
 
+- [回到目录](#目录)
+
 <a id="值班数据统计及导出"></a>
 
 ### 值班数据统计及导出
@@ -1026,6 +1040,8 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
   </div>
 </div>
 
+- [回到目录](#目录)
+
 <a id="公告发布和修改"></a>
 
 ### 公告发布和修改
@@ -1059,6 +1075,8 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
     </div>
   </div>
 </div>
+
+- [回到目录](#目录)
 
 <a id="人脸识别系统"></a>
 
@@ -1206,6 +1224,8 @@ graph TD
   </div>
 </div>
 
+- [回到目录](#目录)
+
 <a id="天气功能"></a>
 
 ### 天气功能
@@ -1325,6 +1345,8 @@ graph TD
     </div>
   </div>
 </div>
+
+- [回到目录](#目录)
 
 <a id="数据导出"></a>
 
@@ -1776,15 +1798,12 @@ graph TD
     </div>
   </div>
 </div>
-<a id="系统管理"></a>
 
-## 系统管理
-
-### 🔧 管理员功能
+- [回到目录](#目录)
 
 <a id="数据库操作"></a>
 
-#### 数据库操作
+#### 🗄️ 数据库操作
 
 以下数据库操作功能仅对具有数据库管理员权限(DBA)的用户开放。所有数据库操作都具有潜在风险，请在执行前确保已备份重要数据。
 
@@ -2291,6 +2310,8 @@ graph TD
   </div>
 </div>
 
+- [回到目录](#目录)
+
 <a id="故障排除"></a>
 
 ## 故障排除
@@ -2531,6 +2552,8 @@ graph TD
    GRANT ALL PRIVILEGES ON gru_pa.* TO 'gru_pa_user'@'localhost';
    FLUSH PRIVILEGES;
    ```
+
+- [回到目录](#目录)
 
 <a id="安全指南"></a>
 
@@ -2805,9 +2828,11 @@ graph TD
 
 - 版本兼容 : 向下兼容，平滑升级
 
-## 附录
+- [回到目录](#目录)
 
-### 📄 文件清单
+<a id="附录:文件清单"></a>
+
+### 📄 附录:文件清单
 
 <style>
 .file-container {
@@ -2967,6 +2992,7 @@ graph TD
       <div class="file-category">🔧 脚本工具</div>
       <div class="file-item"><span class="file-name">MyComponentsScript</span> <span class="file-comment"># 自定义组件脚本, txt格式</span></div>
       <div class="file-item"><span class="file-name">DBBackup.ps1</span> <span class="file-comment"># 数据库备份PS脚本</span></div>
+      <div class="file-item"><span class="file-name">DBBackup.sh</span> <span class="file-comment"># 数据库备份bash脚本</span></div>
       <div class="file-item"><span class="file-name">restoredb.bat</span> <span class="file-comment"># 数据库恢复bat脚本</span></div>
     </div>
     <div>
@@ -2985,6 +3011,8 @@ graph TD
     </div>
   </div>
 </div>
+
+- [回到目录](#目录)
 
 <a id="技术支持"></a>
 
@@ -3148,3 +3176,5 @@ a:hover div {
   box-shadow: 0 0 20px currentColor;
 }
 </style>
+
+- [回到目录](#目录)
