@@ -1,7 +1,7 @@
 #!/bin/bash
 
 BACKUP_DIR="./MySQL_Backup"
-TIMESTAMP=$(date +"%Y%m%d%H%M%S")
+TIMESTAMP=$(date +%s)
 BACKUP_FILE="$BACKUP_DIR/GRU-PA-MySQL_Backup_$TIMESTAMP.sql"
 
 if [ -d "$BACKUP_DIR" ]; then

@@ -1,7 +1,7 @@
 $BACKUP_DIR = ".\MySQL_Backup"
 
 if (Test-Path $BACKUP_DIR) {
-    $TIMESTAMP = Get-Date -Format "yyyyMMddHHmmss"
+    $TIMESTAMP = [int][double]::Parse((Get-Date -UFormat %s))
     $BACKUP_FILE = "$BACKUP_DIR\GRU-PA-MySQL_Backup_$TIMESTAMP.sql"
 
     cmd /c mysqldump --defaults-file=.mysql.cnf gru-pa > "$BACKUP_FILE"
