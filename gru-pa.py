@@ -2308,9 +2308,14 @@ def displayAppInfo_static():
     st.markdown(f"<font face='微软雅黑' color=purple size=16><center>**{APPNAME_CN}**</center></font>", unsafe_allow_html=True)
     verinfo, verLM = getVerInfo()
     st.markdown(f"<font face='微软雅黑' size=5><center>软件版本: {int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{int(verinfo / 10)} building {verinfo}</center></font>", unsafe_allow_html=True)
-    st.markdown(f"<font face='微软雅黑' size=3><center>更新时间: {time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))}</center></font>", unsafe_allow_html=True)
+    #st.markdown(f"<font face='微软雅黑' size=3><center>更新时间: {time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))}</center></font>", unsafe_allow_html=True)
     update_type, update_content = get_update_content(f"./CHANGELOG.md")
-    st.markdown(f"<font face='微软雅黑' color=blue size=4><center>更新内容: {update_type} - {update_content}</center></font>", unsafe_allow_html=True)
+    # 更新信息卡片显示
+    update_info = open("./MyComponentsScript/update_info.txt", "r", encoding="utf-8").read()
+    update_info = update_info.replace("update_info", f"{update_type} - {update_content} 更新: {time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))[5:]}")
+    st.markdown(update_info, unsafe_allow_html=True)
+    # 更新信息文字显示
+    #st.markdown(f"<font face='微软雅黑' color=blue size=4><center>更新内容: {update_type} - {update_content}</center></font>", unsafe_allow_html=True)
 
 
 def combine_query():

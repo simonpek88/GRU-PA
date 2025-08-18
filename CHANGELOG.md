@@ -1,18 +1,74 @@
-# 🚀 GRU-PA 系统更新日志
+## 🚀 GRU-PA 系统更新日志
+
+<style>
+/* 客户端（桌面端）样式 */
+@media (min-width: 769px) {
+  summary {
+    font-size: 18px !important;
+  }
+  summary strong {
+    font-size: 18px !important;
+  }
+}
+
+/* 移动端样式 */
+@media (max-width: 768px) {
+  summary {
+    font-size: 14px !important;
+  }
+  summary strong {
+    font-size: 14px !important;
+  }
+}
+
+/* 大屏设备样式 */
+@media (min-width: 1200px) {
+  summary {
+    font-size: 20px !important;
+  }
+  summary strong {
+    font-size: 20px !important;
+  }
+}
+</style>
 
 > 站室绩效考核系统的演进历程，记录每一次革新与突破
 
 ---
 
-## 🎯 待办事项 (Todo)
+### 🎯 待办事项 (Todo)
 
-- ✨ 完善功能和优化
+#### 完善功能和优化
 
 ---
 
-## 🆕 版本历史
+### 🆕 版本历史
 
-### 📅 最新版本
+#### 📅 最新版本
+
+<details>
+<summary><strong>🚀 版本 0.16.1643</strong> (2025-08-18 13:51) | <code>优化更新信息卡片显示</code></summary>
+
+- 🚀 优化
+  - 更新信息卡片显示
+
+</details>
+
+<details>
+<summary><strong>🚀 版本 0.16.1616</strong> (2025-08-18 13:26) | <code>更新信息改为卡片显示</code></summary>
+
+- 🚀 优化
+  - 更新信息改为卡片显示
+
+</details>
+
+<details>
+<summary><strong>✏️ 版本 0.15.1567</strong> (2025-08-18 12:34) | <code>系统更新日志格式及内容</code></summary>
+
+- ✏️ 更改
+  - 系统更新日志格式及内容
+
+</details>
 
 <details>
 <summary><strong>📦 版本 0.15.1520</strong> (2025-08-17 15:28) | <code>在线统计</code></summary>
@@ -86,7 +142,7 @@
 
 </details>
 
-### 📚 历史版本摘要
+#### 📚 历史版本摘要
 
 <details>
 <summary>历史版本摘要</summary>

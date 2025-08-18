@@ -214,9 +214,9 @@
 			"path": "CHANGELOG.md",
 			"bookmarks": [
 				{
-					"line": 4,
-					"column": 6,
-					"label": "update info"
+					"line": 48,
+					"column": 9,
+					"label": "update_info"
 				}
 			]
 		},

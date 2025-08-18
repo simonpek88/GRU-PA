@@ -231,8 +231,8 @@ def get_update_content(file_path):
     file.close()
     flag_proc = False
     # 读取文件前30行，查找版本更新信息
-    for line in lines[:30]:
-        if line.startswith("### 版本"):
+    for line in lines[:100]:
+        if line.startswith("- "):
             flag_proc = True
         if flag_proc:
             # 提取更新类型
@@ -240,7 +240,7 @@ def get_update_content(file_path):
                 update_type = line[2:-1]
             # 提取具体更新内容
             elif line.startswith("  - "):
-                update_content = line[4:]
+                update_content = line[4:-1]
                 break
 
     return update_type, update_content
