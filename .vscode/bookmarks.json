@@ -199,9 +199,14 @@
 					"label": "get_extra_oto2"
 				},
 				{
-					"line": 3291,
-					"column": 22,
+					"line": 3300,
+					"column": 30,
 					"label": "duty_statistics"
+				},
+				{
+					"line": 3498,
+					"column": 44,
+					"label": "temp"
 				}
 			]
 		},

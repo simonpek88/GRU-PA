@@ -676,9 +676,9 @@ def query_task():
     col4, col5, col6, col7 = st.columns(4)
     confirm_btn_output = col4.button("导出为Word文件")
     if st.session_state.userType == 'admin':
-        confirm_btn_output_excel = col5.button("导出统计报表(全部人员)")
+        btn_output_excel = col5.button("导出统计报表(全部人员)")
     else:
-        confirm_btn_output_excel = False
+        btn_output_excel = False
     with col6:
         flag_approved = sac.switch("仅限已核定工作", value=True, on_label="On")
     with col7:
@@ -798,7 +798,7 @@ def query_task():
                 st.error(f":red[文件导出失败]")
         else:
             st.info(f":red[未查询到记录]")
-    elif confirm_btn_output_excel:
+    elif btn_output_excel:
         display_area.empty()
         sql = f"SELECT clerk_cname, clerk_work, AVG(task_score), COUNT(clerk_work), AVG(task_score) * COUNT(clerk_work), task_group FROM clerk_work WHERE task_approved >= {int(flag_approved)} AND task_date >= '{query_date_start}' AND task_date <= '{query_date_end}' and StationCN = '{st.session_state.StationCN}' GROUP BY clerk_cname, clerk_work, task_group ORDER BY clerk_cname"
         result = execute_sql(cur, sql)
@@ -3301,201 +3301,207 @@ def duty_statistics():
     col1, col2 = st.columns(2)
     query_date_start = col1.date_input('查询开始时间', value=datetime.date.today() - datetime.timedelta(days=1), max_value="today")
     query_date_end = col2.date_input('查询结束时间', value=query_date_start, min_value=query_date_start, max_value="today")
-    confirm_btn_output_excel = st.button("导出统计表")
-    if confirm_btn_output_excel:
-        sql = f"SELECT oto_date, clerk_cname, extra_oto from oto where oto_date >= '{query_date_start}' and oto_date <= '{query_date_end}' and StationCN = '{st.session_state.StationCN}'"
+    btn_col = col1.columns(4)
+    btn_query = btn_col[0].button("查询")
+    btn_output_excel = btn_col[1].button("导出统计表")
+    if btn_query or btn_output_excel:
+        sql = f"SELECT oto_date, clerk_cname, extra_oto from oto where oto_date >= '{query_date_start}' and oto_date <= '{query_date_end}' and StationCN = '{st.session_state.StationCN}' order by oto_date, clerk_cname"
         result = execute_sql(cur, sql)
         if result:
             df = pd.DataFrame(result)
             df.columns = ["日期", "姓名", "晚10点后输油"]
             # 使用map函数将0/1值映射为"否"/"是"，避免数据类型不兼容问题
             df["晚10点后输油"] = df["晚10点后输油"].map({1: "是", 0: "否"})
-            outputFile = f"./user_pa/{st.session_state.StationCN}_值班和输油额外补贴统计_{query_date_start}至{query_date_end}_{int(time.time())}.xlsx"
-            if os.path.exists(outputFile):
-                os.remove(outputFile)
-            with pd.ExcelWriter(outputFile, engine='openpyxl') as writer:
-                df.to_excel(writer, sheet_name='值班数据', index=False, startrow=1)
-                # 插入统计时间行
-                report_date_range = f"值班数据 时间：{query_date_start} 至 {query_date_end}"
-                # 对excel文件进行格式化
-                ws = writer.sheets['值班数据']
 
-                # 设置页面为横向
-                ws.page_setup.orientation = 'portrait'
-                # 添加页眉/页脚（页脚居中显示页码）
-                ws.oddFooter.center.text = "&P / &N"
-                # 合并 A1:F1，并设置样式
-                ws.merge_cells("A1:C1")
-                cell = ws["A1"]
-                cell.value = report_date_range
-                cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size - 2, bold=True)
-                # 创建一个通用的对齐设置
-                alignment = Alignment(horizontal='center', vertical='center')
-                # 设置标题行样式
-                for cell in ws[2]:
-                    cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size - 2, bold=True)
-                # 将"小计"行设为粗体，并设置字体大小
-                for row in ws.iter_rows(min_row=2):  # 跳过标题行
-                    if isinstance(row[0].value, str) and row[0].value.startswith('小计'):
-                        for cell in row:
-                            cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size - 2, bold=True)
-                # 设置正文其他行字体
-                for row in ws.iter_rows(min_row=2):
-                    if not (isinstance(row[0].value, str) and row[0].value.startswith('小计')):
-                        for cell in row:
-                            cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size - 2)
-                # 定义边框样式
-                thin_border = Border(
-                    left=Side(style='thin'),
-                    right=Side(style='thin'),
-                    top=Side(style='thin'),
-                    bottom=Side(style='thin')
-                )
-                special_columns = {
-                    "A": 20,
-                    "B": 16,
-                    "C": 20
-                }
-                for col in ws.columns:
-                    max_width = 0
-                    column = None
-                    for cell in col:
-                        if isinstance(cell, MergedCell):
-                            continue
-                        column = cell.column_letter
-                        value = str(cell.value) if cell.value else ""
-                        # 使用 wcswidth 精确计算显示宽度
-                        width = wcswidth(value)
-                        if width > max_width:
-                            max_width = width
-                    if column:
-                        if column in special_columns:
-                            ws.column_dimensions[column].width = special_columns[column]
-                        else:
-                            ws.column_dimensions[column].width = max_width + 2
-                # 添加边框到所有单元格
-                for row in ws.iter_rows():
-                    for cell in row:
-                        cell.border = thin_border
-                        if row[0].row == 1:
-                            cell.alignment = alignment
-                        else:
-                            cell.alignment = Alignment(horizontal='left', vertical='center')
-                sql = f"""
-                    SELECT clerk_cname,
-                            SUM(CASE WHEN extra_oto = 0 THEN 1 ELSE 0 END) as base_duty,
-                            SUM(CASE WHEN extra_oto = 1 THEN 1 ELSE 0 END) as extra_duty,
-                            COUNT(*) as total_duty
-                        FROM oto
-                        WHERE oto_date BETWEEN '{query_date_start}' AND '{query_date_end}'
-                        AND StationCN = '{st.session_state.StationCN}'
-                        GROUP BY clerk_cname
-                        ORDER BY clerk_cname
-                """
-                result = execute_sql(cur, sql)
-                df_statist = pd.DataFrame(result)
-                df_statist.columns = ["姓名", "普通输油", "晚10点后输油", "值班总计"]
+            sql = f"""
+                SELECT clerk_cname,
+                        SUM(CASE WHEN extra_oto = 0 THEN 1 ELSE 0 END) as base_duty,
+                        SUM(CASE WHEN extra_oto = 1 THEN 1 ELSE 0 END) as extra_duty,
+                        COUNT(*) as total_duty
+                    FROM oto
+                    WHERE oto_date BETWEEN '{query_date_start}' AND '{query_date_end}'
+                    AND StationCN = '{st.session_state.StationCN}'
+                    GROUP BY clerk_cname
+                    ORDER BY clerk_cname
+            """
+            result = execute_sql(cur, sql)
+            df_statist = pd.DataFrame(result)
+            df_statist.columns = ["姓名", "普通输油", "晚10点后输油", "值班总计"]
 
-                # 将普通输油、晚10点后输油及值班总计这3列内容转为整型
-                df_statist["普通输油"] = df_statist["普通输油"].astype(int)
-                df_statist["晚10点后输油"] = df_statist["晚10点后输油"].astype(int)
-                df_statist["值班总计"] = df_statist["值班总计"].astype(int)
+            # 将普通输油、晚10点后输油及值班总计这3列内容转为整型
+            df_statist["普通输油"] = df_statist["普通输油"].astype(int)
+            df_statist["晚10点后输油"] = df_statist["晚10点后输油"].astype(int)
+            df_statist["值班总计"] = df_statist["值班总计"].astype(int)
 
-                # 计算合计行
-                total_row = df_statist[["普通输油", "晚10点后输油", "值班总计"]].sum()
-                total_row_df = pd.DataFrame([["合计", total_row["普通输油"], total_row["晚10点后输油"], total_row["值班总计"]]],
-                                          columns=["姓名", "普通输油", "晚10点后输油", "值班总计"])
-                df_statist = pd.concat([df_statist, total_row_df], ignore_index=True)
+            # 计算合计行
+            total_row = df_statist[["普通输油", "晚10点后输油", "值班总计"]].sum()
+            total_row_df = pd.DataFrame([["合计", total_row["普通输油"], total_row["晚10点后输油"], total_row["值班总计"]]],
+                                    columns=["姓名", "普通输油", "晚10点后输油", "值班总计"])
+            df_statist = pd.concat([df_statist, total_row_df], ignore_index=True)
 
-                # 总计行中的普通输油、晚10点后输油、值班总计数据校验
-                dur_time = query_date_end - query_date_start
-                last_row = df_statist.iloc[-1]
-                ordinary_oil_is_even = (last_row["普通输油"] % 2 == 0)
-                late_oil_is_even = (last_row["晚10点后输油"] % 2 == 0)
-                duty_total_is_even = (last_row["值班总计"] % 2 == 0)
+            # 总计行中的普通输油、晚10点后输油、值班总计数据校验
+            dur_time = query_date_end - query_date_start
+            last_row = df_statist.iloc[-1]
+            ordinary_oil_is_even = (last_row["普通输油"] % 2 == 0)
+            late_oil_is_even = (last_row["晚10点后输油"] % 2 == 0)
+            duty_total_is_even = (last_row["值班总计"] % 2 == 0)
 
-                # 输出检查结果
-                if not ordinary_oil_is_even or not late_oil_is_even or not duty_total_is_even or last_row["值班总计"] > (dur_time.days + 1) * 2:
-                    st.error(":red[值班人数与值班合计数据不匹配，请检查!]")
+            # 输出检查结果
+            if not ordinary_oil_is_even or not late_oil_is_even or not duty_total_is_even or last_row["值班总计"] > (dur_time.days + 1) * 2:
+                st.error(":red[值班人数与值班合计数据不匹配，请检查!]")
 
-                df_statist.to_excel(writer, sheet_name='值班分类统计', index=False, startrow=1)
-                # 插入统计时间行
-                report_date_range2 = f"值班分类统计 {query_date_start} 至 {query_date_end}"
-                # 对简报sheet进行格式化，使用与统计表相同的样式
-                ws2 = writer.sheets['值班分类统计']
-                # 合并 A1:F1，并设置样式
-                ws2.merge_cells("A1:D1")
-                cell = ws2["A1"]
-                cell.value = report_date_range2
-                cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size, bold=True)
-                # 设置页面为横向
-                ws2.page_setup.orientation = 'landscape'
-                # 添加页眉/页脚（页脚居中显示页码）
-                ws2.oddFooter.center.text = "&P / &N"
-                # 创建一个通用的对齐设置
-                alignment = Alignment(horizontal='center', vertical='center')
-                # 设置标题行样式
-                for cell in ws2[2]:
-                    cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size, bold=True)
-                # 设置正文其他行字体
-                for row in ws2.iter_rows(min_row=2):
-                    for cell in row:
-                        cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size)
-                # 定义边框样式（使用与统计表相同的边框样式）
-                thin_border = Border(
-                    left=Side(style='thin'),
-                    right=Side(style='thin'),
-                    top=Side(style='thin'),
-                    bottom=Side(style='thin')
-                )
-                special_columns = {
-                    "A": 20,
-                    "B": 15,
-                    "C": 25,
-                    "D": 15,
-                }
-                for col in ws2.columns:
-                    max_width = 0
-                    column = None
-                    for cell in col:
-                        if isinstance(cell, MergedCell):
-                            continue
-                        column = cell.column_letter
-                        value = str(cell.value) if cell.value else ""
-                        # 使用 wcswidth 精确计算显示宽度
-                        width = wcswidth(value)
-                        if width > max_width:
-                            max_width = width
-                    if column:
-                        if column in special_columns:
-                            ws2.column_dimensions[column].width = special_columns[column]
-                        else:
-                            ws2.column_dimensions[column].width = max_width + 2
-                # 添加边框到所有单元格
-                for row in ws2.iter_rows():
-                    for cell in row:
-                        cell.border = thin_border
-                        if row[0].row == 1:
-                            cell.alignment = alignment
-                        else:
-                            cell.alignment = Alignment(horizontal='center', vertical='center')
-            if os.path.exists(outputFile):
-                with open(outputFile, "rb") as file:
-                    content = file.read()
-                file.close()
-                buttonDL = st.download_button("点击下载", content, file_name=outputFile[outputFile.rfind("/") + 1:], icon=":material/download:", type="secondary")
-                st.success(f":green[成功导出至程序目录user_pa下 {outputFile[outputFile.rfind('/') + 1:]}]")
-                if buttonDL:
-                    st.toast("文件已下载至你的默认目录")
-            else:
-                st.error(f":red[文件导出失败]")
             date_col = st.columns(2)
             with date_col[0]:
                 st.markdown('值班数据')
-                st.dataframe(df)
+                st.dataframe(df, height=422)
             with date_col[1]:
                 st.markdown('值班分类统计')
-                st.dataframe(df_statist)
+                st.dataframe(df_statist, height=422)
+
+            if btn_output_excel:
+                outputFile = f"./user_pa/{st.session_state.StationCN}_值班和输油额外补贴统计_{query_date_start}至{query_date_end}_{int(time.time())}.xlsx"
+                if os.path.exists(outputFile):
+                    os.remove(outputFile)
+                with pd.ExcelWriter(outputFile, engine='openpyxl') as writer:
+                    df.to_excel(writer, sheet_name='值班数据', index=False, startrow=1)
+                    # 插入统计时间行
+                    report_date_range = f"值班数据 时间：{query_date_start} 至 {query_date_end}"
+                    # 对excel文件进行格式化
+                    ws = writer.sheets['值班数据']
+
+                    # 设置页面为横向
+                    ws.page_setup.orientation = 'portrait'
+                    # 添加页眉/页脚（页脚居中显示页码）
+                    ws.oddFooter.center.text = "&P / &N"
+                    # 合并 A1:F1，并设置样式
+                    ws.merge_cells("A1:C1")
+                    cell = ws["A1"]
+                    cell.value = report_date_range
+                    cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size - 2, bold=True)
+                    # 创建一个通用的对齐设置
+                    alignment = Alignment(horizontal='center', vertical='center')
+                    # 设置标题行样式
+                    for cell in ws[2]:
+                        cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size - 2, bold=True)
+                    # 将"小计"行设为粗体，并设置字体大小
+                    for row in ws.iter_rows(min_row=2):  # 跳过标题行
+                        if isinstance(row[0].value, str) and row[0].value.startswith('小计'):
+                            for cell in row:
+                                cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size - 2, bold=True)
+                    # 设置正文其他行字体
+                    for row in ws.iter_rows(min_row=2):
+                        if not (isinstance(row[0].value, str) and row[0].value.startswith('小计')):
+                            for cell in row:
+                                cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size - 2)
+                    # 定义边框样式
+                    thin_border = Border(
+                        left=Side(style='thin'),
+                        right=Side(style='thin'),
+                        top=Side(style='thin'),
+                        bottom=Side(style='thin')
+                    )
+                    special_columns = {
+                        "A": 20,
+                        "B": 16,
+                        "C": 20
+                    }
+                    for col in ws.columns:
+                        max_width = 0
+                        column = None
+                        for cell in col:
+                            if isinstance(cell, MergedCell):
+                                continue
+                            column = cell.column_letter
+                            value = str(cell.value) if cell.value else ""
+                            # 使用 wcswidth 精确计算显示宽度
+                            width = wcswidth(value)
+                            if width > max_width:
+                                max_width = width
+                        if column:
+                            if column in special_columns:
+                                ws.column_dimensions[column].width = special_columns[column]
+                            else:
+                                ws.column_dimensions[column].width = max_width + 2
+                    # 添加边框到所有单元格
+                    for row in ws.iter_rows():
+                        for cell in row:
+                            cell.border = thin_border
+                            if row[0].row == 1:
+                                cell.alignment = alignment
+                            else:
+                                cell.alignment = Alignment(horizontal='left', vertical='center')
+
+                    df_statist.to_excel(writer, sheet_name='值班分类统计', index=False, startrow=1)
+                    # 插入统计时间行
+                    report_date_range2 = f"值班分类统计 {query_date_start} 至 {query_date_end}"
+                    # 对简报sheet进行格式化，使用与统计表相同的样式
+                    ws2 = writer.sheets['值班分类统计']
+                    # 合并 A1:F1，并设置样式
+                    ws2.merge_cells("A1:D1")
+                    cell = ws2["A1"]
+                    cell.value = report_date_range2
+                    cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size, bold=True)
+                    # 设置页面为横向
+                    ws2.page_setup.orientation = 'landscape'
+                    # 添加页眉/页脚（页脚居中显示页码）
+                    ws2.oddFooter.center.text = "&P / &N"
+                    # 创建一个通用的对齐设置
+                    alignment = Alignment(horizontal='center', vertical='center')
+                    # 设置标题行样式
+                    for cell in ws2[2]:
+                        cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size, bold=True)
+                    # 设置正文其他行字体
+                    for row in ws2.iter_rows(min_row=2):
+                        for cell in row:
+                            cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size)
+                    # 定义边框样式（使用与统计表相同的边框样式）
+                    thin_border = Border(
+                        left=Side(style='thin'),
+                        right=Side(style='thin'),
+                        top=Side(style='thin'),
+                        bottom=Side(style='thin')
+                    )
+                    special_columns = {
+                        "A": 20,
+                        "B": 15,
+                        "C": 25,
+                        "D": 15,
+                    }
+                    for col in ws2.columns:
+                        max_width = 0
+                        column = None
+                        for cell in col:
+                            if isinstance(cell, MergedCell):
+                                continue
+                            column = cell.column_letter
+                            value = str(cell.value) if cell.value else ""
+                            # 使用 wcswidth 精确计算显示宽度
+                            width = wcswidth(value)
+                            if width > max_width:
+                                max_width = width
+                        if column:
+                            if column in special_columns:
+                                ws2.column_dimensions[column].width = special_columns[column]
+                            else:
+                                ws2.column_dimensions[column].width = max_width + 2
+                    # 添加边框到所有单元格
+                    for row in ws2.iter_rows():
+                        for cell in row:
+                            cell.border = thin_border
+                            if row[0].row == 1:
+                                cell.alignment = alignment
+                            else:
+                                cell.alignment = Alignment(horizontal='center', vertical='center')
+                if os.path.exists(outputFile):
+                    with open(outputFile, "rb") as file:
+                        content = file.read()
+                    file.close()
+                    buttonDL = btn_col[2].download_button("点击下载", content, file_name=outputFile[outputFile.rfind("/") + 1:], icon=":material/download:", type="secondary")
+                    col2.success(f":green[成功导出至程序目录user_pa下 {outputFile[outputFile.rfind('/') + 1:]}]")
+                    if buttonDL:
+                        st.toast("文件已下载至你的默认目录")
+                else:
+                    col2.error(f":red[文件导出失败]")
 
 
 global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME
