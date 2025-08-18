@@ -34,34 +34,9 @@
 					"label": "get_extra_oto"
 				},
 				{
-					"line": 232,
-					"column": 16,
-					"label": "aboutInfo"
-				},
-				{
-					"line": 243,
-					"column": 18,
-					"label": "about readme"
-				},
-				{
-					"line": 355,
-					"column": 19,
-					"label": "display_pypi"
-				},
-				{
 					"line": 419,
 					"column": 17,
 					"label": "task_input"
-				},
-				{
-					"line": 799,
-					"column": 63,
-					"label": "temp"
-				},
-				{
-					"line": 1002,
-					"column": 19,
-					"label": "manual_input"
 				},
 				{
 					"line": 1033,
@@ -74,11 +49,6 @@
 					"label": "check_data"
 				},
 				{
-					"line": 1316,
-					"column": 20,
-					"label": "gen_cal_chart"
-				},
-				{
 					"line": 1657,
 					"column": 31,
 					"label": "auto_get_history_weather"
@@ -89,19 +59,9 @@
 					"label": "public_notice"
 				},
 				{
-					"line": 1710,
-					"column": 26,
-					"label": "input_public_notice"
-				},
-				{
 					"line": 1761,
 					"column": 35,
 					"label": "get_weather_warning"
-				},
-				{
-					"line": 1781,
-					"column": 20,
-					"label": "combine_query"
 				},
 				{
 					"line": 1794,
@@ -122,11 +82,6 @@
 					"line": 1894,
 					"column": 30,
 					"label": "camera_capture"
-				},
-				{
-					"line": 1924,
-					"column": 17,
-					"label": "fr_web_rtc"
 				},
 				{
 					"line": 1935,
@@ -159,16 +114,6 @@
 					"label": "vehicle_restrict"
 				},
 				{
-					"line": 2656,
-					"column": 58,
-					"label": "weather test"
-				},
-				{
-					"line": 2820,
-					"column": 19,
-					"label": "system_setup"
-				},
-				{
 					"line": 3086,
 					"column": 25,
 					"label": "gen_statist_metric"
@@ -189,11 +134,6 @@
 					"label": "dyna_display_note"
 				},
 				{
-					"line": 3166,
-					"column": 19,
-					"label": "main"
-				},
-				{
 					"line": 3255,
 					"column": 21,
 					"label": "get_extra_oto2"
@@ -204,9 +144,9 @@
 					"label": "duty_statistics"
 				},
 				{
-					"line": 3498,
-					"column": 44,
-					"label": "temp"
+					"line": 3526,
+					"column": 40,
+					"label": "main"
 				}
 			]
 		},
