@@ -3716,7 +3716,7 @@ elif st.session_state.logged_in:
         dyna_display_note('operation_manual.md')
     elif selected == "更新日志":
         changelogInfo = open("./CHANGELOG.md", "r", encoding="utf-8").read()
-        st.markdown(changelogInfo)
+        st.markdown(changelogInfo, unsafe_allow_html=True)
     elif selected == "项目说明":
         dyna_display_note('README.md')
     elif selected == "关于":
