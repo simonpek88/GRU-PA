@@ -3555,7 +3555,7 @@ def act_sync_repo(sync_type: str):
     if sync_repo_info[0]:
         st.success(f":green[同步成功]\n\n{temp_info}")
         if sync_type == "github_to_local":
-            st.rerun()
+            logout()
     else:
         st.error(f":red[同步失败]\n\n{temp_info}")
 

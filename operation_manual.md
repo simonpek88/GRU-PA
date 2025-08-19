@@ -46,11 +46,12 @@
 - [10.天气功能](#天气功能)
 - [11.数据导出](#数据导出)
 - [12.数据库操作](#数据库操作)
-- [13.故障排除](#故障排除)
-- [14.安全指南](#安全指南)
-- [15.附录:文件清单](#附录:文件清单)
-- [16.快速命令参考](#快速命令参考)
-- [17.技术支持](#技术支持)
+- [13.云同步](#云同步)
+- [14.故障排除](#故障排除)
+- [15.安全指南](#安全指南)
+- [16.附录-文件清单](#附录-文件清单)
+- [17.快速命令参考](#快速命令参考)
+- [18.技术支持](#技术支持)
 
 ## Todo
 
@@ -2312,6 +2313,66 @@ graph TD
 
 - [回到目录](#目录)
 
+<a id="云同步"></a>
+
+### ☁️ 云同步
+
+<div style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); border-radius: 10px; padding: 20px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: 25px 0;">
+  <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center;">
+    <div style="background: rgba(255, 255, 255, 0.2); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;">🔄</div>
+    Git版本控制与同步
+  </div>
+  <div style="opacity: 0.9;">
+    本地仓库与GitHub远程仓库之间的双向同步，确保数据安全与版本一致性<br>
+    实现功能实时平滑升级
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 25px 0;">
+  <div style="border: 1px solid #e1e8ed; border-radius: 10px; padding: 20px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+      <div style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 12px;">📥</div>
+      <div style="font-weight: bold; font-size: 1.1em; color: #2c3e50;">数据拉取</div>
+    </div>
+    <div style="padding-left: 48px; color: #6c757d;">
+      从GitHub同步到本地仓库
+    </div>
+  </div>
+
+  <div style="border: 1px solid #e1e8ed; border-radius: 10px; padding: 20px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+      <div style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 12px;">📤</div>
+      <div style="font-weight: bold; font-size: 1.1em; color: #2c3e50;">数据推送</div>
+    </div>
+    <div style="padding-left: 48px; color: #6c757d;">
+      从本地仓库同步到GitHub
+    </div>
+  </div>
+</div>
+
+<div style="background: #f8f9fa; border-radius: 10px; padding: 20px; border-left: 4px solid #3498db; margin: 25px 0;">
+  <div style="font-weight: bold; color: #3498db; margin-bottom: 15px; display: flex; align-items: center;">
+    <div style="background: #3498db; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 10px;">⚙️</div>
+    同步步骤
+  </div>
+  <div style="padding-left: 34px;">
+    <div style="margin-bottom: 15px; display: flex; align-items: flex-start;">
+      <div style="background: #3498db; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7em; margin-right: 10px; flex-shrink: 0; margin-top: 2px;">1</div>
+      <div><strong>检测GitHub可访问性</strong><br><span style="color: #6c757d;">验证网络连接和GitHub服务状态</span></div>
+    </div>
+    <div style="margin-bottom: 15px; display: flex; align-items: flex-start;">
+      <div style="background: #2ecc71; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7em; margin-right: 10px; flex-shrink: 0; margin-top: 2px;">2</div>
+      <div><strong>校验仓库一致性</strong><br><span style="color: #6c757d;">检测本地仓库和远程仓库的版本差异</span></div>
+    </div>
+    <div style="display: flex; align-items: flex-start;">
+      <div style="background: #9b59b6; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7em; margin-right: 10px; flex-shrink: 0; margin-top: 2px;">3</div>
+      <div><strong>执行同步操作</strong><br><span style="color: #6c757d;">根据差异情况执行拉取或推送操作</span></div>
+    </div>
+  </div>
+</div>
+
+- [回到目录](#目录)
+
 <a id="故障排除"></a>
 
 ## 故障排除
@@ -2830,9 +2891,9 @@ graph TD
 
 - [回到目录](#目录)
 
-<a id="附录:文件清单"></a>
+<a id="附录-文件清单"></a>
 
-### 📄 附录:文件清单
+### 📄 附录-文件清单
 
 <style>
 .file-container {
