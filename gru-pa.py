@@ -3533,11 +3533,11 @@ def act_sync_repo(sync_type: str):
         sync_repo_info = sync_local_to_github_repo()
     else:
         sync_repo_info = (False, ["同步类型错误"])
-    temp_info = '\n'.join(sync_repo_info[1])
+    temp_info = '\n\n'.join(sync_repo_info[1])
     if sync_repo_info[0]:
-        st.success(f":green[同步成功\n{temp_info}]")
+        st.success(f":green[同步成功\n\n{temp_info}]")
     else:
-        st.error(f":red[同步失败\n{temp_info}]")
+        st.error(f":red[同步失败\n\n{temp_info}]")
 
 
 global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME
