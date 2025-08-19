@@ -89,44 +89,27 @@ def sync_local_to_github(
         bool: 同步是否成功
     """
     try:
+        info_pack = []
         # 切换到仓库目录
         original_cwd = os.getcwd()
         os.chdir(local_repo_path)
-        print(f"切换到仓库目录: {local_repo_path}")
 
         # 获取远程仓库信息
         if target_owner is None or target_repo is None:
             owner, repo_name = get_git_repo_info(local_repo_path)
             if owner is None or repo_name is None:
-                print("无法从本地仓库获取GitHub仓库信息")
+                info_pack.append("无法从本地仓库获取GitHub仓库信息")
                 os.chdir(original_cwd)
                 return False
             target_owner = target_owner or owner
             target_repo = target_repo or repo_name
 
-        print(f"目标仓库: {target_owner}/{target_repo}")
-
         # 使用访问令牌进行身份验证
         auth = Token(github_token)
         g = Github(auth=auth)
-        
-        # 验证token是否有效
-        try:
-            user = g.get_user()
-            print(f"GitHub认证成功，用户: {user.login}")
-        except Exception as e:
-            print(f"GitHub认证失败: {str(e)}")
-            os.chdir(original_cwd)
-            return False
 
         # 获取目标仓库
-        try:
-            target_repo_obj = g.get_repo(f"{target_owner}/{target_repo}")
-            print(f"成功获取仓库信息: {target_repo_obj.full_name}")
-        except Exception as e:
-            print(f"无法获取仓库 {target_owner}/{target_repo}: {str(e)}")
-            os.chdir(original_cwd)
-            return False
+        target_repo_obj = g.get_repo(f"{target_owner}/{target_repo}")
 
         # 添加远程仓库（如果不存在）
         try:
@@ -135,128 +118,56 @@ def sync_local_to_github(
                 capture_output=True,
                 check=True
             )
-            print("添加远程仓库 'github'")
         except subprocess.CalledProcessError:
             # 远程仓库可能已存在, 尝试更新URL
-            try:
-                subprocess.run(
-                    ["git", "remote", "set-url", "github", f"https://github.com/{target_owner}/{target_repo}.git"],
-                    capture_output=True,
-                    check=True
-                )
-                print("更新远程仓库 'github' URL")
-            except subprocess.CalledProcessError as e:
-                print(f"设置远程仓库URL失败: {e}")
-                os.chdir(original_cwd)
-                return False
-
-        # 添加所有更改到暂存区
-        try:
-            subprocess.run(["git", "add", "."], capture_output=True, check=True)
-            print("添加所有更改到暂存区")
-        except subprocess.CalledProcessError as e:
-            print(f"添加更改到暂存区失败: {e}")
-            os.chdir(original_cwd)
-            return False
-
-        # 检查是否有更改需要提交
-        try:
-            status_result = subprocess.run(
-                ["git", "status", "--porcelain"],
+            subprocess.run(
+                ["git", "remote", "set-url", "github", f"https://github.com/{target_owner}/{target_repo}.git"],
                 capture_output=True,
-                text=True,
                 check=True
             )
-        except subprocess.CalledProcessError as e:
-            print(f"检查Git状态失败: {e}")
-            os.chdir(original_cwd)
-            return False
+
+        # 添加所有更改到暂存区
+        subprocess.run(["git", "add", "."], capture_output=True, check=True)
+
+        # 检查是否有更改需要提交
+        status_result = subprocess.run(
+            ["git", "status", "--porcelain"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
 
         if status_result.stdout.strip():
             # 有更改需要提交
-            commit_message = "🔄 自动同步"
-            try:
-                subprocess.run(["git", "commit", "-m", commit_message], capture_output=True, check=True)
-                print(f"已提交更改: {commit_message}")
-            except subprocess.CalledProcessError as e:
-                # 可能没有更改需要提交
-                commit_result = subprocess.run(
-                    ["git", "commit", "-m", commit_message],
-                    capture_output=True,
-                    text=True
-                )
-                if "nothing to commit" in commit_result.stderr:
-                    print("没有需要提交的更改")
-                else:
-                    print(f"提交更改失败: {commit_result.stderr}")
-                    os.chdir(original_cwd)
-                    return False
+            commit_message = "🔄App自动同步"
+            subprocess.run(["git", "commit", "-m", commit_message], capture_output=True, check=True)
+            info_pack.append(f"已提交更改: {commit_message}")
         else:
-            print("没有需要提交的更改")
-
-        # 检查当前分支
-        try:
-            branch_result = subprocess.run(
-                ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            current_branch = branch_result.stdout.strip()
-            print(f"当前分支: {current_branch}")
-            
-            if current_branch != branch:
-                print(f"警告: 当前分支({current_branch})与目标分支({branch})不一致")
-        except subprocess.CalledProcessError as e:
-            print(f"获取当前分支信息失败: {e}")
+            info_pack.append("没有需要提交的更改")
 
         # 推送本地更改到GitHub
-        print(f"正在推送更改到GitHub分支 '{branch}'...")
-        push_result = subprocess.run(
-            ["git", "push", "github", branch], 
-            capture_output=True, 
-            text=True
-        )
-        
+        push_result = subprocess.run(["git", "push", "github", branch], capture_output=True, text=True)
         if push_result.returncode != 0:
-            print(f"推送失败:")
-            print(f"  返回码: {push_result.returncode}")
-            print(f"  标准输出: {push_result.stdout}")
-            print(f"  错误输出: {push_result.stderr}")
-            
-            # 检查是否有特定的错误信息
-            error_output = push_result.stderr.lower()
-            if "authentication" in error_output or "403" in error_output:
-                print("  认证失败，请检查GitHub token是否正确且有推送权限")
-            elif "could not resolve host" in error_output:
-                print("  网络连接问题，无法连接到GitHub")
-            elif "permission denied" in error_output:
-                print("  权限被拒绝，请检查是否有推送权限")
-            elif "nothing to push" in error_output or "already up to date" in push_result.stdout.lower():
-                print("  没有需要推送的内容")
-            
+            info_pack.append(f"推送失败: {push_result.stderr}")
             os.chdir(original_cwd)
-            return False
+            return False, info_pack
         else:
-            print(f"成功推送更改到 GitHub 仓库 {target_owner}/{target_repo}")
-            print(f"推送输出: {push_result.stdout}")
+            info_pack.append(f"成功推送更改到 GitHub 仓库 {target_owner}/{target_repo}")
 
-        print(f"成功将本地仓库 {local_repo_path} 同步到 GitHub 仓库 {target_owner}/{target_repo}")
+        info_pack.append(f"成功将本地仓库 {local_repo_path} 同步到 GitHub 仓库 {target_owner}/{target_repo}")
         os.chdir(original_cwd)
-        return True
+        return True, info_pack
 
     except subprocess.CalledProcessError as e:
-        print(f"Git命令执行失败: {e}")
+        info_pack.append(f"Git命令执行失败: {e}")
         if 'original_cwd' in locals():
             os.chdir(original_cwd)
-        return False
+        return False, info_pack
     except Exception as e:
-        print(f"同步过程中发生错误: {str(e)}")
-        import traceback
-        traceback.print_exc()
+        info_pack.append(f"同步过程中发生错误: {str(e)}")
         if 'original_cwd' in locals():
             os.chdir(original_cwd)
-        return False
+        return False, info_pack
 
 
 def sync_github_to_local(
@@ -280,6 +191,7 @@ def sync_github_to_local(
         bool: 同步是否成功
     """
     try:
+        info_pack = []
         # 切换到仓库目录
         original_cwd = os.getcwd()
         os.chdir(local_repo_path)
@@ -288,7 +200,7 @@ def sync_github_to_local(
         if source_owner is None or source_repo is None:
             owner, repo_name = get_git_repo_info(local_repo_path)
             if owner is None or repo_name is None:
-                print("无法从本地仓库获取GitHub仓库信息")
+                info_pack.append("无法从本地仓库获取GitHub仓库信息")
                 os.chdir(original_cwd)
                 return False
             source_owner = source_owner or owner
@@ -318,16 +230,15 @@ def sync_github_to_local(
 
         # 从GitHub拉取最新更改
         subprocess.run(["git", "pull", "github", branch], capture_output=True, check=True)
-
-        print(f"成功将 GitHub 仓库 {source_owner}/{source_repo} 同步到本地仓库 {local_repo_path}")
+        info_pack.append(f"成功将 GitHub 仓库 {source_owner}/{source_repo} 同步到本地仓库 {local_repo_path}")
         os.chdir(original_cwd)
-        return True
+        return True, info_pack
 
     except Exception as e:
-        print(f"同步过程中发生错误: {str(e)}")
+        info_pack.append(f"同步过程中发生错误: {str(e)}")
         if 'original_cwd' in locals():
             os.chdir(original_cwd)
-        return False
+        return False, info_pack
 
 
 def sync_local_to_github_repo():
@@ -355,4 +266,3 @@ if __name__ == "__main__":
     # sync_github_to_local(LOCAL_REPO_PATH, GITHUB_TOKEN)
 
     print("本地仓库与GitHub仓库同步工具")
-    print("请从数据库中读取GITHUB_TOKEN")

@@ -3529,16 +3529,15 @@ def source_github_sync():
 def act_sync_repo(sync_type: str):
     if sync_type == "github_to_local":
         sync_repo_info = sync_github_to_local_repo()
-        if sync_repo_info[0]:
-            st.success(f":green[成功将 {sync_repo_info[1]} 仓库 同步到本地仓库]")
-        else:
-            st.error(":red[同步失败]")
     elif sync_type == "local_to_github":
         sync_repo_info = sync_local_to_github_repo()
-        if sync_repo_info[0]:
-            st.success(f":green[成功将 GRU-PA 同步到{sync_repo_info[1]} 仓库]")
-        else:
-            st.error(":red[同步失败]")
+    else:
+        sync_repo_info = (False, ["同步类型错误"])
+    temp_info = '\n'.join(sync_repo_info[1])
+    if sync_repo_info[0]:
+        st.success(f":green[同步成功\n{temp_info}]")
+    else:
+        st.error(f":red[同步失败\n{temp_info}]")
 
 
 global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME
@@ -3617,7 +3616,7 @@ elif st.session_state.logged_in:
                         sac.MenuItem('工作内容修改', icon='card-text'),
                     ]),
                     sac.MenuItem('数据库备份', icon='backpack4'),
-                    sac.MenuItem('云同步', icon='cloud-download'),
+                    sac.MenuItem('云同步', icon='cloud-check'),
                 ], disabled=not st.session_state.dba),
                 sac.MenuItem('设置', icon='gear', children=[
                     sac.MenuItem('个人设置', icon='sliders2'),
