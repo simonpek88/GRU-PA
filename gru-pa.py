@@ -3520,10 +3520,12 @@ def source_github_sync():
     st.markdown("#### ⚠️请谨慎操作, 如遇错误请及时反馈给作者]")
     online_count = get_online_count()
     if online_count == 1:
-        access_info = check_github_access()
-        temp_info = '\n\n'.join(access_info[1])
-        st.info(temp_info)
-        if access_info[0]:
+        if 'github_access' not in st.session_state:
+            access_info = check_github_access()
+            st.session_state.github_access = access_info[0]
+            temp_info = '\n\n'.join(access_info[1])
+            st.info(temp_info)
+        if st.session_state.github_access:
             cloud_col = st.columns(4)
             btn_github_to_local = cloud_col[0].button("从GitHub同步到本地", icon=":material/cloud_download:", type="primary")
             btn_local_to_github = cloud_col[1].button("上传至GitHub仓库", icon=":material/cloud_upload:", type="primary")
