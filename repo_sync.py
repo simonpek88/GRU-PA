@@ -326,6 +326,7 @@ def check_github_access():
         return False, access_info_pack_all
 
 
+# 全局变量
 GITHUB_TOKEN = getEncryptKeys('github_key')
 LOCAL_REPO_PATH = "./"  # 本地仓库就是当前目录
 

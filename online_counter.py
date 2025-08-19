@@ -13,17 +13,61 @@ import time
 ONLINE_USERS_FILE = "./online_users.json"
 user_lock = threading.Lock()
 
-def get_online_count(user_identifier=None):
+def add_user(user_identifier):
     """
-    获取当前在线人数
+    添加用户到在线列表
 
     Args:
-        user_identifier (str, optional): 用户标识符，可以是:
-            - 用户ID
-            - Session ID
-            - IP地址
-            - 或其他唯一标识符
-            如果未提供，则使用更稳定的标识方法
+        user_identifier (str): 用户标识符
+
+    Returns:
+        int: 当前在线人数
+    """
+    if not user_identifier:
+        raise ValueError("user_identifier 不能为空")
+
+    with user_lock:
+        users = _load_online_users()
+        current_time = time.time()
+
+        # 添加用户
+        users[str(user_identifier)] = current_time
+
+        _save_online_users(users)
+        return len(users)
+
+
+def remove_user(user_identifier):
+    """
+    从在线列表中删除用户
+
+    Args:
+        user_identifier (str): 用户标识符
+
+    Returns:
+        int: 当前在线人数
+    """
+    if not user_identifier:
+        raise ValueError("user_identifier 不能为空")
+
+    with user_lock:
+        users = _load_online_users()
+        current_time = time.time()
+
+        # 删除超过5分钟未活动的用户（清理过期数据）
+        users = {user_id: last_active for user_id, last_active in users.items() 
+                 if current_time - last_active < 300}
+
+        # 删除指定用户
+        users.pop(str(user_identifier), None)
+
+        _save_online_users(users)
+        return len(users)
+
+
+def get_online_count():
+    """
+    获取当前在线人数（清理过期用户后）
 
     Returns:
         int: 当前在线人数
@@ -32,16 +76,13 @@ def get_online_count(user_identifier=None):
         users = _load_online_users()
         current_time = time.time()
 
-        # 清除超过5分钟未活动的用户
-        users = {user_id: last_active for user_id, last_active in users.items() 
-                 if current_time - last_active < 300}
-
-        # 添加或更新当前用户
-        user_id = _get_current_user_id(user_identifier)
-        users[user_id] = current_time
+        # 清除超过30分钟未活动的用户
+        users = {user_id: last_active for user_id, last_active in users.items()
+                 if current_time - last_active < 1800}
 
         _save_online_users(users)
         return len(users)
+
 
 def _load_online_users():
     """加载在线用户数据"""
@@ -58,6 +99,7 @@ def _load_online_users():
             return {}
     return {}
 
+
 def _save_online_users(users_data):
     """保存在线用户数据"""
     try:
@@ -68,39 +110,6 @@ def _save_online_users(users_data):
     except IOError:
         pass
 
-def _get_current_user_id(user_identifier=None):
-    """
-    获取当前用户ID
-
-    Args:
-        user_identifier (str, optional): 用户标识符
-
-    Returns:
-        str: 用户唯一标识符
-    """
-    # 如果提供了用户标识符，直接使用
-    if user_identifier:
-        return str(user_identifier)
-
-    # 尝试从环境变量获取
-    remote_addr = os.environ.get('REMOTE_ADDR', '')
-    user_agent = os.environ.get('HTTP_USER_AGENT', '')
-
-    # 如果能获取到IP地址，则基于IP生成稳定的标识符
-    if remote_addr:
-        # 只使用IP地址生成标识符，忽略User-Agent以增加稳定性
-        return hashlib.md5(remote_addr.encode('utf-8')).hexdigest()
-
-    # 如果在本地运行或者无法获取IP，使用主机名和进程ID
-    try:
-        import socket
-        hostname = socket.gethostname()
-        pid = os.getpid()
-        identifier_string = f"{hostname}:{pid}"
-        return hashlib.md5(identifier_string.encode('utf-8')).hexdigest()
-    except:
-        # 最后fallback到使用时间戳
-        return str(time.time())
 
 # 添加一个调试函数，用于查看当前在线用户
 def debug_online_users():
@@ -130,9 +139,10 @@ def debug_online_users():
             "users_detail": active_users
         }
 
+
 if __name__ == "__main__":
     # 测试时使用固定标识符
-    print("当前在线人数:", get_online_count("test_user"))
+    print("当前在线人数:", get_online_count())
     print("\n详细信息:")
     result = debug_online_users()
     import json as json_module

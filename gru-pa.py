@@ -42,7 +42,7 @@ from gen_license_plate import create_plate_image
 from hf_weather import (get_city_aqi, get_city_history_weather,
                         get_city_now_weather, get_city_pf_weather,
                         get_city_warning_now)
-from online_counter import get_online_count
+from online_counter import add_user, get_online_count, remove_user
 from repo_sync import (check_github_access, sync_github_to_local_repo,
                        sync_local_to_github_repo)
 
@@ -200,6 +200,8 @@ def login_init(result):
     del_date = cal_date(-st.session_state.max_rev_days)
     sql = f"DELETE from pa_share where share_date <= '{del_date}'"
     execute_sql_and_commit(conn, cur, sql)
+    # 加入在线用户
+    add_user(st.session_state.userID)
     st.set_page_config(layout="wide")
 
 
@@ -211,6 +213,9 @@ def logout():
         cur.close()
         # 关闭数据库连接
         conn.close()
+
+        # 移除在线用户
+        remove_user(st.session_state.userID)
 
         # 清除会话状态中的所有键值对
         for key in st.session_state.keys():

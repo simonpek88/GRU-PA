@@ -47,6 +47,14 @@
 #### 📅 最新版本
 
 <details>
+<summary><strong>🚀 版本 0.17.1720</strong> (2025-08-19) | <code>优化在线人数统计</code></summary>
+
+- 🚀 优化
+  - 在线人数统计
+
+</details>
+
+<details>
 <summary><strong>📦 版本 0.17.1715</strong> (2025-08-19) | <code>Github访问测试和代码云同步</code></summary>
 
 - 📦 新增
