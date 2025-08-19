@@ -43,6 +43,7 @@ from hf_weather import (get_city_aqi, get_city_history_weather,
                         get_city_now_weather, get_city_pf_weather,
                         get_city_warning_now)
 from online_counter import get_online_count
+from repo_sync import sync_github_to_local_repo, sync_local_to_github_repo
 
 # cSpell:ignoreRegExp /[^\s]{16,}/
 # cSpell:ignoreRegExp /\b[A-Z]{3,15}\b/g
@@ -2306,16 +2307,20 @@ def displayVisitCounter_static():
 @st.fragment
 def displayAppInfo_static():
     st.markdown(f"<font face='微软雅黑' color=purple size=16><center>**{APPNAME_CN}**</center></font>", unsafe_allow_html=True)
-    verinfo, verLM = getVerInfo()
-    st.markdown(f"<font face='微软雅黑' size=5><center>软件版本: {int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{int(verinfo / 10)} building {verinfo}</center></font>", unsafe_allow_html=True)
-    #st.markdown(f"<font face='微软雅黑' size=3><center>更新时间: {time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))}</center></font>", unsafe_allow_html=True)
     update_type, update_content = get_update_content(f"./CHANGELOG.md")
+    verinfo, verLM = getVerInfo()
+    app_info =  f"{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{int(verinfo / 10)} building {verinfo}"
+    update_time = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))[5:]
+
+    # 更新信息文字显示
+    #st.markdown(f"<font face='微软雅黑' size=5><center>软件版本: {app_info}</center></font>", unsafe_allow_html=True)
+    #st.markdown(f"<font face='微软雅黑' size=3><center>更新时间: {update_time}</center></font>", unsafe_allow_html=True)
+    #st.markdown(f"<font face='微软雅黑' color=blue size=4><center>更新内容: {update_type} - {update_content}</center></font>", unsafe_allow_html=True)
+
     # 更新信息卡片显示
     update_info = open("./MyComponentsScript/update_info.txt", "r", encoding="utf-8").read()
-    update_info = update_info.replace("update_info", f"{update_type} - {update_content} 更新: {time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))[5:]}")
+    update_info = update_info.replace("app_info", f"软件版本: {app_info}").replace("update_info", f"{update_type} - {update_content} 更新: {update_time}")
     st.markdown(update_info, unsafe_allow_html=True)
-    # 更新信息文字显示
-    #st.markdown(f"<font face='微软雅黑' color=blue size=4><center>更新内容: {update_type} - {update_content}</center></font>", unsafe_allow_html=True)
 
 
 def combine_query():
@@ -3509,6 +3514,33 @@ def duty_statistics():
                     col2.error(f":red[文件导出失败]")
 
 
+def source_github_sync():
+    st.subheader("云同步", divider="violet")
+    st.markdown("#### ⚠️请谨慎操作, 如遇错误请及时反馈给作者]")
+    cloud_col = st.columns(4)
+    btn_github_to_local = cloud_col[0].button("从GitHub同步到本地", icon=":material/cloud_download:", type="primary")
+    btn_local_to_github = cloud_col[1].button("上传至GitHub仓库", icon=":material/cloud_upload:", type="primary")
+    if btn_github_to_local:
+        cloud_col[0].button("确认", type="secondary", on_click=act_sync_repo, args=("github_to_local",))
+    elif btn_local_to_github:
+        cloud_col[1].button("确认", type="secondary", on_click=act_sync_repo, args=("local_to_github",))
+
+
+def act_sync_repo(sync_type: str):
+    if sync_type == "github_to_local":
+        sync_repo_info = sync_github_to_local_repo()
+        if sync_repo_info[0]:
+            st.success(f":green[成功将 {sync_repo_info[1]} 仓库 同步到本地仓库]")
+        else:
+            st.error(":red[同步失败]")
+    elif sync_type == "local_to_github":
+        sync_repo_info = sync_local_to_github_repo()
+        if sync_repo_info[0]:
+            st.success(f":green[成功将 GRU-PA 同步到{sync_repo_info[1]} 仓库]")
+        else:
+            st.error(":red[同步失败]")
+
+
 global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME
 APPNAME_CN = "站室绩效考核系统GRU-PA"
 APPNAME_EN = "GRU-PA"
@@ -3585,6 +3617,7 @@ elif st.session_state.logged_in:
                         sac.MenuItem('工作内容修改', icon='card-text'),
                     ]),
                     sac.MenuItem('数据库备份', icon='backpack4'),
+                    sac.MenuItem('云同步', icon='cloud-download'),
                 ], disabled=not st.session_state.dba),
                 sac.MenuItem('设置', icon='gear', children=[
                     sac.MenuItem('个人设置', icon='sliders2'),
@@ -3703,6 +3736,8 @@ elif st.session_state.logged_in:
         display_history_weather()
     elif selected == "重置PA-Number" or selected == "重置工作组别" or selected == "更新ID初始值" or selected == "更新PA-Share" or selected == "更新固定分值" or selected == "组别名称修改" or selected == "分组内容调整" or selected == "工作内容修改" or selected == "数据库备份":
         modify_db(selected)
+    elif selected == "云同步":
+        source_github_sync()
     elif selected == "个人设置":
         users_setup()
     elif selected == "系统设置":
