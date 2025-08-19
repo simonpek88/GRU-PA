@@ -31,7 +31,7 @@ from streamlit_vertical_slider import vertical_slider
 from streamlit_webrtc import WebRtcMode, webrtc_streamer
 from wcwidth import wcswidth
 
-from commFunc import (execute_sql, execute_sql_and_commit,
+from commFunc import (deepseek_AI, execute_sql, execute_sql_and_commit,
                       get_deepseek_balance, get_update_content, getUserEDKeys,
                       getVerInfo, updatePyFileinfo)
 from face_login import (clean_snapshot, face_login_cv, face_login_webrtc,
@@ -3560,6 +3560,30 @@ def act_sync_repo(sync_type: str):
         st.error(f":red[同步失败]\n\n{temp_info}")
 
 
+@st.fragment
+def work_report():
+    st.subheader("周月报生成", divider="blue")
+    report_tasks = []
+    col1, col2 = st.columns(2)
+    query_date_start = col1.date_input('查询开始时间', value=datetime.date.today() - datetime.timedelta(days=1), max_value="today")
+    query_date_end = col2.date_input('查询结束时间', value=query_date_start, min_value=query_date_start, max_value="today")
+    btn_report = st.button('生成周月报')
+    sql = f"SELECT ID, clerk_work from clerk_work where clerk_work not in (SELECT pa_content from gru_pa) and task_date BETWEEN '{query_date_start}' and '{query_date_end}' and StationCN = '{st.session_state.StationCN}'"
+    result = execute_sql(cur, sql)
+    for row in result:
+        report_tasks.append(row[1])
+    report_tree = sac.transfer(items=report_tasks, label='非常规工作', titles=['项目'], reload=True, align='center', search=True, pagination=True, use_container_width=True)
+    if btn_report:
+        task_all = '\n\n'.join(report_tree)
+        st.info("正在使用DeepSekk生成报告...")
+        report = deepseek_AI(task_all)
+        if report:
+            st.divider()
+            st.markdown(report)
+        else:
+            st.error("生成报告失败")
+
+
 global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME
 APPNAME_CN = "站室绩效考核系统GRU-PA"
 APPNAME_EN = "GRU-PA"
@@ -3616,6 +3640,7 @@ elif st.session_state.logged_in:
                     sac.MenuItem('数据检查与核定', icon='check2-all'),
                     sac.MenuItem('统计查询及导出', icon='clipboard-data'),
                     sac.MenuItem('值班统计和输油补贴', icon='cash-stack'),
+                    sac.MenuItem('周月报生成', icon='list-columns-reverse'),
                     sac.MenuItem('公告发布及修改', icon='journal-arrow-up'),
                     sac.MenuItem('高级查询', icon='search'),
                     sac.MenuItem('历史天气查询', icon='cloud-sun'),
@@ -3668,6 +3693,7 @@ elif st.session_state.logged_in:
                     sac.MenuItem('记录修改', icon='journal-medical'),
                     sac.MenuItem('统计查询及导出', icon='clipboard-data'),
                     sac.MenuItem('值班统计和输油补贴', icon='cash-stack'),
+                    sac.MenuItem('周月报生成', icon='list-columns-reverse'),
                     sac.MenuItem('历史天气查询', icon='cloud-sun'),
                 ]),
                 sac.MenuItem('趋势与图表', icon='bar-chart-line', children=[
@@ -3741,6 +3767,8 @@ elif st.session_state.logged_in:
         query_task()
     elif selected == "值班统计和输油补贴":
         duty_statistics()
+    elif selected == "周月报生成":
+        work_report()
     elif selected == "趋势图":
         gen_chart()
     elif selected == "卡片图":

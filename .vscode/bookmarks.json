@@ -147,6 +147,11 @@
 					"line": 3526,
 					"column": 40,
 					"label": "main"
+				},
+				{
+					"line": 3563,
+					"column": 18,
+					"label": "work_report"
 				}
 			]
 		},

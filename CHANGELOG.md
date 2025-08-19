@@ -47,6 +47,14 @@
 #### 📅 最新版本
 
 <details>
+<summary><strong>📦 版本 0.17.1725</strong> (2025-08-19) | <code>周月报生成</code></summary>
+
+- 📦 新增
+  - 利用DeepSeek自动生成周月报
+
+</details>
+
+<details>
 <summary><strong>🚀 版本 0.17.1720</strong> (2025-08-19) | <code>优化在线人数统计</code></summary>
 
 - 🚀 优化

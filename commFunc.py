@@ -10,6 +10,7 @@ import requests
 from Crypto import Random
 from Crypto.Cipher import AES
 from mysql_pool_cpython import get_connection  # type: ignore
+from openai import OpenAI
 
 # cSpell:ignoreRegExp /[^\s]{16,}/
 # cSpell:ignoreRegExp /\b[A-Z]{3,15}\b/g
@@ -285,6 +286,31 @@ def get_deepseek_balance():
     #print(f"余额: {temp['total_balance']} {temp['currency']}")
 
     return info['is_available'], temp['total_balance'], temp['currency']
+
+
+def deepseek_AI(report_task, useModel='deepseek-chat'):
+    # 模型版本可选deepseek-reasoner(R1)和deepseek-chat(V3) 默认V3
+    try:
+        aikey = getEncryptKeys("deepseek")
+        client = OpenAI(api_key=aikey, base_url="https://api.deepseek.com")
+        response = client.chat.completions.create(
+            model=useModel,
+            messages=[
+                {
+                    "role": "system",
+                    "content": "根据我提供的内容请生成一份的周报, 要求书写规范, 用词正式, 输出为Markdown格式"
+                },
+                {
+                    "role": "user",
+                    "content": f"{report_task}"
+                },
+            ],
+            stream=False
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        logging.error(f"An error occurred while calling Deepseek AI: {e}")
+        return None
 
 
 conn2 = get_connection()
