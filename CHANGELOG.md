@@ -47,10 +47,10 @@
 #### 📅 最新版本
 
 <details>
-<summary><strong>📦 版本 0.17.1715</strong> (2025-08-19) | <code>云同步</code></summary>
+<summary><strong>📦 版本 0.17.1715</strong> (2025-08-19) | <code>Github访问测试和代码云同步</code></summary>
 
 - 📦 新增
-  - 😊 代码云同步
+  - 😊 Github访问测试和代码云同步
 
 </details>
 
