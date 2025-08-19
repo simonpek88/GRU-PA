@@ -144,7 +144,7 @@ def sync_local_to_github(
             subprocess.run(["git", "commit", "-m", commit_message], capture_output=True, check=True)
             info_pack.append(f"已提交更改: {commit_message}")
         else:
-            info_pack.append("没有需要提交的更改")
+            info_pack.append("**没有需要提交的更改**")
 
         # 推送本地更改到GitHub
         push_result = subprocess.run(["git", "push", "github", branch], capture_output=True, text=True)
