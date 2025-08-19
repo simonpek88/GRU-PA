@@ -79,7 +79,7 @@ def sync_local_to_github(
     同步本地Git仓库到GitHub仓库
 
     Args:
-        local_repo_path (str): 本地仓库路径（当前目录: "./")
+        local_repo_path (str): 本地仓库路径（当前目录: "./"）
         github_token (str): GitHub访问令牌
         target_owner (str, optional): 目标仓库所有者, 如果为None则从本地仓库获取
         target_repo (str, optional): 目标仓库名称, 如果为None则从本地仓库获取
@@ -128,12 +128,21 @@ def sync_local_to_github(
         # 添加所有更改到暂存区
         subprocess.run(["git", "add", "."], capture_output=True, check=True)
 
-        # 提交更改，添加"自动同步"描述
-        try:
-            subprocess.run(["git", "commit", "-m", "🔄自动同步"], capture_output=True, check=True)
-        except subprocess.CalledProcessError:
-            # 可能没有更改需要提交
-            pass
+        # 检查是否有更改需要提交
+        status_result = subprocess.run(
+            ["git", "status", "--porcelain"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+
+        if status_result.stdout.strip():
+            # 有更改需要提交
+            commit_message = "🔄自动同步"
+            subprocess.run(["git", "commit", "-m", commit_message], capture_output=True, check=True)
+            print(f"已提交更改: {commit_message}")
+        else:
+            print("没有需要提交的更改")
 
         # 推送本地更改到GitHub
         subprocess.run(["git", "push", "github", branch], capture_output=True, check=True)
@@ -142,6 +151,11 @@ def sync_local_to_github(
         os.chdir(original_cwd)
         return True, f"{target_owner}/{target_repo}"
 
+    except subprocess.CalledProcessError as e:
+        print(f"Git命令执行失败: {e}")
+        if 'original_cwd' in locals():
+            os.chdir(original_cwd)
+        return False, None
     except Exception as e:
         print(f"同步过程中发生错误: {str(e)}")
         if 'original_cwd' in locals():
