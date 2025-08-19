@@ -2325,7 +2325,7 @@ def displayAppInfo_static():
 
     # 更新信息卡片显示
     update_info = open("./MyComponentsScript/update_info.txt", "r", encoding="utf-8").read()
-    update_info = update_info.replace("app_info", f"软件版本: {app_info}").replace("update_info", f"{update_type} - {update_content} 更新: {update_time}")
+    update_info = update_info.replace("ver_info", f"软件版本: {app_info}").replace("update_info", f"{update_type} - {update_content} {update_time}")
     st.markdown(update_info, unsafe_allow_html=True)
 
 

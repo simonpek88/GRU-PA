@@ -81,6 +81,8 @@ def get_online_count():
                  if current_time - last_active < 1800}
 
         _save_online_users(users)
+        if len(users) == 0:
+            return 1
         return len(users)
 
 

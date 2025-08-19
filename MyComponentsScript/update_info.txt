@@ -5,7 +5,7 @@
 }
 
 .update-container {
-    max-width: 450px;
+    max-width: 460px;
     width: 100%;
     background: rgba(15, 23, 42, 0.7);
     border-radius: 6.72px;
@@ -249,7 +249,7 @@
 <div class="update-container">
     <div class="update-card version-card">
         <div class="update-content version-content">
-            软件版本: 0.17.171 building 1715
+            ver_info
         </div>
     </div>
     <div class="update-card">
