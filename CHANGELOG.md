@@ -47,6 +47,14 @@
 #### 📅 最新版本
 
 <details>
+<summary><strong>🚀 版本 0.16.1697</strong> (2025-08-19 09:30) | <code>MySQL更新至8.4.6</code></summary>
+
+- 🚀 优化
+  - MySQL更新至8.4.6
+
+</details>
+
+<details>
 <summary><strong>🚀 版本 0.16.1643</strong> (2025-08-18 13:51) | <code>优化更新信息卡片显示</code></summary>
 
 - 🚀 优化

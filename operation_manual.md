@@ -89,7 +89,7 @@ GRU-PA (Grass-roots unit Performance Appraisal system) 是一款专为基层站�
   <div style="background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); border-radius: 10px; padding: 20px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
     <div style="font-size: 1.8em; margin-bottom: 10px;">🗄️</div>
     <div style="font-weight: bold; font-size: 1.1em; margin-bottom: 5px;">数据库</div>
-    <div style="font-family: monospace; font-size: 1em;">MySQL 8.4.5 LTS</div>
+    <div style="font-family: monospace; font-size: 1em;">MySQL 8.4.6 LTS</div>
   </div>
 
   <div style="background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%); border-radius: 10px; padding: 20px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
@@ -187,7 +187,7 @@ GRU-PA (Grass-roots unit Performance Appraisal system) 是一款专为基层站�
 | 软件 | 版本要求 | 下载地址 |
 |:-----|:---------|:---------|
 | **Python** | `3.9-3.12.6` | [Python官网](https://www.python.org) <span style="font-size: 0.85em;">🔗</span> |
-| **MySQL** | `8.4.5 LTS` | [MySQL官网](https://dev.mysql.com) <span style="font-size: 0.85em;">🔗</span> |
+| **MySQL** | `8.4.6 LTS` | [MySQL官网](https://dev.mysql.com) <span style="font-size: 0.85em;">🔗</span> |
 | **Git** | `2.30+` | [Git官网](https://git-scm.com) <span style="font-size: 0.85em;">🔗</span> |
 | **Visual Studio Build Tools** | `2019+` <br>_(Windows编译dlib用)_ | [Microsoft VS官网](https://visualstudio.microsoft.com/zh-hans/downloads/) <span style="font-size: 0.85em;">🔗</span> |
 
@@ -334,7 +334,7 @@ GRU-PA (Grass-roots unit Performance Appraisal system) 是一款专为基层站�
     <div class="dependency-clear"></div>
 
       ![Python](https://img.shields.io/badge/Python-3.12.6-blue.svg)
-      ![MySQL](https://img.shields.io/badge/MySQL-8.4.5-blue.svg)
+      ![MySQL](https://img.shields.io/badge/MySQL-8.4.6-blue.svg)
       ![Streamlit](https://img.shields.io/badge/Streamlit-1.47.1-blue.svg)
       ![Streamlit-antd-components](https://img.shields.io/badge/Streamlit_antd_components-0.3.2-blue.svg)
       ![NumPY](https://img.shields.io/badge/NumPY-2.3.2-blue.svg)
