@@ -43,7 +43,8 @@ from hf_weather import (get_city_aqi, get_city_history_weather,
                         get_city_now_weather, get_city_pf_weather,
                         get_city_warning_now)
 from online_counter import get_online_count
-from repo_sync import sync_github_to_local_repo, sync_local_to_github_repo
+from repo_sync import (check_github_access, sync_github_to_local_repo,
+                       sync_local_to_github_repo)
 
 # cSpell:ignoreRegExp /[^\s]{16,}/
 # cSpell:ignoreRegExp /\b[A-Z]{3,15}\b/g
@@ -3517,13 +3518,23 @@ def duty_statistics():
 def source_github_sync():
     st.subheader("云同步", divider="violet")
     st.markdown("#### ⚠️请谨慎操作, 如遇错误请及时反馈给作者]")
-    cloud_col = st.columns(4)
-    btn_github_to_local = cloud_col[0].button("从GitHub同步到本地", icon=":material/cloud_download:", type="primary")
-    btn_local_to_github = cloud_col[1].button("上传至GitHub仓库", icon=":material/cloud_upload:", type="primary")
-    if btn_github_to_local:
-        cloud_col[0].button("确认", type="secondary", on_click=act_sync_repo, args=("github_to_local",))
-    elif btn_local_to_github:
-        cloud_col[1].button("确认", type="secondary", on_click=act_sync_repo, args=("local_to_github",))
+    online_count = get_online_count()
+    if online_count == 1:
+        access_info = check_github_access()
+        temp_info = '\n\n'.join(access_info[1])
+        st.info(temp_info)
+        if access_info[0]:
+            cloud_col = st.columns(4)
+            btn_github_to_local = cloud_col[0].button("从GitHub同步到本地", icon=":material/cloud_download:", type="primary")
+            btn_local_to_github = cloud_col[1].button("上传至GitHub仓库", icon=":material/cloud_upload:", type="primary")
+            if btn_github_to_local:
+                cloud_col[0].button("确认", type="secondary", on_click=act_sync_repo, args=("github_to_local",))
+            elif btn_local_to_github:
+                cloud_col[1].button("确认", type="secondary", on_click=act_sync_repo, args=("local_to_github",))
+        else:
+            st.markdown("#### Github无法访问, 暂无法进行云同步")
+    else:
+        st.markdown(f"#### 当前用户{online_count}人, 由于多人在线, 暂无法进行云同步")
 
 
 def act_sync_repo(sync_type: str):

@@ -6,6 +6,7 @@ import os
 import subprocess
 from typing import Optional
 
+import requests
 from github import Github
 from github.Auth import Token
 
@@ -253,6 +254,75 @@ def sync_github_to_local_repo():
     result = sync_github_to_local(LOCAL_REPO_PATH, GITHUB_TOKEN)
 
     return result
+
+
+def test_github_access():
+    access_info_pack = []
+    """测试是否能访问GitHub"""
+    access_info_pack.append("测试GitHub访问...")
+
+    try:
+        response = requests.get("https://github.com", timeout=10)
+        if response.status_code == 200:
+            access_info_pack.append("✓ 可以正常访问GitHub")
+            return True, access_info_pack
+        else:
+            access_info_pack.append(f"✗ 访问GitHub失败, 状态码: {response.status_code}")
+            return False, access_info_pack
+    except Exception as e:
+        access_info_pack.append(f"✗ 访问GitHub出错: {e}")
+        return False, access_info_pack
+
+def test_repo_sync():
+    """测试仓库同步功能"""
+    access_info_pack = []
+    access_info_pack.append("\n测试仓库同步...")
+
+    try:
+        # 检查当前目录是否为git仓库
+        result = subprocess.run(["git", "rev-parse", "--is-inside-work-tree"],
+                              capture_output=True, text=True, timeout=10)
+
+        if result.stdout.strip() != "true":
+            access_info_pack.append("✗ 当前目录不是git仓库")
+            return False, access_info_pack
+
+        # 获取当前分支
+        result = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD"],
+                              capture_output=True, text=True, timeout=10)
+        branch = result.stdout.strip()
+        access_info_pack.append(f"当前分支: {branch}")
+
+        # 尝试获取远程更新（不合并）
+        result = subprocess.run(["git", "fetch", "--dry-run"], 
+                              capture_output=True, text=True, timeout=30)
+
+        if result.returncode == 0:
+            access_info_pack.append("✓ 仓库同步功能正常")
+            return True, access_info_pack
+        else:
+            access_info_pack.append("✗ 仓库同步功能异常")
+            return False, access_info_pack
+
+    except subprocess.TimeoutExpired:
+        access_info_pack.append("✗ 同步测试超时")
+        return False, access_info_pack
+    except Exception as e:
+        access_info_pack.append(f"✗ 同步测试出错: {e}")
+        return False, access_info_pack
+
+
+def check_github_access():
+    access_info_pack_all = []
+    github_ok = test_github_access()
+    access_info_pack_all = github_ok[1]
+    sync_ok = test_repo_sync()
+    access_info_pack_all = access_info_pack_all + sync_ok[1]
+
+    if github_ok[0] and sync_ok[0]:
+        return True, access_info_pack_all
+    else:
+        return False, access_info_pack_all
 
 
 GITHUB_TOKEN = getEncryptKeys('github_key')
