@@ -47,6 +47,14 @@
 #### 📅 最新版本
 
 <details>
+<summary><strong>📦 版本 0.17.1715</strong> (2025-08-19) | <code>云同步</code></summary>
+
+- 📦 新增
+  - 😊 代码云同步
+
+</details>
+
+<details>
 <summary><strong>🚀 版本 0.16.1697</strong> (2025-08-19) | <code>MySQL更新至8.4.6</code></summary>
 
 - 🚀 优化
