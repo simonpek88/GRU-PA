@@ -33,25 +33,26 @@
 
 ## 目录
 
-- [0.Todo](#todo)
-- [1.系统概述](#系统概述)
-- [2.系统安装与配置](#系统安装与配置)
-- [3.快速入门](#快速入门)
-- [4.用户管理](#用户管理)
-- [5.工作量管理](#工作量管理)
-- [6.数据统计分析](#数据统计分析)
-- [7.值班数据统计及导出](#值班数据统计及导出)
-- [8.公告发布和修改](#公告发布和修改)
-- [9.人脸识别系统](#人脸识别系统)
-- [10.天气功能](#天气功能)
-- [11.数据导出](#数据导出)
-- [12.数据库操作](#数据库操作)
-- [13.云同步](#云同步)
-- [14.故障排除](#故障排除)
-- [15.安全指南](#安全指南)
-- [16.附录-文件清单](#附录-文件清单)
-- [17.快速命令参考](#快速命令参考)
-- [18.技术支持](#技术支持)
+- [Todo](#todo)
+- [系统概述](#系统概述)
+- [系统安装与配置](#系统安装与配置)
+- [快速入门](#快速入门)
+- [用户管理](#用户管理)
+- [工作量管理](#工作量管理)
+- [数据统计分析](#数据统计分析)
+- [值班数据统计及导出](#值班数据统计及导出)
+- [周月报生成](#周月报生成)
+- [公告发布和修改](#公告发布和修改)
+- [人脸识别系统](#人脸识别系统)
+- [天气功能](#天气功能)
+- [数据导出](#数据导出)
+- [数据库操作](#数据库操作)
+- [云同步](#云同步)
+- [故障排除](#故障排除)
+- [安全指南](#安全指南)
+- [附录-文件清单](#附录-文件清单)
+- [快速命令参考](#快速命令参考)
+- [技术支持](#技术支持)
 
 ## Todo
 
@@ -108,7 +109,7 @@ GRU-PA (Grass-roots unit Performance Appraisal system) 是一款专为基层站�
   <div style="background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%); border-radius: 10px; padding: 20px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
     <div style="font-size: 1.8em; margin-bottom: 10px;">📄</div>
     <div style="font-weight: bold; font-size: 1.1em; margin-bottom: 5px;">文档处理</div>
-    <div style="font-family: monospace; font-size: 1em;">python-docx 1.2.0 + openpyxl 3.1.5</div>
+    <div style="font-family: monospace; font-size: 1em;">Python-docx + Openpyxl</div>
   </div>
 </div>
 
@@ -183,14 +184,55 @@ GRU-PA (Grass-roots unit Performance Appraisal system) 是一款专为基层站�
 
 #### 软件环境
 
-<div style="overflow-x: auto;">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; margin: 20px 0;">
 
-| 软件 | 版本要求 | 下载地址 |
-|:-----|:---------|:---------|
-| **Python** | `3.9-3.12.6` | [Python官网](https://www.python.org) <span style="font-size: 0.85em;">🔗</span> |
-| **MySQL** | `8.4.6 LTS` | [MySQL官网](https://dev.mysql.com) <span style="font-size: 0.85em;">🔗</span> |
-| **Git** | `2.30+` | [Git官网](https://git-scm.com) <span style="font-size: 0.85em;">🔗</span> |
-| **Visual Studio Build Tools** | `2019+` <br>_(Windows编译dlib用)_ | [Microsoft VS官网](https://visualstudio.microsoft.com/zh-hans/downloads/) <span style="font-size: 0.85em;">🔗</span> |
+<div style="background: linear-gradient(135deg, #1a2a6c 0%, #b21f1f 100%); border-radius: 15px; padding: 25px; color: white; box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23); transition: all 0.3s ease; transform: translateY(0);">
+  <div style="display: flex; align-items: center; margin-bottom: 20px;">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/1/1f/Python_logo_01.svg" alt="Python Logo" width="40" style="margin-right: 15px;">
+    <h3 style="margin: 0; font-size: 1.5em;">Python</h3>
+  </div>
+  <div style="margin: 20px 0;">
+    <p style="margin: 0; font-size: 1em; opacity: 0.9;">版本要求</p>
+    <p style="margin: 5px 0 0 0; font-weight: bold; font-size: 1.3em;">3.9-3.12.6</p>
+  </div>
+  <a href="https://www.python.org" style="display: inline-block; padding: 10px 20px; background: rgba(255, 255, 255, 0.2); color: white; text-decoration: none; border-radius: 25px; font-weight: bold; transition: all 0.3s ease; border: 1px solid rgba(255, 255, 255, 0.3);">官网下载 🔗</a>
+</div>
+
+<div style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); border-radius: 15px; padding: 25px; color: white; box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23); transition: all 0.3s ease; transform: translateY(0);">
+  <div style="display: flex; align-items: center; margin-bottom: 20px;">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/0/0a/MySQL_textlogo.svg" alt="MySQL Logo" width="60" style="margin-right: 15px;">
+    <h3 style="margin: 0; font-size: 1.5em;">MySQL</h3>
+  </div>
+  <div style="margin: 20px 0;">
+    <p style="margin: 0; font-size: 1em; opacity: 0.9;">版本要求</p>
+    <p style="margin: 5px 0 0 0; font-weight: bold; font-size: 1.3em;">8.4.6 LTS</p>
+  </div>
+  <a href="https://dev.mysql.com" style="display: inline-block; padding: 10px 20px; background: rgba(255, 255, 255, 0.2); color: white; text-decoration: none; border-radius: 25px; font-weight: bold; transition: all 0.3s ease; border: 1px solid rgba(255, 255, 255, 0.3);">官网下载 🔗</a>
+</div>
+
+<div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border-radius: 15px; padding: 25px; color: white; box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23); transition: all 0.3s ease; transform: translateY(0);">
+  <div style="display: flex; align-items: center; margin-bottom: 20px;">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/62/Git-logo-orange.svg" alt="Git Logo" width="60" style="margin-right: 15px;">
+    <h3 style="margin: 0; font-size: 1.5em;">Git</h3>
+  </div>
+  <div style="margin: 20px 0;">
+    <p style="margin: 0; font-size: 1em; opacity: 0.9;">版本要求</p>
+    <p style="margin: 5px 0 0 0; font-weight: bold; font-size: 1.3em;">2.30+</p>
+  </div>
+  <a href="https://git-scm.com" style="display: inline-block; padding: 10px 20px; background: rgba(255, 255, 255, 0.2); color: white; text-decoration: none; border-radius: 25px; font-weight: bold; transition: all 0.3s ease; border: 1px solid rgba(255, 255, 255, 0.3);">官网下载 🔗</a>
+</div>
+
+<div style="background: linear-gradient(135deg, #e38a37ff 0%, #e317a3ff 100%); border-radius: 15px; padding: 25px; color: white; box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23); transition: all 0.3s ease; transform: translateY(0);">
+  <div style="display: flex; align-items: center; margin-bottom: 20px;">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2c/Visual_Studio_Icon_2022.svg" alt="VS Logo" width="40" style="margin-right: 15px;">
+    <h3 style="margin: 0; font-size: 1.5em;">Visual Studio Build Tools</h3>
+  </div>
+  <div style="margin: 20px 0;">
+    <p style="margin: 0; font-size: 1em; opacity: 0.9;">版本要求</p>
+    <p style="margin: 5px 0 0 0; font-weight: bold; font-size: 1.3em;">2019+</p>
+  </div>
+  <a href="https://visualstudio.microsoft.com/zh-hans/downloads/" style="display: inline-block; padding: 10px 20px; background: rgba(255, 255, 255, 0.2); color: white; text-decoration: none; border-radius: 25px; font-weight: bold; transition: all 0.3s ease; border: 1px solid rgba(255, 255, 255, 0.3);">官网下载 🔗</a>
+</div>
 
 </div>
 
@@ -1043,6 +1085,45 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
 
 - [回到目录](#目录)
 
+<a id="周月报生成"></a>
+
+### 周月报生成
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0;">
+  <div style="border: 1px solid #e1e8ed; border-radius: 10px; padding: 20px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-top: 4px solid #9b59b6;">
+    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+      <div style="background: #9b59b6; color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 12px;">🤖</div>
+      <div style="font-weight: bold; font-size: 1.1em; color: #2c3e50;">AI辅助报告生成</div>
+    </div>
+    <div style="color: #34495e; line-height: 1.6;">
+      利用 <img src="https://upload.wikimedia.org/wikipedia/commons/e/ec/DeepSeek_logo.svg" alt="DeepSeek Logo" style="height: 20px; vertical-align: middle; margin: 0 5px;"> 生成周报和月报
+    </div>
+    <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #9b59b6;">
+      <div style="font-weight: bold; color: #2c3e50; margin-bottom: 10px;">生成步骤:</div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; align-items: flex-start;">
+          <div style="background: #9b59b6; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7em; margin-right: 10px; flex-shrink: 0;">1</div>
+          <div>查询工作量中单独填写的数据</div>
+        </div>
+        <div style="display: flex; align-items: flex-start;">
+          <div style="background: #9b59b6; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7em; margin-right: 10px; flex-shrink: 0;">2</div>
+          <div>将查询结果传入DeepSeek进行数据处理</div>
+        </div>
+        <div style="display: flex; align-items: flex-start;">
+          <div style="background: #9b59b6; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7em; margin-right: 10px; flex-shrink: 0;">3</div>
+          <div>给出适当的提示词, 生成周月报</div>
+        </div>
+        <div style="display: flex; align-items: flex-start;">
+          <div style="background: #9b59b6; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7em; margin-right: 10px; flex-shrink: 0;">4</div>
+          <div>导出word或excel格式文档</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+- [回到目录](#目录)
+
 <a id="公告发布和修改"></a>
 
 ### 公告发布和修改
@@ -1390,7 +1471,7 @@ graph TD
         <div style="padding-left: 28px; font-size: 0.95em;">
           • 绩效考核专用<br>
           • 排名对比数据<br>
-          • 领导签字区域
+          • 领导签字区域(纸质版本)
         </div>
       </div>
     </div>
