@@ -143,21 +143,22 @@ def sync_local_to_github(
             commit_message = "🔄App自动同步"
             subprocess.run(["git", "commit", "-m", commit_message], capture_output=True, check=True)
             info_pack.append(f"已提交更改: {commit_message}")
+            # 推送本地更改到GitHub
+            push_result = subprocess.run(["git", "push", "github", branch], capture_output=True, text=True)
+            if push_result.returncode != 0:
+                info_pack.append(f"推送失败: {push_result.stderr}")
+                os.chdir(original_cwd)
+                return False, info_pack
+            else:
+                info_pack.append(f"成功推送更改到 GitHub 仓库 {target_owner}/{target_repo}")
+
+            info_pack.append(f"成功将本地仓库 {local_repo_path} 同步到 GitHub 仓库 {target_owner}/{target_repo}")
+            os.chdir(original_cwd)
+            return True, info_pack
         else:
             info_pack.append("**没有需要提交的更改**")
+            return True, info_pack
 
-        # 推送本地更改到GitHub
-        push_result = subprocess.run(["git", "push", "github", branch], capture_output=True, text=True)
-        if push_result.returncode != 0:
-            info_pack.append(f"推送失败: {push_result.stderr}")
-            os.chdir(original_cwd)
-            return False, info_pack
-        else:
-            info_pack.append(f"成功推送更改到 GitHub 仓库 {target_owner}/{target_repo}")
-
-        info_pack.append(f"成功将本地仓库 {local_repo_path} 同步到 GitHub 仓库 {target_owner}/{target_repo}")
-        os.chdir(original_cwd)
-        return True, info_pack
 
     except subprocess.CalledProcessError as e:
         info_pack.append(f"Git命令执行失败: {e}")
