@@ -140,7 +140,7 @@ def sync_local_to_github(
 
         print(f"成功将本地仓库 {local_repo_path} 同步到 GitHub 仓库 {target_owner}/{target_repo}")
         os.chdir(original_cwd)
-        return True, {target_owner}/{target_repo}
+        return True, f"{target_owner}/{target_repo}"
 
     except Exception as e:
         print(f"同步过程中发生错误: {str(e)}")
@@ -211,7 +211,7 @@ def sync_github_to_local(
 
         print(f"成功将 GitHub 仓库 {source_owner}/{source_repo} 同步到本地仓库 {local_repo_path}")
         os.chdir(original_cwd)
-        return True, {source_owner}/{source_repo}
+        return True, f"{source_owner}/{source_repo}"
 
     except Exception as e:
         print(f"同步过程中发生错误: {str(e)}")
