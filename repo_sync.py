@@ -138,29 +138,35 @@ def sync_local_to_github(
 
         if status_result.stdout.strip():
             # 有更改需要提交
-            commit_message = "🔄自动同步"
+            commit_message = "🔄App自动同步"
             subprocess.run(["git", "commit", "-m", commit_message], capture_output=True, check=True)
             print(f"已提交更改: {commit_message}")
         else:
             print("没有需要提交的更改")
 
         # 推送本地更改到GitHub
-        subprocess.run(["git", "push", "github", branch], capture_output=True, check=True)
+        push_result = subprocess.run(["git", "push", "github", branch], capture_output=True, text=True)
+        if push_result.returncode != 0:
+            print(f"推送失败: {push_result.stderr}")
+            os.chdir(original_cwd)
+            return False
+        else:
+            print(f"成功推送更改到 GitHub 仓库 {target_owner}/{target_repo}")
 
         print(f"成功将本地仓库 {local_repo_path} 同步到 GitHub 仓库 {target_owner}/{target_repo}")
         os.chdir(original_cwd)
-        return True, f"{target_owner}/{target_repo}"
+        return True
 
     except subprocess.CalledProcessError as e:
         print(f"Git命令执行失败: {e}")
         if 'original_cwd' in locals():
             os.chdir(original_cwd)
-        return False, None
+        return False
     except Exception as e:
         print(f"同步过程中发生错误: {str(e)}")
         if 'original_cwd' in locals():
             os.chdir(original_cwd)
-        return False, None
+        return False
 
 
 def sync_github_to_local(
@@ -225,13 +231,13 @@ def sync_github_to_local(
 
         print(f"成功将 GitHub 仓库 {source_owner}/{source_repo} 同步到本地仓库 {local_repo_path}")
         os.chdir(original_cwd)
-        return True, f"{source_owner}/{source_repo}"
+        return True
 
     except Exception as e:
         print(f"同步过程中发生错误: {str(e)}")
         if 'original_cwd' in locals():
             os.chdir(original_cwd)
-        return False, None
+        return False
 
 
 def sync_local_to_github_repo():
