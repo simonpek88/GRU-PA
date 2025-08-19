@@ -3517,7 +3517,7 @@ def duty_statistics():
 
 def source_github_sync():
     st.subheader("云同步", divider="violet")
-    st.markdown("#### ⚠️请谨慎操作, 如遇错误请及时反馈给作者]")
+    st.markdown("#### ⚠️请谨慎操作, 如遇错误请及时反馈给作者")
     online_count = get_online_count()
     if online_count == 1:
         if 'github_access' not in st.session_state:

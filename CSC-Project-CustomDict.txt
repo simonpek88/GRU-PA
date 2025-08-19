@@ -71,6 +71,7 @@ fontweight
 forecolor
 Gbps
 gener
+getpid
 glowintext
 hhiiss
 imshow
