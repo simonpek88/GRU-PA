@@ -21,7 +21,7 @@ from docx.oxml.ns import qn
 from docx.shared import Pt, RGBColor
 from mysql_pool_cpython import get_connection  # type: ignore
 from openpyxl.cell import MergedCell
-from openpyxl.styles import Alignment, Border, Font, Side
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from plotly.subplots import make_subplots
 from pybadges import badge
 from streamlit_condition_tree import condition_tree
@@ -3454,6 +3454,29 @@ def duty_statistics():
                                 cell.alignment = alignment
                             else:
                                 cell.alignment = Alignment(horizontal='left', vertical='center')
+
+                    # 为"全天无输油作业"设置格式（金黄色背景，深红色文字）
+                    no_operation_fill = PatternFill(start_color="FFD700", end_color="FFD700", fill_type="solid")  # 柠檬绸色
+                    no_operation_font = Font(color="8B0000")  # 深红色
+                    # 为"输油但夜间停泵"设置格式（浅蓝色背景，深蓝色文字）
+                    night_stop_fill = PatternFill(start_color="E0FFFF", end_color="E0FFFF", fill_type="solid")  # 淡蓝色
+                    night_stop_font = Font(color="00008B")  # 深蓝色
+                    # 为"晚10点后输油"设置格式（浅鲑鱼红背景，深红色文字）
+                    night_operation_fill = PatternFill(start_color="FFA07A", end_color="FFA07A", fill_type="solid")  # 浅粉色
+                    night_operation_font = Font(color="8B0000")  # 深红色
+                    # 遍历C列数据并应用格式
+                    for row in ws.iter_rows(min_row=2):  # 跳过标题行
+                        cell = row[2]  # C列是索引为2的列
+                        if cell.value:
+                            if "全天无输油作业" in str(cell.value):
+                                cell.fill = no_operation_fill
+                                cell.font = no_operation_font
+                            elif "输油但夜间停泵" in str(cell.value):
+                                #cell.fill = night_stop_fill
+                                cell.font = night_stop_font
+                            elif "晚10点后输油" in str(cell.value):
+                                cell.fill = night_operation_fill
+                                cell.font = night_operation_font
 
                     df_statist.to_excel(writer, sheet_name='值班分类统计', index=False, startrow=1)
                     # 插入统计时间行
