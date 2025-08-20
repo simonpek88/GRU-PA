@@ -316,7 +316,7 @@ CREATE TABLE `package_info` (
 
 LOCK TABLES `package_info` WRITE;
 /*!40000 ALTER TABLE `package_info` DISABLE KEYS */;
-INSERT INTO `package_info` VALUES (1,'GRU-PA','0.16.1637'),(2,'Python','3.12.6'),(3,'MySQL','8.4.5'),(4,'GRU-PA_last-updated','0.16.1637'),(5,'PyJWT','2.10.1'),(6,'NumPY','2.3.2'),(7,'Streamlit','1.47.1'),(8,'Pandas','2.3.1'),(9,'Plotly','6.2.0'),(10,'Openpyxl','3.1.5'),(11,'Python-docx','1.2.0'),(12,'Dlib','20.0.0'),(13,'streamlit-antd-components','0.3.2');
+INSERT INTO `package_info` VALUES (1,'GRU-PA','0.18.1859'),(2,'Python','3.12.6'),(3,'MySQL','8.4.5'),(4,'GRU-PA_last-updated','0.18.1859'),(5,'PyJWT','2.10.1'),(6,'NumPY','2.3.2'),(7,'Streamlit','1.47.1'),(8,'Pandas','2.3.1'),(9,'Plotly','6.2.0'),(10,'Openpyxl','3.1.5'),(11,'Python-docx','1.2.0'),(12,'Dlib','20.0.0'),(13,'streamlit-antd-components','0.3.2');
 /*!40000 ALTER TABLE `package_info` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -334,7 +334,7 @@ CREATE TABLE `system_setup` (
   `param_value` int NOT NULL DEFAULT '1',
   `param_cname` tinytext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -343,7 +343,7 @@ CREATE TABLE `system_setup` (
 
 LOCK TABLES `system_setup` WRITE;
 /*!40000 ALTER TABLE `system_setup` DISABLE KEYS */;
-INSERT INTO `system_setup` VALUES (1,'北京站','max_deduct_score',-300,'最大扣分值'),(2,'北京站','chart_font_size',14,'报表字体大小'),(3,'北京站','md_task_days',28,'月任务最小间隔'),(4,'北京站','max_rev_days',60,'共享任务最大保留天数'),(5,'北京站','min_distance',70,'人脸识别最小容差值'),(6,'北京站','min_comm_task',5,'常用工作最低基数'),(7,'北京站','extra_oto',1,'询问22点后是否输油');
+INSERT INTO `system_setup` VALUES (1,'北京站','max_deduct_score',-300,'最大扣分值'),(2,'北京站','chart_font_size',14,'报表字体大小'),(3,'北京站','md_task_days',28,'月任务最小间隔'),(4,'北京站','max_rev_days',60,'共享任务最大保留天数'),(5,'北京站','min_distance',70,'人脸识别最小容差值'),(6,'北京站','min_comm_task',5,'常用工作最低基数'),(7,'北京站','extra_oto',1,'询问22点后是否输油'),(8,'北京站','backup_deadline',3,'数据库备份文件最大保留天数');
 /*!40000 ALTER TABLE `system_setup` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -374,7 +374,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,1,'刘斌','admin','北京站','U2FsdGVkX1+nKhWhw8g5rT21JIHsQI5/+TK5Z4mfpos=',1,207),(2,2,'于涛','admin','北京站','U2FsdGVkX180XHtC/cXzwkho7mZLFaI7B6F+PDhwWKc=',0,6),(3,3,'蔚江军','admin','北京站','U2FsdGVkX1+oYUSeq4qcxC4CZrCt87+y+VWgez+xB50=',0,5),(4,4,'罗泽朝','user','北京站','U2FsdGVkX1/qYuqLBW++JLMuwVh+SRrKeCsbudL6waM=',1,12),(5,5,'黄彪','user','北京站','U2FsdGVkX185G5av5BUqy6kfL9Y9uvrfqGSepTmOGPk=',1,47),(6,6,'王磊','user','北京站','U2FsdGVkX1/JzQNqtEqNuWGgTt1bwz7UBbZYqwI47f4=',1,10),(7,7,'连春生','user','北京站','U2FsdGVkX1/9x8EnJz1LinbJc9CHdMV52IP4qs+/yKI=',1,23),(8,8,'穆天赛','user','北京站','U2FsdGVkX1+Bxxyzsb6Eug8p687ZNQIlVYzDHY/GCZs=',1,9),(9,9,'穆玲','user','北京站','U2FsdGVkX18nLb8dwnRYzwFufhOinfkJebHZd1nGS5c=',1,20),(10,10,'刘泽坤','user','北京站','U2FsdGVkX1+CfoZTOasxy7yaKzxJ20BYXYYEsu61/cU=',1,1),(11,11,'杜操','user','北京站','U2FsdGVkX180U7d5WPB833NpnOFnwDwFpdzbK9iog4E=',1,15),(12,12,'于斌','user','北京站','U2FsdGVkX18haI70mFHEjbi1eIJq3b9zlBoldRJBcqM=',1,23),(13,13,'Visitor','readonly','北京站','U2FsdGVkX1+6jfdHoJCSIDh/ntD8PL3qIRO1nzQjFLg=',0,8);
+INSERT INTO `users` VALUES (1,1,'刘斌','admin','北京站','U2FsdGVkX1+nKhWhw8g5rT21JIHsQI5/+TK5Z4mfpos=',1,211),(2,2,'于涛','admin','北京站','U2FsdGVkX180XHtC/cXzwkho7mZLFaI7B6F+PDhwWKc=',0,6),(3,3,'蔚江军','admin','北京站','U2FsdGVkX1+oYUSeq4qcxC4CZrCt87+y+VWgez+xB50=',0,5),(4,4,'罗泽朝','user','北京站','U2FsdGVkX1/qYuqLBW++JLMuwVh+SRrKeCsbudL6waM=',1,12),(5,5,'黄彪','user','北京站','U2FsdGVkX185G5av5BUqy6kfL9Y9uvrfqGSepTmOGPk=',1,47),(6,6,'王磊','user','北京站','U2FsdGVkX1/JzQNqtEqNuWGgTt1bwz7UBbZYqwI47f4=',1,10),(7,7,'连春生','user','北京站','U2FsdGVkX1/9x8EnJz1LinbJc9CHdMV52IP4qs+/yKI=',1,23),(8,8,'穆天赛','user','北京站','U2FsdGVkX1+Bxxyzsb6Eug8p687ZNQIlVYzDHY/GCZs=',1,10),(9,9,'穆玲','user','北京站','U2FsdGVkX18nLb8dwnRYzwFufhOinfkJebHZd1nGS5c=',1,20),(10,10,'刘泽坤','user','北京站','U2FsdGVkX1+CfoZTOasxy7yaKzxJ20BYXYYEsu61/cU=',1,1),(11,11,'杜操','user','北京站','U2FsdGVkX180U7d5WPB833NpnOFnwDwFpdzbK9iog4E=',1,15),(12,12,'于斌','user','北京站','U2FsdGVkX18haI70mFHEjbi1eIJq3b9zlBoldRJBcqM=',1,23),(13,13,'Visitor','readonly','北京站','U2FsdGVkX1+6jfdHoJCSIDh/ntD8PL3qIRO1nzQjFLg=',0,8);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -573,7 +573,7 @@ CREATE TABLE `verinfo` (
 
 LOCK TABLES `verinfo` WRITE;
 /*!40000 ALTER TABLE `verinfo` DISABLE KEYS */;
-INSERT INTO `verinfo` VALUES (1,'commFunc',1755652448,43),(2,'visitcounter',816,0),(3,'mysql_pool',1751973149,24),(4,'gru-pa',1755657365,906),(5,'gen_badges',1754661176,59),(6,'gd_weather',1752834861,30),(7,'hf_weather',1755170411,87),(8,'face_login',1754616867,79),(9,'CHANGELOG',1755652448,67),(10,'CSC-Common-CustomDict',1754616867,17),(11,'CSC-Project-CustomDict',1755652448,28),(12,'DBBackup',1755582031,72),(13,'README',1755416343,66),(14,'requirements',1755176111,24),(15,'restoredb',1752025217,16),(16,'gen_license_plate',1754144051,54),(17,'task_approved_counter',655,0),(18,'operation_manual',1755652448,50),(19,'online_counter',1755652448,11),(20,'repo_sync',1755652448,4);
+INSERT INTO `verinfo` VALUES (1,'commFunc',1755652448,43),(2,'visitcounter',821,0),(3,'mysql_pool',1751973149,24),(4,'gru-pa',1755664053,1063),(5,'gen_badges',1754661176,59),(6,'gd_weather',1752834861,30),(7,'hf_weather',1755170411,87),(8,'face_login',1754616867,79),(9,'CHANGELOG',1755652448,67),(10,'CSC-Common-CustomDict',1754616867,17),(11,'CSC-Project-CustomDict',1755652448,28),(12,'DBBackup',1755582031,72),(13,'README',1755416343,66),(14,'requirements',1755176111,24),(15,'restoredb',1752025217,16),(16,'gen_license_plate',1754144051,60),(17,'task_approved_counter',655,0),(18,'operation_manual',1755652448,70),(19,'online_counter',1755652448,30),(20,'repo_sync',1755652448,24);
 /*!40000 ALTER TABLE `verinfo` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -634,4 +634,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-08-20 10:36:39
+-- Dump completed on 2025-08-20 12:28:23

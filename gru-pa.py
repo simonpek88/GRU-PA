@@ -2670,6 +2670,16 @@ def modify_db(sub_func):
             cmd = f'mysqldump --defaults-file=.mysql.cnf gru-pa > {backup_file}'
             os.system(cmd)
             if os.path.exists(backup_file):
+                # 遍历 ./MySQL_Backup 目录下所有备份文件
+                backup_days_ago = datetime.datetime.now() - datetime.timedelta(days=st.session_state.backup_deadline)
+                backup_deadline_timestamp = int(backup_days_ago.timestamp())
+                backup_dir = "./MySQL_Backup"
+                for file in os.listdir(backup_dir):
+                    if file.endswith(".sql"):
+                        backup_time_utc = int(file[file.rfind("Backup_") + 7:file.rfind(".")])
+                        if backup_time_utc < backup_deadline_timestamp:
+                            os.remove(f"{backup_dir}/{file}")
+                            st.info(f"{file} 过期备份文件已删除")
                 backup_file_size = round(os.path.getsize(backup_file) / 1024, 1)
                 st.success(f"{backup_file[backup_file.rfind('/') + 1:-4]} 文件大小: {backup_file_size}KB 数据库备份完成")
                 with open(backup_file, "rb") as file:
@@ -2911,13 +2921,15 @@ def system_setup():
         elif each[1] == 'md_task_days':
             min_value, max_value, step_value = 27, 31, 1
         elif each[1] == 'max_rev_days':
-            min_value, max_value, step_value = 14, 60, 2
+            min_value, max_value, step_value = 14, 60, 1
         elif each[1] == 'min_distance':
             min_value, max_value, step_value, affix_info = 50, 90, 2, '%'
         elif each[1] == 'min_comm_task':
             min_value, max_value, step_value = 3, 20, 1
         elif each[1] == 'extra_oto':
             min_value, max_value, step_value, affix_info = 0, 1, 1, ' 1为允许 0为不允许'
+        elif each[1] == 'backup_deadline':
+            min_value, max_value, step_value = 1, 20, 1
         else:
             min_value, max_value, step_value = 0, 100, 1
         with col[col_index % col_limit]:
