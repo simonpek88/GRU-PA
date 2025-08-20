@@ -3273,6 +3273,15 @@ def dyna_display_note(note_file):
 
 
 def get_extra_oto2():
+    # 检查全天无输油作业记录
+    sql = f"SELECT task_date, clerk_id, clerk_cname from clerk_work where clerk_work = '值班（无输油作业，包括设备巡检、安防巡检、记录、卫生）' and StationCN = '{st.session_state.StationCN}' order by task_date"
+    result = execute_sql(cur, sql)
+    for row in result:
+        sql = f"SELECT ID from oto where oto_date = '{row[0]}' and clerk_id = {row[1]} and StationCN = '{st.session_state.StationCN}'"
+        if not execute_sql(cur, sql):
+            sql = f"INSERT INTO oto(oto_date, clerk_id, clerk_cname, StationCN, extra_oto) VALUES ('{row[0]}', {row[1]}, '{row[2]}', '{st.session_state.StationCN}', -1)"
+            execute_sql_and_commit(conn, cur, sql)
+
     oto_date_pack = []
     #start_date = get_current_month_range()[0]
     start_date = cal_date(-45)
@@ -3321,12 +3330,13 @@ def duty_statistics():
         result = execute_sql(cur, sql)
         if result:
             df = pd.DataFrame(result)
-            df.columns = ["日期", "姓名", "晚10点后输油"]
+            df.columns = ["日期", "姓名", "输油状态"]
             # 使用map函数将0/1值映射为"否"/"是"，避免数据类型不兼容问题
-            df["晚10点后输油"] = df["晚10点后输油"].map({1: "是", 0: "否"})
+            df["输油状态"] = df["输油状态"].map({1: "晚10点后输油", 0: "输油但夜间停泵", -1: "全天无输油作业"})
 
             sql = f"""
                 SELECT clerk_cname,
+                        SUM(CASE WHEN extra_oto = -1 THEN 1 ELSE 0 END) as not_duty,
                         SUM(CASE WHEN extra_oto = 0 THEN 1 ELSE 0 END) as base_duty,
                         SUM(CASE WHEN extra_oto = 1 THEN 1 ELSE 0 END) as extra_duty,
                         COUNT(*) as total_duty
@@ -3338,28 +3348,30 @@ def duty_statistics():
             """
             result = execute_sql(cur, sql)
             df_statist = pd.DataFrame(result)
-            df_statist.columns = ["姓名", "普通输油", "晚10点后输油", "值班总计"]
+            df_statist.columns = ["姓名", "全天无输油作业", "输油但夜间停泵", "晚10点后输油", "值班总计"]
 
             # 将普通输油、晚10点后输油及值班总计这3列内容转为整型
-            df_statist["普通输油"] = df_statist["普通输油"].astype(int)
+            df_statist["全天无输油作业"] = df_statist["全天无输油作业"].astype(int)
+            df_statist["输油但夜间停泵"] = df_statist["输油但夜间停泵"].astype(int)
             df_statist["晚10点后输油"] = df_statist["晚10点后输油"].astype(int)
             df_statist["值班总计"] = df_statist["值班总计"].astype(int)
 
             # 计算合计行
-            total_row = df_statist[["普通输油", "晚10点后输油", "值班总计"]].sum()
-            total_row_df = pd.DataFrame([["合计", total_row["普通输油"], total_row["晚10点后输油"], total_row["值班总计"]]],
-                                    columns=["姓名", "普通输油", "晚10点后输油", "值班总计"])
+            total_row = df_statist[["全天无输油作业", "输油但夜间停泵", "晚10点后输油", "值班总计"]].sum()
+            total_row_df = pd.DataFrame([["合计", total_row["全天无输油作业"], total_row["输油但夜间停泵"], total_row["晚10点后输油"], total_row["值班总计"]]],
+                                    columns=["姓名", "全天无输油作业", "输油但夜间停泵", "晚10点后输油", "值班总计"])
             df_statist = pd.concat([df_statist, total_row_df], ignore_index=True)
 
             # 总计行中的普通输油、晚10点后输油、值班总计数据校验
             dur_time = query_date_end - query_date_start
             last_row = df_statist.iloc[-1]
-            ordinary_oil_is_even = (last_row["普通输油"] % 2 == 0)
+            not_oil_is_even = (last_row["全天无输油作业"] % 2 == 0)
+            ordinary_oil_is_even = (last_row["输油但夜间停泵"] % 2 == 0)
             late_oil_is_even = (last_row["晚10点后输油"] % 2 == 0)
             duty_total_is_even = (last_row["值班总计"] % 2 == 0)
 
             # 输出检查结果
-            if not ordinary_oil_is_even or not late_oil_is_even or not duty_total_is_even or last_row["值班总计"] > (dur_time.days + 1) * 2:
+            if not not_oil_is_even or not ordinary_oil_is_even or not late_oil_is_even or not duty_total_is_even or last_row["值班总计"] > (dur_time.days + 1) * 2:
                 st.error(":red[值班人数与值班合计数据不匹配，请检查!]")
 
             date_col = st.columns(2)
@@ -3449,7 +3461,7 @@ def duty_statistics():
                     # 对简报sheet进行格式化，使用与统计表相同的样式
                     ws2 = writer.sheets['值班分类统计']
                     # 合并 A1:F1，并设置样式
-                    ws2.merge_cells("A1:D1")
+                    ws2.merge_cells("A1:E1")
                     cell = ws2["A1"]
                     cell.value = report_date_range2
                     cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size, bold=True)
@@ -3474,10 +3486,11 @@ def duty_statistics():
                         bottom=Side(style='thin')
                     )
                     special_columns = {
-                        "A": 20,
-                        "B": 15,
-                        "C": 25,
-                        "D": 15,
+                        "A": 15,
+                        "B": 20,
+                        "C": 20,
+                        "D": 20,
+                        "E": 20,
                     }
                     for col in ws2.columns:
                         max_width = 0

@@ -47,6 +47,14 @@
 #### 📅 最新版本
 
 <details>
+<summary><strong>🔧 版本 0.18.1861</strong> (2025-08-20) | <code>值班统计修复</code></summary>
+
+- 🐞 修复
+  - 值班统计中对于全天未输油的统计错误, 并单独分类列出
+
+</details>
+
+<details>
 <summary><strong>📦 版本 0.18.1845</strong> (2025-08-19) | <code>周月报生成</code></summary>
 
 - 📦 新增
