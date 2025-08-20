@@ -16,7 +16,6 @@ from openai import OpenAI
 # cSpell:ignoreRegExp /\b[A-Z]{3,15}\b/g
 # cSpell:ignoreRegExp /\b[A-Z]\b/g
 
-
 def pad(data):
     # 计算需要填充的字节数
     length = 16 - (len(data) % 16)
@@ -171,35 +170,50 @@ def execute_sql_and_commit(conn, cur, sql, params=None):
 
 
 def updatePyFileinfo():
-    allow_file_type = ['.py', '.md', '.ps1', '.bat', '.txt', '.sh']
-    for root, dirs, files in os.walk("./"):
-        # 当遍历到根目录时
-        if root == "./":
+    ALLOW_FILE_TYPE = {'.py', '.md', '.ps1', '.bat', '.txt', '.sh'}
+    ROOT_PATH = "./"
+
+    # SQL语句常量定义
+    SELECT_SQL = "SELECT pyFile, pyLM FROM verinfo"
+    INSERT_SQL = "INSERT INTO verinfo(pyFile, pyLM, pyMC) VALUES(%s, %s, 1)"
+    UPDATE_SQL = "UPDATE verinfo SET pyLM = %s, pyMC = pyMC + 1 WHERE pyFile = %s"
+
+    # 一次性获取所有数据库记录
+    db_records = {}
+    rows = execute_sql(cur2, SELECT_SQL)
+    for row in rows:
+        db_records[row[0]] = row[1]  # pyFile => pyLM
+
+    updates = []
+    inserts = []
+
+    # 收集需要更新或插入的文件信息
+    for root, dirs, files in os.walk(ROOT_PATH):
+        if root == ROOT_PATH:
             for file in files:
-                # 判断文件后缀是否为.py且文件名不以"test-"开头
-                if os.path.splitext(file)[1].lower() in allow_file_type and not os.path.splitext(file)[0].lower().startswith("test-"):
-                    # 获取文件的完整路径
+                file_name, file_ext = os.path.splitext(file)
+                # 修正判断逻辑：检查文件名是否以test-开头
+                if file_ext.lower() in ALLOW_FILE_TYPE and not file_name.lower().startswith("test-"):
                     pathIn = os.path.join(root, file)
-                    # 获取文件名（不含后缀）
-                    pyFile = os.path.splitext(file)[0]
-                    # 获取文件的最后修改时间（时间戳）
                     file_mtime = int(os.path.getmtime(pathIn))
-                    # 构造SQL查询语句，从verinfo表中查询当前文件的信息
-                    sql = f"SELECT ID, pyLM from verinfo where pyFile = '{pyFile}'"
-                    # 执行SQL查询语句
-                    rows = execute_sql(cur2, sql)
-                    # 如果查询结果为空，表示该文件在verinfo表中没有记录
-                    if not rows:
-                        # 构造SQL插入语句，将文件信息插入到verinfo表中
-                        sql = f"INSERT INTO verinfo(pyFile, pyLM, pyMC) VALUES('{pyFile}', {int(time.time())}, 1)"
-                        # 执行SQL插入语句并提交事务
-                        execute_sql_and_commit(conn2, cur2, sql)
-                    # 如果查询结果不为空，但文件的最后修改时间与verinfo表中记录的时间不一致
-                    elif rows[0][1] != file_mtime:
-                        # 构造SQL更新语句，更新verinfo表中该文件的信息
-                        sql = f"UPDATE verinfo SET pyLM = {file_mtime}, pyMC = pyMC + 1 where pyFile = '{pyFile}'"
-                        # 执行SQL更新语句并提交事务
-                        execute_sql_and_commit(conn2, cur2, sql)
+
+                    # 检查是否需要更新或插入
+                    if file_name not in db_records:
+                        inserts.append((file_name, int(time.time())))
+                    elif db_records[file_name] != file_mtime:
+                        updates.append((file_mtime, file_name))
+
+    # 批量执行插入和更新操作
+    try:
+        if inserts:
+            cur2.executemany(INSERT_SQL, inserts)
+        if updates:
+            cur2.executemany(UPDATE_SQL, updates)
+        if inserts or updates:
+            conn2.commit()
+    except Exception as e:
+        logging.error(f"Batch update/insert failed: {e}")
+        conn2.rollback()
 
 
 def getVerInfo():
@@ -213,10 +227,6 @@ def getVerInfo():
         sql = "SELECT MAX(pyLM) FROM verinfo"
         result = execute_sql(cur2, sql)
         verLM = result[0][0] if result else 0
-
-        # 查询特定文件记录的pyLM * pyMC总和以及pyMC总和
-        sql = "SELECT SUM(pyLM * pyMC), SUM(pyMC) FROM verinfo WHERE pyFile = %s"
-        tmpTable = execute_sql(cur2, sql, ('thumbs-up-stars',))
 
         return verinfo, verLM
     except Exception as e:

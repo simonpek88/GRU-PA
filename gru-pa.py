@@ -174,12 +174,6 @@ def login_init(result):
     # 更新系统访问次数
     sql = "UPDATE verinfo set pyLM = pyLM + 1 where pyFile = 'visitcounter'"
     execute_sql_and_commit(conn, cur, sql)
-    updatePyFileinfo()
-    # 更新版本信息
-    verinfo, verLM = getVerInfo()
-    app_version = f'{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{verinfo}'
-    app_lm = time.strftime('%Y-%m-%d %H:%M', time.localtime(verLM))
-    gen_badge(conn, cur, [], 'MySQL', APPNAME_EN, app_version, app_lm)
     # 更新用户访问次数
     sql = f"UPDATE users set login_counter = login_counter + 1 where userID = {st.session_state.userID}"
     execute_sql_and_commit(conn, cur, sql)
@@ -2594,7 +2588,6 @@ def auto_get_history_weather():
     city_code = st.session_state.hf_city_code
     city_name = st.session_state.cityname
     for i in range(1, 11):
-        #st.progress(value=i / 10, text=f'正在获取 {city_name} 的第{i}天历史天气数据...')
         query_date = datetime.datetime.now() - datetime.timedelta(days=i)
         query_date = query_date.strftime('%Y-%m-%d')
         sql = f"SELECT ID FROM weather_history WHERE city_code = '{city_code}' and weather_date = '{query_date}'"

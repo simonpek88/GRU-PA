@@ -47,6 +47,14 @@
 #### 📅 最新版本
 
 <details>
+<summary><strong>🚀 版本 0.18.1873</strong> (2025-08-20) | <code>优化启动速度</code></summary>
+
+- 🚀 优化
+  - 版本号计算, 加速启动速度
+
+</details>
+
+<details>
 <summary><strong>🚀 版本 0.18.1869</strong> (2025-08-20) | <code>优化值班统计</code></summary>
 
 - 🚀 优化
