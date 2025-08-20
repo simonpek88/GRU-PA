@@ -47,6 +47,14 @@
 #### 📅 最新版本
 
 <details>
+<summary><strong>🚀 版本 0.18.1869</strong> (2025-08-20) | <code>优化值班统计</code></summary>
+
+- 🚀 优化
+  - 值班统计及启动速度
+
+</details>
+
+<details>
 <summary><strong>🔧 版本 0.18.1861</strong> (2025-08-20) | <code>值班统计修复</code></summary>
 
 - 🐞 修复

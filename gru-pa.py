@@ -227,7 +227,7 @@ def logout():
 
 def get_extra_oto():
     st.session_state.get_extra_oto = False
-    sql = f"SELECT task_date from clerk_work where clerk_work = '值班（输油作业，包括安防巡检、记录、卫生）' and StationCN = '{st.session_state.StationCN}' and clerk_id = {st.session_state.userID} order by ID DESC limit 1"
+    sql = f"SELECT task_date from clerk_work where oto_check = 0 and clerk_work = '值班（输油作业，包括安防巡检、记录、卫生）' and StationCN = '{st.session_state.StationCN}' and clerk_id = {st.session_state.userID} order by ID DESC limit 1"
     result = execute_sql(cur, sql)
     if result:
         sql = f"SELECT ID from oto where oto_date = '{result[0][0]}' and clerk_id = {st.session_state.userID} and StationCN = '{st.session_state.StationCN}'"
@@ -251,6 +251,8 @@ def add_extra_oto(task_date):
         elif btn_extra_not:
             flag_extra_oto = 0
         sql = f"INSERT INTO oto(oto_date, clerk_id, clerk_cname, StationCN, extra_oto) VALUES ('{task_date}', {st.session_state.userID}, '{st.session_state.userCName}', '{st.session_state.StationCN}', {flag_extra_oto})"
+        execute_sql_and_commit(conn, cur, sql)
+        sql = f"UPDATE clerk_work set oto_check = 1 where clerk_work = '值班（输油作业，包括安防巡检、记录、卫生）' and StationCN = '{st.session_state.StationCN}' and clerk_id = {st.session_state.userID} and task_date = '{task_date}'"
         execute_sql_and_commit(conn, cur, sql)
         logout()
 
@@ -3274,19 +3276,21 @@ def dyna_display_note(note_file):
 
 def get_extra_oto2():
     # 检查全天无输油作业记录
-    sql = f"SELECT task_date, clerk_id, clerk_cname from clerk_work where clerk_work = '值班（无输油作业，包括设备巡检、安防巡检、记录、卫生）' and StationCN = '{st.session_state.StationCN}' order by task_date"
+    sql = f"SELECT task_date, clerk_id, clerk_cname from clerk_work where oto_check = 0 and clerk_work = '值班（无输油作业，包括设备巡检、安防巡检、记录、卫生）' and StationCN = '{st.session_state.StationCN}' order by task_date"
     result = execute_sql(cur, sql)
     for row in result:
         sql = f"SELECT ID from oto where oto_date = '{row[0]}' and clerk_id = {row[1]} and StationCN = '{st.session_state.StationCN}'"
         if not execute_sql(cur, sql):
             sql = f"INSERT INTO oto(oto_date, clerk_id, clerk_cname, StationCN, extra_oto) VALUES ('{row[0]}', {row[1]}, '{row[2]}', '{st.session_state.StationCN}', -1)"
             execute_sql_and_commit(conn, cur, sql)
+            sql = f"UPDATE clerk_work set oto_check = 1 where clerk_work = '值班（无输油作业，包括设备巡检、安防巡检、记录、卫生）' and StationCN = '{st.session_state.StationCN}' and clerk_id = {row[1]} and task_date = '{row[0]}'"
+            execute_sql_and_commit(conn, cur, sql)
 
     oto_date_pack = []
     #start_date = get_current_month_range()[0]
     start_date = cal_date(-45)
     end_date = datetime.date.today()
-    sql = f"SELECT task_date from clerk_work where task_date >= '{start_date}' and task_date <= '{end_date}' and clerk_work = '值班（输油作业，包括安防巡检、记录、卫生）' and StationCN = '{st.session_state.StationCN}' and clerk_id = {st.session_state.userID} order by task_date"
+    sql = f"SELECT task_date from clerk_work where oto_check = 0 and task_date >= '{start_date}' and task_date <= '{end_date}' and clerk_work = '值班（输油作业，包括安防巡检、记录、卫生）' and StationCN = '{st.session_state.StationCN}' and clerk_id = {st.session_state.userID} order by task_date"
     result = execute_sql(cur, sql)
     for row in result:
         sql = f"SELECT ID from oto where oto_date = '{row[0]}' and clerk_id = {st.session_state.userID} and StationCN = '{st.session_state.StationCN}'"
@@ -3313,6 +3317,8 @@ def add_extra_oto2(task_date_pack):
                 else:
                     flag_extra_oto = 0
                 sql = f"INSERT INTO oto(oto_date, clerk_id, clerk_cname, StationCN, extra_oto) VALUES ('{task_date_pack[oto_index]}', {st.session_state.userID}, '{st.session_state.userCName}', '{st.session_state.StationCN}', {flag_extra_oto})"
+                execute_sql_and_commit(conn, cur, sql)
+                sql = f"UPDATE clerk_work set oto_check = 1 where clerk_work = '值班（输油作业，包括安防巡检、记录、卫生）' and StationCN = '{st.session_state.StationCN}' and clerk_id = {st.session_state.userID} and task_date = '{task_date_pack[oto_index]}'"
                 execute_sql_and_commit(conn, cur, sql)
         st.rerun()
 
