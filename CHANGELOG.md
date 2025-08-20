@@ -47,6 +47,14 @@
 #### 📅 最新版本
 
 <details>
+<summary><strong>📦 版本 0.18.1880</strong> (2025-08-20) | <code>清理冲突的工作量</code></summary>
+
+- 📦 新增
+  - 全天未输油的情况下清除所有涉及输油的工作量
+
+</details>
+
+<details>
 <summary><strong>🚀 版本 0.18.1873</strong> (2025-08-20) | <code>优化启动速度</code></summary>
 
 - 🚀 优化

@@ -85,6 +85,8 @@ Grass-roots unit performance appraisal system (GRU-PA).
 - hf_weather.py # 和风天气API模块
 - gd_weather.py # 高德天气API模块
 - gen_license_plate.py # 车牌生成模块
+- online_counter.py # 在线人数统计模块
+- repo_sync.py # Github仓库同步模块
 - dlib # dlib人脸识别库whl文件、编译说明及68个点模型文件
 - documents # 文档文件(不同步)
 - fonts # 字体文件
@@ -106,6 +108,7 @@ Grass-roots unit performance appraisal system (GRU-PA).
 - CSC-Common-CustomDict.txt # CSpell自定义通用字典文件
 - CSC-Project-CustomDict.txt # CSpell自定义字典文件
 - DBBackup.ps1 # 数据库备份PS脚本
+- DBBackup.sh # 数据库备份bash脚本
 - restoredb.bat # 数据库恢复bat脚本
 
 ## Functions
@@ -114,6 +117,8 @@ Grass-roots unit performance appraisal system (GRU-PA).
 - 工作减分项录入
 - 记录修改
 - 统计查询及导出
+- 值班统计及导出
+- 周月报A.I.智能生成
 - 趋势图 (九种统计图表)
 - 数据检查与审核
 - 高级查询 (条件树SQL语句生成)
@@ -121,11 +126,15 @@ Grass-roots unit performance appraisal system (GRU-PA).
 - 历史天气及高温天气查询
 - 公告发布
 - 数据库操作及备份
+- 个人及系统设置
 
 ## Features
 
 - 采用多种技术简化用户工作量输入
 - 人脸识别登录
+- 工作量统计报表
+- 值班统计报表
+- 周月报A.I.智能生成
 
 ## Git Repository
 

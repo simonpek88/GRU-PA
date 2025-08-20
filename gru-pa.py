@@ -163,6 +163,8 @@ def login_init(result):
         st.session_state.dba = True
     else:
         st.session_state.dba = False
+    # 清除冲突的工作量
+    clear_conflict_task()
     # 获取系统设置
     get_system_setup()
     # 获取城市编码
@@ -203,6 +205,8 @@ def logout():
     if bool(st.session_state.extra_oto) and st.session_state.task_clerk_type == 1 and st.session_state.get_extra_oto:
         get_extra_oto()
     else:
+        # 清除冲突的工作量
+        clear_conflict_task()
         # 关闭游标
         cur.close()
         # 关闭数据库连接
@@ -217,6 +221,20 @@ def logout():
 
         # 重新运行当前脚本
         st.rerun()
+
+
+def clear_conflict_task():
+    sql = """
+        DELETE FROM clerk_work
+        WHERE task_group = '输油作业'
+        AND task_date IN (
+            SELECT task_date FROM (
+            SELECT task_date FROM clerk_work
+            WHERE clerk_work = '值班（无输油作业，包括设备巡检、安防巡检、记录、卫生）'
+            ) AS temp_table
+        )
+    """
+    execute_sql_and_commit(conn, cur, sql)
 
 
 def get_extra_oto():
@@ -3593,7 +3611,7 @@ def act_sync_repo(sync_type: str):
 
 @st.fragment
 def work_report():
-    st.subheader("周月报生成", divider="blue")
+    st.subheader("周月报智能生成", divider="blue")
     report_tasks = []
     col1, col2 = st.columns(2)
     query_date_start = col1.date_input('查询开始时间', value=datetime.date.today() - datetime.timedelta(days=1), max_value="today")
@@ -3671,7 +3689,7 @@ elif st.session_state.logged_in:
                     sac.MenuItem('数据检查与核定', icon='check2-all'),
                     sac.MenuItem('统计查询及导出', icon='clipboard-data'),
                     sac.MenuItem('值班统计和输油补贴', icon='cash-stack'),
-                    sac.MenuItem('周月报生成', icon='list-columns-reverse'),
+                    sac.MenuItem('周月报智能生成', icon='list-columns-reverse'),
                     sac.MenuItem('公告发布及修改', icon='journal-arrow-up'),
                     sac.MenuItem('高级查询', icon='search'),
                     sac.MenuItem('历史天气查询', icon='cloud-sun'),
@@ -3724,7 +3742,7 @@ elif st.session_state.logged_in:
                     sac.MenuItem('记录修改', icon='journal-medical'),
                     sac.MenuItem('统计查询及导出', icon='clipboard-data'),
                     sac.MenuItem('值班统计和输油补贴', icon='cash-stack'),
-                    sac.MenuItem('周月报生成', icon='list-columns-reverse'),
+                    sac.MenuItem('周月报智能生成', icon='list-columns-reverse'),
                     sac.MenuItem('历史天气查询', icon='cloud-sun'),
                 ]),
                 sac.MenuItem('趋势与图表', icon='bar-chart-line', children=[
@@ -3798,7 +3816,7 @@ elif st.session_state.logged_in:
         query_task()
     elif selected == "值班统计和输油补贴":
         duty_statistics()
-    elif selected == "周月报生成":
+    elif selected == "周月报智能生成":
         work_report()
     elif selected == "趋势图":
         gen_chart()

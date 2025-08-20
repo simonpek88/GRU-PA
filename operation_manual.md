@@ -41,7 +41,7 @@
 - [工作量管理](#工作量管理)
 - [数据统计分析](#数据统计分析)
 - [值班数据统计及导出](#值班数据统计及导出)
-- [周月报生成](#周月报生成)
+- [周月报智能生成](#周月报智能生成)
 - [公告发布和修改](#公告发布和修改)
 - [人脸识别系统](#人脸识别系统)
 - [天气功能](#天气功能)
@@ -1085,9 +1085,9 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
 
 - [回到目录](#目录)
 
-<a id="周月报生成"></a>
+<a id="周月报智能生成"></a>
 
-### 周月报生成
+### 周月报智能生成(待完善)
 
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0;">
   <div style="border: 1px solid #e1e8ed; border-radius: 10px; padding: 20px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-top: 4px solid #9b59b6;">
@@ -1096,14 +1096,14 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
       <div style="font-weight: bold; font-size: 1.1em; color: #2c3e50;">AI辅助报告生成</div>
     </div>
     <div style="color: #34495e; line-height: 1.6;">
-      利用 <img src="https://upload.wikimedia.org/wikipedia/commons/e/ec/DeepSeek_logo.svg" alt="DeepSeek Logo" style="height: 20px; vertical-align: middle; margin: 0 5px;"> 生成周报和月报(待完善)
+      利用 <img src="https://upload.wikimedia.org/wikipedia/commons/e/ec/DeepSeek_logo.svg" alt="DeepSeek Logo" style="height: 20px; vertical-align: middle; margin: 0 5px;"> 生成周报和月报
     </div>
     <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #9b59b6;">
       <div style="font-weight: bold; color: #2c3e50; margin-bottom: 10px;">生成步骤:</div>
       <div style="display: flex; flex-direction: column; gap: 8px;">
         <div style="display: flex; align-items: flex-start;">
           <div style="background: #9b59b6; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7em; margin-right: 10px; flex-shrink: 0;">1</div>
-          <div>查询工作量中单独填写的数据</div>
+          <div>查询不在固定工作量列表中的数据</div>
         </div>
         <div style="display: flex; align-items: flex-start;">
           <div style="background: #9b59b6; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7em; margin-right: 10px; flex-shrink: 0;">2</div>
