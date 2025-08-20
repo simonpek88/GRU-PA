@@ -3262,7 +3262,8 @@ def dyna_display_note(note_file):
 
 def get_extra_oto2():
     oto_date_pack = []
-    start_date = get_current_month_range()[0]
+    #start_date = get_current_month_range()[0]
+    start_date = cal_date(-45)
     end_date = datetime.date.today()
     sql = f"SELECT task_date from clerk_work where task_date >= '{start_date}' and task_date <= '{end_date}' and clerk_work = '值班（输油作业，包括安防巡检、记录、卫生）' and StationCN = '{st.session_state.StationCN}' and clerk_id = {st.session_state.userID} order by task_date"
     result = execute_sql(cur, sql)
