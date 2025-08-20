@@ -2336,7 +2336,7 @@ def combine_query():
     col = st.columns(4)
     clerk_type = ['默认', '值班', '白班']
     btn_query = col[0].button("查询")
-    table_name = col[0].selectbox("请选择表", ['固定列表', '工作量表', '城市代码'])
+    table_name = col[0].selectbox("请选择表", ['工作量表', '固定列表', '城市代码'])
     if table_name == '固定列表':
         table_name = 'gru_pa'
     elif table_name == '工作量表':
@@ -2496,7 +2496,7 @@ def combine_query():
 
     if sql_query and btn_query:
         if table_name == 'gru_pa':
-            sql = f"SELECT ID, pa_content, pa_score, task_group, multi_score, default_task, comm_task, pa_share, task_type FROM gru_pa where StationCN = '{st.session_state.StationCN}' and {sql_query}"
+            sql = f"SELECT ID, pa_content, pa_score, task_group, multi_score, default_task, comm_task, pa_share, task_type FROM gru_pa where StationCN = '{st.session_state.StationCN}' and {sql_query} order by ID"
             sql = sql.replace('true', '1').replace('false', '0').replace("'默认'", '0').replace("'值班'", '1').replace("'白班'", '2')
             result = execute_sql(cur, sql)
             if result:
@@ -2522,7 +2522,7 @@ def combine_query():
             else:
                 st.info("未查询到记录")
         elif table_name == 'clerk_work':
-            sql = f"SELECT ID, task_date, clerk_cname, clerk_work, task_score, task_group, task_approved, task_multi FROM clerk_work where StationCN = '{st.session_state.StationCN}' and {sql_query}"
+            sql = f"SELECT ID, task_date, clerk_cname, clerk_work, task_score, task_group, task_approved, task_multi FROM clerk_work where StationCN = '{st.session_state.StationCN}' and {sql_query} order by task_date"
             sql = sql.replace('true', '1').replace('false', '0')
             result = execute_sql(cur, sql)
             if result:
