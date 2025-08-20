@@ -12,9 +12,11 @@ PyMySQL==1.1.1
 python_docx==1.2.0
 pybadges==3.0.1
 PyJWT==2.10.1
-streamlit==1.48.0
+streamlit==1.48.1
 streamlit-antd-components==0.3.2
 streamlit-condition-tree==0.3.0
-streamlit-extras==0.7.5
+streamlit-extras==0.7.6
 streamlit-nivo==0.1.8
-streamlit-webrtc==0.63.3
+streamlit-searchbox==0.1.23
+streamlit-vertical-slider==2.5.5
+streamlit-webrtc==0.63.4
