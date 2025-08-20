@@ -227,15 +227,6 @@ def logout():
 
 def get_extra_oto():
     st.session_state.get_extra_oto = False
-    # 检查已确定的晚10点后无输油记录
-    sql = f"SELECT task_date from clerk_work where clerk_work = '值班（无输油作业，包括设备巡检、安防巡检、记录、卫生）' and StationCN = '{st.session_state.StationCN}' and clerk_id = {st.session_state.userID} order by ID"
-    result = execute_sql(cur, sql)
-    for row in result:
-        sql = f"SELECT ID from oto where oto_date = '{row[0]}' and clerk_id = {st.session_state.userID} and StationCN = '{st.session_state.StationCN}'"
-        if not execute_sql(cur, sql):
-            sql = f"INSERT INTO oto(oto_date, clerk_id, clerk_cname, StationCN, extra_oto) VALUES ('{row[0]}', {st.session_state.userID}, '{st.session_state.userCName}', '{st.session_state.StationCN}', 0)"
-            execute_sql_and_commit(conn, cur, sql)
-
     sql = f"SELECT task_date from clerk_work where clerk_work = '值班（输油作业，包括安防巡检、记录、卫生）' and StationCN = '{st.session_state.StationCN}' and clerk_id = {st.session_state.userID} order by ID DESC limit 1"
     result = execute_sql(cur, sql)
     if result:
@@ -251,19 +242,16 @@ def get_extra_oto():
 @st.dialog("输油作业额外补贴")
 def add_extra_oto(task_date):
     st.markdown(f"### :blue[{task_date}] :red[晚10点后是否输油]")
-    btn_col = st.columns(3)
-    btn_confirm = btn_col[0].button("是", key="confirm_add_extra_oto", icon=":material/add_task:", use_container_width=True)
-    btn_cancel = btn_col[1].button("不是", key="cancel_add_extra_oto", icon=":material/cancel:", use_container_width=True)
-    btn_unknown = btn_col[2].button("未知", key="unknown_add_extra_oto", icon=":material/psychology_alt:", use_container_width=True)
-    if btn_confirm or btn_cancel or btn_unknown:
-        if btn_confirm:
-            sql = f"INSERT INTO oto(oto_date, clerk_id, clerk_cname, StationCN, extra_oto) VALUES ('{task_date}', {st.session_state.userID}, '{st.session_state.userCName}', '{st.session_state.StationCN}', 1)"
-        elif btn_cancel:
-            sql = f"INSERT INTO oto(oto_date, clerk_id, clerk_cname, StationCN, extra_oto) VALUES ('{task_date}', {st.session_state.userID}, '{st.session_state.userCName}', '{st.session_state.StationCN}', 0)"
-        else:
-            sql = None
-        if sql:
-            execute_sql_and_commit(conn, cur, sql)
+    btn_col = st.columns(2)
+    btn_extra_yes = btn_col[0].button("是", key="confirm_add_extra_oto", icon=":material/add_task:", use_container_width=True)
+    btn_extra_not = btn_col[1].button("不是", key="cancel_add_extra_oto", icon=":material/cancel:", use_container_width=True)
+    if btn_extra_yes or btn_extra_not:
+        if btn_extra_yes:
+            flag_extra_oto = 1
+        elif btn_extra_not:
+            flag_extra_oto = 0
+        sql = f"INSERT INTO oto(oto_date, clerk_id, clerk_cname, StationCN, extra_oto) VALUES ('{task_date}', {st.session_state.userID}, '{st.session_state.userCName}', '{st.session_state.StationCN}', {flag_extra_oto})"
+        execute_sql_and_commit(conn, cur, sql)
         logout()
 
 
@@ -3161,11 +3149,6 @@ def bonus_scene():
 
 
 def temp_func():
-    sql = "SELECT task_date, clerk_id, clerk_cname from clerk_work where task_score = 150 order by task_date, clerk_cname"
-    result = execute_sql(cur, sql)
-    for row in result:
-        sql = f"INSERT INTO oto(oto_date, clerk_id, clerk_cname, StationCN, extra_oto) VALUES ('{row[0]}', {row[1]}, '{row[2]}', '北京站', 1)"
-        execute_sql_and_commit(conn, cur, sql)
     pass
 
 
@@ -3295,11 +3278,11 @@ def get_extra_oto2():
 def add_extra_oto2(task_date_pack):
     st.markdown(f"### :blue[以下日期] :red[晚10点后是否输油]")
     for index, value in enumerate(task_date_pack):
-        st.radio(f'{value}: ', ['是', '否'], key=f"add_extra_oto_{index}")
+        st.radio(f'{value}: ', ['是', '否'], key=f"add_extra_oto_{index}", horizontal=True)
     btn_col = st.columns(2)
-    btn_confirm = btn_col[0].button("确定", key="confirm_add_extra_oto_all", icon=":material/add_task:", use_container_width=True)
-    btn_cancel = btn_col[1].button("取消", key="cancel_add_extra_oto_all", icon=":material/cancel:", use_container_width=True)
-    if btn_confirm or btn_cancel:
+    btn_extra_yes = btn_col[0].button("确定", key="confirm_add_extra_oto_all", icon=":material/add_task:", use_container_width=True)
+    btn_extra_not = btn_col[1].button("取消", key="cancel_add_extra_oto_all", icon=":material/cancel:", use_container_width=True)
+    if btn_extra_yes or btn_extra_not:
         for key in st.session_state.keys():
             if key.startswith("add_extra_oto_"):
                 oto_index = int(key[key.rfind("_") + 1:])
