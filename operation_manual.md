@@ -1096,7 +1096,7 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
       <div style="font-weight: bold; font-size: 1.1em; color: #2c3e50;">AI辅助报告生成</div>
     </div>
     <div style="color: #34495e; line-height: 1.6;">
-      利用 <img src="https://upload.wikimedia.org/wikipedia/commons/e/ec/DeepSeek_logo.svg" alt="DeepSeek Logo" style="height: 20px; vertical-align: middle; margin: 0 5px;"> 生成周报和月报
+      利用 <img src="https://upload.wikimedia.org/wikipedia/commons/e/ec/DeepSeek_logo.svg" alt="DeepSeek Logo" style="height: 20px; vertical-align: middle; margin: 0 5px;"> 生成周报和月报(待完善)
     </div>
     <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #9b59b6;">
       <div style="font-weight: bold; color: #2c3e50; margin-bottom: 10px;">生成步骤:</div>
@@ -2217,14 +2217,14 @@ graph TD
 | **最大扣分项** | 最大扣分分值 | `-300` | -600 至 -30 |
 | **字体大小** | 报表字体大小 | `14` | 10-20 |
 | **月天数** | 月最小天数 | `28天` | 27-31天 |
-| **共享任务分值** | PA-Share分值最大查询天数 | `60天` | 14-60天 |
+| **共享任务分值** | PA-Share分值最大查询天数 | `45天` | 14-60天 |
 | **人脸识别** | 相似度阈值 | `70%` | 50%-90% |
 | **人脸识别** | 最大尝试次数 **(Todo)** | `3次` | 1-5次 |
 | **工作基数** | 智能推荐工作阈值 | `5次` | 3-20次 |
 | **额外输油** | 晚10点后是否输油 | `True` | True/False(1/0) |
 | **系统设置** | 会话超时 **(Todo)** | `30分钟` | 10-120分钟 |
+| **数据备份** | 备份保留天数 | `3天` | 1-20天 |
 | **数据备份** | 自动备份时间 **(Todo)** | `02:00` | 00:00-23:59 |
-| **数据备份** | 备份保留天数 **(Todo)** | `5天` | 7-14天 |
 
 </div>
 
