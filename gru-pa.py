@@ -2,6 +2,7 @@
 import calendar
 import datetime
 import importlib.metadata
+import json
 import os
 import time
 
@@ -174,8 +175,32 @@ def login_init(result):
     # 更新用户设置
     refresh_users_setup()
     # 更新系统访问次数
-    sql = "UPDATE verinfo set pyLM = pyLM + 1 where pyFile = 'visitcounter'"
-    execute_sql_and_commit(conn, cur, sql)
+    try:
+        # 尝试读取现有的JSON文件
+        if os.path.exists(JSON_FILE):
+            with open(JSON_FILE, 'r', encoding='utf-8') as f:
+                try:
+                    file_records = json.load(f)
+                except json.JSONDecodeError:
+                    file_records = {}
+        else:
+            file_records = {}
+
+        # 更新visitcounter记录
+        if 'visitcounter' in file_records:
+            file_records['visitcounter']['pyLM'] = file_records['visitcounter'].get('pyLM', 0) + 1
+        else:
+            file_records['visitcounter'] = {
+                "pyLM": 1,
+                "pyMC": 1
+            }
+
+        # 将更新后的数据写入JSON文件
+        with open(JSON_FILE, 'w', encoding='utf-8') as f:
+            json.dump(file_records, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"Failed to update visit counter in JSON file: {e}")
+
     # 更新用户访问次数
     sql = f"UPDATE users set login_counter = login_counter + 1 where userID = {st.session_state.userID}"
     execute_sql_and_commit(conn, cur, sql)
@@ -290,8 +315,9 @@ def displayBigTimeCircle():
 
 @st.fragment
 def displayVisitCounter():
-    sql = "SELECT pyLM from verinfo where pyFile = 'visitcounter'"
-    visitcount = execute_sql(cur, sql)[0][0]
+    # 尝试从JSON文件中读取visitcounter的pyLM值
+    visitcount = get_visit_counter_json()
+
     countScript = (open("./MyComponentsScript/FlipNumber.txt", "r", encoding="utf-8").read()).replace("visitcount", str(visitcount))
     components.html(countScript, height=40)
 
@@ -1365,8 +1391,32 @@ def check_data():
                 st.markdown(f"##### {len(approve_pack)} 个工作量已核定")
                 sql = f"SELECT Count(ID) from clerk_work where task_approved = 1 and StationCN = '{st.session_state.StationCN}'"
                 result = execute_sql(cur, sql)[0][0]
-                sql = f"UPDATE verinfo set pyLM = {result} where pyFile = 'task_approved_counter'"
-                execute_sql_and_commit(conn, cur, sql)
+                # 更新version.json文件中的task_approved_counter记录
+                try:
+                    # 尝试读取现有的JSON文件
+                    if os.path.exists(JSON_FILE):
+                        with open(JSON_FILE, 'r', encoding='utf-8') as f:
+                            try:
+                                file_records = json.load(f)
+                            except json.JSONDecodeError:
+                                file_records = {}
+                    else:
+                        file_records = {}
+
+                    # 更新task_approved_counter记录
+                    if 'task_approved_counter' in file_records:
+                        file_records['task_approved_counter']['pyLM'] = result
+                    else:
+                        file_records['task_approved_counter'] = {
+                            "pyLM": result,
+                            "pyMC": 1
+                        }
+
+                    # 将更新后的数据写入JSON文件
+                    with open(JSON_FILE, 'w', encoding='utf-8') as f:
+                        json.dump(file_records, f, ensure_ascii=False, indent=2)
+                except Exception as e:
+                    print(f"Failed to update task approved counter in JSON file: {e}")
         else:
             st.markdown(f'###### :red[无任何记录]')
 
@@ -2297,11 +2347,25 @@ def get_weather_precip_future(city_code):
 
     return weather_pf
 
+def get_visit_counter_json():
+    visitcount = 0
+    # 尝试从JSON文件中读取visitcounter的pyLM值
+    try:
+        if os.path.exists(JSON_FILE):
+            with open(JSON_FILE, 'r', encoding='utf-8') as f:
+                file_records = json.load(f)
+                if 'visitcounter' in file_records:
+                    visitcount = file_records['visitcounter'].get('pyLM', 0)
+    except (FileNotFoundError, json.JSONDecodeError, KeyError):
+        visitcount = 0
+
+    return visitcount
+
 
 @st.fragment
 def displayVisitCounter_static():
-    sql = "SELECT pyLM from verinfo where pyFile = 'visitcounter'"
-    visitcount = execute_sql(cur, sql)[0][0]
+    # 尝试从JSON文件中读取visitcounter的pyLM值
+    visitcount = get_visit_counter_json()
 
     # 生成徽章样式的访问计数器
     badge_svg = badge(left_text='访  问  量', right_text=f'{visitcount}', right_color='brightgreen')
@@ -3633,10 +3697,11 @@ def work_report():
             st.error("生成报告失败")
 
 
-global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME
+global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME, JSON_FILE
 APPNAME_CN = "站室绩效考核系统GRU-PA"
 APPNAME_EN = "GRU-PA"
 STATION_CITYNAME = {'北京站': '顺义', '天津站': '滨海新区', '总控室': '滨海新区', '调控中心': '滨海新区', '武清站': '武清'}
+JSON_FILE = "verinfo.json"
 conn = get_connection()
 cur = conn.cursor()
 st.logo(image="./Images/logos/GRU-PA-logo.png", icon_image="./Images/logos/GRU-PA-logo.png", size="large")

@@ -1,5 +1,6 @@
 # coding utf-8
 import base64
+import json
 import logging
 import os
 import time
@@ -173,16 +174,15 @@ def updatePyFileinfo():
     ALLOW_FILE_TYPE = {'.py', '.md', '.ps1', '.bat', '.txt', '.sh'}
     ROOT_PATH = "./"
 
-    # SQL语句常量定义
-    SELECT_SQL = "SELECT pyFile, pyLM FROM verinfo"
-    INSERT_SQL = "INSERT INTO verinfo(pyFile, pyLM, pyMC) VALUES(%s, %s, 1)"
-    UPDATE_SQL = "UPDATE verinfo SET pyLM = %s, pyMC = pyMC + 1 WHERE pyFile = %s"
-
-    # 一次性获取所有数据库记录
-    db_records = {}
-    rows = execute_sql(cur2, SELECT_SQL)
-    for row in rows:
-        db_records[row[0]] = row[1]  # pyFile => pyLM
+    # 尝试读取现有的JSON文件
+    if os.path.exists(JSON_FILE):
+        with open(JSON_FILE, 'r', encoding='utf-8') as f:
+            try:
+                file_records = json.load(f)
+            except json.JSONDecodeError:
+                file_records = {}
+    else:
+        file_records = {}
 
     updates = []
     inserts = []
@@ -198,40 +198,49 @@ def updatePyFileinfo():
                     file_mtime = int(os.path.getmtime(pathIn))
 
                     # 检查是否需要更新或插入
-                    if file_name not in db_records:
-                        inserts.append((file_name, int(time.time())))
-                    elif db_records[file_name] != file_mtime:
-                        updates.append((file_mtime, file_name))
+                    if file_name not in file_records:
+                        inserts.append(file_name)
+                        file_records[file_name] = {
+                            "pyLM": file_mtime,
+                            "pyMC": 1
+                        }
+                    elif file_records[file_name]["pyLM"] != file_mtime:
+                        updates.append(file_name)
+                        file_records[file_name]["pyLM"] = file_mtime
+                        file_records[file_name]["pyMC"] = file_records[file_name].get("pyMC", 0) + 1
 
-    # 批量执行插入和更新操作
+    # 将更新后的数据写入JSON文件
     try:
-        if inserts:
-            cur2.executemany(INSERT_SQL, inserts)
-        if updates:
-            cur2.executemany(UPDATE_SQL, updates)
+        with open(JSON_FILE, 'w', encoding='utf-8') as f:
+            json.dump(file_records, f, ensure_ascii=False, indent=2)
+
         if inserts or updates:
-            conn2.commit()
+            logging.info(f"Updated file info: {len(inserts)} inserts, {len(updates)} updates")
     except Exception as e:
-        logging.error(f"Batch update/insert failed: {e}")
-        conn2.rollback()
+        logging.error(f"Failed to write to JSON file: {e}")
 
 
 def getVerInfo():
     try:
-        # 查询pyMC字段总和
-        sql = "SELECT SUM(pyMC) FROM verinfo"
-        result = execute_sql(cur2, sql)
-        verinfo = result[0][0] if result else 0
+        # 尝试读取现有的JSON文件
+        if os.path.exists(JSON_FILE):
+            with open(JSON_FILE, 'r', encoding='utf-8') as f:
+                try:
+                    file_records = json.load(f)
+                except json.JSONDecodeError:
+                    file_records = {}
+        else:
+            file_records = {}
 
-        # 查询pyLM字段最大值
-        sql = "SELECT MAX(pyLM) FROM verinfo"
-        result = execute_sql(cur2, sql)
-        verLM = result[0][0] if result else 0
+        # 计算pyMC字段总和
+        verinfo = sum(item["pyMC"] for item in file_records.values())
+
+        # 计算pyLM字段最大值
+        verLM = max([item["pyLM"] for item in file_records.values()], default=0)
 
         return verinfo, verLM
     except Exception as e:
-        print(f"Database error: {str(e)}")
-
+        print(f"File read error: {str(e)}")
         return 0, 0
 
 
@@ -326,6 +335,8 @@ def deepseek_AI(report_task, useModel='deepseek-chat'):
 conn2 = get_connection()
 cur2 = conn2.cursor()
 logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
+
+JSON_FILE = "verinfo.json"
 
 if __name__ == '__main__':
     ds_balance = get_deepseek_balance()

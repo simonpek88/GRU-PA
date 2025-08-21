@@ -47,6 +47,14 @@
 #### 📅 最新版本
 
 <details>
+<summary><strong>✏️ 版本 0.19.1930</strong> (2025-08-21) | <code>更改版本存储方式</code></summary>
+
+- ✏️ 更改
+  - 系统版本存储方式改为json，方便双向同步
+
+</details>
+
+<details>
 <summary><strong>📦 版本 0.18.1880</strong> (2025-08-20) | <code>清理冲突的工作量</code></summary>
 
 - 📦 新增
