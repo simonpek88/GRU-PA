@@ -1,16 +1,33 @@
 <div style="text-align: center; margin: 20px 0 30px 0; padding: 20px 15px; background: linear-gradient(135deg, #1a2a6c 0%, #2c3e50 50%, #4a235a 100%); border-radius: 12px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.15); position: relative; overflow: hidden; font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;">
   <div style="position: absolute; top: -40px; right: -40px; width: 160px; height: 160px; background: radial-gradient(circle, rgba(41, 128, 185, 0.3) 0%, transparent 70%); border-radius: 50%;"></div>
   <div style="position: absolute; bottom: -60px; left: -20px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(155, 89, 182, 0.3) 0%, transparent 70%); border-radius: 50%;"></div>
+  <style>
+    .logo-card:hover .shine {
+      animation: shine 1.5s ease-in-out;
+    }
 
-  <h1 style="font-weight: 800; font-size: 2.2em; margin: 0 0 10px 0; color: #fff; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); letter-spacing: 1px; position: relative; z-index: 2; font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;">
-    GRU-PA 站室绩效考核系统
-  </h1>
+    @keyframes shine {
+      0% { left: -50%; }
+      20% { left: -10%; }
+      50% { left: 100%; }
+      100% { left: 150%; }
+    }
+  </style>
 
-  <div style="position: relative; z-index: 2; display: flex; justify-content: center;">
-    <div style="display: flex; align-items: center; justify-content: center; padding: 8px 25px; background: linear-gradient(90deg, #3498db 0%, #9b59b6 100%); border-radius: 25px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;">
-      <span style="color: white; font-weight: 600; letter-spacing: 1px; font-size: 1.1em; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);">
-        完整操作手册 &nbsp;|&nbsp; 全A.I.智能生成
-      </span>
+  <div style="display: flex; align-items: center; justify-content: center; position: relative; z-index: 2;">
+    <div class="logo-card" style="position: relative; border-radius: 12px; overflow: hidden; margin-right: 30px; margin-top: 30px; height: 7em; width: 7em; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); cursor: pointer;">
+      <img src="https://i.postimg.cc/QtqvdWx7/GRU-PA-Logo.png" alt="GRU-PA Logo" style="height: 100%; width: 100%; object-fit: cover;">
+      <div class="shine" style="position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent); transform: skewX(-25deg);"></div>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: center;">
+      <h1 style="font-weight: 800; font-size: 2.2em; margin: 0 0 10px 0; color: #fff; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); letter-spacing: 1px; font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;">
+        GRU-PA 站室绩效考核系统
+      </h1>
+      <div style="display: flex; align-items: center; justify-content: center; padding: 8px 25px; background: linear-gradient(90deg, #3498db 0%, #9b59b6 100%); border-radius: 25px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;">
+        <span style="color: white; font-weight: 600; letter-spacing: 1px; font-size: 1.1em; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);">
+          完整操作手册 &nbsp;|&nbsp; 全A.I.智能生成
+        </span>
+      </div>
     </div>
   </div>
 </div>
@@ -3275,11 +3292,11 @@ pip install -r requirements.txt --upgrade</pre>
       <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 25px; font-size: 0.95em;">
         <div style="display: flex; align-items: center;">
           <div style="width: 10px; height: 10px; background: #00ff9d; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00ff9d;"></div>
-          <span style="color: #a0d2eb;">手册版本: <span style="color: #00c3ff; font-weight: 600;">v1.2.0</span></span>
+          <span style="color: #a0d2eb;">手册版本: <span style="color: #00c3ff; font-weight: 600;">v1.2.5</span></span>
         </div>
         <div style="display: flex; align-items: center;">
           <div style="width: 10px; height: 10px; background: #ff6b6b; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #ff6b6b;"></div>
-          <span style="color: #a0d2eb;">更新时间: <span style="color: #00c3ff; font-weight: 600;">2025-08-18</span></span>
+          <span style="color: #a0d2eb;">更新时间: <span style="color: #00c3ff; font-weight: 600;">2025-08-21</span></span>
         </div>
         <div style="display: flex; align-items: center;">
           <div style="width: 10px; height: 10px; background: #ffd166; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #ffd166;"></div>
