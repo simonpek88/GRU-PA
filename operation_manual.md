@@ -37,19 +37,49 @@
     left: 150%;
     transition-delay: 0.1s;
   }
+
+  /* 响应式设计 - 平板设备 */
+  @media screen and (max-width: 1024px) {
+    .logo-card {
+      height: 6em;
+      width: 6em;
+    }
+  }
+
+  /* 响应式设计 - 移动设备 */
+  @media screen and (max-width: 768px) {
+    .logo-card {
+      height: 5em;
+      width: 5em;
+      margin-top: 5em;
+      margin-left: 0.25em;
+    }
+  }
+
+  /* 响应式设计 - 小屏幕移动设备 */
+  @media screen and (max-width: 480px) {
+    .logo-card {
+      height: 3em;
+      width: 3em;
+      margin-top: 5em;
+      margin-left: 0.25em;
+    }
+  }
 </style>
 
-<div style="text-align: center; margin: 20px 0 30px 0; padding: 20px 15px; background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%); border-radius: 12px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.15); position: relative; overflow: hidden; font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;">
+<div style="text-align: center; margin: 20px 0 30px 0; padding: 20px 15px; background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%); border-radius: 12px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.15); position: relative; overflow: hidden; font-family: 'Microsoft YaHei', '微软雅黑', sans-serif; box-sizing: border-box;">
   <div style="position: absolute; top: -40px; right: -40px; width: 160px; height: 160px; background: radial-gradient(circle, rgba(41, 128, 185, 0.3) 0%, transparent 70%); border-radius: 50%;"></div>
   <div style="position: absolute; bottom: -60px; left: -20px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(155, 89, 182, 0.3) 0%, transparent 70%); border-radius: 50%;"></div>
   <div style="display: flex; flex-direction: column; align-items: center;">
-    <h1 style="font-weight: 800; font-size: 2.2em; margin: 0 0 10px 0; color: #fff; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); letter-spacing: 1px; font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;">
+    <h1 style="font-weight: 800; font-size: 2.2em; margin: 0 0 10px 0; color: #fff; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); letter-spacing: 1px; font-family: 'Orbitron', 'Roboto Mono', 'Consolas', 'Microsoft YaHei', '微软雅黑', monospace;">
       GRU-PA 站室绩效考核系统
     </h1>
-    <div style="display: flex; align-items: center; justify-content: center; padding: 8px 25px; background: linear-gradient(90deg, #00c6ff 0%, #9c34d8ff 100%); border-radius: 25px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;">
-      <span style="color: white; font-weight: 600; letter-spacing: 1px; font-size: 1.1em; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);">
-        完整操作手册 | 全A.I.智能生成
-      </span>
+    <div style="display: inline-block; border-radius: 25px; overflow: hidden; clip-path: inset(0 0 0 0 round 25px);">
+      <div style="display: flex; align-items: center; justify-content: center; padding: 8px 30px; background: linear-gradient(90deg, #00c6ff 0%, #9c34d8ff 100%); box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); font-family: 'Microsoft YaHei', '微软雅黑', sans-serif; margin: -1px;">
+        <span style="color: white; font-weight: 600; letter-spacing: 1px; font-size: 1.1em; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);">
+          完整操作手册 | 全A.I.智能生成
+        </span>
+      </div>
     </div>
   </div>
 </div>
@@ -67,15 +97,13 @@
     ![GRU-PA build](https://img.shields.io/badge/build-passing-deepgreen.svg)
     ![GRU-PA top-languages](https://img.shields.io/github/languages/top/simonpek88/GRU-PA.svg)
     ![GRU-PA commits](https://img.shields.io/github/commit-activity/t/simonpek88/GRU-PA.svg)
-
-<a id="目录"></a>
     ![GRU-PA build](https://img.shields.io/badge/build-passing-deepgreen.svg)
     ![GRU-PA top-languages](https://img.shields.io/github/languages/top/simonpek88/GRU-PA.svg)
     ![GRU-PA commits](https://img.shields.io/github/commit-activity/t/simonpek88/GRU-PA.svg)
 
 <a id="目录"></a>
 
-## 目录
+### 目录
 
 - [Todo](#todo)
 - [系统概述](#系统概述)
@@ -91,6 +119,10 @@
 - [天气功能](#天气功能)
 - [数据导出](#数据导出)
 - [数据库操作](#数据库操作)
+- [数据维护](#数据维护)
+- [用户权限管理](#用户权限管理)
+- [个人设置](#个人设置)
+- [系统配置](#系统配置)
 - [云同步](#云同步)
 - [故障排除](#故障排除)
 - [安全指南](#安全指南)
@@ -111,7 +143,7 @@
 
 <a id="系统概述"></a>
 
-## 系统概述
+### 系统概述
 
 ### 🎯 系统定位
 
@@ -201,7 +233,7 @@ GRU-PA (Grass-roots unit Performance Appraisal system) 是一款专为基层站�
 
 <a id="系统安装与配置"></a>
 
-## 系统安装与配置
+### 系统安装与配置
 
 ### 🖥️ 系统要求
 
@@ -547,7 +579,7 @@ streamlit run gru-pa.py --server.port {空闲端口} --server.address localhost�
 
 <a id="快速入门"></a>
 
-## 快速入门
+### 快速入门
 
 ### 🎯 首次使用流程
 
@@ -646,7 +678,7 @@ streamlit run gru-pa.py --server.port {空闲端口} --server.address localhost�
 
 <a id="用户管理"></a>
 
-## 用户管理
+### 用户管理
 
 ### 👥 用户角色体系
 
@@ -697,7 +729,7 @@ streamlit run gru-pa.py --server.port {空闲端口} --server.address localhost�
 
 <a id="工作量管理"></a>
 
-## 工作量管理
+### 工作量管理
 
 ### 📊 工作量录入系统
 
@@ -1056,7 +1088,7 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
   AND 核定 is true
 ```
 
-##### 高级查询示例截图
+#### 高级查询示例截图
 
 ![高级查询示例截图](https://pic1.imgdb.cn/item/68a6febc58cb8da5c84120b7.png)
 
@@ -1477,7 +1509,7 @@ graph TD
 
 <a id="数据导出"></a>
 
-## 数据导出
+### 数据导出
 
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0;">
   <div style="border: 1px solid #e1e8ed; border-radius: 10px; padding: 20px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-top: 4px solid #2ecc71;">
@@ -1695,6 +1727,503 @@ graph TD
     </div>
   </div>
 </div>
+
+- [回到目录](#目录)
+
+<a id="数据库操作"></a>
+
+### 🗄️ 数据库操作
+
+以下数据库操作功能仅对具有数据库管理员权限(DBA)的用户开放。所有数据库操作都具有潜在风险，请在执行前确保已备份重要数据。
+
+#### 重置PA-Number
+
+重置所有工作量记录的PA-Number编号，使其从1开始重新编号, 步长2。
+
+操作步骤：
+
+```bash
+1. 在左侧导航菜单中点击"数据库操作"
+2. 选择"重置PA-Number"选项
+3. 点击"确认重置"按钮
+4. 系统将显示操作结果
+
+注意事项：
+- 此操作会重新排列所有工作量记录的编号
+- 不会影响工作量数据内容
+- 仅建议在编号出现严重混乱时使用
+```
+
+#### 重置工作组别热度
+
+重置用户工作组别使用频率统计数据，重新计算各工作组别的使用热度。
+
+操作步骤：
+
+```bash
+1. 在左侧导航菜单中点击"数据库操作"
+2. 选择"重置工作组别"选项
+3. 点击"确认重置工作组别热度"按钮
+4. 系统将显示操作结果
+
+注意事项：
+- 此操作会清空现有的工作组别使用频率统计
+- 系统会重新根据用户实际使用情况计算热度
+- 不会影响用户的工作量数据
+```
+
+#### 更新ID初始值
+
+更新数据库各表的自增ID初始值，使其与当前最大ID保持一致。
+
+操作步骤：
+
+```bash
+1. 在左侧导航菜单中点击"数据库操作"
+2. 选择"更新ID初始值"选项
+3. 点击"确认更新ID初始值"按钮
+4. 系统将显示操作结果
+
+注意事项：
+- 此操作会遍历所有数据表并更新自增ID初始值
+- 防止ID重复或浪费
+- 是数据库维护的重要操作
+```
+
+#### 更新PA-Share
+
+更新共享分值（PA-Share）数据，重新计算和同步共享工作量的分值分配。
+
+操作步骤：
+
+```bash
+1. 在左侧导航菜单中点击"数据库操作"
+2. 选择"更新PA-Share"选项
+3. 点击"确认更新PA-Share"按钮
+4. 系统将显示操作结果
+
+注意事项：
+- 此操作会重新计算所有共享工作量的分值分配
+- 可能需要较长时间完成
+- 建议在系统使用较少时执行
+```
+
+#### 更新固定分值
+
+更新固定分值工作内容的分值，同步到用户工作量记录中。
+
+操作步骤：
+
+```bash
+1. 在左侧导航菜单中点击"数据库操作"
+2. 选择"更新固定分值"选项
+3. 点击"更新固定分值"按钮
+4. 再次点击"确认更新"按钮
+5. 系统将显示操作结果
+
+注意事项：
+- 此操作会根据工作内容的基准分值更新用户记录
+- 适用于基准分值调整后的批量更新
+- 不会影响用户自定义的分值和共享分值
+```
+
+#### 组别名称修改
+
+修改工作组别的名称，同时更新相关引用。
+
+操作步骤：
+
+```bash
+1. 在左侧导航菜单中点击"数据库操作"
+2. 选择"组别名称修改"选项
+3. 在界面中选择要修改的工作组别
+4. 输入新的工作组别名称
+5. 点击"确认修改"按钮
+6. 系统将显示操作结果
+
+注意事项：
+- 修改后会同步更新所有相关引用
+- 请确保新名称不与其他工作组别重复
+- 建议在修改前确认所有用户都不在使用该组别录入数据
+```
+
+#### 分组内容调整
+
+调整工作组别中的工作内容，修改工作内容与工作组别的关联关系。
+
+操作步骤：
+
+```bash
+1. 在左侧导航菜单中点击"数据库操作"
+2. 选择"分组内容调整"选项
+3. 选择要调整的工作组别
+4. 在工作内容列表中勾选或取消勾选相应内容
+5. 点击"保存修改"按钮
+6. 系统将显示操作结果
+
+注意事项：
+- 调整后会影响新录入工作量的分组显示
+- 不会影响已有工作量记录
+- 建议调整前导出相关数据作为备份
+```
+
+#### 工作内容修改
+
+修改系统中的工作内容条目，包括工作内容描述和基准分值。
+
+操作步骤：
+
+```bash
+1. 在左侧导航菜单中点击"数据库操作"
+2. 选择"工作内容修改"选项
+3. 在搜索框中输入要修改的工作内容或选择工作组别筛选
+4. 点击要修改的工作内容条目
+5. 点击"保存修改"按钮
+6. 系统将显示操作结果
+
+注意事项：
+- 修改工作内容描述会影响所有相关记录的显示
+- 建议在修改前导出相关数据作为备份
+```
+
+#### 数据库备份
+
+执行数据库的完整备份操作，生成SQL格式的备份文件。
+
+操作步骤：
+
+```bash
+1. 在左侧导航菜单中点击"数据库操作"
+2. 选择"数据库备份"选项
+3. 点击"开始备份"按钮
+4. 系统将执行备份操作并显示结果
+5. 备份文件将保存在MySQL_Backup目录中，文件名包含时间戳
+
+注意事项：
+- 备份文件包含数据库的完整数据和结构
+- 备份过程可能需要一些时间，取决于数据量大小
+- 建议定期执行备份操作
+- 备份文件可用于数据恢复或迁移
+```
+
+#### 数据库操作安全提示
+
+1. 所有数据库操作都具有潜在风险，请在操作前确认操作目的和影响范围
+2. 重要操作前请先执行数据库备份
+3. 建议在系统使用较少的时间段执行数据库维护操作
+4. 如不确定操作影响，请联系技术支持
+5. 操作完成后检查系统功能是否正常
+
+- [回到目录](#目录)
+
+<a id="数据维护"></a>
+
+#### 🛠️ 数据维护
+
+<div style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); border-radius: 10px; padding: 20px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 25px;">
+  <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center;">
+    <div style="background: rgba(255, 255, 255, 0.2); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;">🔧</div>
+    数据库维护操作
+  </div>
+  <div style="opacity: 0.9;">
+    定期执行以下维护任务以确保系统稳定运行
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 20px 0;">
+  <div style="border-left: 4px solid #3498db; background: #f8f9fa; padding: 15px; border-radius: 0 8px 8px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+      <div style="background: #3498db; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 10px;">🧹</div>
+      <div style="font-weight: bold; color: #3498db;">数据清理</div>
+    </div>
+    <div style="color: #6c757d; font-size: 0.95em;">
+      清理过期日志和临时文件，释放存储空间
+    </div>
+  </div>
+
+  <div style="border-left: 4px solid #2ecc71; background: #f8f9fa; padding: 15px; border-radius: 0 8px 8px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+      <div style="background: #2ecc71; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 10px;">⚡</div>
+      <div style="font-weight: bold; color: #2ecc71;">索引优化</div>
+    </div>
+    <div style="color: #6c757d; font-size: 0.95em;">
+      重建数据库索引以提升查询性能
+    </div>
+  </div>
+
+  <div style="border-left: 4px solid #f39c12; background: #f8f9fa; padding: 15px; border-radius: 0 8px 8px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+      <div style="background: #f39c12; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 10px;">✅</div>
+      <div style="font-weight: bold; color: #f39c12;">数据校验</div>
+    </div>
+    <div style="color: #6c757d; font-size: 0.95em;">
+      检查数据完整性和一致性，确保数据质量
+    </div>
+  </div>
+
+  <div style="border-left: 4px solid #9b59b6; background: #f8f9fa; padding: 15px; border-radius: 0 8px 8px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+      <div style="background: #9b59b6; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 10px;">🔒</div>
+      <div style="font-weight: bold; color: #9b59b6;">备份验证</div>
+    </div>
+    <div style="color: #6c757d; font-size: 0.95em;">
+      定期验证备份文件可用性，确保灾难恢复能力
+    </div>
+  </div>
+</div>
+
+### 📋 审计日志 <span style="background: #fff8e1; color: #ff9800; padding: 3px 10px; border-radius: 15px; font-size: 0.8em; font-weight: 500;">Todo</span>
+
+<div style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); border-radius: 10px; padding: 20px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: 25px 0;">
+  <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center;">
+    <div style="background: rgba(255, 255, 255, 0.2); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;">📝</div>
+    系统审计功能
+  </div>
+  <div style="opacity: 0.9;">
+    全面记录系统操作日志，保障系统安全与合规性
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 25px 0;">
+  <div style="border: 1px solid #e1e8ed; border-radius: 10px; padding: 20px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+      <div style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 12px;">🔐</div>
+      <div style="font-weight: bold; font-size: 1.1em; color: #2c3e50;">日志类型</div>
+    </div>
+    <div style="padding-left: 48px; color: #6c757d;">
+      <div style="margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
+        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+          <div style="background: #3498db; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7em; margin-right: 8px;">1</div>
+          <strong>登录日志</strong>
+        </div>
+        <div style="padding-left: 28px; font-size: 0.95em;">
+          记录用户登录时间、IP地址、登录方式等信息
+        </div>
+      </div>
+      <div style="margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
+        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+          <div style="background: #2ecc71; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7em; margin-right: 8px;">2</div>
+          <strong>操作日志</strong>
+        </div>
+        <div style="padding-left: 28px; font-size: 0.95em;">
+          记录关键业务操作和系统配置变更
+        </div>
+      </div>
+      <div style="margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
+        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+          <div style="background: #f39c12; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7em; margin-right: 8px;">3</div>
+          <strong>数据日志</strong>
+        </div>
+        <div style="padding-left: 28px; font-size: 0.95em;">
+          记录数据修改前后的详细对比信息
+        </div>
+      </div>
+      <div style="margin-bottom: 12px;">
+        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+          <div style="background: #9b59b6; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7em; margin-right: 8px;">4</div>
+          <strong>系统日志</strong>
+        </div>
+        <div style="padding-left: 28px; font-size: 0.95em;">
+          记录系统异常、错误和性能事件
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="border: 1px solid #e1e8ed; border-radius: 10px; padding: 20px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+      <div style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 12px;">🔍</div>
+      <div style="font-weight: bold; font-size: 1.1em; color: #2c3e50;">日志查询</div>
+    </div>
+    <div style="padding-left: 48px; color: #6c757d;">
+      <div style="margin-bottom: 15px;">
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+          <div style="background: #3498db; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 10px;">👤</div>
+          <strong>用户筛选</strong>
+        </div>
+        <div style="padding-left: 34px; font-size: 0.95em;">
+          支持指定用户或查看全部用户操作记录
+        </div>
+      </div>
+      <div style="margin-bottom: 15px;">
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+          <div style="background: #2ecc71; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 10px;">📅</div>
+          <strong>时间范围</strong>
+        </div>
+        <div style="padding-left: 34px; font-size: 0.95em;">
+          灵活选择查询时间范围，支持历史追溯
+        </div>
+      </div>
+      <div style="margin-bottom: 15px;">
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+          <div style="background: #f39c12; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 10px;">🏷️</div>
+          <strong>类型过滤</strong>
+        </div>
+        <div style="padding-left: 34px; font-size: 0.95em;">
+          按登录、操作、数据、系统等类型分类查询
+        </div>
+      </div>
+      <div style="margin-bottom: 15px;">
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+          <div style="background: #9b59b6; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 10px;">🔑</div>
+          <strong>关键词搜索</strong>
+        </div>
+        <div style="padding-left: 34px; font-size: 0.95em;">
+          支持操作内容关键词精确搜索
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+- [回到目录](#目录)
+
+<a id="用户权限管理"></a>
+
+### 用户权限管理
+
+权限层级:
+
+<style>
+.permission-tree {
+  display: flex;
+  flex-direction: column;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  max-width: 600px;
+  margin: 20px 0;
+}
+
+.permission-level {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  margin: 8px 0;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.permission-level:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.permission-level.main {
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  color: white;
+  font-weight: bold;
+  font-size: 1.1em;
+  border-left: 4px solid #ffd700;
+}
+
+.permission-level.secondary {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: white;
+  border-left: 4px solid #0066cc;
+}
+
+.permission-level.tertiary {
+  background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+  color: #333;
+  border-left: 4px solid #ff6600;
+}
+
+.permission-level.fourth {
+  background: linear-gradient(135deg, #23ee52ff 0%, #ffd200 100%);
+  color: #333;
+  border-left: 4px solid #ff6600;
+}
+
+.permission-icon {
+  margin-right: 12px;
+  font-size: 1.2em;
+}
+
+.permission-content {
+  flex: 1;
+}
+
+.permission-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+  padding-left: 30px;
+}
+
+.permission-item {
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  text-align: center;
+  font-size: 1em;
+}
+
+.permission-level.main .permission-item {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.permission-level.secondary .permission-item {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.permission-level.tertiary .permission-item {
+  background: rgba(255, 255, 255, 0.3);
+}
+</style>
+
+<div class="permission-tree">
+  <div class="permission-level main">
+    <div class="permission-icon">👑</div>
+    <div class="permission-content">
+      <div>超级管理员 (系统级Root/DBA)</div>
+      <div class="permission-items">
+        <div class="permission-item">创建站点</div>
+        <div class="permission-item">管理所有用户</div>
+        <div class="permission-item">系统配置</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="permission-level secondary">
+    <div class="permission-icon">🏢</div>
+    <div class="permission-content">
+      <div>站点管理员 (站点级Admin)</div>
+      <div class="permission-items">
+        <div class="permission-item">本站用户管理</div>
+        <div class="permission-item">本站数据管理</div>
+        <div class="permission-item">本站配置</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="permission-level tertiary">
+    <div class="permission-icon">👤</div>
+    <div class="permission-content">
+      <div>普通用户 (个人级User)</div>
+      <div class="permission-items">
+        <div class="permission-item">个人数据录入</div>
+        <div class="permission-item">个人数据查询</div>
+        <div class="permission-item">个人设置</div>
+      </div>
+    </div>
+  </div>
+  <div class="permission-level fourth">
+    <div class="permission-icon">🔎</div>
+    <div class="permission-content">
+      <div>访客用户 (数据只读Visitor)</div>
+      <div class="permission-items">
+        <div class="permission-item">所有功能展示</div>
+        <div class="permission-item">数据只读</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+- [回到目录](#目录)
+
+<a id="个人设置"></a>
 
 ### 🛠 个人设置
 
@@ -1928,332 +2457,9 @@ graph TD
 
 - [回到目录](#目录)
 
-<a id="数据库操作"></a>
+<a id="系统配置"></a>
 
-#### 🗄️ 数据库操作
-
-以下数据库操作功能仅对具有数据库管理员权限(DBA)的用户开放。所有数据库操作都具有潜在风险，请在执行前确保已备份重要数据。
-
-##### 重置PA-Number
-
-重置所有工作量记录的PA-Number编号，使其从1开始重新编号, 步长2。
-
-操作步骤：
-
-```bash
-1. 在左侧导航菜单中点击"数据库操作"
-2. 选择"重置PA-Number"选项
-3. 点击"确认重置"按钮
-4. 系统将显示操作结果
-
-注意事项：
-- 此操作会重新排列所有工作量记录的编号
-- 不会影响工作量数据内容
-- 仅建议在编号出现严重混乱时使用
-```
-
-##### 重置工作组别热度
-
-重置用户工作组别使用频率统计数据，重新计算各工作组别的使用热度。
-
-操作步骤：
-
-```bash
-1. 在左侧导航菜单中点击"数据库操作"
-2. 选择"重置工作组别"选项
-3. 点击"确认重置工作组别热度"按钮
-4. 系统将显示操作结果
-
-注意事项：
-- 此操作会清空现有的工作组别使用频率统计
-- 系统会重新根据用户实际使用情况计算热度
-- 不会影响用户的工作量数据
-```
-
-##### 更新ID初始值
-
-更新数据库各表的自增ID初始值，使其与当前最大ID保持一致。
-
-操作步骤：
-
-```bash
-1. 在左侧导航菜单中点击"数据库操作"
-2. 选择"更新ID初始值"选项
-3. 点击"确认更新ID初始值"按钮
-4. 系统将显示操作结果
-
-注意事项：
-- 此操作会遍历所有数据表并更新自增ID初始值
-- 防止ID重复或浪费
-- 是数据库维护的重要操作
-```
-
-##### 更新PA-Share
-
-更新共享分值（PA-Share）数据，重新计算和同步共享工作量的分值分配。
-
-操作步骤：
-
-```bash
-1. 在左侧导航菜单中点击"数据库操作"
-2. 选择"更新PA-Share"选项
-3. 点击"确认更新PA-Share"按钮
-4. 系统将显示操作结果
-
-注意事项：
-- 此操作会重新计算所有共享工作量的分值分配
-- 可能需要较长时间完成
-- 建议在系统使用较少时执行
-```
-
-##### 更新固定分值
-
-更新固定分值工作内容的分值，同步到用户工作量记录中。
-
-操作步骤：
-
-```bash
-1. 在左侧导航菜单中点击"数据库操作"
-2. 选择"更新固定分值"选项
-3. 点击"更新固定分值"按钮
-4. 再次点击"确认更新"按钮
-5. 系统将显示操作结果
-
-注意事项：
-- 此操作会根据工作内容的基准分值更新用户记录
-- 适用于基准分值调整后的批量更新
-- 不会影响用户自定义的分值和共享分值
-```
-
-##### 组别名称修改
-
-修改工作组别的名称，同时更新相关引用。
-
-操作步骤：
-
-```bash
-1. 在左侧导航菜单中点击"数据库操作"
-2. 选择"组别名称修改"选项
-3. 在界面中选择要修改的工作组别
-4. 输入新的工作组别名称
-5. 点击"确认修改"按钮
-6. 系统将显示操作结果
-
-注意事项：
-- 修改后会同步更新所有相关引用
-- 请确保新名称不与其他工作组别重复
-- 建议在修改前确认所有用户都不在使用该组别录入数据
-```
-
-##### 分组内容调整
-
-调整工作组别中的工作内容，修改工作内容与工作组别的关联关系。
-
-操作步骤：
-
-```bash
-1. 在左侧导航菜单中点击"数据库操作"
-2. 选择"分组内容调整"选项
-3. 选择要调整的工作组别
-4. 在工作内容列表中勾选或取消勾选相应内容
-5. 点击"保存修改"按钮
-6. 系统将显示操作结果
-
-注意事项：
-- 调整后会影响新录入工作量的分组显示
-- 不会影响已有工作量记录
-- 建议调整前导出相关数据作为备份
-```
-
-##### 工作内容修改
-
-修改系统中的工作内容条目，包括工作内容描述和基准分值。
-
-操作步骤：
-
-```bash
-1. 在左侧导航菜单中点击"数据库操作"
-2. 选择"工作内容修改"选项
-3. 在搜索框中输入要修改的工作内容或选择工作组别筛选
-4. 点击要修改的工作内容条目
-5. 点击"保存修改"按钮
-6. 系统将显示操作结果
-
-注意事项：
-- 修改工作内容描述会影响所有相关记录的显示
-- 建议在修改前导出相关数据作为备份
-```
-
-##### 数据库备份
-
-执行数据库的完整备份操作，生成SQL格式的备份文件。
-
-操作步骤：
-
-```bash
-1. 在左侧导航菜单中点击"数据库操作"
-2. 选择"数据库备份"选项
-3. 点击"开始备份"按钮
-4. 系统将执行备份操作并显示结果
-5. 备份文件将保存在MySQL_Backup目录中，文件名包含时间戳
-
-注意事项：
-- 备份文件包含数据库的完整数据和结构
-- 备份过程可能需要一些时间，取决于数据量大小
-- 建议定期执行备份操作
-- 备份文件可用于数据恢复或迁移
-```
-
-#### 数据库操作安全提示
-
-1. 所有数据库操作都具有潜在风险，请在操作前确认操作目的和影响范围
-2. 重要操作前请先执行数据库备份
-3. 建议在系统使用较少的时间段执行数据库维护操作
-4. 如不确定操作影响，请联系技术支持
-5. 操作完成后检查系统功能是否正常
-
-#### 用户权限管理
-
-权限层级:
-
-<style>
-.permission-tree {
-  display: flex;
-  flex-direction: column;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  max-width: 600px;
-  margin: 20px 0;
-}
-
-.permission-level {
-  display: flex;
-  align-items: center;
-  padding: 12px 15px;
-  margin: 8px 0;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  transition: all 0.3s ease;
-  background: white;
-}
-
-.permission-level:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-}
-
-.permission-level.main {
-  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-  color: white;
-  font-weight: bold;
-  font-size: 1.1em;
-  border-left: 4px solid #ffd700;
-}
-
-.permission-level.secondary {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  color: white;
-  border-left: 4px solid #0066cc;
-}
-
-.permission-level.tertiary {
-  background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
-  color: #333;
-  border-left: 4px solid #ff6600;
-}
-
-.permission-level.fourth {
-  background: linear-gradient(135deg, #23ee52ff 0%, #ffd200 100%);
-  color: #333;
-  border-left: 4px solid #ff6600;
-}
-
-.permission-icon {
-  margin-right: 12px;
-  font-size: 1.2em;
-}
-
-.permission-content {
-  flex: 1;
-}
-
-.permission-items {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 10px;
-  margin-top: 10px;
-  padding-left: 30px;
-}
-
-.permission-item {
-  padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
-  text-align: center;
-  font-size: 1em;
-}
-
-.permission-level.main .permission-item {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.permission-level.secondary .permission-item {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.permission-level.tertiary .permission-item {
-  background: rgba(255, 255, 255, 0.3);
-}
-</style>
-
-<div class="permission-tree">
-  <div class="permission-level main">
-    <div class="permission-icon">👑</div>
-    <div class="permission-content">
-      <div>超级管理员 (系统级Root/DBA)</div>
-      <div class="permission-items">
-        <div class="permission-item">创建站点</div>
-        <div class="permission-item">管理所有用户</div>
-        <div class="permission-item">系统配置</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="permission-level secondary">
-    <div class="permission-icon">🏢</div>
-    <div class="permission-content">
-      <div>站点管理员 (站点级Admin)</div>
-      <div class="permission-items">
-        <div class="permission-item">本站用户管理</div>
-        <div class="permission-item">本站数据管理</div>
-        <div class="permission-item">本站配置</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="permission-level tertiary">
-    <div class="permission-icon">👤</div>
-    <div class="permission-content">
-      <div>普通用户 (个人级User)</div>
-      <div class="permission-items">
-        <div class="permission-item">个人数据录入</div>
-        <div class="permission-item">个人数据查询</div>
-        <div class="permission-item">个人设置</div>
-      </div>
-    </div>
-  </div>
-  <div class="permission-level fourth">
-    <div class="permission-icon">🔎</div>
-    <div class="permission-content">
-      <div>访客用户 (数据只读Visitor)</div>
-      <div class="permission-items">
-        <div class="permission-item">所有功能展示</div>
-        <div class="permission-item">数据只读</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-#### ⚙️ 系统配置参数
+### ⚙️ 系统配置
 
 <div style="overflow-x: auto;">
 
@@ -2275,167 +2481,9 @@ graph TD
 
 > 💡 **说明**: 带有 **(Todo)** 标记的配置项为待实现功能，当前版本暂未生效。
 
-##### 系统设置截图
+#### 系统配置截图
 
-![系统设置截图](https://pic1.imgdb.cn/item/68a6fe7d58cb8da5c841204b.png)
-
-#### 🛠️ 数据维护
-
-<div style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); border-radius: 10px; padding: 20px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 25px;">
-  <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center;">
-    <div style="background: rgba(255, 255, 255, 0.2); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;">🔧</div>
-    数据库维护操作
-  </div>
-  <div style="opacity: 0.9;">
-    定期执行以下维护任务以确保系统稳定运行
-  </div>
-</div>
-
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 20px 0;">
-  <div style="border-left: 4px solid #3498db; background: #f8f9fa; padding: 15px; border-radius: 0 8px 8px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-    <div style="display: flex; align-items: center; margin-bottom: 10px;">
-      <div style="background: #3498db; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 10px;">🧹</div>
-      <div style="font-weight: bold; color: #3498db;">数据清理</div>
-    </div>
-    <div style="color: #6c757d; font-size: 0.95em;">
-      清理过期日志和临时文件，释放存储空间
-    </div>
-  </div>
-
-  <div style="border-left: 4px solid #2ecc71; background: #f8f9fa; padding: 15px; border-radius: 0 8px 8px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-    <div style="display: flex; align-items: center; margin-bottom: 10px;">
-      <div style="background: #2ecc71; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 10px;">⚡</div>
-      <div style="font-weight: bold; color: #2ecc71;">索引优化</div>
-    </div>
-    <div style="color: #6c757d; font-size: 0.95em;">
-      重建数据库索引以提升查询性能
-    </div>
-  </div>
-
-  <div style="border-left: 4px solid #f39c12; background: #f8f9fa; padding: 15px; border-radius: 0 8px 8px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-    <div style="display: flex; align-items: center; margin-bottom: 10px;">
-      <div style="background: #f39c12; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 10px;">✅</div>
-      <div style="font-weight: bold; color: #f39c12;">数据校验</div>
-    </div>
-    <div style="color: #6c757d; font-size: 0.95em;">
-      检查数据完整性和一致性，确保数据质量
-    </div>
-  </div>
-
-  <div style="border-left: 4px solid #9b59b6; background: #f8f9fa; padding: 15px; border-radius: 0 8px 8px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-    <div style="display: flex; align-items: center; margin-bottom: 10px;">
-      <div style="background: #9b59b6; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 10px;">🔒</div>
-      <div style="font-weight: bold; color: #9b59b6;">备份验证</div>
-    </div>
-    <div style="color: #6c757d; font-size: 0.95em;">
-      定期验证备份文件可用性，确保灾难恢复能力
-    </div>
-  </div>
-</div>
-
-### 📋 审计日志 <span style="background: #fff8e1; color: #ff9800; padding: 3px 10px; border-radius: 15px; font-size: 0.8em; font-weight: 500;">Todo</span>
-
-<div style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); border-radius: 10px; padding: 20px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: 25px 0;">
-  <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center;">
-    <div style="background: rgba(255, 255, 255, 0.2); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;">📝</div>
-    系统审计功能
-  </div>
-  <div style="opacity: 0.9;">
-    全面记录系统操作日志，保障系统安全与合规性
-  </div>
-</div>
-
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 25px 0;">
-  <div style="border: 1px solid #e1e8ed; border-radius: 10px; padding: 20px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-    <div style="display: flex; align-items: center; margin-bottom: 15px;">
-      <div style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 12px;">🔐</div>
-      <div style="font-weight: bold; font-size: 1.1em; color: #2c3e50;">日志类型</div>
-    </div>
-    <div style="padding-left: 48px; color: #6c757d;">
-      <div style="margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
-        <div style="display: flex; align-items: center; margin-bottom: 8px;">
-          <div style="background: #3498db; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7em; margin-right: 8px;">1</div>
-          <strong>登录日志</strong>
-        </div>
-        <div style="padding-left: 28px; font-size: 0.95em;">
-          记录用户登录时间、IP地址、登录方式等信息
-        </div>
-      </div>
-      <div style="margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
-        <div style="display: flex; align-items: center; margin-bottom: 8px;">
-          <div style="background: #2ecc71; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7em; margin-right: 8px;">2</div>
-          <strong>操作日志</strong>
-        </div>
-        <div style="padding-left: 28px; font-size: 0.95em;">
-          记录关键业务操作和系统配置变更
-        </div>
-      </div>
-      <div style="margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
-        <div style="display: flex; align-items: center; margin-bottom: 8px;">
-          <div style="background: #f39c12; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7em; margin-right: 8px;">3</div>
-          <strong>数据日志</strong>
-        </div>
-        <div style="padding-left: 28px; font-size: 0.95em;">
-          记录数据修改前后的详细对比信息
-        </div>
-      </div>
-      <div style="margin-bottom: 12px;">
-        <div style="display: flex; align-items: center; margin-bottom: 8px;">
-          <div style="background: #9b59b6; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7em; margin-right: 8px;">4</div>
-          <strong>系统日志</strong>
-        </div>
-        <div style="padding-left: 28px; font-size: 0.95em;">
-          记录系统异常、错误和性能事件
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div style="border: 1px solid #e1e8ed; border-radius: 10px; padding: 20px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-    <div style="display: flex; align-items: center; margin-bottom: 15px;">
-      <div style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 12px;">🔍</div>
-      <div style="font-weight: bold; font-size: 1.1em; color: #2c3e50;">日志查询</div>
-    </div>
-    <div style="padding-left: 48px; color: #6c757d;">
-      <div style="margin-bottom: 15px;">
-        <div style="display: flex; align-items: center; margin-bottom: 10px;">
-          <div style="background: #3498db; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 10px;">👤</div>
-          <strong>用户筛选</strong>
-        </div>
-        <div style="padding-left: 34px; font-size: 0.95em;">
-          支持指定用户或查看全部用户操作记录
-        </div>
-      </div>
-      <div style="margin-bottom: 15px;">
-        <div style="display: flex; align-items: center; margin-bottom: 10px;">
-          <div style="background: #2ecc71; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 10px;">📅</div>
-          <strong>时间范围</strong>
-        </div>
-        <div style="padding-left: 34px; font-size: 0.95em;">
-          灵活选择查询时间范围，支持历史追溯
-        </div>
-      </div>
-      <div style="margin-bottom: 15px;">
-        <div style="display: flex; align-items: center; margin-bottom: 10px;">
-          <div style="background: #f39c12; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 10px;">🏷️</div>
-          <strong>类型过滤</strong>
-        </div>
-        <div style="padding-left: 34px; font-size: 0.95em;">
-          按登录、操作、数据、系统等类型分类查询
-        </div>
-      </div>
-      <div style="margin-bottom: 15px;">
-        <div style="display: flex; align-items: center; margin-bottom: 10px;">
-          <div style="background: #9b59b6; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 10px;">🔑</div>
-          <strong>关键词搜索</strong>
-        </div>
-        <div style="padding-left: 34px; font-size: 0.95em;">
-          支持操作内容关键词精确搜索
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+![系统配置截图](https://pic1.imgdb.cn/item/68a6fe7d58cb8da5c841204b.png)
 
 - [回到目录](#目录)
 
@@ -2501,7 +2549,7 @@ graph TD
 
 <a id="故障排除"></a>
 
-## 故障排除
+### 故障排除
 
 ### 🔍 常见问题解决方案
 
@@ -2744,7 +2792,7 @@ graph TD
 
 <a id="安全指南"></a>
 
-## 安全指南
+### 安全指南
 
 <div style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); border-radius: 12px; padding: 25px; color: white; box-shadow: 0 6px 15px rgba(0,0,0,0.2); margin: 25px 0;">
   <div style="display: flex; align-items: center;">
@@ -3201,12 +3249,6 @@ graph TD
 
 - [回到目录](#目录)
 
-<a id="技术支持"></a>
-
-### 技术支持
-
-联系作者 : <simonpek@163.com>
-
 <a id="快速命令参考"></a>
 
 ### 🎯 快速命令参考
@@ -3281,6 +3323,8 @@ pip install -r requirements.txt --upgrade</pre>
     </div>
   </div>
 </div>
+
+<a id="技术支持"></a>
 
 <div style="background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); border-radius: 15px; padding: 25px; margin: 30px 0; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 100, 255, 0.2); border: 1px solid rgba(64, 224, 208, 0.3); position: relative; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
   <!-- 科技感装饰元素 -->
@@ -3363,5 +3407,9 @@ a:hover div {
   box-shadow: 0 0 20px currentColor;
 }
 </style>
+
+### 技术支持
+
+联系作者 : <simonpek@163.com>
 
 - [回到目录](#目录)
