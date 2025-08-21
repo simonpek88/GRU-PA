@@ -1,33 +1,55 @@
-<div style="text-align: center; margin: 20px 0 30px 0; padding: 20px 15px; background: linear-gradient(135deg, #1a2a6c 0%, #2c3e50 50%, #4a235a 100%); border-radius: 12px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.15); position: relative; overflow: hidden; font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;">
+<div class="logo-card" style="position: absolute; left: 20px; top: 20px; z-index: 100;">
+  <img src="https://i.postimg.cc/QtqvdWx7/GRU-PA-Logo.png" alt="GRU-PA Logo" style="height: 100%; width: 100%; object-fit: cover;">
+</div>
+
+<style>
+  .logo-card {
+    position: relative;
+    margin-top: 2em;
+    margin-left: 0.5em;
+    border-radius: 12px;
+    overflow: hidden;
+    height: 7.5em;
+    width: 7.5em;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  /* 扫光效果 */
+  .logo-card::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -60%;
+    width: 10%;
+    height: 200%;
+    background: linear-gradient(to right,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(128, 220, 255, 0.8) 50%,
+      rgba(255, 255, 255, 0) 100%);
+    transform: rotate(25deg);
+    z-index: 3;
+    transition: all 1.8s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .logo-card:hover::after {
+    left: 150%;
+    transition-delay: 0.1s;
+  }
+</style>
+
+<div style="text-align: center; margin: 20px 0 30px 0; padding: 20px 15px; background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%); border-radius: 12px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.15); position: relative; overflow: hidden; font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;">
   <div style="position: absolute; top: -40px; right: -40px; width: 160px; height: 160px; background: radial-gradient(circle, rgba(41, 128, 185, 0.3) 0%, transparent 70%); border-radius: 50%;"></div>
   <div style="position: absolute; bottom: -60px; left: -20px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(155, 89, 182, 0.3) 0%, transparent 70%); border-radius: 50%;"></div>
-  <style>
-    .logo-card:hover .shine {
-      animation: shine 1.5s ease-in-out;
-    }
-
-    @keyframes shine {
-      0% { left: -50%; }
-      20% { left: -10%; }
-      50% { left: 100%; }
-      100% { left: 150%; }
-    }
-  </style>
-
-  <div style="display: flex; align-items: center; justify-content: center; position: relative; z-index: 2;">
-    <div class="logo-card" style="position: relative; border-radius: 12px; overflow: hidden; margin-right: 30px; margin-top: 30px; height: 7em; width: 7em; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); cursor: pointer;">
-      <img src="https://i.postimg.cc/QtqvdWx7/GRU-PA-Logo.png" alt="GRU-PA Logo" style="height: 100%; width: 100%; object-fit: cover;">
-      <div class="shine" style="position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent); transform: skewX(-25deg);"></div>
-    </div>
-    <div style="display: flex; flex-direction: column; align-items: center;">
-      <h1 style="font-weight: 800; font-size: 2.2em; margin: 0 0 10px 0; color: #fff; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); letter-spacing: 1px; font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;">
-        GRU-PA 站室绩效考核系统
-      </h1>
-      <div style="display: flex; align-items: center; justify-content: center; padding: 8px 25px; background: linear-gradient(90deg, #3498db 0%, #9b59b6 100%); border-radius: 25px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;">
-        <span style="color: white; font-weight: 600; letter-spacing: 1px; font-size: 1.1em; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);">
-          完整操作手册 &nbsp;|&nbsp; 全A.I.智能生成
-        </span>
-      </div>
+  <div style="display: flex; flex-direction: column; align-items: center;">
+    <h1 style="font-weight: 800; font-size: 2.2em; margin: 0 0 10px 0; color: #fff; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); letter-spacing: 1px; font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;">
+      GRU-PA 站室绩效考核系统
+    </h1>
+    <div style="display: flex; align-items: center; justify-content: center; padding: 8px 25px; background: linear-gradient(90deg, #00c6ff 0%, #9c34d8ff 100%); border-radius: 25px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;">
+      <span style="color: white; font-weight: 600; letter-spacing: 1px; font-size: 1.1em; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);">
+        完整操作手册 | 全A.I.智能生成
+      </span>
     </div>
   </div>
 </div>
@@ -42,6 +64,11 @@
     ![Support Ukraine](https://img.shields.io/badge/support-Ukraine-yellow?labelColor=005bbb&color=ffd500&style=flat.svg)
     ![GRU-PA ver](https://img.shields.io/badge/ver-0.13.1352-blue.svg)
     ![GRU-PA updated](https://img.shields.io/badge/updated-25/08/11%2016:59-orange.svg)
+    ![GRU-PA build](https://img.shields.io/badge/build-passing-deepgreen.svg)
+    ![GRU-PA top-languages](https://img.shields.io/github/languages/top/simonpek88/GRU-PA.svg)
+    ![GRU-PA commits](https://img.shields.io/github/commit-activity/t/simonpek88/GRU-PA.svg)
+
+<a id="目录"></a>
     ![GRU-PA build](https://img.shields.io/badge/build-passing-deepgreen.svg)
     ![GRU-PA top-languages](https://img.shields.io/github/languages/top/simonpek88/GRU-PA.svg)
     ![GRU-PA commits](https://img.shields.io/github/commit-activity/t/simonpek88/GRU-PA.svg)
