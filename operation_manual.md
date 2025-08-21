@@ -1,5 +1,5 @@
 <div class="logo-card" style="position: absolute; left: 20px; top: 20px; z-index: 100;">
-  <img src="https://i.postimg.cc/QtqvdWx7/GRU-PA-Logo.png" alt="GRU-PA Logo" style="height: 100%; width: 100%; object-fit: cover;">
+  <img src="https://pic1.imgdb.cn/item/68a6fedc58cb8da5c84120f6.png" alt="GRU-PA Logo" style="height: 100%; width: 100%; object-fit: cover;">
 </div>
 
 <style>
@@ -1058,7 +1058,7 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
 
 ##### 高级查询示例截图
 
-![高级查询示例截图](https://i.postimg.cc/qv5vybLS/user-def-query.png)
+![高级查询示例截图](https://pic1.imgdb.cn/item/68a6febc58cb8da5c84120b7.png)
 
 - [回到目录](#目录)
 
@@ -1878,7 +1878,7 @@ graph TD
 
 #### 个人设置截图
 
-![个人设置截图](https://i.postimg.cc/QMKxbQYt/users-setup.png)
+![个人设置截图](https://pic1.imgdb.cn/item/68a6fe1258cb8da5c8411f7e.png)
 
 <div style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); border-radius: 10px; padding: 20px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin: 25px 0;">
   <div style="font-size: 1.3em; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center;">
@@ -2277,7 +2277,7 @@ graph TD
 
 ##### 系统设置截图
 
-![系统设置截图](https://i.postimg.cc/Px2KK4SC/system-setup.png)
+![系统设置截图](https://pic1.imgdb.cn/item/68a6fe7d58cb8da5c841204b.png)
 
 #### 🛠️ 数据维护
 
