@@ -3581,8 +3581,8 @@ def source_github_sync():
             st.info(temp_info)
         if st.session_state.github_access:
             cloud_col = st.columns(4)
-            btn_github_to_local = cloud_col[0].button("从GitHub同步到本地", icon=":material/cloud_download:", type="primary")
-            btn_local_to_github = cloud_col[1].button("上传至GitHub仓库", icon=":material/cloud_upload:", type="primary")
+            btn_github_to_local = cloud_col[0].button("从GitHub同步到本地", icon=":material/cloud_download:", type="primary", disabled=st.session_state.readonly)
+            btn_local_to_github = cloud_col[1].button("上传至GitHub仓库", icon=":material/cloud_upload:", type="primary", disabled=st.session_state.readonly)
             if btn_github_to_local:
                 cloud_col[0].button("确认", type="secondary", on_click=act_sync_repo, args=("github_to_local",))
             elif btn_local_to_github:
