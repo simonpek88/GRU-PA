@@ -120,6 +120,7 @@ pixi
 pkill
 platech
 platechar
+postimages
 precip
 pybadges
 pycryptodome

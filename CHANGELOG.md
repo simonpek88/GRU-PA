@@ -47,6 +47,14 @@
 #### 📅 最新版本
 
 <details>
+<summary><strong>🚀 版本 0.20.2000</strong> (2025-08-22) | <code>更改图床</code></summary>
+
+- 🚀 优化
+  - postimages图床由于访问问题，改为聚合图床
+
+</details>
+
+<details>
 <summary><strong>✏️ 版本 0.19.1930</strong> (2025-08-21) | <code>更改版本存储方式</code></summary>
 
 - ✏️ 更改
@@ -111,10 +119,10 @@
 </details>
 
 <details>
-<summary><strong>🚀 版本 0.16.1697</strong> (2025-08-19) | <code>MySQL更新至8.4.6</code></summary>
+<summary><strong>🚀 版本 0.16.1697</strong> (2025-08-19) | <code>MySQL更新至8.4.6 LTS</code></summary>
 
 - 🚀 优化
-  - MySQL更新至8.4.6
+  - MySQL更新至8.4.6 LTS
 
 </details>
 
