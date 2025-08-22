@@ -86,7 +86,7 @@
     <div style="display: inline-block; border-radius: 25px; overflow: hidden; clip-path: inset(0 0 0 0 round 25px);">
       <div style="display: flex; align-items: center; justify-content: center; padding: 8px 30px; background: linear-gradient(90deg, #00c6ff 0%, #9c34d8ff 100%); box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); font-family: 'Microsoft YaHei', '微软雅黑', sans-serif; margin: -1px;">
         <span style="color: white; font-weight: 600; letter-spacing: 1px; font-size: 1.1em; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);">
-          完整操作手册 | 全A.I.智能生成
+          完全操作手册 | 全A.I.智能生成
         </span>
       </div>
     </div>
@@ -103,9 +103,6 @@
     ![Support Ukraine](https://img.shields.io/badge/support-Ukraine-yellow?labelColor=005bbb&color=ffd500&style=flat.svg)
     ![GRU-PA ver](https://img.shields.io/badge/ver-0.13.1352-blue.svg)
     ![GRU-PA updated](https://img.shields.io/badge/updated-25/08/11%2016:59-orange.svg)
-    ![GRU-PA build](https://img.shields.io/badge/build-passing-deepgreen.svg)
-    ![GRU-PA top-languages](https://img.shields.io/github/languages/top/simonpek88/GRU-PA.svg)
-    ![GRU-PA commits](https://img.shields.io/github/commit-activity/t/simonpek88/GRU-PA.svg)
     ![GRU-PA build](https://img.shields.io/badge/build-passing-deepgreen.svg)
     ![GRU-PA top-languages](https://img.shields.io/github/languages/top/simonpek88/GRU-PA.svg)
     ![GRU-PA commits](https://img.shields.io/github/commit-activity/t/simonpek88/GRU-PA.svg)
