@@ -490,18 +490,19 @@ GRU-PA (Grass-roots unit Performance Appraisal system) 是一款专为基层站�
     # 安装Dlib (Windows 请对应python版本选择对应的whl文件)
     pip install dlib/dlib-20.0.0-cp{python版本}-cp{python版本}-win_amd64.whl
 
-    # 安装Dlib (Windows/Linux/Mac编译)
+    # 或Dlib编译安装
+    # Windows/Linux/Mac编译
     cd dlib
     mkdir build
     cd build
     cmake .. -DDLIB_USE_CUDA=1 -DUSE_AVX_INSTRUCTIONS=1  # GPU加速
-    # 或者
+    # 或
     cmake .. # 无GPU环境
     cmake --build .
     cd ..
     # setup.py 安装
     python setup.py install
-    # 或者
+    # 或
     # 编译成wheel文件安装 (推荐)
     python setup.py bdist_wheel # 生成wheel文件
     pip install dist/dlib-20.0.0-cp{python版本}-cp{python版本}-win_amd64.whl
@@ -1163,8 +1164,8 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
   </div>
   <div style="color: #5c6b7a;">
     系统会自动校验统计数据的合理性：<br>
-    1. 检查三种输油状态和值班总计是否为偶数<br>
-    2. 检查总值班次数是否超过理论最大值（天数×2）<br>
+    1. 检查三种输油状态和值班总计是否为偶数/奇数(双人/三人值班模式)<br>
+    2. 检查总值班次数是否超过理论最大值（天数×2/x3 双人/三人值班模式）<br>
     3. 如果发现数据异常，系统会提示"值班人数与值班合计数据不匹配，请检查!"
   </div>
 </div>
@@ -2971,7 +2972,7 @@ graph TD
         <div style="margin-right: 12px; font-size: 1.2em;">📖</div>
         <div>
           <div style="font-weight: 500;">操作手册</div>
-          <div style="font-size: 1em; opacity: 0.9;">operation_manual.md (本文件)</div>
+          <div style="font-size: 1em; opacity: 0.9;">operation_manual.md</div>
         </div>
       </div>
       <div style="display: flex; align-items: center; background: rgba(255, 255, 255, 0.15); padding: 12px 15px; border-radius: 8px;">
