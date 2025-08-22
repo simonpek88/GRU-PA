@@ -1,4 +1,4 @@
-# 站室绩效考核系统GRU-PA
+# 站室绩效考核系统 GRU-PA
 
 Grass-roots unit performance appraisal system (GRU-PA).
 
@@ -10,7 +10,7 @@ Grass-roots unit performance appraisal system (GRU-PA).
     ![GRU-PA top-languages](https://img.shields.io/github/languages/top/simonpek88/GRU-PA.svg)
     ![GRU-PA commits](https://img.shields.io/github/commit-activity/t/simonpek88/GRU-PA.svg)
 
-## 站室绩效考核系统GRU-PA 是一个前端基于 Streamlit 框架，后端基于Python数据处理的web应用，旨在简化站室工作量录入、统计及考核
+## 站室绩效考核系统 GRU-PA 是一个前端基于 Streamlit 框架，后端基于Python数据处理的web应用，旨在简化站室工作量录入、统计及考核
 
 ## Contents
 
@@ -138,7 +138,7 @@ Grass-roots unit performance appraisal system (GRU-PA).
 
 ## Git Repository
 
-[站室绩效考核系统GRU-PA](https://github.com/simonpek88/GRU-PA.git)
+[站室绩效考核系统 GRU-PA](https://github.com/simonpek88/GRU-PA.git)
 
 ## License
 

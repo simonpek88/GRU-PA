@@ -1,4 +1,4 @@
-### 🚀 GRU-PA 系统更新日志
+### 🚀 站室绩效考核系统 GRU-PA 系统更新日志
 
 <style>
 /* 客户端（桌面端）样式 */
@@ -47,14 +47,20 @@
 #### 📅 最新版本
 
 <details>
+<summary><strong>✨ 版本 0.20.2013</strong> (2025-08-23) | <code>更新操作手册</code></summary>
+
+- ✨ 更新
+  - 操作手册及项目说明文档
+
+</details>
+
+<details>
 <summary><strong>🚀 版本 0.20.2004</strong> (2025-08-22) | <code>使用web-font</code></summary>
 
 - 🚀 优化
   - 特殊字体使用科大的web-font
 
 </details>
-
-<details>
 
 <details>
 <summary><strong>🚀 版本 0.20.2000</strong> (2025-08-22) | <code>更改图床</code></summary>

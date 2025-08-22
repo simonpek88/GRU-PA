@@ -3728,7 +3728,7 @@ def work_report():
 
 
 global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME, JSON_FILE
-APPNAME_CN = "站室绩效考核系统GRU-PA"
+APPNAME_CN = "站室绩效考核系统 GRU-PA"
 APPNAME_EN = "GRU-PA"
 STATION_CITYNAME = {'北京站': '顺义', '天津站': '滨海新区', '总控室': '滨海新区', '调控中心': '滨海新区', '武清站': '武清'}
 JSON_FILE = "verinfo.json"

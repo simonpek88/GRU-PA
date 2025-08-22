@@ -81,7 +81,7 @@
   <div style="position: absolute; bottom: -60px; left: -20px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(155, 89, 182, 0.3) 0%, transparent 70%); border-radius: 50%;"></div>
   <div style="display: flex; flex-direction: column; align-items: center;">
     <h1 style="font-weight: 800; font-size: 2.2em; margin: 0 0 10px 0; color: #fff; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); letter-spacing: 1px; font-family: 'Orbitron', 'Roboto Mono', 'Consolas', 'Microsoft YaHei', '微软雅黑', monospace;">
-      GRU-PA 站室绩效考核系统
+      站室绩效考核系统 GRU-PA
     </h1>
     <div style="display: inline-block; border-radius: 25px; overflow: hidden; clip-path: inset(0 0 0 0 round 25px);">
       <div style="display: flex; align-items: center; justify-content: center; padding: 8px 30px; background: linear-gradient(90deg, #00c6ff 0%, #9c34d8ff 100%); box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); font-family: 'Microsoft YaHei', '微软雅黑', sans-serif; margin: -1px;">
@@ -161,7 +161,7 @@
 
 ### 🎯 系统定位
 
-GRU-PA (Grass-roots unit Performance Appraisal system) 是一款专为基层站室设计的绩效考核管理系统，集成了工作量录入、统计分析、人脸识别、天气查询等现代化管理功能。
+#### :orange[GRU-PA (Grass-roots unit Performance Appraisal system) 是一款专为基层站室设计的绩效考核管理系统，集成了工作量录入、统计分析、人脸识别、天气查询等现代化管理功能]
 
 ### 🏗️ 技术架构
 
