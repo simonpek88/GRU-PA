@@ -142,6 +142,7 @@ restoredb
 Resultto
 retroclockbox
 rgba
+Roboto
 root
 rowid
 Ryzen

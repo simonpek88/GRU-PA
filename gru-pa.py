@@ -56,7 +56,15 @@ def login():
     st.set_page_config(layout="centered")
     face_type = None
     # 显示应用名称
-    st.markdown(f"<font face='微软雅黑' color=purple size=14><center>**{APPNAME_CN}**</center></font>", unsafe_allow_html=True)
+    #st.markdown(f"<font face='微软雅黑' color=purple size=14><center>**{APPNAME_CN}**</center></font>", unsafe_allow_html=True)
+    app_name_str = f"""
+        <div style="display: flex; flex-direction: column; align-items: center;">
+            <h1 style="font-weight: 800; font-size: 3em; margin: 0 0 10px 0; color: #9A32CD; text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); letter-spacing: 1px; font-family: 'Orbitron', 'Roboto Mono', 'Consolas', 'Microsoft YaHei', '微软雅黑', monospace;">
+            {APPNAME_CN}
+            </h1>
+        </div>
+    """
+    st.markdown(app_name_str, unsafe_allow_html=True)
     # 登录表单容器
     login_area = st.empty()
     with login_area.container(border=True):
@@ -2378,7 +2386,15 @@ def displayVisitCounter_static():
 
 @st.fragment
 def displayAppInfo_static():
-    st.markdown(f"<font face='微软雅黑' color=purple size=16><center>**{APPNAME_CN}**</center></font>", unsafe_allow_html=True)
+    #st.markdown(f"<font face='微软雅黑' color=purple size=16><center>**{APPNAME_CN}**</center></font>", unsafe_allow_html=True)
+    app_name_str = f"""
+        <div style="display: flex; flex-direction: column; align-items: center;">
+            <h1 style="font-weight: 800; font-size: 3em; margin: 0 0 10px 0; color: #9A32CD; text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); letter-spacing: 1px; font-family: 'Orbitron', 'Roboto Mono', 'Consolas', 'Microsoft YaHei', '微软雅黑', monospace;">
+            {APPNAME_CN}
+            </h1>
+        </div>
+    """
+    st.markdown(app_name_str, unsafe_allow_html=True)
     update_type, update_content = get_update_content(f"./CHANGELOG.md")
     verinfo, verLM = getVerInfo()
     app_info =  f"{int(verinfo / 10000)}.{int((verinfo % 10000) / 100)}.{int(verinfo / 10)} building {verinfo}"
