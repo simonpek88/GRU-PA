@@ -54,6 +54,20 @@ from repo_sync import (check_github_access, sync_github_to_local_repo,
 @st.fragment
 def login():
     st.set_page_config(layout="centered")
+    st.markdown(
+        """
+        <style>
+        @import url('https://fonts.lug.ustc.edu.cn/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+
+        /* 确保字体加载不阻塞内容显示 */
+        @font-face {
+          font-family: 'Orbitron';
+          font-display: swap;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
     face_type = None
     # 显示应用名称
     #st.markdown(f"<font face='微软雅黑' color=purple size=14><center>**{APPNAME_CN}**</center></font>", unsafe_allow_html=True)

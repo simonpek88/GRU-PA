@@ -47,6 +47,16 @@
 #### 📅 最新版本
 
 <details>
+<summary><strong>🚀 版本 0.20.2004</strong> (2025-08-22) | <code>使用web-font</code></summary>
+
+- 🚀 优化
+  - 特殊字体使用科大的web-font
+
+</details>
+
+<details>
+
+<details>
 <summary><strong>🚀 版本 0.20.2000</strong> (2025-08-22) | <code>更改图床</code></summary>
 
 - 🚀 优化
