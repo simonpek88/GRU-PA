@@ -111,7 +111,6 @@
 
 ### 目录
 
-- [Todo](#Todo)
 - [系统概述](#系统概述)
 - [系统安装与配置](#系统安装与配置)
 - [快速入门](#快速入门)
@@ -136,21 +135,6 @@
 - [附录-文件清单](#附录-文件清单)
 - [快速命令参考](#快速命令参考)
 - [技术支持](#技术支持)
-
-<a id="Todo"></a>
-
-### 📝 Todo
-
-- 统计导出自定义模板
-- 人脸识别最大尝试次数
-- 系统会话超时
-- 用户密码定期修改
-- 用户修改密码不能重复使用最近5次密码
-- 登录连续5次失败则锁定30分钟
-- 基于IP的白名单的访问控制
-- 审计所有敏感操作
-
-- [回到目录](#目录)
 
 <a id="系统概述"></a>
 
@@ -2372,7 +2356,7 @@ graph TD
 
 #### 个人设置截图
 
-![个人设置截图](https://pic1.imgdb.cn/item/68a6fe1258cb8da5c8411f7e.png)
+![个人设置截图](https://pic1.imgdb.cn/item/68a9ccfd58cb8da5c846d04f.png)
 
 <div style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); border-radius: 10px; padding: 20px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin: 25px 0;">
   <div style="font-size: 1.3em; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center;">
@@ -2448,7 +2432,7 @@ graph TD
 
 #### 系统配置截图
 
-![系统配置截图](https://pic1.imgdb.cn/item/68a6fe7d58cb8da5c841204b.png)
+![系统配置截图](https://pic1.imgdb.cn/item/68a9cc9458cb8da5c846d02f.png)
 
 - [回到目录](#目录)
 
