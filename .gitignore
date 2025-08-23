@@ -19,6 +19,7 @@ Images/license_plate/user_vlp/test_*
 FaceCompare.py
 .mysql.cnf
 online_users.json
+mcpServers.json
 *.pem
 *.backup
 mysql_pool.py
