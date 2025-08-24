@@ -1167,7 +1167,7 @@ def manual_input():
             st.markdown(f"##### :green[共享独占与共享分值设置冲突, 已自动打开共享分值]")
     else:
         flag_add_pa, flag_multi_score, flag_comm_task, flag_default_task, flag_share_score, flag_task_type = False, False, False, False, False, False
-    task_content = st.text_area("工作内容", height=100)
+    task_content = st.text_area(label="工作内容", value="", height=100)
     confirm_btn_manual = st.button("确认添加", disabled=st.session_state.readonly)
     task_content = task_content.strip()
     if task_group and task_content and confirm_btn_manual:
