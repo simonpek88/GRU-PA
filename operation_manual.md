@@ -3195,13 +3195,12 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
 <style>
 .file-container {
   background: #f8f9fa;
-  border-radius: 12px;
-  padding: 25px;
-  margin: 25px 0;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: 8px;
+  padding: 15px;
+  margin: 15px 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border: 1px solid rgba(0,0,0,0.03);
   position: relative;
-  overflow: hidden;
 }
 .file-container::before {
   content: "";
@@ -3209,10 +3208,10 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
   top: 0;
   left: 0;
   width: 100%;
-  height: 4px;
+  height: 2px;
   background: linear-gradient(90deg, #6a11cb, #2575fc, #11998e, #f7971e, #ff416c);
   background-size: 500% 500%;
-  animation: gradientBG 3s ease infinite;
+  animation: gradientBG 4s ease infinite;
 }
 @keyframes gradientBG {
   0% {background-position: 0% 50%;}
@@ -3222,71 +3221,47 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
 .file-category {
   background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
   color: white;
-  padding: 8px 16px;
-  border-radius: 25px;
-  font-size: 1.1em;
-  margin: 20px 0 15px 0;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.9em;
+  margin: 10px 0 8px 0;
   display: inline-block;
-  box-shadow: 0 4px 10px rgba(106, 17, 203, 0.3);
-  transform: scale(1);
-  transition: all 0.3s ease;
-}
-.file-category:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 15px rgba(106, 17, 203, 0.4);
+  box-shadow: 0 2px 6px rgba(106, 17, 203, 0.2);
 }
 .file-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 15px;
-  margin-top: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 10px;
+  margin-top: 5px;
 }
 .file-item {
   background: white;
-  margin: 6px 0;
-  padding: 12px 16px;
-  border-radius: 8px;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-  border-left: 4px solid #3498db;
-  display: flex;
-  align-items: center;
-  position: relative;
-  overflow: hidden;
-}
-.file-item::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-  transition: 0.5s;
+  margin: 4px 0;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  border-left: 3px solid #3498db;
 }
 .file-item:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
   border-left-color: #6a11cb;
-}
-.file-item:hover::after {
-  left: 100%;
 }
 .file-name {
   font-family: 'Courier New', monospace;
-  font-weight: 700;
+  font-weight: 600;
   color: #2c3e50;
-  font-size: 1.05em;
+  font-size: 0.9em;
   flex: 1;
 }
 .file-comment {
   color: #7f8c8d;
-  font-size: 0.95em;
-  margin-left: 15px;
+  font-size: 0.85em;
+  margin-left: 10px;
   background: #f1f8ff;
-  padding: 4px 10px;
-  border-radius: 15px;
-  white-space: nowrap;
+  padding: 2px 8px;
+  border-radius: 12px;
 }
 .folder {
   color: #2980b9;
@@ -3350,7 +3325,7 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
       <div class="file-category">🔧 脚本工具</div>
       <div class="file-item"><span class="file-name">MyComponentsScript</span> <span class="file-comment"># 自定义组件脚本, txt格式</span></div>
       <div class="file-item"><span class="file-name">DBBackup.ps1</span> <span class="file-comment"># 数据库备份PS脚本</span></div>
-      <div class="file-item"><span class="file-name">DBBackup.sh</span> <span class="file-comment"># 数据库备份bash脚本</span></div>
+      <div class="file-item"><span class="file-name">DBBackup_bash.sh</span> <span class="file-comment"># 数据库备份bash脚本</span></div>
       <div class="file-item"><span class="file-name">restoredb.bat</span> <span class="file-comment"># 数据库恢复bat脚本</span></div>
     </div>
     <div>
@@ -3364,8 +3339,8 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
     </div>
     <div>
       <div class="file-category">🔤 拼写检查</div>
-      <div class="file-item"><span class="file-name">CSC-Common-CustomDict.txt</span> <span class="file-comment"># CSpell自定义通用字典文件</span></div>
-      <div class="file-item"><span class="file-name">CSC-Project-CustomDict.txt</span> <span class="file-comment"># CSpell自定义字典文件</span></div>
+      <div class="file-item"><span class="file-name">CSC-Common-CustomDict.txt</span> <span class="file-comment"># CSpell通用自定义字典文件</span></div>
+      <div class="file-item"><span class="file-name">CSC-Project-CustomDict.txt</span> <span class="file-comment"># CSpell项目自定义字典文件</span></div>
     </div>
   </div>
 </div>
@@ -3486,11 +3461,11 @@ pip install -r requirements.txt --upgrade</pre>
       <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 25px; font-size: 0.95em;">
         <div style="display: flex; align-items: center;">
           <div style="width: 10px; height: 10px; background: #00ff9d; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00ff9d;"></div>
-          <span style="color: #a0d2eb;">手册版本: <span style="color: #00c3ff; font-weight: 600;">v1.2.5</span></span>
+          <span style="color: #a0d2eb;">手册版本: <span style="color: #00c3ff; font-weight: 600;">v1.3.0</span></span>
         </div>
         <div style="display: flex; align-items: center;">
           <div style="width: 10px; height: 10px; background: #ff6b6b; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #ff6b6b;"></div>
-          <span style="color: #a0d2eb;">更新时间: <span style="color: #00c3ff; font-weight: 600;">2025-08-21</span></span>
+          <span style="color: #a0d2eb;">更新时间: <span style="color: #00c3ff; font-weight: 600;">2025-08-26</span></span>
         </div>
         <div style="display: flex; align-items: center;">
           <div style="width: 10px; height: 10px; background: #ffd166; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #ffd166;"></div>
