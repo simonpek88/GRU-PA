@@ -1249,17 +1249,126 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
 
 #### 🔐 技术架构 人脸识别流程
 
-```mermaid
-graph TD
-    A[📷 摄像头捕获] --> B[🔍 人脸检测]
-    B --> C[📍 特征点定位]
-    C --> D[🔢 特征向量提取]
-    D --> E[💾 数据库比对]
-    E --> F[📊 相似度计算]
-    F --> G[⚖️ 阈值判断]
-    G -->|✅ 通过\n相似度 ≥ 阈值| H[✅ 登录成功]
-    G -->|❌ 失败\n相似度 < 阈值| I[🔑 密码登录]
-```
+<div style="margin: 15px 0; padding: 15px; background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow-x: auto;">
+  <div style="min-width: 700px;">
+    <!-- 流程图标题 -->
+    <div style="text-align: center; margin-bottom: 20px;">
+      <h3 style="color: #2c3e50; font-size: 1.3em; margin: 0; font-weight: 600;">人脸识别认证流程</h3>
+      <div style="width: 40px; height: 3px; background: linear-gradient(90deg, #3498db, #2c3e50); margin: 8px auto; border-radius: 3px;"></div>
+    </div>
+    <!-- 横向流程图主体 -->
+    <div style="display: flex; align-items: center; justify-content: space-between; position: relative;">
+      <!-- 步骤1 -->
+      <div style="display: flex; flex-direction: column; align-items: center; z-index: 2;">
+        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #3498db, #2980b9); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8em; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);">
+          📷
+        </div>
+        <div style="margin-top: 8px; text-align: center; padding: 6px 12px; background: linear-gradient(135deg, #133ae9ff, #1ddd80ff); border-radius: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: 500; color: #ffffff; border: 1px solid #6a6a9f; white-space: nowrap; font-size: 0.9em; display: flex; align-items: center; justify-content: center;">
+          摄像头捕获
+        </div>
+      </div>
+      <!-- 连接线1 -->
+      <div style="height: 2px; width: 35px; background: linear-gradient(to right, #3498db, #2ecc71);"></div>
+      <!-- 步骤2 -->
+      <div style="display: flex; flex-direction: column; align-items: center; z-index: 2;">
+        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #2ecc71, #27ae60); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8em; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.4);">
+          🔍
+        </div>
+        <div style="margin-top: 8px; text-align: center; padding: 6px 12px; background: linear-gradient(135deg, #133ae9ff, #1ddd80ff); border-radius: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: 500; color: #ffffff; border: 1px solid #6a6a9f; white-space: nowrap; font-size: 0.9em; display: flex; align-items: center; justify-content: center;">
+          人脸检测
+        </div>
+      </div>
+      <!-- 连接线2 -->
+      <div style="height: 2px; width: 35px; background: linear-gradient(to right, #2ecc71, #f39c12);"></div>
+      <!-- 步骤3 -->
+      <div style="display: flex; flex-direction: column; align-items: center; z-index: 2;">
+        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #f39c12, #d35400); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8em; box-shadow: 0 4px 10px rgba(243, 156, 18, 0.4);">
+          📍
+        </div>
+        <div style="margin-top: 8px; text-align: center; padding: 6px 12px; background: linear-gradient(135deg, #133ae9ff, #1ddd80ff); border-radius: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: 500; color: #ffffff; border: 1px solid #6a6a9f; white-space: nowrap; font-size: 0.9em; display: flex; align-items: center; justify-content: center;">
+          特征点定位
+        </div>
+      </div>
+      <!-- 连接线3 -->
+      <div style="height: 2px; width: 35px; background: linear-gradient(to right, #f39c12, #9b59b6);"></div>
+      <!-- 步骤4 -->
+      <div style="display: flex; flex-direction: column; align-items: center; z-index: 2;">
+        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #9b59b6, #8e44ad); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8em; box-shadow: 0 4px 10px rgba(155, 89, 182, 0.4);">
+          🔢
+        </div>
+        <div style="margin-top: 8px; text-align: center; padding: 6px 12px; background: linear-gradient(135deg, #133ae9ff, #1ddd80ff); border-radius: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: 500; color: #ffffff; border: 1px solid #6a6a9f; white-space: nowrap; font-size: 0.9em; display: flex; align-items: center; justify-content: center;">
+          特征向量提取
+        </div>
+      </div>
+      <!-- 连接线4 -->
+      <div style="height: 2px; width: 35px; background: linear-gradient(to right, #9b59b6, #3498db);"></div>
+      <!-- 步骤5 -->
+      <div style="display: flex; flex-direction: column; align-items: center; z-index: 2;">
+        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #3498db, #2980b9); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8em; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);">
+          💾
+        </div>
+        <div style="margin-top: 8px; text-align: center; padding: 6px 12px; background: linear-gradient(135deg, #133ae9ff, #1ddd80ff); border-radius: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: 500; color: #ffffff; border: 1px solid #6a6a9f; white-space: nowrap; font-size: 0.9em; display: flex; align-items: center; justify-content: center;">
+          数据库比对
+        </div>
+      </div>
+      <!-- 连接线5 -->
+      <div style="height: 2px; width: 35px; background: linear-gradient(to right, #3498db, #e74c3c);"></div>
+      <!-- 步骤6 -->
+      <div style="display: flex; flex-direction: column; align-items: center; z-index: 2;">
+        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #e74c3c, #c0392b); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8em; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.4);">
+          📊
+        </div>
+        <div style="margin-top: 8px; text-align: center; padding: 6px 12px; background: linear-gradient(135deg, #133ae9ff, #1ddd80ff); border-radius: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: 500; color: #ffffff; border: 1px solid #6a6a9f; white-space: nowrap; font-size: 0.9em; display: flex; align-items: center; justify-content: center;">
+          相似度计算
+        </div>
+      </div>
+      <!-- 连接线6 -->
+      <div style="height: 2px; width: 35px; background: linear-gradient(to right, #e74c3c, #95a5a6);"></div>
+      <!-- 步骤7 -->
+      <div style="display: flex; flex-direction: column; align-items: center; z-index: 2;">
+        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #95a5a6, #7f8c8d); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8em; box-shadow: 0 4px 10px rgba(149, 165, 166, 0.4);">
+          ⚖️
+        </div>
+        <div style="margin-top: 8px; text-align: center; padding: 6px 12px; background: linear-gradient(135deg, #133ae9ff, #1ddd80ff); border-radius: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: 500; color: #ffffff; border: 1px solid #6a6a9f; white-space: nowrap; font-size: 0.9em; display: flex; align-items: center; justify-content: center;">
+          阈值判断
+        </div>
+      </div>
+      <!-- 分支连接 -->
+      <div style="position: relative; width: 20px; height: 35px; margin: 0 17px;">
+        <div style="position: absolute; top: -10%; left: 0; transform: translateY(-50%); width: 20px; height: 2px; background: linear-gradient(to right, #95a5a6, #95a5a6);"></div>
+        <div style="position: absolute; top: -10%; left: 20px; transform: translateY(-50%) rotate(35deg); transform-origin: left center; width: 20px; height: 2px; background: linear-gradient(to right, #95a5a6, #95a5a6);"></div>
+        <div style="position: absolute; top: -10%; left: 20px; transform: translateY(-50%) rotate(-35deg); transform-origin: left center; width: 20px; height: 2px; background: linear-gradient(to right, #95a5a6, #95a5a6);"></div>
+      </div>
+      <!-- 分支结果 -->
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 120px; transform: translateY(-90px);">
+        <!-- 成功分支 -->
+        <div style="display: flex; flex-direction: column; align-items: center;">
+          <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #2ecc71, #27ae60); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.3em; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.4);">
+            ✅
+          </div>
+          <div style="margin-top: 8px; text-align: center; padding: 5px 10px; background: linear-gradient(135deg, #133ae9ff, #1ddd80ff); border-radius: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: 500; color: #ffffff; border: 1px solid #6a6a9f; white-space: nowrap; font-size: 0.8em; display: flex; align-items: center; justify-content: center;">
+            登录成功
+          </div>
+          <div style="margin-top: 6px; text-align: center; padding: 3px 6px; background: #2ecc71; color: white; border-radius: 10px; font-size: 0.7em; white-space: nowrap;">
+            相似度 ≥ 阈值
+          </div>
+        </div>
+        <!-- 失败分支 -->
+        <div style="display: flex; flex-direction: column; align-items: center;">
+          <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #e74c3c, #c0392b); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.3em; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.4);">
+            ❌
+          </div>
+          <div style="margin-top: 8px; text-align: center; padding: 5px 10px; background: linear-gradient(135deg, #133ae9ff, #1ddd80ff); border-radius: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: 500; color: #ffffff; border: 1px solid #6a6a9f; white-space: nowrap; font-size: 0.8em; display: flex; align-items: center; justify-content: center;">
+            密码登录
+          </div>
+          <div style="margin-top: 6px; text-align: center; padding: 3px 6px; background: #e74c3c; color: white; border-radius: 10px; font-size: 0.7em; white-space: nowrap;">
+            相似度 < 阈值
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin: 20px 0;">
   <div style="font-weight: bold; font-size: 1.1em; color: #e74c3c; margin-bottom: 15px; display: flex; align-items: center;">
@@ -1311,23 +1420,100 @@ graph TD
 
 #### 录入流程
 
-```mermaid
-graph TD
-    A[👤 进入设置] --> B[🔐 权限检查]
-    B --> C[📍 位置调整]
-    C --> D[📸 多角度采集]
-    D --> E[🔍 质量检查]
-    E --> F[🔢 特征提取]
-    F --> G[💾 保存至数据库]
-
-    A --> A1[设置 → 录入人脸数据]
-    B --> B1[确保摄像头权限已开启]
-    C --> C1[面部居中，占画面1/3]
-    D --> D1[系统自动采集5个角度]
-    E --> E1[自动检测照片质量]
-    F --> F1[生成128维特征向量]
-    G --> G1[显示录入成功提示]
-```
+<div style="margin: 15px 0; padding: 15px; background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow-x: auto;">
+  <div style="min-width: 700px;">
+    <!-- 流程图标题 -->
+    <div style="text-align: center; margin-bottom: 20px;">
+      <h3 style="color: #2c3e50; font-size: 1.3em; margin: 0; font-weight: 600;">人脸录入流程</h3>
+      <div style="width: 40px; height: 3px; background: linear-gradient(90deg, #3498db, #2c3e50); margin: 8px auto; border-radius: 3px;"></div>
+    </div>
+    <!-- 横向流程图主体 -->
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; position: relative;">
+      <!-- 步骤1 -->
+      <div style="display: flex; flex-direction: column; align-items: center; z-index: 2;">
+        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #3498db, #2980b9); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8em; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);">
+          👤
+        </div>
+        <div style="margin-top: 8px; text-align: center; padding: 6px 12px; background: linear-gradient(135deg, #1ddd80ff, #133ae9ff); border-radius: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: 500; color: #ffffff; border: 1px solid #6a6a9f; white-space: nowrap; font-size: 0.83em; height: 45px; display: flex; align-items: center; justify-content: center;">
+          进入设置<br>
+          录入人脸数据
+        </div>
+      </div>
+      <!-- 连接线1 -->
+      <div style="height: 2px; width: 35px; background: linear-gradient(to right, #3498db, #2ecc71); margin-top: 30px;"></div>
+      <!-- 步骤2 -->
+      <div style="display: flex; flex-direction: column; align-items: center; z-index: 2;">
+        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #2ecc71, #27ae60); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8em; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.4);">
+          🔐
+        </div>
+        <div style="margin-top: 8px; text-align: center; padding: 6px 12px; background: linear-gradient(135deg, #1ddd80ff, #133ae9ff); border-radius: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: 500; color: #ffffff; border: 1px solid #6a6a9f; white-space: nowrap; font-size: 0.83em; height: 45px; display: flex; align-items: center; justify-content: center;">
+          权限检查<br>
+          确保摄像头权限已开启
+        </div>
+      </div>
+      <!-- 连接线2 -->
+      <div style="height: 2px; width: 35px; background: linear-gradient(to right, #2ecc71, #f39c12); margin-top: 30px;"></div>
+      <!-- 步骤3 -->
+      <div style="display: flex; flex-direction: column; align-items: center; z-index: 2;">
+        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #f39c12, #d35400); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8em; box-shadow: 0 4px 10px rgba(243, 156, 18, 0.4);">
+          📍
+        </div>
+        <div style="margin-top: 8px; text-align: center; padding: 6px 12px; background: linear-gradient(135deg, #1ddd80ff, #133ae9ff); border-radius: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: 500; color: #ffffff; border: 1px solid #6a6a9f; white-space: nowrap; font-size: 0.83em; height: 45px; display: flex; align-items: center; justify-content: center;">
+          位置调整<br>
+          面部居中，占画面1/3
+        </div>
+      </div>
+      <!-- 连接线3 -->
+      <div style="height: 2px; width: 35px; background: linear-gradient(to right, #f39c12, #9b59b6); margin-top: 30px;"></div>
+      <!-- 步骤4 -->
+      <div style="display: flex; flex-direction: column; align-items: center; z-index: 2;">
+        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #9b59b6, #8e44ad); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8em; box-shadow: 0 4px 10px rgba(155, 89, 182, 0.4);">
+          📸
+        </div>
+        <div style="margin-top: 8px; text-align: center; padding: 6px 12px; background: linear-gradient(135deg, #1ddd80ff, #133ae9ff); border-radius: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: 500; color: #ffffff; border: 1px solid #6a6a9f; white-space: nowrap; font-size: 0.83em; height: 45px; display: flex; align-items: center; justify-content: center;">
+          多角度采集<br>
+          系统自动采集5个角度
+        </div>
+      </div>
+      <!-- 连接线4 -->
+      <div style="height: 2px; width: 35px; background: linear-gradient(to right, #9b59b6, #3498db); margin-top: 30px;"></div>
+      <!-- 步骤5 -->
+      <div style="display: flex; flex-direction: column; align-items: center; z-index: 2;">
+        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #3498db, #2980b9); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8em; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);">
+          🔍
+        </div>
+        <div style="margin-top: 8px; text-align: center; padding: 6px 12px; background: linear-gradient(135deg, #1ddd80ff, #133ae9ff); border-radius: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: 500; color: #ffffff; border: 1px solid #6a6a9f; white-space: nowrap; font-size: 0.83em; height: 45px; display: flex; align-items: center; justify-content: center;">
+          质量检查<br>
+          自动检测照片质量
+        </div>
+      </div>
+      <!-- 连接线5 -->
+      <div style="height: 2px; width: 35px; background: linear-gradient(to right, #3498db, #e74c3c); margin-top: 30px;"></div>
+      <!-- 步骤6 -->
+      <div style="display: flex; flex-direction: column; align-items: center; z-index: 2;">
+        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #e74c3c, #c0392b); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8em; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.4);">
+          🔢
+        </div>
+        <div style="margin-top: 8px; text-align: center; padding: 6px 12px; background: linear-gradient(135deg, #1ddd80ff, #133ae9ff); border-radius: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: 500; color: #ffffff; border: 1px solid #6a6a9f; white-space: nowrap; font-size: 0.83em; height: 45px; display: flex; align-items: center; justify-content: center;">
+          特征提取<br>
+          生成128维特征向量
+        </div>
+      </div>
+      <!-- 连接线6 -->
+      <div style="height: 2px; width: 35px; background: linear-gradient(to right, #e74c3c, #95a5a6); margin-top: 30px;"></div>
+      <!-- 步骤7 -->
+      <div style="display: flex; flex-direction: column; align-items: center; z-index: 2;">
+        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #95a5a6, #7f8c8d); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8em; box-shadow: 0 4px 10px rgba(149, 165, 166, 0.4);">
+          💾
+        </div>
+        <div style="margin-top: 8px; text-align: center; padding: 6px 12px; background: linear-gradient(135deg, #1ddd80ff, #133ae9ff); border-radius: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: 500; color: #ffffff; border: 1px solid #6a6a9f; white-space: nowrap; font-size: 0.83em; height: 45px; display: flex; align-items: center; justify-content: center;">
+          保存至数据库<br>
+          显示录入成功提示
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 #### 录入要求
 

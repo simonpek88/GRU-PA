@@ -737,7 +737,7 @@ def query_task():
     else:
         btn_output_excel = False
     with col6:
-        flag_approved = sac.switch("仅限已核定工作", value=True, on_label="On")
+        flag_approved = sac.switch("仅限已核定工作", value=False, on_label="On")
     with col7:
         flag_combine = sac.switch("合并统计", value=False, on_label="On")
     if flag_combine:
