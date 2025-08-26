@@ -3944,7 +3944,7 @@ elif st.session_state.logged_in:
     elif selected == "登出":
         logout()
     elif selected == "操作手册":
-        dyna_display_note('operation_manual.md')
+        dyna_display_note('Operation_Manual.md')
     elif selected == "更新日志":
         changelogInfo = open("./CHANGELOG.md", "r", encoding="utf-8").read()
         st.markdown(changelogInfo, unsafe_allow_html=True)

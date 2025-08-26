@@ -36,8 +36,8 @@
     "pyMC": 63
   },
   "gru-pa": {
-    "pyLM": 1756029998,
-    "pyMC": 1106
+    "pyLM": 1756184073,
+    "pyMC": 1107
   },
   "hf_weather": {
     "pyLM": 1755222414,
@@ -51,13 +51,13 @@
     "pyLM": 1755607963,
     "pyMC": 33
   },
-  "operation_manual": {
+  "Operation_Manual": {
     "pyLM": 1755958552,
     "pyMC": 88
   },
   "README": {
-    "pyLM": 1755878972,
-    "pyMC": 71
+    "pyLM": 1756184082,
+    "pyMC": 72
   },
   "repo_sync": {
     "pyLM": 1755587309,
@@ -85,6 +85,10 @@
   },
   "runapp": {
     "pyLM": 1755957774,
+    "pyMC": 1
+  },
+  "operation_manual": {
+    "pyLM": 1756184925,
     "pyMC": 1
   }
 }

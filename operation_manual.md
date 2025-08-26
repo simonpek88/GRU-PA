@@ -3037,45 +3037,45 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
 
 ### ⚙️ 系统安全措施
 
-<div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); margin-bottom: 30px; border-top: 4px solid #f39c12;">
-  <div style="display: flex; align-items: center; margin-bottom: 15px;">
-    <div style="background: #f39c12; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 12px;">⚙️</div>
-    <h3 style="margin: 0; color: #2c3e50; font-size: 1.3em;">系统防护策略</h3>
+<div style="background: white; border-radius: 10px; padding: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); margin-bottom: 20px; border-top: 4px solid #f39c12;">
+  <div style="display: flex; align-items: center; margin-bottom: 10px;">
+    <div style="background: #f39c12; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 8px; font-size: 0.8em;">⚙️</div>
+    <h3 style="margin: 0; color: #2c3e50; font-size: 1.1em;">系统防护策略</h3>
   </div>
-  <div style="padding-left: 44px;">
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 15px;">
-      <div style="display: flex; align-items: flex-start; padding: 12px; background: #f8f9fa; border-radius: 8px;">
-        <div style="background: #3498db; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 12px; flex-shrink: 0; margin-top: 3px;">👤</div>
+  <div style="padding-left: 30px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; margin-top: 10px;">
+      <div style="display: flex; align-items: flex-start; padding: 8px; background: #f8f9fa; border-radius: 6px;">
+        <div style="background: #3498db; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 8px; flex-shrink: 0; margin-top: 2px;">👤</div>
         <div>
-          <div style="font-weight: 600; color: #2c3e50; margin-bottom: 5px;">最小权限</div>
+          <div style="font-weight: 600; color: #2c3e50; margin-bottom: 3px; font-size: 0.95em;">最小权限</div>
           <div style="color: #6c757d; font-size: 0.95em;">用户仅拥有完成工作所必需的权限</div>
         </div>
       </div>
-      <div style="display: flex; align-items: flex-start; padding: 12px; background: #f8f9fa; border-radius: 8px;">
-        <div style="background: #2ecc71; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 12px; flex-shrink: 0; margin-top: 3px;">🔄</div>
+      <div style="display: flex; align-items: flex-start; padding: 8px; background: #f8f9fa; border-radius: 6px;">
+        <div style="background: #2ecc71; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 8px; flex-shrink: 0; margin-top: 2px;">🔄</div>
         <div>
-          <div style="font-weight: 600; color: #2c3e50; margin-bottom: 5px;">定期更新</div>
+          <div style="font-weight: 600; color: #2c3e50; margin-bottom: 3px; font-size: 0.95em;">定期更新</div>
           <div style="color: #6c757d; font-size: 0.95em;">及时更新系统和依赖库，修复安全漏洞</div>
         </div>
       </div>
-      <div style="display: flex; align-items: flex-start; padding: 12px; background: #f8f9fa; border-radius: 8px;">
-        <div style="background: #f39c12; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 12px; flex-shrink: 0; margin-top: 3px;">🔥</div>
+      <div style="display: flex; align-items: flex-start; padding: 8px; background: #f8f9fa; border-radius: 6px;">
+        <div style="background: #f39c12; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 8px; flex-shrink: 0; margin-top: 2px;">🔥</div>
         <div>
-          <div style="font-weight: 600; color: #2c3e50; margin-bottom: 5px;">防火墙</div>
+          <div style="font-weight: 600; color: #2c3e50; margin-bottom: 3px; font-size: 0.95em;">防火墙</div>
           <div style="color: #6c757d; font-size: 0.95em;">仅开放必要端口，限制非法访问</div>
         </div>
       </div>
-      <div style="display: flex; align-items: flex-start; padding: 12px; background: #f8f9fa; border-radius: 8px;">
-        <div style="background: #9b59b6; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 12px; flex-shrink: 0; margin-top: 3px;">🔔</div>
+      <div style="display: flex; align-items: flex-start; padding: 8px; background: #f8f9fa; border-radius: 6px;">
+        <div style="background: #9b59b6; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 8px; flex-shrink: 0; margin-top: 2px;">🔔</div>
         <div>
-          <div style="font-weight: 600; color: #2c3e50; margin-bottom: 5px;">监控告警</div>
+          <div style="font-weight: 600; color: #2c3e50; margin-bottom: 3px; font-size: 0.95em;">监控告警</div>
           <div style="color: #6c757d; font-size: 0.95em;">实时监控异常行为，及时告警响应</div>
         </div>
       </div>
-      <div style="display: flex; align-items: flex-start; padding: 12px; background: #f8f9fa; border-radius: 8px;">
-        <div style="background: #e74c3c; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 12px; flex-shrink: 0; margin-top: 3px;">🚨</div>
+      <div style="display: flex; align-items: flex-start; padding: 8px; background: #f8f9fa; border-radius: 6px;">
+        <div style="background: #e74c3c; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; margin-right: 8px; flex-shrink: 0; margin-top: 2px;">🚨</div>
         <div>
-          <div style="font-weight: 600; color: #2c3e50; margin-bottom: 5px;">应急响应</div>
+          <div style="font-weight: 600; color: #2c3e50; margin-bottom: 3px; font-size: 0.95em;">应急响应</div>
           <div style="color: #6c757d; font-size: 0.95em;">建立安全事件处理预案和响应机制</div>
         </div>
       </div>
@@ -3083,120 +3083,108 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
   </div>
 </div>
 
-<div style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); border-radius: 12px; padding: 25px; color: white; box-shadow: 0 6px 15px rgba(0,0,0,0.2); margin: 30px 0;">
+<div style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); border-radius: 10px; padding: 15px; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); margin: 20px 0;">
   <div style="display: flex; align-items: center;">
-    <div style="font-size: 2em; margin-right: 20px;">📚</div>
+    <div style="font-size: 1.5em; margin-right: 15px;">📚</div>
     <div>
-      <div style="font-weight: bold; font-size: 1.4em; margin-bottom: 8px;">文档资源</div>
-      <div style="font-size: 1em; opacity: 0.9;">系统相关文档和资源</div>
+      <div style="font-weight: bold; font-size: 1.2em; margin-bottom: 5px;">文档资源</div>
+      <div style="font-size: 0.95em; opacity: 0.9;">系统相关文档和资源</div>
     </div>
   </div>
-  <div style="margin-top: 20px; padding-left: 60px;">
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
-      <div style="display: flex; align-items: center; background: rgba(255, 255, 255, 0.15); padding: 12px 15px; border-radius: 8px;">
-        <div style="margin-right: 12px; font-size: 1.2em;">📖</div>
+  <div style="margin-top: 15px; padding-left: 40px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+      <div style="display: flex; align-items: center; background: rgba(255, 255, 255, 0.15); padding: 8px 10px; border-radius: 6px;">
+        <div style="margin-right: 8px; font-size: 1em;">📖</div>
         <div>
-          <div style="font-weight: 500;">操作手册</div>
-          <div style="font-size: 1em; opacity: 0.9;">operation_manual.md</div>
+          <div style="font-weight: 500; font-size: 0.95em;">操作手册</div>
+          <div style="font-size: 0.95em; opacity: 0.9;">Operation_Manual.md</div>
         </div>
       </div>
-      <div style="display: flex; align-items: center; background: rgba(255, 255, 255, 0.15); padding: 12px 15px; border-radius: 8px;">
-        <div style="margin-right: 12px; font-size: 1.2em;">📝</div>
+      <div style="display: flex; align-items: center; background: rgba(255, 255, 255, 0.15); padding: 8px 10px; border-radius: 6px;">
+        <div style="margin-right: 8px; font-size: 1em;">📝</div>
         <div>
-          <div style="font-weight: 500;">更新日志</div>
-          <div style="font-size: 1em; opacity: 0.9;">CHANGELOG.md</div>
+          <div style="font-weight: 500; font-size: 0.95em;">更新日志</div>
+          <div style="font-size: 0.95em; opacity: 0.9;">CHANGELOG.md</div>
         </div>
       </div>
-      <div style="display: flex; align-items: center; background: rgba(255, 255, 255, 0.15); padding: 12px 15px; border-radius: 8px;">
-        <div style="margin-right: 12px; font-size: 1.2em;">📄</div>
+      <div style="display: flex; align-items: center; background: rgba(255, 255, 255, 0.15); padding: 8px 10px; border-radius: 6px;">
+        <div style="margin-right: 8px; font-size: 1em;">📄</div>
         <div>
-          <div style="font-weight: 500;">项目说明</div>
-          <div style="font-size: 1em; opacity: 0.9;">README.md</div>
+          <div style="font-weight: 500; font-size: 0.95em;">项目说明</div>
+          <div style="font-size: 0.95em; opacity: 0.9;">README.md</div>
         </div>
       </div>
-      <div style="display: flex; align-items: center; background: rgba(255, 255, 255, 0.15); padding: 12px 15px; border-radius: 8px;">
-        <div style="margin-right: 12px; font-size: 1.2em;">⚖️</div>
+      <div style="display: flex; align-items: center; background: rgba(255, 255, 255, 0.15); padding: 8px 10px; border-radius: 6px;">
+        <div style="margin-right: 8px; font-size: 1em;">⚖️</div>
         <div>
-          <div style="font-weight: 500;">许可证</div>
-          <div style="font-size: 1em; opacity: 0.9;">LICENSE</div>
+          <div style="font-weight: 500; font-size: 0.95em;">许可证</div>
+          <div style="font-size: 0.95em; opacity: 0.9;">LICENSE</div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<div style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); border-radius: 12px; padding: 25px; color: white; box-shadow: 0 6px 15px rgba(0,0,0,0.2); margin: 30px 0;">
+<div style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); border-radius: 10px; padding: 15px; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); margin: 20px 0;">
   <div style="display: flex; align-items: center;">
-    <div style="font-size: 2em; margin-right: 20px;">🐞</div>
+    <div style="font-size: 1.5em; margin-right: 15px;">🐞</div>
     <div>
-      <div style="font-weight: bold; font-size: 1.4em; margin-bottom: 8px;">问题反馈</div>
-      <div style="font-size: 1em; opacity: 0.9;">提交Issue时请包含以下信息</div>
+      <div style="font-weight: bold; font-size: 1.2em; margin-bottom: 5px;">问题反馈</div>
+      <div style="font-size: 0.95em; opacity: 0.9;">提交Issue时请包含以下信息</div>
     </div>
   </div>
-  <div style="margin-top: 20px; padding-left: 60px;">
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-      <div style="background: rgba(255, 255, 255, 0.15); padding: 20px; border-radius: 10px;">
-        <div style="display: flex; align-items: center; margin-bottom: 15px;">
-          <div style="background: white; color: #9b59b6; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 12px;">1</div>
-          <div style="font-weight: 600; font-size: 1.1em;">系统信息</div>
+  <div style="margin-top: 15px; padding-left: 40px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+      <div style="background: rgba(255, 255, 255, 0.15); padding: 15px; border-radius: 8px;">
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+          <div style="background: white; color: #9b59b6; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 8px; font-size: 0.85em;">1</div>
+          <div style="font-weight: 600; font-size: 1em;">系统信息</div>
         </div>
-        <div style="padding-left: 40px; opacity: 0.9;">
+        <div style="padding-left: 32px; opacity: 0.9; font-size: 0.95em;">
           • 操作系统版本<br>
           • Python版本<br>
           • 浏览器版本
         </div>
       </div>
-      <div style="background: rgba(255, 255, 255, 0.15); padding: 20px; border-radius: 10px;">
-        <div style="display: flex; align-items: center; margin-bottom: 15px;">
-          <div style="background: white; color: #9b59b6; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 12px;">2</div>
-          <div style="font-weight: 600; font-size: 1.1em;">错误信息</div>
+      <div style="background: rgba(255, 255, 255, 0.15); padding: 15px; border-radius: 8px;">
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+          <div style="background: white; color: #9b59b6; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 8px; font-size: 0.85em;">2</div>
+          <div style="font-weight: 600; font-size: 1em;">错误信息</div>
         </div>
-        <div style="padding-left: 40px; opacity: 0.9;">
+        <div style="padding-left: 32px; opacity: 0.9; font-size: 0.95em;">
           提供完整的错误信息和堆栈跟踪
         </div>
       </div>
-      <div style="background: rgba(255, 255, 255, 0.15); padding: 20px; border-radius: 10px;">
-        <div style="display: flex; align-items: center; margin-bottom: 15px;">
-          <div style="background: white; color: #9b59b6; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 12px;">3</div>
-          <div style="font-weight: 600; font-size: 1.1em;">复现步骤</div>
+      <div style="background: rgba(255, 255, 255, 0.15); padding: 15px; border-radius: 8px;">
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+          <div style="background: white; color: #9b59b6; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 8px; font-size: 0.85em;">3</div>
+          <div style="font-weight: 600; font-size: 1em;">复现步骤</div>
         </div>
-        <div style="padding-left: 40px; opacity: 0.9;">
+        <div style="padding-left: 32px; opacity: 0.9; font-size: 0.95em;">
           详细的操作步骤（推荐提供）
         </div>
       </div>
-      <div style="background: rgba(255, 255, 255, 0.15); padding: 20px; border-radius: 10px;">
-        <div style="display: flex; align-items: center; margin-bottom: 15px;">
-          <div style="background: white; color: #9b59b6; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 12px;">4</div>
-          <div style="font-weight: 600; font-size: 1.1em;">截图</div>
+      <div style="background: rgba(255, 255, 255, 0.15); padding: 15px; border-radius: 8px;">
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+          <div style="background: white; color: #9b59b6; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 8px; font-size: 0.85em;">4</div>
+          <div style="font-weight: 600; font-size: 1em;">截图</div>
         </div>
-        <div style="padding-left: 40px; opacity: 0.9;">
+        <div style="padding-left: 32px; opacity: 0.9; font-size: 0.95em;">
           错误界面截图（推荐提供）
         </div>
       </div>
-      <div style="background: rgba(255, 255, 255, 0.15); padding: 20px; border-radius: 10px; grid-column: span 2;">
-        <div style="display: flex; align-items: center; margin-bottom: 15px;">
-          <div style="background: white; color: #9b59b6; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 12px;">5</div>
-          <div style="font-weight: 600; font-size: 1.1em;">数据样本</div>
+      <div style="background: rgba(255, 255, 255, 0.15); padding: 15px; border-radius: 8px; grid-column: span 2;">
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+          <div style="background: white; color: #9b59b6; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 8px; font-size: 0.85em;">5</div>
+          <div style="font-weight: 600; font-size: 1em;">数据样本</div>
         </div>
-        <div style="padding-left: 40px; opacity: 0.9;">
+        <div style="padding-left: 32px; opacity: 0.9; font-size: 0.95em;">
           如有必要，请提供相关的数据样本以帮助复现问题
         </div>
       </div>
     </div>
   </div>
 </div>
-
-### 📈 版本更新
-
-- 更新通知 : 系统内消息推送
-- 自动更新 : 使用Git管理代码
-
-  ```bash
-  git pull origin main
-  pip install -r requirements.txt --upgrade
-  ```
-
-- 版本兼容 : 向下兼容，平滑升级
 
 - [回到目录](#目录)
 
@@ -3338,7 +3326,7 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
     <div>
       <div class="file-category">📚 文档资源</div>
       <div class="file-item"><span class="file-name">documents</span> <span class="file-comment"># 文档文件(不同步)</span></div>
-      <div class="file-item"><span class="file-name">operation_manual.md</span> <span class="file-comment"># 操作手册文件</span></div>
+      <div class="file-item"><span class="file-name">Operation_Manual.md</span> <span class="file-comment"># 操作手册文件</span></div>
       <div class="file-item"><span class="file-name">README.md</span> <span class="file-comment"># 项目说明文件</span></div>
       <div class="file-item"><span class="file-name">CHANGELOG.md</span> <span class="file-comment"># 项目更新日志</span></div>
     </div>
@@ -3542,6 +3530,18 @@ a:hover div {
   box-shadow: 0 0 20px currentColor;
 }
 </style>
+
+### 📈 版本更新
+
+- 更新通知 : 系统内消息推送
+- 自动更新 : 使用Git管理代码
+
+  ```bash
+  git pull origin main
+  pip install -r requirements.txt --upgrade
+  ```
+
+- 版本兼容 : 向下兼容，平滑升级
 
 ### 技术支持
 

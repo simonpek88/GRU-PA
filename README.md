@@ -101,7 +101,7 @@ Grass-roots unit performance appraisal system (GRU-PA).
 - MyComponentsScript # 自定义组件脚本, txt格式
 - MySQL_Backup # MySQL备份文件
 - user_pa # 用户统计数据导出文档 (不同步)
-- operation_manual.md # 项目操作手册
+- Operation_Manual.md # 项目操作手册
 - README.md # 项目说明文件
 - CHANGELOG.md # 项目更新日志
 - requirements.txt # 自动安装依赖文件
