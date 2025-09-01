@@ -47,6 +47,14 @@
 #### 📅 最新版本
 
 <details>
+<summary><strong>🚀 版本 0.20.2051</strong> (2025-09-02) | <code>优化工作量批量输入</code></summary>
+
+- 🚀 优化
+  - 工作量批量输入模块, 主要工作设置为单选, 并根据员工类别智能选择
+
+</details>
+
+<details>
 <summary><strong>📦 版本 0.20.2045</strong> (2025-09-01) | <code>新增输油状态按日期统计</code></summary>
 
 - 📦 新增

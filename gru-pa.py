@@ -485,7 +485,7 @@ def confirm_add_task(task_date):
         if btn_confirm:
             for key in st.session_state.keys():
                 if key.startswith("task_work_") and st.session_state[key]:
-                    #st.write(key, st.session_state[key])
+                    print(key, st.session_state[key])
                     temp_task_multi = 1
                     task_id = key[key.rfind("_") + 1:]
                     sql = f"SELECT pa_content, pa_score, task_group from gru_pa where ID = {task_id}"
@@ -509,10 +509,19 @@ def confirm_add_task(task_date):
 
 
 @st.fragment
+def update_main_task(main_task, main_task_pack, main_task_id_pack):
+    for index, value in enumerate(main_task_pack):
+        if value == main_task:
+            st.session_state[f'task_work_{main_task_id_pack[index]}'] = True
+        else:
+            st.session_state[f'task_work_{main_task_id_pack[index]}'] = False
+
+
+@st.fragment
 def task_input():
     #st.markdown("### <font face='微软雅黑' color=red><center>工作量录入</center></font>", unsafe_allow_html=True)
     st.subheader("任务批量录入", divider="green")
-    comm_tasks_id = []
+    comm_tasks_id = [1, 2, 3]
     # 初始化任务组别图标
     task_group_icon = init_task_group_icon()
     # 刷新用户设置
@@ -582,6 +591,17 @@ def task_input():
     # 更新共享分
     update_pa_share(task_date)
     task_clerk_type = 1 if flag_clerk_type else 2
+    main_task_index = task_clerk_type if flag_auto_task else None
+    main_task_pack, main_task_id_pack = [], []
+    sql = f"SELECT pa_content, ID from gru_pa where fixed = 1 and task_valid = 1 and StationCN = '{st.session_state.StationCN}'"
+    result = execute_sql(cur, sql)
+    for row in result:
+        main_task_pack.append(row[0])
+        main_task_id_pack.append(row[1])
+    st.markdown("##### 主要工作:")
+    main_task = st.radio(" ", main_task_pack, index=main_task_index, label_visibility='collapsed')
+    if main_task is not None:
+        update_main_task(main_task, main_task_pack, main_task_id_pack)
     expander_col = st.columns(2)
     # 常用任务
     with expander_col[0].expander(f"# :green[常用]", icon=':material/bookmark_star:', expanded=True):
@@ -594,8 +614,7 @@ def task_input():
                         SELECT pa_content
                         FROM gru_pa
                         WHERE comm_task = 0
-                            AND pa_content NOT LIKE '启输%'
-                            AND pa_content NOT LIKE '停输%'
+                            AND fixed = 0
                             AND min_days = 0
                     )
                 GROUP BY clerk_work
@@ -604,7 +623,7 @@ def task_input():
                 LIMIT 5
             ) AS temp_table
         """
-        sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task, pa_share, task_type from gru_pa where task_valid = 1 and StationCN = '{st.session_state.StationCN}' and comm_task = {task_clerk_type} or pa_content in ({his_comm_tasks_sql}) order by ID"
+        sql = f"SELECT ID, pa_content, pa_score, pa_group, multi_score, min_days, default_task, pa_share, task_type from gru_pa where fixed = 0 and task_valid = 1 and StationCN = '{st.session_state.StationCN}' and comm_task = {task_clerk_type} or pa_content in ({his_comm_tasks_sql}) order by ID"
         rows2 = execute_sql(cur, sql)
         for row2 in rows2:
             show_task_list(row2, task_date, flag_auto_task, task_clerk_type)
