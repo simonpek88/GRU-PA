@@ -146,6 +146,7 @@ rgba
 Roboto
 root
 rowid
+runapp
 Ryzen
 scol
 searchterm

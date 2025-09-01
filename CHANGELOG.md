@@ -47,6 +47,14 @@
 #### 📅 最新版本
 
 <details>
+<summary><strong>📦 版本 0.20.2045</strong> (2025-09-01) | <code>新增输油状态按日期统计</code></summary>
+
+- 📦 新增
+  - 输油种类按照日期统计并单独列出
+
+</details>
+
+<details>
 <summary><strong>✨ 版本 0.20.2013</strong> (2025-08-23) | <code>更新操作手册</code></summary>
 
 - ✨ 更新

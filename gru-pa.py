@@ -3330,6 +3330,11 @@ def gen_statist_metric():
             result = execute_sql(cur, sql)
             if result:
                 cur_avg_task_count = round(cur_task_count / len(result), 1)
+        else:
+            cur_sum_score = 0
+            cur_avg_score = 0.0
+            cur_task_count = 0
+            cur_avg_task_count = 0
         sql = f"SELECT SUM(task_score), AVG(task_score), Count(ID) FROM clerk_work WHERE clerk_id = {value} and StationCN = '{st.session_state.StationCN}' and task_date >= '{previous_first}' and task_date <= '{previous_last}'"
         result2 = execute_sql(cur, sql)[0]
         if result2[0]:
@@ -3340,18 +3345,20 @@ def gen_statist_metric():
             result2 = execute_sql(cur, sql)
             if result2:
                 last_avg_task_count = round(last_task_count / len(result2), 1)
-        if result[0] and result2[0]:
-            st.markdown(f"##### {query_userCName[index]}")
-            col = st.columns(4)
-            col[0].metric(label="总分", value=cur_sum_score, delta=f"{round((cur_sum_score - last_sum_score) / last_sum_score * 100, 1)}%", delta_color="inverse")
-            col[1].metric(label="平均分", value=round(cur_avg_score, 1), delta=f"{round((cur_avg_score - last_avg_score) / last_avg_score * 100, 1)}%", delta_color="inverse")
-            col[2].metric(label="工作项", value=cur_task_count, delta=f"{round((cur_task_count - last_task_count) / last_task_count * 100, 1)}%", delta_color="inverse")
-            col[3].metric(label="每班工作项", value=cur_avg_task_count, delta=f"{round((cur_avg_task_count - last_avg_task_count) / last_avg_task_count * 100, 1)}%", delta_color="inverse")
-            # 设置度量卡片的样式
-            style_metric_cards(border_left_color="#da3d3d")
-            #style_metric_cards(border_left_color="#5952d6")
-        elif st.session_state.userType == "user":
-            st.info("未查询到记录")
+        else:
+            last_sum_score = 1
+            last_avg_score = 1.0
+            last_task_count = 1
+            last_avg_task_count = 1.0
+        st.markdown(f"##### {query_userCName[index]}")
+        col = st.columns(4)
+        col[0].metric(label="总分", value=cur_sum_score, delta=f"{round((cur_sum_score - last_sum_score) / last_sum_score * 100, 1)}%", delta_color="inverse")
+        col[1].metric(label="平均分", value=round(cur_avg_score, 1), delta=f"{round((cur_avg_score - last_avg_score) / last_avg_score * 100, 1)}%", delta_color="inverse")
+        col[2].metric(label="工作项", value=cur_task_count, delta=f"{round((cur_task_count - last_task_count) / last_task_count * 100, 1)}%", delta_color="inverse")
+        col[3].metric(label="每班工作项", value=cur_avg_task_count, delta=f"{round((cur_avg_task_count - last_avg_task_count) / last_avg_task_count * 100, 1)}%", delta_color="inverse")
+        # 设置度量卡片的样式
+        style_metric_cards(border_left_color="#da3d3d")
+        #style_metric_cards(border_left_color="#5952d6")
 
 
 def dyna_display_note(note_file):
@@ -3537,8 +3544,8 @@ def duty_statistics():
                     )
                     special_columns = {
                         "A": 20,
-                        "B": 16,
-                        "C": 20
+                        "B": 18,
+                        "C": 22
                     }
                     for col in ws.columns:
                         max_width = 0
@@ -3576,19 +3583,58 @@ def duty_statistics():
                     night_operation_fill = PatternFill(start_color="FFA07A", end_color="FFA07A", fill_type="solid")  # 浅粉色
                     night_operation_font = Font(color="8B0000")  # 深红色
                     # 遍历C列数据并应用格式
+                    duty_extra_night, duty_comm, duty_no_work = [], [], []
                     for row in ws.iter_rows(min_row=2):  # 跳过标题行
-                        cell = row[2]  # C列是索引为2的列
+                        cell = row[2] # C列是输油类型列
+                        date_cell = row[0] # A列是日期列
                         if cell.value:
+                            date_obj = date_cell.value
                             if "全天无输油作业" in str(cell.value):
                                 cell.fill = no_operation_fill
                                 cell.font = no_operation_font
+                                if date_obj.day not in duty_no_work:
+                                    duty_no_work.append(date_obj.day)
                             elif "输油但夜间停泵" in str(cell.value):
                                 #cell.fill = night_stop_fill
                                 cell.font = night_stop_font
+                                if date_obj.day not in duty_comm:
+                                    duty_comm.append(date_obj.day)
                             elif "晚10点后输油" in str(cell.value):
                                 cell.fill = night_operation_fill
                                 cell.font = night_operation_font
-
+                                if date_obj.day not in duty_extra_night:
+                                    duty_extra_night.append(date_obj.day)
+                    duty_extra_night_txt = f"晚10点后输油: {'/'.join(map(str, duty_extra_night))}"
+                    duty_comm_txt = f"输油但夜间停泵: {'/'.join(map(str, duty_comm))}"
+                    duty_no_work_txt = f"全天无输油作业: {'/'.join(map(str, duty_no_work))}"
+                    # 将文本插入到"值班数据"工作表中
+                    start_row = ws.max_row + 2
+                    ws[f'A{start_row}'] = duty_extra_night_txt
+                    ws[f'A{start_row + 1}'] = duty_comm_txt
+                    ws[f'A{start_row + 2}'] = duty_no_work_txt
+                    # 设置A-C列跨行合并
+                    ws.merge_cells(f'A{start_row}:C{start_row}')
+                    ws.merge_cells(f'A{start_row + 1}:C{start_row + 1}')
+                    ws.merge_cells(f'A{start_row + 2}:C{start_row + 2}')
+                    # 设置字体和对齐方式
+                    font = Font(name='微软雅黑', size=12)
+                    alignment = Alignment(horizontal='left', vertical='center', wrap_text=True)
+                    # 应用样式到每个单元格
+                    for row_offset in range(3):
+                        cell = ws[f'A{start_row + row_offset}']
+                        print(cell.value)
+                        cell.font = font
+                        cell.alignment = alignment
+                        ws.row_dimensions[start_row + row_offset].height = 35
+                        if "全天无输油作业" in str(cell.value):
+                            cell.fill = no_operation_fill
+                            cell.font = no_operation_font
+                        elif "输油但夜间停泵" in str(cell.value):
+                            #cell.fill = night_stop_fill
+                            cell.font = night_stop_font
+                        elif "晚10点后输油" in str(cell.value):
+                            cell.fill = night_operation_fill
+                            cell.font = night_operation_font
                     df_statist.to_excel(writer, sheet_name='值班分类统计', index=False, startrow=1)
                     # 插入统计时间行
                     report_date_range2 = f"值班分类统计 {query_date_start} 至 {query_date_end}"
