@@ -485,7 +485,7 @@ def confirm_add_task(task_date):
         if btn_confirm:
             for key in st.session_state.keys():
                 if key.startswith("task_work_") and st.session_state[key]:
-                    print(key, st.session_state[key])
+                    #print(key, st.session_state[key])
                     temp_task_multi = 1
                     task_id = key[key.rfind("_") + 1:]
                     sql = f"SELECT pa_content, pa_score, task_group from gru_pa where ID = {task_id}"
@@ -598,6 +598,7 @@ def task_input():
     for row in result:
         main_task_pack.append(row[0])
         main_task_id_pack.append(row[1])
+        st.session_state[f'task_work_{row[1]}'] = False
     st.markdown("##### 主要工作:")
     main_task = st.radio(" ", main_task_pack, index=main_task_index, label_visibility='collapsed')
     if main_task is not None:
@@ -678,12 +679,6 @@ def show_task_list(row2, task_date, flag_auto_task, task_clerk_type):
     if row2[5] > 0 and display_md_task:
         st.checkbox(f":red[{row2[1]} {title_score_info}:{row2[2]}]", value=auto_task, key=f"task_work_{row2[0]}")
     elif display_md_task:
-        if row2[1] == '每日记录检查(仅限主班勾选)':
-            if st.session_state.userID in [1, 7, 11]:
-                auto_task = True
-        elif row2[1] == '办公室卫生清洁':
-            if st.session_state.userID in []:
-                auto_task = True
         st.checkbox(f"{row2[1]} {title_score_info}:{row2[2]}", value=auto_task, key=f"task_work_{row2[0]}")
     task_col = st.columns(2)
     if row2[4] == 1:
@@ -3641,7 +3636,6 @@ def duty_statistics():
                     # 应用样式到每个单元格
                     for row_offset in range(3):
                         cell = ws[f'A{start_row + row_offset}']
-                        print(cell.value)
                         cell.font = font
                         cell.alignment = alignment
                         ws.row_dimensions[start_row + row_offset].height = 35
