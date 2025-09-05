@@ -3392,7 +3392,7 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
         </div>
         <div style="padding-left: 42px;">
           <pre style="background: #000; color: #00ff00; padding: 12px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 1em; overflow-x: auto; margin: 0; border: 1px solid #f39c12;">./DBBackup.ps1         # Windows
-./DBBackup.sh          # Linux</pre>
+./DBBackup_bash.sh          # Linux</pre>
         </div>
       </div>
       <div style="background: rgba(0, 0, 0, 0.4); border-radius: 10px; padding: 20px; backdrop-filter: blur(5px); border: 1px solid rgba(231, 76, 60, 0.5); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);">
@@ -3402,7 +3402,7 @@ WHERE 日期 BETWEEN '2025-08-01' AND '2025-08-31'
         </div>
         <div style="padding-left: 42px;">
           <pre style="background: #000; color: #00ff00; padding: 12px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 1em; overflow-x: auto; margin: 0; border: 1px solid #9b59b6;">./restoredb.bat        # Windows
-./restoredb.sh         # Linux</pre>
+./restoredb_bash.sh         # Linux</pre>
         </div>
       </div>
       <div style="background: rgba(0, 0, 0, 0.4); border-radius: 10px; padding: 20px; backdrop-filter: blur(5px); border: 1px solid rgba(231, 76, 60, 0.5); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); grid-column: span 2;">
