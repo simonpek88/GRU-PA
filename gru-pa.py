@@ -615,6 +615,7 @@ def task_input():
                         SELECT pa_content
                         FROM gru_pa
                         WHERE comm_task = 0
+                            AND task_valid = 1
                             AND fixed = 0
                             AND min_days = 0
                     )
@@ -675,7 +676,10 @@ def show_task_list(row2, task_date, flag_auto_task, task_clerk_type):
         else:
             title_score_info = ':green[分值]'
     else:
-        title_score_info = ':orange[总分值]'
+        if row2[8] == 1:
+            title_score_info = ':orange[总分值] :violet[(值班独占)]'
+        else:
+            title_score_info = ':orange[总分值] :green[(全员分享)]'
     if row2[5] > 0 and display_md_task:
         st.checkbox(f":red[{row2[1]} {title_score_info}:{row2[2]}]", value=auto_task, key=f"task_work_{row2[0]}")
     elif display_md_task:
