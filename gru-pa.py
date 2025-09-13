@@ -482,6 +482,7 @@ def confirm_add_task(task_date):
     btn_confirm = btn_col[0].button("确认", key="confirm_add_task", icon=":material/add_task:", use_container_width=True)
     btn_cancel = btn_col[1].button("取消", key="cancel_add_task", icon=":material/cancel:", use_container_width=True)
     if btn_confirm or btn_cancel:
+        su_info, err_info = [], []
         if btn_confirm:
             for key in st.session_state.keys():
                 if key.startswith("task_work_") and st.session_state[key]:
@@ -496,15 +497,22 @@ def confirm_add_task(task_date):
                     if f'task_multi_{task_id}' in st.session_state.keys():
                         task_score *= st.session_state[f'task_multi_{task_id}']
                         temp_task_multi = st.session_state[f'task_multi_{task_id}']
-                    sql = f"SELECT ID from clerk_work where task_date = '{task_date}' and clerk_id = {st.session_state.userID} and clerk_work = '{task_content}' and task_group = '{task_group}'"
+                    if task_content in ['每日记录检查(仅限主班勾选)']:
+                        sql = f"SELECT ID from clerk_work where task_date = '{task_date}' and clerk_work = '{task_content}' and task_group = '{task_group}'"
+                    else:
+                        sql = f"SELECT ID from clerk_work where task_date = '{task_date}' and clerk_id = {st.session_state.userID} and clerk_work = '{task_content}' and task_group = '{task_group}'"
                     if not execute_sql(cur, sql):
                         sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group, StationCN, task_multi) VALUES ('{task_date}', {st.session_state.userID}, '{st.session_state.userCName}', '{task_content}', {task_score}, '{task_group}', '{st.session_state.StationCN}', {temp_task_multi})"
                         execute_sql_and_commit(conn, cur, sql)
-                        st.toast(f"工作量: [{task_content}] 分值: [{task_score}] 添加成功！")
+                        su_info.append(f"工作量: {task_content}")
                         sql = f"UPDATE pa_share set share_score = share_score - {task_score} where pa_ID = {task_id} and StationCN = '{st.session_state.StationCN}' and share_date = '{task_date}'"
                         execute_sql_and_commit(conn, cur, sql)
                     else:
-                        st.toast(f"工作量: [{task_content}] 已存在！")
+                        err_info.append(f"工作量: {task_content} 已存在!")
+            if su_info:
+                st.toast(f"{'\n'.join(su_info)}\n\n添加成功!")
+            if err_info:
+                st.toast(f"{'\n'.join(err_info)}\n\n添加失败!")
         st.rerun()
 
 
