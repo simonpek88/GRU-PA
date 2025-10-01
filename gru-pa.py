@@ -740,6 +740,7 @@ def update_pa_share(task_date):
 def query_task():
     #st.markdown("### <font face='微软雅黑' color=red><center>工作量查询及导出</center></font>", unsafe_allow_html=True)
     st.subheader("工作量查询及导出", divider="orange")
+    sac.alert("导出统计报表(全部人员)功能只统计已审核的工作量, 请先审核再导出, 导出为Word文件功能无此要求", icon="warning", banner=sac.Banner(play=True, direction='left', speed=100, pauseOnHover=True), closable=True)
     col1, col2, col3 = st.columns(3)
     if st.session_state.userType == 'admin':
         userID, userCName = [], []
@@ -882,6 +883,8 @@ def query_task():
         else:
             st.info(f":red[未查询到记录]")
     elif btn_output_excel:
+        flag_approved = True
+        approved_info = "全部已审核"
         display_area.empty()
         sql = f"SELECT clerk_cname, clerk_work, AVG(task_score), COUNT(clerk_work), AVG(task_score) * COUNT(clerk_work), task_group FROM clerk_work WHERE task_approved >= {int(flag_approved)} AND task_date >= '{query_date_start}' AND task_date <= '{query_date_end}' and StationCN = '{st.session_state.StationCN}' GROUP BY clerk_cname, clerk_work, task_group ORDER BY clerk_cname"
         result = execute_sql(cur, sql)
@@ -1414,6 +1417,7 @@ def check_data():
     with col[1]:
         flag_all = sac.switch("全选", True)
     if confirm_btn_check:
+        flag_all_check = True
         for index, value in enumerate(userID):
             sql = f"SELECT pa_content, min_days from gru_pa where StationCN = '{st.session_state.StationCN}' and min_days > 0 order by min_days DESC"
             rows = execute_sql(cur, sql)
@@ -1422,15 +1426,19 @@ def check_data():
                 task_count = execute_sql(cur, sql)[0][0]
                 if task_count > 1 and task_count > dur_time.days / row[1]:
                     st.warning(f"用户: {userCName[index]} 工作: [{row[0]}] 应该 1次/{row[1]}天, 实际: {task_count}次 已超量, 请检查记录！")
+                    flag_all_check = False
         for i in range(dur_time.days + 1):
             temp_date = query_date_start + datetime.timedelta(days=i)
             sql = f"SELECT clerk_work, clerk_cname FROM clerk_work WHERE clerk_work like '%安防巡检、记录、卫生）' AND task_date = '{temp_date}'"
             result = execute_sql(cur, sql)
             if len(result) > 2:
+                flag_all_check = False
                 st.markdown(f"##### :red[日期: {temp_date} 输油状态错误, 请检查记录!]")
                 for row in result:
                     st.markdown(f"###### 姓名: {row[1]} 工作内容: {row[0]}")
                 st.divider()
+        if flag_all_check:
+            st.success("数据检查通过!")
     else:
         task_pack = []
         if flag_all:
