@@ -47,6 +47,22 @@
 #### 📅 最新版本
 
 <details>
+<summary><strong>📦 版本 0.20.2089</strong> (2025-10-01) | <code>新增输油状态检查</code></summary>
+
+- 📦 新增
+  - 输油状态检查，便于发现重复记录
+
+</details>
+
+<details>
+<summary><strong>🚀 版本 0.20.2080</strong> (2025-10-01) | <code>优化工作量输入</code></summary>
+
+- 🚀 优化
+  - 工作量输入增加多项日期限制， 防止重复输入
+
+</details>
+
+<details>
 <summary><strong>🚀 版本 0.20.2051</strong> (2025-09-02) | <code>优化工作量批量输入</code></summary>
 
 - 🚀 优化

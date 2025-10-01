@@ -282,6 +282,8 @@ def clear_conflict_task():
         )
     """
     execute_sql_and_commit(conn, cur, sql)
+    sql = "DELETE from clerk_work where task_score = 0"
+    execute_sql_and_commit(conn, cur, sql)
 
 
 def get_extra_oto():
@@ -492,23 +494,24 @@ def confirm_add_task(task_date):
                     sql = f"SELECT pa_content, pa_score, task_group from gru_pa where ID = {task_id}"
                     task_result = execute_sql(cur, sql)
                     task_content, task_score, task_group = task_result[0]
-                    if f'task_score_{task_id}' in st.session_state.keys():
-                        task_score = st.session_state[f'task_score_{task_id}']
-                    if f'task_multi_{task_id}' in st.session_state.keys():
-                        task_score *= st.session_state[f'task_multi_{task_id}']
-                        temp_task_multi = st.session_state[f'task_multi_{task_id}']
-                    if task_content in ['每日记录检查(仅限主班勾选)']:
-                        sql = f"SELECT ID from clerk_work where task_date = '{task_date}' and clerk_work = '{task_content}' and task_group = '{task_group}'"
-                    else:
-                        sql = f"SELECT ID from clerk_work where task_date = '{task_date}' and clerk_id = {st.session_state.userID} and clerk_work = '{task_content}' and task_group = '{task_group}'"
-                    if not execute_sql(cur, sql):
-                        sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group, StationCN, task_multi) VALUES ('{task_date}', {st.session_state.userID}, '{st.session_state.userCName}', '{task_content}', {task_score}, '{task_group}', '{st.session_state.StationCN}', {temp_task_multi})"
-                        execute_sql_and_commit(conn, cur, sql)
-                        su_info.append(f"工作量: {task_content}")
-                        sql = f"UPDATE pa_share set share_score = share_score - {task_score} where pa_ID = {task_id} and StationCN = '{st.session_state.StationCN}' and share_date = '{task_date}'"
-                        execute_sql_and_commit(conn, cur, sql)
-                    else:
-                        err_info.append(f"工作量: {task_content} 已存在!")
+                    if task_score > 0:
+                        if f'task_score_{task_id}' in st.session_state.keys():
+                            task_score = st.session_state[f'task_score_{task_id}']
+                        if f'task_multi_{task_id}' in st.session_state.keys():
+                            task_score *= st.session_state[f'task_multi_{task_id}']
+                            temp_task_multi = st.session_state[f'task_multi_{task_id}']
+                        if task_content in ['每日记录检查(仅限主班勾选)']:
+                            sql = f"SELECT ID from clerk_work where task_date = '{task_date}' and clerk_work = '{task_content}' and task_group = '{task_group}'"
+                        else:
+                            sql = f"SELECT ID from clerk_work where task_date = '{task_date}' and clerk_id = {st.session_state.userID} and clerk_work = '{task_content}' and task_group = '{task_group}'"
+                        if not execute_sql(cur, sql):
+                            sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group, StationCN, task_multi) VALUES ('{task_date}', {st.session_state.userID}, '{st.session_state.userCName}', '{task_content}', {task_score}, '{task_group}', '{st.session_state.StationCN}', {temp_task_multi})"
+                            execute_sql_and_commit(conn, cur, sql)
+                            su_info.append(f"工作量: {task_content}")
+                            sql = f"UPDATE pa_share set share_score = share_score - {task_score} where pa_ID = {task_id} and StationCN = '{st.session_state.StationCN}' and share_date = '{task_date}'"
+                            execute_sql_and_commit(conn, cur, sql)
+                        else:
+                            err_info.append(f"工作量: {task_content} 已存在!")
             if su_info:
                 st.toast(f"{'\n'.join(su_info)}\n\n添加成功!")
             if err_info:
@@ -541,7 +544,7 @@ def task_input():
     with col1:
         flag_auto_task = sac.switch("自动选择日常工作", value=st.session_state.auto_task_check, align="start", on_label="On")
         flag_clerk_type = sac.switch("岗位工作类型", value=st.session_state.task_clerk_type, align="start", on_label="值班", off_label="白班")
-    task_date = col2.date_input('工作时间', value=datetime.date.today() - datetime.timedelta(days=1), max_value="today")
+    task_date = col2.date_input('工作时间', value=datetime.date.today() - datetime.timedelta(days=1), min_value=datetime.date.today() - datetime.timedelta(days=st.session_state.max_pre_days), max_value="today")
     confirm_btn_input = st.button("确认添加", disabled=st.session_state.readonly)
     ttl_score = 0
     sql = f"SELECT clerk_work, task_score, task_group from clerk_work where clerk_id = {st.session_state.userID} and task_date = '{task_date}'"
@@ -556,6 +559,7 @@ def task_input():
     else:
         st.markdown(f'##### :red[无任何记录]')
     st.divider()
+    # 工作项内容查询
     clerk_work_pack = []
     sql = f"SELECT pa_content, pa_score, task_group, multi_score, pa_share, default_task, min_days from gru_pa where task_valid = 1 and StationCN = '{st.session_state.StationCN}'"
     result = execute_sql(cur, sql)
@@ -588,18 +592,14 @@ def task_input():
         if not searchterm:
             return []
         return [item for item in clerk_work_pack if searchterm.lower() in item.lower()]
-
-    st_searchbox(
-        search_clerk_work,
-        label="工作内容搜索",
-        placeholder="请输入查询内容, 仅限工作内容",
-        key="search_clerk_work",
-    )
-
+    st.write("##### :yellow[工作内容搜索:]")
+    st_searchbox(search_clerk_work, label="", placeholder="请输入查询内容, 仅限工作内容", key="search_clerk_work")
     # 更新共享分
     update_pa_share(task_date)
     task_clerk_type = 1 if flag_clerk_type else 2
     main_task_index = task_clerk_type if flag_auto_task else None
+    if task_date < datetime.date.today() - datetime.timedelta(days=4):
+        main_task_index = None
     main_task_pack, main_task_id_pack = [], []
     sql = f"SELECT pa_content, ID from gru_pa where fixed = 1 and task_valid = 1 and StationCN = '{st.session_state.StationCN}'"
     result = execute_sql(cur, sql)
@@ -1162,7 +1162,7 @@ def manual_input():
     rows = execute_sql(cur, sql)
     for row in rows:
         items.append(row[0])
-    task_date = col2.date_input('工作时间', value=datetime.date.today() - datetime.timedelta(days=1), max_value="today")
+    task_date = col2.date_input('工作时间', value=datetime.date.today() - datetime.timedelta(days=1), min_value=datetime.date.today() - datetime.timedelta(days=st.session_state.max_pre_days), max_value="today")
     task_group = col3.selectbox('工作组别', items, index=None, accept_new_options=True)
     task_score = col4.number_input("单项分值", min_value=5, max_value=600, value=10, step=1)
     if st.session_state.userType == 'admin':
@@ -1196,7 +1196,7 @@ def manual_input():
     task_content = st.text_area(label="工作内容", value="", height=100)
     confirm_btn_manual = st.button("确认添加", disabled=st.session_state.readonly)
     task_content = task_content.strip()
-    if task_group and task_content and confirm_btn_manual:
+    if task_group and task_content and confirm_btn_manual and task_score > 0:
         sql = f"SELECT ID from clerk_work where task_date = '{task_date}' and clerk_id = {add_userID} and clerk_work = '{task_content}'"
         if not execute_sql(cur, sql):
             sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group, StationCN) VALUES ('{task_date}', {add_userID}, '{add_userCName}', '{task_content}', {task_score}, '{task_group}', '{st.session_state.StationCN}')"
@@ -1219,6 +1219,8 @@ def manual_input():
         st.warning(f"请选择工作组！")
     elif not task_content:
         st.warning(f"请输入工作内容！")
+    elif task_score <= 0:
+        st.warning(f"请输入正确的分值！")
 
 
 def reset_table_num(flag_force=False):
@@ -1420,6 +1422,15 @@ def check_data():
                 task_count = execute_sql(cur, sql)[0][0]
                 if task_count > 1 and task_count > dur_time.days / row[1]:
                     st.warning(f"用户: {userCName[index]} 工作: [{row[0]}] 应该 1次/{row[1]}天, 实际: {task_count}次 已超量, 请检查记录！")
+        for i in range(dur_time.days + 1):
+            temp_date = query_date_start + datetime.timedelta(days=i)
+            sql = f"SELECT clerk_work, clerk_cname FROM clerk_work WHERE clerk_work like '%安防巡检、记录、卫生）' AND task_date = '{temp_date}'"
+            result = execute_sql(cur, sql)
+            if len(result) > 2:
+                st.markdown(f"##### :red[日期: {temp_date} 输油状态错误, 请检查记录!]")
+                for row in result:
+                    st.markdown(f"###### 姓名: {row[1]} 工作内容: {row[0]}")
+                st.divider()
     else:
         task_pack = []
         if flag_all:
@@ -1548,7 +1559,7 @@ def deduction_input():
     confirm_btn_add = st.button("确认添加", disabled=st.session_state.readonly)
     if confirm_btn_add:
         #st.write(deduct_content, deduct_score, deduct_userID, deduct_userCName, deduct_date)
-        if deduct_content:
+        if deduct_content and deduct_score < 0:
             sql = f"INSERT INTO clerk_work (task_date, clerk_id, clerk_cname, clerk_work, task_score, task_group, task_approved, StationCN) VALUES ('{deduct_date}', {deduct_userID}, '{deduct_userCName}', '{deduct_content}', {deduct_score}, '扣分', 1, '{st.session_state.StationCN}')"
             execute_sql_and_commit(conn, cur, sql)
             st.success(f"用户: :blue[{deduct_userCName}] 扣分项: :red[{deduct_content}] 添加成功")
@@ -1558,8 +1569,10 @@ def deduction_input():
                 execute_sql_and_commit(conn, cur, sql)
                 st.success(f"扣分项: :red[{deduct_content}] 已添加至固定列表")
                 reset_table_num(True)
-        else:
+        elif not deduct_content:
             st.error("请输入扣分项内容")
+        elif deduct_score >= 0:
+            st.error("请输入正确的扣分")
 
 
 def highlight_max(x, forecolor='black', backcolor="#D61919"):
@@ -3063,6 +3076,8 @@ def system_setup():
             min_value, max_value, step_value, affix_info = 0, 1, 1, ' 1为允许 0为不允许'
         elif each[1] == 'backup_deadline':
             min_value, max_value, step_value = 1, 20, 1
+        elif each[1] == 'max_pre_days':
+            min_value, max_value, step_value = 7, st.session_state['max_rev_days'], 1
         else:
             min_value, max_value, step_value = 0, 100, 1
         with col[col_index % col_limit]:
