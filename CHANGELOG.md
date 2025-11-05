@@ -47,6 +47,14 @@
 #### 📅 最新版本
 
 <details>
+<summary><strong>📦 版本 0.21.2113</strong> (2025-11-05) | <code>新增统计平均值</code></summary>
+
+- 📦 新增
+  - 新增统计平均值
+
+</details>
+
+<details>
 <summary><strong>📦 版本 0.20.2089</strong> (2025-10-01) | <code>新增输油状态检查</code></summary>
 
 - 📦 新增

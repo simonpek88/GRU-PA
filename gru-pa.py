@@ -513,9 +513,13 @@ def confirm_add_task(task_date):
                         else:
                             err_info.append(f"工作量: {task_content} 已存在!")
             if su_info:
-                st.toast(f"{'\n'.join(su_info)}\n\n添加成功!")
+                # 修复f-string中不能包含反斜杠的语法错误
+                message = '\n'.join(su_info) + '\n\n添加成功!'
+                st.toast(message)
             if err_info:
-                st.toast(f"{'\n'.join(err_info)}\n\n添加失败!")
+                # 修复f-string中不能包含反斜杠的语法错误
+                message = '\n'.join(err_info) + '\n\n添加失败!'
+                st.toast(message)
         st.rerun()
 
 
@@ -1622,7 +1626,7 @@ def gen_chart():
         userCName = [query_userCName]
     with col3:
         #dur_time = query_date_end - query_date_start
-        chart_type_pack = ['折线图', '中位数图', '旭日图', '矩阵树图', '饼图', '日历热度图']
+        chart_type_pack = ['折线图', '中位数及平均值图', '旭日图', '矩阵树图', '饼图', '日历热度图']
         if len(userID) == 1:
             chart_type_pack = chart_type_pack + ['柱状图(分组)', '柱状图(堆叠)', '漏斗图']
         chart_type = st.selectbox("图表类型", chart_type_pack, index=1)
@@ -1854,7 +1858,7 @@ def gen_chart():
                 hover_data={'合计分值': True}
             )
             fig.update_layout(margin=dict(t=50, l=0, r=0, b=0), font=dict(size=st.session_state.chart_font_size))
-    elif chart_type == "中位数图":
+    elif chart_type == "中位数及平均值图":
         sql = f"SELECT clerk_cname, sum(task_score) from clerk_work where StationCN = '{st.session_state.StationCN}' and task_approved >= {int(flag_approved)} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' GROUP BY clerk_cname order by clerk_cname"
         result = execute_sql(cur, sql)
         for each in result:
@@ -1863,6 +1867,8 @@ def gen_chart():
             df = pd.DataFrame(raws_data, columns=["姓名", "合计分值"])
             # 计算中位数
             median_score = np.nanmedian(df["合计分值"])
+            # 计算平均值
+            avg_score = np.average(df["合计分值"])
             # 生成柱状图
             fig = px.bar(df, x="姓名", y="合计分值", text_auto=True,
                         title="工作量分值", labels={"姓名": "员工姓名", "合计分值": "总分值"})
@@ -1871,14 +1877,28 @@ def gen_chart():
                         x0=-0.5, x1=len(df) - 0.5,
                         y0=median_score, y1=median_score,
                         line=dict(color='red', dash='dash'))
-            fig.update_layout(font=dict(size=st.session_state.chart_font_size))
+            fig.add_shape(type='line',
+                        x0=-0.5, x1=len(df) - 0.5,
+                        y0=avg_score, y1=avg_score,
+                        line=dict(color='blue', dash='solid'))
             # 将中位数标注移到线上方，并调整字体大小
             fig.add_annotation(x=len(df) - 1, y=median_score + 12,  # 向上偏移
-                            text=f'中位数: {median_score:.0f}',
+                            #text=f'中位数: {median_score:.0f}',
+                            text='',
                             showarrow=False,
                             font=dict(color='red', size=st.session_state.chart_font_size + 2),
                             xanchor='right',
                             yanchor='bottom')
+            fig.add_annotation(x=len(df) - 1, y=avg_score + 12,  # 向上偏移
+                            #text=f'平均值: {avg_score:.0f}',
+                            text='',
+                            showarrow=False,
+                            font=dict(color='red', size=st.session_state.chart_font_size + 2),
+                            xanchor='right',
+                            yanchor='bottom')
+            fig.update_layout(font=dict(size=st.session_state.chart_font_size))
+            st.markdown(f":red[中位数]: {median_score:.0f}")
+            st.markdown(f":blue[平均值]: {avg_score:.0f}")
     if raws_data:
         if chart_type != "日历热度图":
             with tab1:

@@ -79,6 +79,11 @@
 					"label": "get_weather_aqi"
 				},
 				{
+					"line": 1856,
+					"column": 30,
+					"label": "中位数及平均值图"
+				},
+				{
 					"line": 1894,
 					"column": 30,
 					"label": "camera_capture"
