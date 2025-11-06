@@ -1171,7 +1171,7 @@ def manual_input():
         items.append(row[0])
     task_date = col2.date_input('工作时间', value=datetime.date.today() - datetime.timedelta(days=1), min_value=datetime.date.today() - datetime.timedelta(days=st.session_state.max_pre_days), max_value="today")
     task_group = col3.selectbox('工作组别', items, index=None, accept_new_options=True)
-    task_score = col4.number_input("单项分值", min_value=5, max_value=600, value=10, step=1)
+    task_score = col4.number_input("单项分值", min_value=5, max_value=1500, value=10, step=1)
     if st.session_state.userType == 'admin':
         with col1:
             flag_add_pa = sac.switch("加入固定列表", value=False, align="start", on_label="On")
@@ -1322,7 +1322,7 @@ def task_modify():
                 modify_max_value = pa_share_results[1] + pa_share_results[2]
             else:
                 modify_min_value = st.session_state.max_deduct_score
-                modify_max_value = 1000
+                modify_max_value = 1500
             #st.write(org_score, modify_max_value, modify_min_value)
             modify_content = form[0].text_area("请输入修改后的内容", value=org_work, height=100)
             modify_score = form[1].number_input(f"请输入修改后的分值, 最大值{modify_max_value}", min_value=modify_min_value, max_value=modify_max_value, value=org_score, step=1)
