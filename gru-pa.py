@@ -1435,11 +1435,14 @@ def check_data():
             temp_date = query_date_start + datetime.timedelta(days=i)
             sql = f"SELECT clerk_work, clerk_cname FROM clerk_work WHERE clerk_work like '%安防巡检、记录、卫生）' AND task_date = '{temp_date}'"
             result = execute_sql(cur, sql)
-            if len(result) > 2:
+            if len(result) != 2:
                 flag_all_check = False
-                st.markdown(f"##### :red[日期: {temp_date} 输油状态错误, 请检查记录!]")
-                for row in result:
-                    st.markdown(f"###### 姓名: {row[1]} 工作内容: {row[0]}")
+                if len(result) > 2:
+                    st.markdown(f"##### :red[日期: {temp_date} 输油状态数量大于值班人数, 请检查记录!]")
+                    for row in result:
+                        st.markdown(f"###### 姓名: {row[1]} 工作内容: {row[0]}")
+                else:
+                    st.markdown(f"##### :red[日期: {temp_date} 缺少当日输油状态, 请检查记录!]")
                 st.divider()
         if flag_all_check:
             st.success("数据检查通过!")
