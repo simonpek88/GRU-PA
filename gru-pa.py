@@ -2430,7 +2430,7 @@ def get_weather_aqi(city_code):
         wcol[0].metric(label='空气质量', value=f"AQI: {weather_aqi['aqi']}")
         wcol[1].metric(label='空气等级', value=f"等级: {weather_aqi['category']}")
         wcol[2].metric(label='质量等级', value=f"{weather_aqi['level']} 级")
-        if weather_aqi['primaryPollutant']:
+        if weather_aqi['primaryPollutant'] and weather_aqi['primaryPollutant_vu']:
             wcol[3].metric(label='主要污染物', value=f"{weather_aqi['primaryPollutant']} {weather_aqi['primaryPollutant_vu']['value']}  {weather_aqi['primaryPollutant_vu']['unit'].replace('m3', 'm³')}")
         pollutants_col = st.columns(6)
         for each in weather_aqi['sub_pollutants']:
@@ -3092,10 +3092,7 @@ def system_setup():
         insert_sql = f"INSERT INTO system_setup(StationCN, param_name, param_value, param_cname) SELECT '{st.session_state.StationCN}', param_name, param_value, param_cname from system_setup where StationCN = '北京站'"
         execute_sql_and_commit(conn, cur, insert_sql)
     results = execute_sql(cur, sql)
-    if len(results) <= 8:
-        col_limit = len(results)
-    else:
-        col_limit = 8
+    col_limit = len(results) if len(results) <= 10 else 10
     col = st.columns(col_limit)
     col_index = 0
     for each in results:
@@ -3958,16 +3955,6 @@ elif st.session_state.logged_in:
                     sac.MenuItem('许可证', icon='card-text'),
                 ]),
             ], open_index=[1, 2], index=st.session_state.menu_index)
-            st.divider()
-            tempUserCName = []
-            sql = f"SELECT userCName from users where StationCN = '{st.session_state.StationCN}' and userType <> 'readonly'"
-            results = execute_sql(cur, sql)
-            for row in results:
-                tempUserCName.append(row[0])
-            temp_user_CName = st.session_state.userCName
-            temp_user_CName = st.selectbox('用户切换', tempUserCName, index=tempUserCName.index(st.session_state.userCName))
-            if temp_user_CName != st.session_state.userCName:
-                switch_user(temp_user_CName)
         elif st.session_state.userType in ["user"]:
             selected = sac.menu([
                 sac.MenuItem('公告', icon=notice_icon),
@@ -4000,7 +3987,17 @@ elif st.session_state.logged_in:
                     sac.MenuItem('许可证', icon='card-text'),
                 ]),
             ], open_index=[1, 2], index=st.session_state.menu_index)
-            st.divider()
+        st.divider()
+        if st.session_state.dba:
+            tempUserCName = []
+            sql = f"SELECT userCName from users where StationCN = '{st.session_state.StationCN}' and userType <> 'readonly'"
+            results = execute_sql(cur, sql)
+            for row in results:
+                tempUserCName.append(row[0])
+            temp_user_CName = st.session_state.userCName
+            temp_user_CName = st.selectbox('用户切换', tempUserCName, index=tempUserCName.index(st.session_state.userCName))
+            if temp_user_CName != st.session_state.userCName:
+                switch_user(temp_user_CName)
         st.image(f'./Images/badges/{APPNAME_EN}-badge.svg')
         st.image(f'./Images/badges/{APPNAME_EN}-lm-badge.svg')
     if selected == "公告":
