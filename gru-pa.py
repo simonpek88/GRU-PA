@@ -3352,94 +3352,91 @@ def temp_func():
     pass
 
 
-def get_current_month_range():
+def get_month_range(calc_date=None):
     """
     获取当月第一天和最后一天
 
     Returns:
         tuple: (当月第一天, 当月最后一天)
     """
-    today = datetime.date.today()
+    if calc_date:
+        today = datetime.datetime.strptime(calc_date, '%Y-%m-%d')
+    else:
+        today = datetime.date.today()
     first_day = today.replace(day=1)
     last_day = today.replace(day=calendar.monthrange(today.year, today.month)[1])
 
     return first_day, last_day
 
-def get_previous_month_range():
-    """
-    获取上个月第一天和最后一天
-
-    Returns:
-        tuple: (上月第一天, 上月最后一天)
-    """
-    today = datetime.date.today()
-    # 获取当月第一天
-    first_day_current_month = today.replace(day=1)
-    # 上个月最后一天是当月第一天的前一天
-    last_day_previous_month = first_day_current_month - datetime.timedelta(days=1)
-    # 上个月第一天
-    first_day_previous_month = last_day_previous_month.replace(day=1)
-
-    return first_day_previous_month, last_day_previous_month
-
 
 def gen_statist_metric():
     st.subheader("卡片图 - 月环比", divider="blue")
-    query_userID, query_userCName = [], []
-    current_first, current_last = get_current_month_range()
-    previous_first, previous_last = get_previous_month_range()
-    if st.session_state.userType == 'admin':
-        sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa <> 0 order by login_counter DESC, userCName"
-        rows = execute_sql(cur, sql)
-        for row in rows:
-            query_userID.append(row[0])
-            query_userCName.append(row[1])
-    else:
-        st.markdown(f"##### 当前用户: :blue[{st.session_state.userCName}]")
-        query_userID.append(st.session_state.userID)
-        query_userCName.append(st.session_state.userCName)
-    for index, value in enumerate(query_userID):
-        cur_sum_score, cur_avg_score, cur_task_count, cur_avg_task_count = 0, 0.0, 0, 0.0
-        last_sum_score, last_avg_score, last_task_count, last_avg_task_count = 0, 0.0, 0, 0.0
-        sql = f"SELECT SUM(task_score), AVG(task_score), Count(ID) FROM clerk_work WHERE clerk_id = {value} and StationCN = '{st.session_state.StationCN}' and task_date >= '{current_first}' and task_date <= '{current_last}'"
-        result = execute_sql(cur, sql)[0]
-        if result[0]:
-            cur_sum_score = int(result[0])
-            cur_avg_score = float(result[1])
-            cur_task_count = int(result[2])
-            sql = f"SELECT Count(task_date) FROM clerk_work where clerk_id = {value} and task_date >= '{current_first}' and task_date <= '{current_last}' and StationCN = '{st.session_state.StationCN}' GROUP BY task_date"
-            result = execute_sql(cur, sql)
-            if result:
-                cur_avg_task_count = round(cur_task_count / len(result), 1)
+    query_userID, query_userCName, task_year_month = [], [], []
+    sql = "SELECT DATE_FORMAT(task_date, '%Y-%m') AS task_year_month FROM clerk_work GROUP BY DATE_FORMAT(task_date, '%Y-%m') order by task_year_month DESC"
+    results = execute_sql(cur, sql)
+    for result in results:
+        task_year_month.append(result[0])
+    query_year_month = st.columns(4)
+    year_month_1 = query_year_month[0].selectbox("选择年月(基线)", task_year_month, index=1, key="query_year_month_1")
+    year_month_2 = query_year_month[1].selectbox("选择年月", task_year_month, index=0, key="query_year_month_2")
+    query_ym_btn_confirm = st.button("查询")
+    if query_ym_btn_confirm and year_month_1 != year_month_2:
+        previous_first, previous_last = get_month_range(year_month_1 + '-01')
+        current_first, current_last = get_month_range(year_month_2 + '-01')
+        if st.session_state.userType == 'admin':
+            sql = f"SELECT userID, userCName from users where StationCN = '{st.session_state.StationCN}' and clerk_pa <> 0 order by login_counter DESC, userCName"
+            rows = execute_sql(cur, sql)
+            for row in rows:
+                query_userID.append(row[0])
+                query_userCName.append(row[1])
         else:
-            cur_sum_score = 0
-            cur_avg_score = 0.0
-            cur_task_count = 0
-            cur_avg_task_count = 0
-        sql = f"SELECT SUM(task_score), AVG(task_score), Count(ID) FROM clerk_work WHERE clerk_id = {value} and StationCN = '{st.session_state.StationCN}' and task_date >= '{previous_first}' and task_date <= '{previous_last}'"
-        result2 = execute_sql(cur, sql)[0]
-        if result2[0]:
-            last_sum_score = int(result2[0])
-            last_avg_score = float(result2[1])
-            last_task_count = int(result2[2])
-            sql = f"SELECT Count(task_date) FROM clerk_work where clerk_id = {value} and task_date >= '{previous_first}' and task_date <= '{previous_last}' and StationCN = '{st.session_state.StationCN}' GROUP BY task_date"
-            result2 = execute_sql(cur, sql)
-            if result2:
-                last_avg_task_count = round(last_task_count / len(result2), 1)
-        else:
-            last_sum_score = 1
-            last_avg_score = 1.0
-            last_task_count = 1
-            last_avg_task_count = 1.0
-        st.markdown(f"##### {query_userCName[index]}")
-        col = st.columns(4)
-        col[0].metric(label="总分", value=cur_sum_score, delta=f"{round((cur_sum_score - last_sum_score) / last_sum_score * 100, 1)}%", delta_color="inverse")
-        col[1].metric(label="平均分", value=round(cur_avg_score, 1), delta=f"{round((cur_avg_score - last_avg_score) / last_avg_score * 100, 1)}%", delta_color="inverse")
-        col[2].metric(label="工作项", value=cur_task_count, delta=f"{round((cur_task_count - last_task_count) / last_task_count * 100, 1)}%", delta_color="inverse")
-        col[3].metric(label="每班工作项", value=cur_avg_task_count, delta=f"{round((cur_avg_task_count - last_avg_task_count) / last_avg_task_count * 100, 1)}%", delta_color="inverse")
-        # 设置度量卡片的样式
-        style_metric_cards(border_left_color="#da3d3d")
-        #style_metric_cards(border_left_color="#5952d6")
+            st.markdown(f"##### 当前用户: :blue[{st.session_state.userCName}]")
+            query_userID.append(st.session_state.userID)
+            query_userCName.append(st.session_state.userCName)
+        for index, value in enumerate(query_userID):
+            cur_sum_score, cur_avg_score, cur_task_count, cur_avg_task_count = 0, 0.0, 0, 0.0
+            last_sum_score, last_avg_score, last_task_count, last_avg_task_count = 0, 0.0, 0, 0.0
+            sql = f"SELECT SUM(task_score), AVG(task_score), Count(ID) FROM clerk_work WHERE clerk_id = {value} and StationCN = '{st.session_state.StationCN}' and task_date >= '{current_first}' and task_date <= '{current_last}'"
+            result = execute_sql(cur, sql)[0]
+            if result[0]:
+                cur_sum_score = int(result[0])
+                cur_avg_score = float(result[1])
+                cur_task_count = int(result[2])
+                sql = f"SELECT Count(task_date) FROM clerk_work where clerk_id = {value} and task_date >= '{current_first}' and task_date <= '{current_last}' and StationCN = '{st.session_state.StationCN}' GROUP BY task_date"
+                result = execute_sql(cur, sql)
+                if result:
+                    cur_avg_task_count = round(cur_task_count / len(result), 1)
+            else:
+                cur_sum_score = 0
+                cur_avg_score = 0.0
+                cur_task_count = 0
+                cur_avg_task_count = 0
+            sql = f"SELECT SUM(task_score), AVG(task_score), Count(ID) FROM clerk_work WHERE clerk_id = {value} and StationCN = '{st.session_state.StationCN}' and task_date >= '{previous_first}' and task_date <= '{previous_last}'"
+            result2 = execute_sql(cur, sql)[0]
+            if result2[0]:
+                last_sum_score = int(result2[0])
+                last_avg_score = float(result2[1])
+                last_task_count = int(result2[2])
+                sql = f"SELECT Count(task_date) FROM clerk_work where clerk_id = {value} and task_date >= '{previous_first}' and task_date <= '{previous_last}' and StationCN = '{st.session_state.StationCN}' GROUP BY task_date"
+                result2 = execute_sql(cur, sql)
+                if result2:
+                    last_avg_task_count = round(last_task_count / len(result2), 1)
+            else:
+                last_sum_score = 1
+                last_avg_score = 1.0
+                last_task_count = 1
+                last_avg_task_count = 1.0
+            st.markdown(f"##### {query_userCName[index]}")
+            col = st.columns(4)
+            col[0].metric(label="总分", value=cur_sum_score, delta=f"{round((cur_sum_score - last_sum_score) / last_sum_score * 100, 1)}%", delta_color="inverse")
+            col[1].metric(label="平均分", value=round(cur_avg_score, 1), delta=f"{round((cur_avg_score - last_avg_score) / last_avg_score * 100, 1)}%", delta_color="inverse")
+            col[2].metric(label="工作项", value=cur_task_count, delta=f"{round((cur_task_count - last_task_count) / last_task_count * 100, 1)}%", delta_color="inverse")
+            col[3].metric(label="每班工作项", value=cur_avg_task_count, delta=f"{round((cur_avg_task_count - last_avg_task_count) / last_avg_task_count * 100, 1)}%", delta_color="inverse")
+            # 设置度量卡片的样式
+            style_metric_cards(border_left_color="#da3d3d")
+            #style_metric_cards(border_left_color="#5952d6")
+    elif year_month_1 == year_month_2:
+        st.warning("请选择不同的年月")
 
 
 def dyna_display_note(note_file):
@@ -3480,7 +3477,7 @@ def get_extra_oto2():
             execute_sql_and_commit(conn, cur, sql)
 
     oto_date_pack = []
-    #start_date = get_current_month_range()[0]
+    #start_date = get_month_range()[0]
     start_date = cal_date(-45)
     end_date = datetime.date.today()
     sql = f"SELECT task_date from clerk_work where oto_check = 0 and task_date >= '{start_date}' and task_date <= '{end_date}' and clerk_work = '值班（输油作业，包括安防巡检、记录、卫生）' and StationCN = '{st.session_state.StationCN}' and clerk_id = {st.session_state.userID} order by task_date"

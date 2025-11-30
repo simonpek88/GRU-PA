@@ -129,14 +129,14 @@
 					"label": "system_setup"
 				},
 				{
-					"line": 3304,
-					"column": 25,
-					"label": "gen_statist_metric"
-				},
-				{
 					"line": 3319,
 					"column": 22,
 					"label": "duty_statistics"
+				},
+				{
+					"line": 3385,
+					"column": 25,
+					"label": "月环比"
 				},
 				{
 					"line": 3563,

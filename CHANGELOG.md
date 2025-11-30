@@ -47,6 +47,14 @@
 #### 📅 最新版本
 
 <details>
+<summary><strong>📦 版本 0.21.2149</strong> (2025-11-30) | <code>新增月环比日期选择</code></summary>
+
+- 📦 新增
+  - 新增月环比日期选择
+
+</details>
+
+<details>
 <summary><strong>🚀 版本 0.21.2146</strong> (2025-11-30) | <code>强化数据检查功能</code></summary>
 
 - 🚀 优化
