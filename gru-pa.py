@@ -1422,6 +1422,7 @@ def check_data():
         flag_all = sac.switch("全选", True)
     if confirm_btn_check:
         flag_all_check = True
+        oto_state = ['全天无输油作业', '输油但夜间停泵', '晚10点后输油']
         for index, value in enumerate(userID):
             sql = f"SELECT pa_content, min_days from gru_pa where StationCN = '{st.session_state.StationCN}' and min_days > 0 order by min_days DESC"
             rows = execute_sql(cur, sql)
@@ -1438,11 +1439,19 @@ def check_data():
             if len(result) != 2:
                 flag_all_check = False
                 if len(result) > 2:
-                    st.markdown(f"##### :red[日期: {temp_date} 输油状态数量大于值班人数, 请检查记录!]")
+                    st.markdown(f"##### 工作量表 :red[日期: {temp_date} 输油状态数量大于值班人数, 请检查记录!]")
                     for row in result:
                         st.markdown(f"###### 姓名: {row[1]} 工作内容: {row[0]}")
                 else:
                     st.markdown(f"##### :red[日期: {temp_date} 缺少当日输油状态, 请检查记录!]")
+                st.divider()
+            sql = f"SELECT clerk_cname, extra_oto FROM oto WHERE StationCN = '{st.session_state.StationCN}' and oto_date = '{temp_date}'"
+            result = execute_sql(cur, sql)
+            if len(result) != 2:
+                flag_all_check = False
+                st.markdown(f"##### 输油状态表 :red[日期: {temp_date} 输油状态数量与值班人数不符, 请检查记录!]")
+                for row in result:
+                    st.markdown(f"###### 姓名: {row[0]} 输油状态: {oto_state[row[1] + 1]}")
                 st.divider()
         if flag_all_check:
             st.success("数据检查通过!")
@@ -3844,6 +3853,14 @@ def work_report():
             st.error("生成报告失败")
 
 
+def switch_user(tempusercname):
+    sql = f"SELECT userID from users where userCName = '{tempusercname}' and StationCN = '{st.session_state.StationCN}'"
+    temp_result = execute_sql(cur, sql)
+    st.session_state.userID = temp_result[0][0]
+    st.session_state.userCName = tempusercname
+    st.rerun()
+
+
 global APPNAME_CN, APPNAME_EN, WEATHERICON, STATION_CITYNAME, JSON_FILE
 APPNAME_CN = "站室绩效考核系统 GRU-PA"
 APPNAME_EN = "GRU-PA"
@@ -3944,6 +3961,16 @@ elif st.session_state.logged_in:
                     sac.MenuItem('许可证', icon='card-text'),
                 ]),
             ], open_index=[1, 2], index=st.session_state.menu_index)
+            st.divider()
+            tempUserCName = []
+            sql = f"SELECT userCName from users where StationCN = '{st.session_state.StationCN}' and userType <> 'readonly'"
+            results = execute_sql(cur, sql)
+            for row in results:
+                tempUserCName.append(row[0])
+            temp_user_CName = st.session_state.userCName
+            temp_user_CName = st.selectbox('用户切换', tempUserCName, index=tempUserCName.index(st.session_state.userCName))
+            if temp_user_CName != st.session_state.userCName:
+                switch_user(temp_user_CName)
         elif st.session_state.userType in ["user"]:
             selected = sac.menu([
                 sac.MenuItem('公告', icon=notice_icon),
@@ -3976,7 +4003,7 @@ elif st.session_state.logged_in:
                     sac.MenuItem('许可证', icon='card-text'),
                 ]),
             ], open_index=[1, 2], index=st.session_state.menu_index)
-        st.divider()
+            st.divider()
         st.image(f'./Images/badges/{APPNAME_EN}-badge.svg')
         st.image(f'./Images/badges/{APPNAME_EN}-lm-badge.svg')
     if selected == "公告":

@@ -14,14 +14,14 @@
 					"label": "login"
 				},
 				{
-					"line": 145,
-					"column": 23,
-					"label": "login_init"
-				},
-				{
 					"line": 159,
 					"column": 21,
 					"label": "displayAppInfo"
+				},
+				{
+					"line": 168,
+					"column": 23,
+					"label": "login_init"
 				},
 				{
 					"line": 198,
@@ -142,6 +142,11 @@
 					"line": 3563,
 					"column": 18,
 					"label": "work_report"
+				},
+				{
+					"line": 3846,
+					"column": 31,
+					"label": "switch_user"
 				}
 			]
 		},
