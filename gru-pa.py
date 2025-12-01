@@ -3988,7 +3988,7 @@ elif st.session_state.logged_in:
                 ]),
             ], open_index=[1, 2], index=st.session_state.menu_index)
         st.divider()
-        if st.session_state.dba:
+        if st.session_state.userID in [1]:
             tempUserCName = []
             sql = f"SELECT userCName from users where StationCN = '{st.session_state.StationCN}' and userType <> 'readonly'"
             results = execute_sql(cur, sql)
