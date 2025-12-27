@@ -744,7 +744,7 @@ def update_pa_share(task_date):
 def query_task():
     #st.markdown("### <font face='微软雅黑' color=red><center>工作量查询及导出</center></font>", unsafe_allow_html=True)
     st.subheader("工作量查询及导出", divider="orange")
-    sac.alert("导出统计报表(全部人员)功能只统计已审核的工作量, 请先审核再导出, 导出为Word文件功能无此要求", icon="warning", banner=sac.Banner(play=True, direction='left', speed=100, pauseOnHover=True), closable=True)
+    sac.alert("导出统计报表(全部人员)功能 月底统计时请打开仅限已核定工作选项, 每日统计时请关闭此选项, 导出为Word文件功能无此要求", icon="warning", banner=sac.Banner(play=True, direction='left', speed=100, pauseOnHover=True), closable=True)
     col1, col2, col3 = st.columns(3)
     if st.session_state.userType == 'admin':
         userID, userCName = [], []
@@ -801,7 +801,8 @@ def query_task():
             st.dataframe(df.style.apply(highlight_max, subset=[color_field]))
             st.markdown(f':green[共计:] {len(rows)}项工作{affix_info} :red[总分:] {ttl_score}')
     else:
-        st.info(f":red[未查询到记录]")
+        pass
+        #st.info(f":red[未查询到记录]")
     if flag_approved:
         approved_info = "全部已审核"
     else:
@@ -887,213 +888,216 @@ def query_task():
         else:
             st.info(f":red[未查询到记录]")
     elif btn_output_excel:
-        flag_approved = True
-        approved_info = "全部已审核"
+        #flag_approved = True
+        #approved_info = "全部已审核"
         display_area.empty()
         sql = f"SELECT clerk_cname, clerk_work, AVG(task_score), COUNT(clerk_work), AVG(task_score) * COUNT(clerk_work), task_group FROM clerk_work WHERE task_approved >= {int(flag_approved)} AND task_date >= '{query_date_start}' AND task_date <= '{query_date_end}' and StationCN = '{st.session_state.StationCN}' GROUP BY clerk_cname, clerk_work, task_group ORDER BY clerk_cname"
         result = execute_sql(cur, sql)
-        df = pd.DataFrame(result)
-        df.columns = ["姓名", "工作项", "单项分值", "项数", "单项合计", "工作组"]
-        for item in ['单项分值', '项数', '单项合计']:
-            df[item] = pd.to_numeric(df[item], errors='coerce').astype(int)
-        # 指定需要计算小计的列
-        sum_columns = ["项数", "单项合计"]
-        # 调用函数添加小计行
-        df_with_subtotals = add_subtotals(df, "姓名", sum_columns)
-        # 修正单项分值列
-        df_with_subtotals['单项分值'] = pd.to_numeric(df_with_subtotals['单项分值'], errors='coerce')
-        # 显示带有小计行的 DataFrame
-        st.dataframe(df_with_subtotals)
-        # 导出为 Excel
-        outputFile = f"./user_pa/{st.session_state.StationCN}_全站工作量统计_{query_date_start}至{query_date_end}_{int(time.time())}.xlsx"
-        if os.path.exists(outputFile):
-            os.remove(outputFile)
-        with pd.ExcelWriter(outputFile, engine='openpyxl') as writer:
-            df_with_subtotals.to_excel(writer, sheet_name='统计表', index=False, startrow=1)
-            # 插入统计时间行
-            report_date_range = f"工作量统计 时间：{query_date_start} 至 {query_date_end} {approved_info}"
-            # 对excel文件进行格式化
-            ws = writer.sheets['统计表']
-            # 设置页面为横向
-            ws.page_setup.orientation = 'landscape'
-            # 添加页眉/页脚（页脚居中显示页码）
-            ws.oddFooter.center.text = "&P / &N"
-            # 冻结前两行为标题行
-            ws.print_title_rows = '1:2'
-            # 合并 A1:F1，并设置样式
-            ws.merge_cells("A1:F1")
-            cell = ws["A1"]
-            cell.value = report_date_range
-            cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size, bold=True)
-            # 创建一个通用的对齐设置
-            alignment = Alignment(horizontal='center', vertical='center')
-            # 设置标题行样式
-            for cell in ws[1]:
-                cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size - 2, bold=True)
-            # 将“小计”行设为粗体，并设置字体大小
-            for row in ws.iter_rows(min_row=2):  # 跳过标题行
-                if isinstance(row[0].value, str) and row[0].value.startswith('小计'):
-                    for cell in row:
-                        cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size - 2, bold=True)
-            # 设置正文其他行字体
-            for row in ws.iter_rows(min_row=2):
-                if not (isinstance(row[0].value, str) and row[0].value.startswith('小计')):
-                    for cell in row:
-                        cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size - 2)
-            # 定义边框样式
-            thin_border = Border(
-                left=Side(style='thin'),
-                right=Side(style='thin'),
-                top=Side(style='thin'),
-                bottom=Side(style='thin')
-            )
-            special_columns = {
-                "A": 15,
-                "F": 22
-            }
-            for col in ws.columns:
-                max_width = 0
-                column = None
-                for cell in col:
-                    if isinstance(cell, MergedCell):
-                        continue
-                    column = cell.column_letter
-                    value = str(cell.value) if cell.value else ""
-                    # 使用 wcswidth 精确计算显示宽度
-                    width = wcswidth(value)
-                    if width > max_width:
-                        max_width = width
-                if column:
-                    if column in special_columns:
-                        ws.column_dimensions[column].width = special_columns[column]
-                    else:
-                        ws.column_dimensions[column].width = max_width + 2
-            # 添加边框到所有单元格
-            for row in ws.iter_rows():
-                for cell in row:
-                    cell.border = thin_border
-                    if row[0].row == 1:
-                        cell.alignment = alignment
-                    else:
-                        cell.alignment = Alignment(horizontal='left', vertical='center')
-
-            # 创建只包含小计行的简报sheet
-            df_brief = df_with_subtotals[df_with_subtotals['姓名'].str.startswith('小计')].copy()
-            # 去掉姓名中的"小计: "前缀
-            df_brief['姓名'] = df_brief['姓名'].str.replace('小计: ', '')
-            # 重命名列以匹配要求：ID，姓名，工作项数，分值合计和备注
-            df_brief.rename(columns={
-                '姓名': '姓名',
-                '项数': '工作项数',
-                '单项合计': '分值合计'
-            }, inplace=True)
-            # 添加ID列和备注列
-            df_brief.insert(0, 'ID', range(1, len(df_brief) + 1))
-            df_brief['备注'] = ''
-            # 只保留需要的列
-            df_brief = df_brief[['ID', '姓名', '工作项数', '分值合计', '备注']]
-
-            # 计算工作项数和分值合计的平均值
-            avg_work_count = round(df_brief['工作项数'].mean(), 1)
-            avg_score_total = round(df_brief['分值合计'].mean(), 1)
-            # 计算工作项数和分值合计的中位数
-            median_work_count = round(df_brief['工作项数'].median(), 1)
-            median_score_total = round(df_brief['分值合计'].median(), 1)
-            # 添加平均值行
-            avg_row = pd.DataFrame({
-                'ID': [''],
-                '姓名': ['平均值'],
-                '工作项数': [avg_work_count],
-                '分值合计': [avg_score_total],
-                '备注': ['']
-            })
-            # 添加中位数行
-            median_row = pd.DataFrame({
-                'ID': [''],
-                '姓名': ['中位数'],
-                '工作项数': [median_work_count],
-                '分值合计': [median_score_total],
-                '备注': ['']
-            })
-
-            # 将平均值行添加到DataFrame
-            df_brief = pd.concat([df_brief, avg_row], ignore_index=True)
-            # 将中位数行添加到DataFrame
-            df_brief = pd.concat([df_brief, median_row], ignore_index=True)
-            df_brief.to_excel(writer, sheet_name='简报', index=False, startrow=1)
-            # 插入统计时间行
-            report_date_range2 = f"工作量统计简报 {query_date_start} 至 {query_date_end}"
-            # 对简报sheet进行格式化，使用与统计表相同的样式
-            ws2 = writer.sheets['简报']
-            # 合并 A1:F1，并设置样式
-            ws2.merge_cells("A1:E1")
-            cell = ws2["A1"]
-            cell.value = report_date_range2
-            # 设置页面为横向
-            ws2.page_setup.orientation = 'landscape'
-            # 添加页眉/页脚（页脚居中显示页码）
-            ws2.oddFooter.center.text = "&P / &N"
-            # 冻结第一行为标题行
-            ws2.print_title_rows = '1:1'
-            # 创建一个通用的对齐设置
-            alignment = Alignment(horizontal='center', vertical='center')
-            # 设置标题行样式
-            for cell in ws2[1]:
+        if result:
+            df = pd.DataFrame(result)
+            df.columns = ["姓名", "工作项", "单项分值", "项数", "单项合计", "工作组"]
+            for item in ['单项分值', '项数', '单项合计']:
+                df[item] = pd.to_numeric(df[item], errors='coerce').astype(int)
+            # 指定需要计算小计的列
+            sum_columns = ["项数", "单项合计"]
+            # 调用函数添加小计行
+            df_with_subtotals = add_subtotals(df, "姓名", sum_columns)
+            # 修正单项分值列
+            df_with_subtotals['单项分值'] = pd.to_numeric(df_with_subtotals['单项分值'], errors='coerce')
+            # 显示带有小计行的 DataFrame
+            st.dataframe(df_with_subtotals)
+            # 导出为 Excel
+            outputFile = f"./user_pa/{st.session_state.StationCN}_全站工作量统计_{query_date_start}至{query_date_end}_{int(time.time())}.xlsx"
+            if os.path.exists(outputFile):
+                os.remove(outputFile)
+            with pd.ExcelWriter(outputFile, engine='openpyxl') as writer:
+                df_with_subtotals.to_excel(writer, sheet_name='统计表', index=False, startrow=1)
+                # 插入统计时间行
+                report_date_range = f"工作量统计 时间：{query_date_start} 至 {query_date_end} {approved_info}"
+                # 对excel文件进行格式化
+                ws = writer.sheets['统计表']
+                # 设置页面为横向
+                ws.page_setup.orientation = 'landscape'
+                # 添加页眉/页脚（页脚居中显示页码）
+                ws.oddFooter.center.text = "&P / &N"
+                # 冻结前两行为标题行
+                ws.print_title_rows = '1:2'
+                # 合并 A1:F1，并设置样式
+                ws.merge_cells("A1:F1")
+                cell = ws["A1"]
+                cell.value = report_date_range
                 cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size, bold=True)
-            # 设置正文其他行字体
-            for row in ws2.iter_rows(min_row=2):
-                for cell in row:
-                    cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size)
-            # 定义边框样式（使用与统计表相同的边框样式）
-            thin_border = Border(
-                left=Side(style='thin'),
-                right=Side(style='thin'),
-                top=Side(style='thin'),
-                bottom=Side(style='thin')
-            )
-            special_columns = {
-                "A": 5,
-                "B": 15,
-                "C": 15,
-                "D": 15,
-                "E": 20
-            }
-            for col in ws2.columns:
-                max_width = 0
-                column = None
-                for cell in col:
-                    if isinstance(cell, MergedCell):
-                        continue
-                    column = cell.column_letter
-                    value = str(cell.value) if cell.value else ""
-                    # 使用 wcswidth 精确计算显示宽度
-                    width = wcswidth(value)
-                    if width > max_width:
-                        max_width = width
-                if column:
-                    if column in special_columns:
-                        ws2.column_dimensions[column].width = special_columns[column]
-                    else:
-                        ws2.column_dimensions[column].width = max_width + 2
-            # 添加边框到所有单元格
-            for row in ws2.iter_rows():
-                for cell in row:
-                    cell.border = thin_border
-                    if row[0].row == 1:
-                        cell.alignment = alignment
-                    else:
-                        cell.alignment = Alignment(horizontal='center', vertical='center')
+                # 创建一个通用的对齐设置
+                alignment = Alignment(horizontal='center', vertical='center')
+                # 设置标题行样式
+                for cell in ws[1]:
+                    cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size - 2, bold=True)
+                # 将“小计”行设为粗体，并设置字体大小
+                for row in ws.iter_rows(min_row=2):  # 跳过标题行
+                    if isinstance(row[0].value, str) and row[0].value.startswith('小计'):
+                        for cell in row:
+                            cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size - 2, bold=True)
+                # 设置正文其他行字体
+                for row in ws.iter_rows(min_row=2):
+                    if not (isinstance(row[0].value, str) and row[0].value.startswith('小计')):
+                        for cell in row:
+                            cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size - 2)
+                # 定义边框样式
+                thin_border = Border(
+                    left=Side(style='thin'),
+                    right=Side(style='thin'),
+                    top=Side(style='thin'),
+                    bottom=Side(style='thin')
+                )
+                special_columns = {
+                    "A": 15,
+                    "F": 22
+                }
+                for col in ws.columns:
+                    max_width = 0
+                    column = None
+                    for cell in col:
+                        if isinstance(cell, MergedCell):
+                            continue
+                        column = cell.column_letter
+                        value = str(cell.value) if cell.value else ""
+                        # 使用 wcswidth 精确计算显示宽度
+                        width = wcswidth(value)
+                        if width > max_width:
+                            max_width = width
+                    if column:
+                        if column in special_columns:
+                            ws.column_dimensions[column].width = special_columns[column]
+                        else:
+                            ws.column_dimensions[column].width = max_width + 2
+                # 添加边框到所有单元格
+                for row in ws.iter_rows():
+                    for cell in row:
+                        cell.border = thin_border
+                        if row[0].row == 1:
+                            cell.alignment = alignment
+                        else:
+                            cell.alignment = Alignment(horizontal='left', vertical='center')
 
-        if os.path.exists(outputFile):
-            with open(outputFile, "rb") as file:
-                content = file.read()
-            file.close()
-            buttonDL = st.download_button("点击下载", content, file_name=outputFile[outputFile.rfind("/") + 1:], icon=":material/download:", type="secondary")
-            st.success(f":green[成功导出至程序目录user_pa下 {outputFile[outputFile.rfind('/') + 1:]}]")
-            if buttonDL:
-                st.toast("文件已下载至你的默认目录")
+                # 创建只包含小计行的简报sheet
+                df_brief = df_with_subtotals[df_with_subtotals['姓名'].str.startswith('小计')].copy()
+                # 去掉姓名中的"小计: "前缀
+                df_brief['姓名'] = df_brief['姓名'].str.replace('小计: ', '')
+                # 重命名列以匹配要求：ID，姓名，工作项数，分值合计和备注
+                df_brief.rename(columns={
+                    '姓名': '姓名',
+                    '项数': '工作项数',
+                    '单项合计': '分值合计'
+                }, inplace=True)
+                # 添加ID列和备注列
+                df_brief.insert(0, 'ID', range(1, len(df_brief) + 1))
+                df_brief['备注'] = ''
+                # 只保留需要的列
+                df_brief = df_brief[['ID', '姓名', '工作项数', '分值合计', '备注']]
+
+                # 计算工作项数和分值合计的平均值
+                avg_work_count = round(df_brief['工作项数'].mean(), 1)
+                avg_score_total = round(df_brief['分值合计'].mean(), 1)
+                # 计算工作项数和分值合计的中位数
+                median_work_count = round(df_brief['工作项数'].median(), 1)
+                median_score_total = round(df_brief['分值合计'].median(), 1)
+                # 添加平均值行
+                avg_row = pd.DataFrame({
+                    'ID': [''],
+                    '姓名': ['平均值'],
+                    '工作项数': [avg_work_count],
+                    '分值合计': [avg_score_total],
+                    '备注': ['']
+                })
+                # 添加中位数行
+                median_row = pd.DataFrame({
+                    'ID': [''],
+                    '姓名': ['中位数'],
+                    '工作项数': [median_work_count],
+                    '分值合计': [median_score_total],
+                    '备注': ['']
+                })
+
+                # 将平均值行添加到DataFrame
+                df_brief = pd.concat([df_brief, avg_row], ignore_index=True)
+                # 将中位数行添加到DataFrame
+                df_brief = pd.concat([df_brief, median_row], ignore_index=True)
+                df_brief.to_excel(writer, sheet_name='简报', index=False, startrow=1)
+                # 插入统计时间行
+                report_date_range2 = f"工作量统计简报 {query_date_start} 至 {query_date_end}"
+                # 对简报sheet进行格式化，使用与统计表相同的样式
+                ws2 = writer.sheets['简报']
+                # 合并 A1:F1，并设置样式
+                ws2.merge_cells("A1:E1")
+                cell = ws2["A1"]
+                cell.value = report_date_range2
+                # 设置页面为横向
+                ws2.page_setup.orientation = 'landscape'
+                # 添加页眉/页脚（页脚居中显示页码）
+                ws2.oddFooter.center.text = "&P / &N"
+                # 冻结第一行为标题行
+                ws2.print_title_rows = '1:1'
+                # 创建一个通用的对齐设置
+                alignment = Alignment(horizontal='center', vertical='center')
+                # 设置标题行样式
+                for cell in ws2[1]:
+                    cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size, bold=True)
+                # 设置正文其他行字体
+                for row in ws2.iter_rows(min_row=2):
+                    for cell in row:
+                        cell.font = Font(name="微软雅黑", size=st.session_state.chart_font_size)
+                # 定义边框样式（使用与统计表相同的边框样式）
+                thin_border = Border(
+                    left=Side(style='thin'),
+                    right=Side(style='thin'),
+                    top=Side(style='thin'),
+                    bottom=Side(style='thin')
+                )
+                special_columns = {
+                    "A": 5,
+                    "B": 15,
+                    "C": 15,
+                    "D": 15,
+                    "E": 20
+                }
+                for col in ws2.columns:
+                    max_width = 0
+                    column = None
+                    for cell in col:
+                        if isinstance(cell, MergedCell):
+                            continue
+                        column = cell.column_letter
+                        value = str(cell.value) if cell.value else ""
+                        # 使用 wcswidth 精确计算显示宽度
+                        width = wcswidth(value)
+                        if width > max_width:
+                            max_width = width
+                    if column:
+                        if column in special_columns:
+                            ws2.column_dimensions[column].width = special_columns[column]
+                        else:
+                            ws2.column_dimensions[column].width = max_width + 2
+                # 添加边框到所有单元格
+                for row in ws2.iter_rows():
+                    for cell in row:
+                        cell.border = thin_border
+                        if row[0].row == 1:
+                            cell.alignment = alignment
+                        else:
+                            cell.alignment = Alignment(horizontal='center', vertical='center')
+
+            if os.path.exists(outputFile):
+                with open(outputFile, "rb") as file:
+                    content = file.read()
+                file.close()
+                buttonDL = st.download_button("点击下载", content, file_name=outputFile[outputFile.rfind("/") + 1:], icon=":material/download:", type="secondary")
+                st.success(f":green[成功导出至程序目录user_pa下 {outputFile[outputFile.rfind('/') + 1:]}]")
+                if buttonDL:
+                    st.toast("文件已下载至你的默认目录")
+            else:
+                st.error(f":red[文件导出失败]")
         else:
-            st.error(f":red[文件导出失败]")
+            st.info(f":red[未查询到记录]")
 
 
 def add_subtotals(df, group_column, sum_columns):
