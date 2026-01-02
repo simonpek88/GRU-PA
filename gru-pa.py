@@ -304,8 +304,8 @@ def get_extra_oto():
 def add_extra_oto(task_date):
     st.markdown(f"### :blue[{task_date}] :red[晚10点后是否输油]")
     btn_col = st.columns(2)
-    btn_extra_yes = btn_col[0].button("是", key="confirm_add_extra_oto", icon=":material/add_task:", use_container_width=True)
-    btn_extra_not = btn_col[1].button("不是", key="cancel_add_extra_oto", icon=":material/cancel:", use_container_width=True)
+    btn_extra_yes = btn_col[0].button("是", key="confirm_add_extra_oto", icon=":material/add_task:", width='stretch')
+    btn_extra_not = btn_col[1].button("不是", key="cancel_add_extra_oto", icon=":material/cancel:", width='stretch')
     if btn_extra_yes or btn_extra_not:
         if btn_extra_yes:
             flag_extra_oto = 1
@@ -481,8 +481,8 @@ def get_md_task_status(task_date, userID, task_content):
 def confirm_add_task(task_date):
     st.markdown(f"### :red[请确认添加日期为: {task_date}]")
     btn_col = st.columns(2)
-    btn_confirm = btn_col[0].button("确认", key="confirm_add_task", icon=":material/add_task:", use_container_width=True)
-    btn_cancel = btn_col[1].button("取消", key="cancel_add_task", icon=":material/cancel:", use_container_width=True)
+    btn_confirm = btn_col[0].button("确认", key="confirm_add_task", icon=":material/add_task:", width='stretch')
+    btn_cancel = btn_col[1].button("取消", key="cancel_add_task", icon=":material/cancel:", width='stretch')
     if btn_confirm or btn_cancel:
         su_info, err_info = [], []
         if btn_confirm:
@@ -1468,7 +1468,7 @@ def check_data():
         if result:
             for row in result:
                 task_pack.append(f'{str(row[2])[5:]} {row[1]} {row[5]} 内容:{row[3]} 分值:{row[4]} ID:{row[0]}')
-            approve_pack = sac.transfer(items=task_pack, label='工作量核定', titles=['项目'], reload=True, align='center', search=True, pagination=True, use_container_width=True)
+            approve_pack = sac.transfer(items=task_pack, label='工作量核定', titles=['项目'], reload=True, align='center', search=True, pagination=True, width='stretch')
             if confirm_btn_approv and approve_pack:
                 for each in approve_pack:
                     approve_id = each[each.rfind('ID:') + 3:].strip()
@@ -1918,7 +1918,7 @@ def gen_chart():
         if chart_type != "日历热度图":
             with tab1:
                 with charArea.container(border=True):
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, width='stretch')
         tab2.write(df)
     else:
         st.info("未查询到记录")
@@ -2201,7 +2201,7 @@ def plot_wind_speed_curve(hourly_data1, hourly_data2):
     # 显示图表
     chart = st.empty()
     with chart.container(border=True):
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
 
 def plot_data_curve(hourly_data):
@@ -2217,7 +2217,7 @@ def plot_data_curve(hourly_data):
     # 显示图表
     chart = st.empty()
     with chart.container(border=True):
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
 
 def display_weather_hf(city_code):
@@ -3059,7 +3059,7 @@ def face_recognize_verify(stationCN):
                 if os.path.exists(cap_file_point):
                     with img_col[1]:
                         st.write('面部识别点')
-                        st.image(cap_file_point, use_container_width=True)
+                        st.image(cap_file_point, width='stretch')
                 col_index = 0
                 if flag_update:
                     sql = f"UPDATE users_setup set param_value = {int(round(tolerance, 2) * 100)} where param_name = 'face_tolerance'"
@@ -3075,7 +3075,7 @@ def face_recognize_verify(stationCN):
                         img_file_result = cur.fetchone()
                         if img_file_result:
                             if os.path.exists(img_file_result[0]):
-                                info_col[col_index % 2].image(img_file_result[0], caption=f'上传时间:{img_file_result[1]}', use_container_width=True)
+                                info_col[col_index % 2].image(img_file_result[0], caption=f'上传时间:{img_file_result[1]}', width='stretch')
                             else:
                                 info_col[col_index % 2].write(f"图像文件: {img_file_result[0]} 不存在")
                         else:
@@ -3192,7 +3192,7 @@ def modify_task_group():
         rows = execute_sql(cur, sql)
         for row in rows:
             item_pack.append(f'{row[0]} ID:{row[1]}')
-        moved_pack = sac.transfer(items=item_pack, label='工作组别调整', titles=['项目'], reload=True, align='center', search=True, pagination=True, use_container_width=True)
+        moved_pack = sac.transfer(items=item_pack, label='工作组别调整', titles=['项目'], reload=True, align='center', search=True, pagination=True, width='stretch')
         if btn_modify and moved_pack:
             for each in moved_pack:
                 modify_id = each[each.rfind('ID:') + 3:].strip()
@@ -3496,8 +3496,8 @@ def add_extra_oto2(task_date_pack):
     for index, value in enumerate(task_date_pack):
         st.radio(f'{value}: ', ['是', '否'], key=f"add_extra_oto_{index}", horizontal=True)
     btn_col = st.columns(2)
-    btn_extra_yes = btn_col[0].button("确定", key="confirm_add_extra_oto_all", icon=":material/add_task:", use_container_width=True)
-    btn_extra_not = btn_col[1].button("取消", key="cancel_add_extra_oto_all", icon=":material/cancel:", use_container_width=True)
+    btn_extra_yes = btn_col[0].button("确定", key="confirm_add_extra_oto_all", icon=":material/add_task:", width='stretch')
+    btn_extra_not = btn_col[1].button("取消", key="cancel_add_extra_oto_all", icon=":material/cancel:", width='stretch')
     if btn_extra_yes or btn_extra_not:
         for key in st.session_state.keys():
             if key.startswith("add_extra_oto_"):
@@ -3838,7 +3838,7 @@ def work_report():
     result = execute_sql(cur, sql)
     for row in result:
         report_tasks.append(row[1])
-    report_tree = sac.transfer(items=report_tasks, label='非常规工作', titles=['项目'], reload=True, align='center', search=True, pagination=True, use_container_width=True)
+    report_tree = sac.transfer(items=report_tasks, label='非常规工作', titles=['项目'], reload=True, align='center', search=True, pagination=True, width='stretch')
     if btn_report:
         task_all = '\n\n'.join(report_tree)
         st.info("正在使用DeepSekk生成报告...")
@@ -3891,6 +3891,7 @@ elif st.session_state.login_webrtc:
         st.session_state.login_webrtc = False
         st.rerun()
 elif st.session_state.logged_in:
+    st.set_page_config(layout="wide")
     if bool(st.session_state.extra_oto) and st.session_state.task_clerk_type == 1 and st.session_state.get_extra_oto2:
         get_extra_oto2()
         st.session_state.get_extra_oto2 = False
