@@ -221,7 +221,7 @@ def login_init(result):
         with open(JSON_FILE, 'w', encoding='utf-8') as f:
             json.dump(file_records, f, ensure_ascii=False, indent=2)
     except Exception as e:
-        print(f"Failed to update visit counter in JSON file: {e}")
+        pass
 
     # 更新用户访问次数
     sql = f"UPDATE users set login_counter = login_counter + 1 where userID = {st.session_state.userID}"
@@ -488,7 +488,6 @@ def confirm_add_task(task_date):
         if btn_confirm:
             for key in st.session_state.keys():
                 if key.startswith("task_work_") and st.session_state[key]:
-                    #print(key, st.session_state[key])
                     temp_task_multi = 1
                     task_id = key[key.rfind("_") + 1:]
                     sql = f"SELECT pa_content, pa_score, task_group from gru_pa where ID = {task_id}"
@@ -1503,7 +1502,7 @@ def check_data():
                     with open(JSON_FILE, 'w', encoding='utf-8') as f:
                         json.dump(file_records, f, ensure_ascii=False, indent=2)
                 except Exception as e:
-                    print(f"Failed to update task approved counter in JSON file: {e}")
+                    pass
         else:
             st.markdown(f'###### :red[无任何记录]')
 
