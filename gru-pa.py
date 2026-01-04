@@ -1281,7 +1281,7 @@ def task_modify():
     ttl_score = 0
     st.markdown(f'##### 已输入工作量:')
     # 已核定工作量
-    sql = f"SELECT clerk_work, task_score, task_group, ID, task_approved from clerk_work where clerk_id = {query_userID} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' and task_approved = 1"
+    sql = f"SELECT clerk_work, task_score, task_group, ID, task_approved, task_date from clerk_work where clerk_id = {query_userID} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' and task_approved = 1"
     result = execute_sql(cur, sql)
     for row in result:
         user_task_id_pack.append(row[3])
@@ -1290,12 +1290,12 @@ def task_modify():
         with display_are.container():
             if result:
                 for row in result:
-                    st.write(f'ID:{row[3]} :violet[工作类型:] {row[2]} :orange[内容:] {row[0]} :green[分值:] {row[1]}')
+                    st.write(f'ID:{row[3]} :red[工作日期:] {row[5]} :violet[工作类型:] {row[2]} :orange[内容:] {row[0]} :green[分值:] {row[1]}')
                     ttl_score += row[1]
             else:
                 st.markdown(f'###### :red[未查询到记录]')
     # 未核定工作量
-    sql = f"SELECT clerk_work, task_score, task_group, ID, task_approved from clerk_work where clerk_id = {query_userID} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' and task_approved = 0"
+    sql = f"SELECT clerk_work, task_score, task_group, ID, task_approved, task_date from clerk_work where clerk_id = {query_userID} and task_date >= '{query_date_start}' and task_date <= '{query_date_end}' and task_approved = 0"
     result = execute_sql(cur, sql)
     for row in result:
         user_task_id_pack.append(row[3])
@@ -1304,7 +1304,7 @@ def task_modify():
         with display_are.container():
             if result:
                 for row in result:
-                    st.write(f'ID:{row[3]} :violet[工作类型:] {row[2]} :orange[内容:] {row[0]} :green[分值:] {row[1]}')
+                    st.write(f'ID:{row[3]} :red[工作日期:] {row[5]} :violet[工作类型:] {row[2]} :orange[内容:] {row[0]} :green[分值:] {row[1]}')
                     ttl_score += row[1]
             else:
                 st.markdown(f'###### :red[未查询到记录]')
